@@ -483,67 +483,92 @@ renderRows();
 <style id="dms-cs-style">
   /* Hide legacy sidebar */
   aside.w-\[260px\].bg-dms-mar { display: none !important; }
-  /* Override legacy main margin so it tracks the new sidebar */
-  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s; }
-  #dms-cs { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-  #dms-cs nav { scrollbar-width: thin; }
-  #dms-cs nav::-webkit-scrollbar { width: 4px; }
-  #dms-cs nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
-  #dms-cs a { white-space: nowrap; }
-  #dms-cs.collapsed .sb-label { display: none; }
-  #dms-cs.collapsed .sb-section { display: none; }
-  #dms-cs.collapsed .sb-brand-text { display: none; }
-  #dms-cs.collapsed nav a { justify-content: center; padding-left: 0; padding-right: 0; }
-  #dms-cs .sb-toggle { transition: transform .2s; }
-  #dms-cs.collapsed .sb-toggle { transform: rotate(180deg); }
+  /* Track new sidebar width on legacy main */
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.disabled { cursor: not-allowed; opacity: 0.5; }
+  #dms-sidebar a.disabled:hover { background: transparent; }
+  #dms-sidebar.collapsed .sb-label,
+  #dms-sidebar.collapsed .sb-section-title,
+  #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0; padding-right: 0; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
   @media (max-width: 767px) {
-    #dms-cs { transform: translateX(-100%); }
-    #dms-cs.mobile-open { transform: translateX(0); }
+    #dms-sidebar { transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
     .flex-1.ml-\[260px\] { margin-left: 0 !important; }
-    #dms-cs-mobile-btn { display: flex !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
   }
 </style>
 
-<button id="dms-cs-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
 </button>
 
-<aside id="dms-cs" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40 overflow-hidden" style="width:240px;">
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40 overflow-hidden" style="width:240px;">
   <div style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
     <div style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
     <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS Compras</span>
-    <button id="dms-cs-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.08); border:0; color:#fff; width:24px; height:24px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.08); border:0; color:#fff; width:24px; height:24px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center;">
       <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
     </button>
   </div>
 
   <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
     <div style="padding:14px 14px 6px;">
-      <p class="sb-section" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Dashboard</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">🎯</span><span class="sb-label">Cockpit</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Suppliers</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">📄</span><span class="sb-label">Contracts</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Requisitions</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Quotes</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">🛒</span><span class="sb-label">Purchase Orders</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Invoices</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Approvals</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Budget</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">🧮</span><span class="sb-label">Tax Simulator</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Repositories</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Financeiro</span></a></li>
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🎯</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Cockpit Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">To-Do</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Suppliers <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📄</span><span class="sb-label">Contracts <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Requisitions <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Quotes <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🛒</span><span class="sb-label">Purchase Orders <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Invoices <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Approvals <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Budget <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Financeiro <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
       </ul>
     </div>
-    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
-      <p class="sb-section" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">System</p>
+
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workflow Engine</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Administration</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">🏛️</span><span class="sb-label">Empresas</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">💵</span><span class="sb-label">Centros de Custo</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">📚</span><span class="sb-label">Plano de Contas</span></a></li>
-        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Regras de Match NF</span></a></li>
+        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Catálogo Tags</span></a></li>
+        <li><a href="tela02-tag-form.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Tag Form</span></a></li>
+        <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔄</span><span class="sb-label">Catálogo Workflows</span></a></li>
+        <li><a href="tela05-invalidate-modal.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">❌</span><span class="sb-label">Invalidate Modal</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📚</span><span class="sb-label">Biblioteca SOP</span></a></li>
+        <li><a href="tela07-editor-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✏️</span><span class="sb-label">Editor SOP</span></a></li>
+        <li><a href="tela08-builder-stage-trigger.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🎯</span><span class="sb-label">Stage Trigger</span></a></li>
+        <li><a href="tela09-builder-escalation-trigger.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚡</span><span class="sb-label">Escalation Trigger</span></a></li>
+        <li><a href="tela10-workflow-builder.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Workflow Builder</span></a></li>
+        <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👁️</span><span class="sb-label">Execution Visibility</span></a></li>
+        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">Audit Trail</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">System</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup &amp; Integrações</span></a></li>
+        <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🤖</span><span class="sb-label">MAILIA Admin</span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏛️</span><span class="sb-label">Empresas <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💵</span><span class="sb-label">Centros de Custo <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📚</span><span class="sb-label">Plano de Contas <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Regras Match NF <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
       </ul>
     </div>
   </nav>
@@ -551,22 +576,38 @@ renderRows();
 
 <script>
 (function(){
-  var sb = document.getElementById('dms-cs');
-  var toggle = document.getElementById('dms-cs-toggle');
-  var mobBtn = document.getElementById('dms-cs-mobile-btn');
-  function apply(c){
-    sb.style.width = c ? '60px' : '240px';
-    sb.classList.toggle('collapsed', c);
-    document.documentElement.style.setProperty('--dms-sb-w', (c?60:240)+'px');
+  var sb = document.getElementById('dms-sidebar');
+  var toggle = document.getElementById('sidebar-toggle');
+  var mobBtn = document.getElementById('dms-sidebar-mobile-btn');
+  if (!sb || !toggle) return;
+
+  // Bug 1 fix: explicit boolean state, not DOM inference
+  var collapsed = false;
+  try { collapsed = localStorage.getItem('mockup-sidebar-collapsed') === '1'; } catch(e) {}
+
+  function render(){
+    if (collapsed) {
+      sb.classList.add('collapsed');
+      sb.style.width = '60px';
+      document.documentElement.style.setProperty('--dms-sb-w', '60px');
+    } else {
+      sb.classList.remove('collapsed');
+      sb.style.width = '240px';
+      document.documentElement.style.setProperty('--dms-sb-w', '240px');
+    }
   }
-  var stored = localStorage.getItem('mockup-sidebar-collapsed') === '1';
-  apply(stored);
-  toggle && toggle.addEventListener('click', function(){
-    var c = !sb.classList.contains('collapsed');
-    apply(c);
-    try { localStorage.setItem('mockup-sidebar-collapsed', c?'1':'0'); } catch(e) {}
+
+  toggle.addEventListener('click', function(){
+    collapsed = !collapsed;
+    try { localStorage.setItem('mockup-sidebar-collapsed', collapsed ? '1' : '0'); } catch(e) {}
+    render();
   });
-  mobBtn && mobBtn.addEventListener('click', function(){ sb.classList.toggle('mobile-open'); });
+
+  if (mobBtn) {
+    mobBtn.addEventListener('click', function(){ sb.classList.toggle('mobile-open'); });
+  }
+
+  render();
 })();
 </script>
 <!-- ===== END DMS COLLAPSIBLE SIDEBAR ===== -->
