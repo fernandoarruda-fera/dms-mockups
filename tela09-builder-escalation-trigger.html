@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Builder Procedure (Escalation Trigger)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C', ceu: '#00AEEE', confianca: '#005290',
+          sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+  .sticky-sidebar { position: sticky; top: 88px; max-height: calc(100vh - 110px); overflow-y: auto; }
+  .card-ia { background: linear-gradient(135deg, rgba(100,53,133,0.05), rgba(0,174,238,0.05)); border-color: rgba(100,53,133,0.2); }
+  /* Bloco WHEN — Escalation usa sabedoria */
+  .block-when-esc { border-left: 3px solid #643585; background: rgba(100,53,133,0.04); }
+  /* Bloco THEN — verde */
+  .block-then { border-left: 3px solid #B0C934; background: rgba(176,201,52,0.04); }
+  /* Radio card (3 modos) */
+  .mode-card { transition: all 150ms ease; cursor: pointer; }
+  .mode-card.selected { border-color: #00386C; background: rgba(0,174,238,0.04); box-shadow: inset 0 0 0 1px #00386C; }
+  .mode-card .mode-icon { transition: all 150ms ease; }
+  .mode-card.selected .mode-icon { color: #00386C; }
+  /* Channel pill (multi-select) */
+  .channel-pill { transition: all 150ms ease; cursor: pointer; user-select: none; }
+  .channel-pill.selected { background: #00386C; color: white; border-color: #00386C; }
+  .channel-pill.selected svg { color: white; }
+  /* Narrativa */
+  .narrativa { font-size: 14px; line-height: 1.7; }
+  .narrativa .pill-tag { display: inline-block; background: rgba(0,174,238,0.15); color: #005290; padding: 1px 6px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .narrativa .pill-action { display: inline-block; background: rgba(176,201,52,0.15); color: #7A8F24; padding: 1px 6px; border-radius: 3px; font-weight: 600; font-size: 13px; }
+  .narrativa .pill-time { display: inline-block; background: rgba(220,38,38,0.10); color: #991B1B; padding: 1px 6px; border-radius: 3px; font-weight: 600; font-size: 13px; }
+  .narrativa .pill-stage { display: inline-block; background: rgba(100,53,133,0.10); color: #643585; padding: 1px 6px; border-radius: 3px; font-weight: 600; font-size: 13px; }
+  /* Flow */
+  .flow-step { border-left: 3px solid; padding: 8px 12px; background: #F8F9FA; border-radius: 4px; font-size: 13px; }
+  .flow-step.s1 { border-color: #643585; }
+  .flow-step.s2 { border-color: #EAB308; }
+  .flow-step.s3 { border-color: #00AEEE; }
+  .flow-step.s4 { border-color: #B0C934; }
+  .flow-arrow { text-align: center; color: #9CA3AF; font-size: 14px; padding: 2px 0; }
+  /* Checkbox custom */
+  .check-custom { width: 16px; height: 16px; border: 2px solid #9CA3AF; border-radius: 3px; cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; transition: all 150ms ease; }
+  .check-custom.checked { background: #00386C; border-color: #00386C; }
+  .check-custom.checked::after { content: '✓'; color: white; font-weight: 700; font-size: 11px; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+        <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
+      </div>
+      <div>
+        <div class="font-bold text-base leading-tight">DMS</div>
+        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
+      </div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+      <div class="caption text-white/40 px-6 mb-2">Workflow Builder</div>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        Catálogo de Tags
+      </a>
+      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Procedures
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Biblioteca SOP
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+        Catálogo de Workflows
+      </a>
+    </nav>
+    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">FA</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold truncate">Fernando Arruda</div>
+        <div class="text-xs text-white/60 truncate">Admin · DMS Log</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Workflow Builder</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Procedures</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Nova Procedure — Escalation</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <!-- PageHeader -->
+      <div class="flex items-start justify-between mb-6 gap-6">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-3 mb-2 flex-wrap">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Nova Procedure — Escalation</h1>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(0,174,238,0.15)] text-[#005290] ml-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-dms-ceu"></span>
+              Rascunho
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(100,53,133,0.10)] text-dms-sabedoria">
+              Escalation Trigger
+            </span>
+          </div>
+          <p class="text-sm text-dms-tecnologia">Criar regra de escalonamento operacional</p>
+        </div>
+        <div class="flex items-center gap-3 flex-shrink-0">
+          <a href="#" class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 transition-colors">Cancelar</a>
+          <button class="text-sm font-semibold text-dms-tecnologia px-4 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">Salvar rascunho</button>
+          <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Publicar</button>
+        </div>
+      </div>
+
+      <!-- IA Card -->
+      <div class="card-ia border rounded-lg p-4 mb-6 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 flex-1">
+          <div class="w-10 h-10 rounded-lg bg-dms-sabedoria/10 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-semibold text-dms-mar text-sm">Assistente IA — Procedure de Escalation</h3>
+            <p class="text-xs text-dms-tecnologia">A IA pode propor escalations baseado no contexto do stage, ou validar se a regra que você criou é consistente.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button class="flex items-center gap-2 text-sm font-semibold text-dms-sabedoria px-4 py-2 bg-white border border-dms-sabedoria/30 rounded-md hover:bg-dms-sabedoria/5 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Gerar pela IA
+          </button>
+          <button class="flex items-center gap-2 text-sm font-semibold text-white px-4 py-2 bg-dms-sabedoria rounded-md hover:opacity-90 transition-opacity">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            Validar com IA
+          </button>
+        </div>
+      </div>
+
+      <!-- GRID 2 COLUNAS -->
+      <div class="grid grid-cols-12 gap-6">
+
+        <!-- COLUNA PRINCIPAL -->
+        <div class="col-span-8 space-y-6">
+
+          <!-- METADADOS -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
+              <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+              <h2 class="text-lg font-semibold text-dms-mar">Metadados</h2>
+            </div>
+            <div class="p-6 space-y-5">
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Procedure Name <span class="text-red-500">*</span></label>
+                  <input id="f-name" type="text" value="Escalation — Aprovação Diretor pendente há 48h" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+                </div>
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Trigger Type <span class="text-red-500">*</span></label>
+                  <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                    <option selected>Escalation Trigger</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="caption text-dms-tecnologia mb-1.5 block">Description</label>
+                <textarea rows="2" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none">Quando uma requisição fica em "Aprovação Diretor" por mais de 48h sem decisão, escala automaticamente para o Head do departamento.</textarea>
+              </div>
+
+              <div>
+                <label class="caption text-dms-tecnologia mb-1.5 block">Applies To <span class="caption text-dms-tecnologia normal-case tracking-normal">(filtro UX)</span></label>
+                <input type="text" value="tipo_compra: todos · departamento: todos" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+              </div>
+
+            </div>
+          </div>
+
+          <!-- REGRA DE ESCALATION -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+                <h2 class="text-lg font-semibold text-dms-mar">Regra de Escalation</h2>
+              </div>
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(100,53,133,0.10)] text-dms-sabedoria">Escalation</span>
+            </div>
+
+            <div class="p-6 space-y-5">
+
+              <!-- BLOCO WHEN (Escalation) -->
+              <div class="block-when-esc rounded-md p-4">
+                <div class="caption text-dms-sabedoria mb-3 flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  When
+                </div>
+                <div class="grid grid-cols-4 gap-3 mb-3">
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1.5 block">Stage Monitorado</label>
+                    <select id="f-stage" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                      <option value="aprovacao_diretor" selected>Aprovação Diretor</option>
+                      <option value="aprovacao_gerente">Aprovação Gerente</option>
+                      <option value="aprovacao_coord">Aprovação Coordenador</option>
+                      <option value="validacao_nf">Validação NF</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1.5 block">Status</label>
+                    <select id="f-status" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                      <option value="delay" selected>está em Delay</option>
+                      <option value="warning">está em Warning</option>
+                      <option value="sla_excedido">SLA total excedido</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1.5 block">Tempo</label>
+                    <input id="f-tempo" type="number" value="48" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+                  </div>
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1.5 block">Unit</label>
+                    <select id="f-unit" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                      <option value="horas" selected>hours</option>
+                      <option value="minutos">minutos</option>
+                      <option value="dias">dias</option>
+                    </select>
+                  </div>
+                </div>
+
+                <label class="flex items-center gap-2 cursor-pointer text-sm" onclick="toggleSlaCheck(event)">
+                  <div id="sla-check" class="check-custom"></div>
+                  <span class="text-dms-mar">Aplicar apenas se SLA Cliente excedido (não SLA DMS)</span>
+                </label>
+              </div>
+
+              <!-- BLOCO THEN -->
+              <div class="block-then rounded-md p-4">
+                <div class="caption text-[#7A8F24] mb-3 flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  Then (Action)
+                </div>
+
+                <!-- 3 modos como radio cards -->
+                <div>
+                  <label class="caption text-dms-tecnologia mb-2 block">Modo de Escalation <span class="text-red-500">*</span></label>
+                  <div class="grid grid-cols-3 gap-3">
+                    <div onclick="selectMode('redirecionar')" id="mode-redirecionar" class="mode-card selected bg-white border border-[#E5E7EB] rounded-lg p-3">
+                      <div class="flex items-center gap-2 mb-1">
+                        <svg class="mode-icon w-4 h-4 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        <span class="font-semibold text-dms-mar text-sm">Redirecionar role</span>
+                      </div>
+                      <p class="text-xs text-dms-tecnologia leading-snug">Card sai da fila atual e vai pra outro responsável</p>
+                    </div>
+
+                    <div onclick="selectMode('adicionar')" id="mode-adicionar" class="mode-card bg-white border border-[#E5E7EB] rounded-lg p-3">
+                      <div class="flex items-center gap-2 mb-1">
+                        <svg class="mode-icon w-4 h-4 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                        <span class="font-semibold text-dms-mar text-sm">Adicionar responsável</span>
+                      </div>
+                      <p class="text-xs text-dms-tecnologia leading-snug">Card aparece para ambos (original + novo)</p>
+                    </div>
+
+                    <div onclick="selectMode('prioridade')" id="mode-prioridade" class="mode-card bg-white border border-[#E5E7EB] rounded-lg p-3">
+                      <div class="flex items-center gap-2 mb-1">
+                        <svg class="mode-icon w-4 h-4 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                        <span class="font-semibold text-dms-mar text-sm">Aumentar prioridade</span>
+                      </div>
+                      <p class="text-xs text-dms-tecnologia leading-snug">Mantém responsável, sobe pro topo</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Escalar para -->
+                <div id="escalate-section" class="mt-4 pt-4 border-t border-dms-tropicalidade/30 grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1.5 block">Escalar para — Tipo <span class="text-red-500">*</span></label>
+                    <select id="f-tipo-dest" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                      <option value="role" selected>Role / Cargo</option>
+                      <option value="usuario">Usuário específico</option>
+                      <option value="sucessor">Sucessor hierárquico</option>
+                      <option value="hierarquia">Próximo nível da hierarquia</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1.5 block">Destinatário <span class="text-red-500">*</span></label>
+                    <select id="f-dest" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                      <option value="head_departamento" selected>Head do Departamento</option>
+                      <option value="diretor_operacoes">Diretor de Operações</option>
+                      <option value="c_level">C-Level</option>
+                      <option value="gerente_compras">Gerente Compras</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Canais -->
+              <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded-md p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <label class="caption text-dms-tecnologia">Canais de notificação <span class="text-red-500">*</span></label>
+                  <span class="text-xs text-dms-tecnologia">Selecione 1 ou mais</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <div onclick="toggleChannel('cockpit', event)" id="ch-cockpit" class="channel-pill selected inline-flex items-center gap-2 px-3 py-1.5 border border-[#E5E7EB] rounded-full text-sm font-medium text-dms-mar bg-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+                    Card cockpit
+                  </div>
+                  <div onclick="toggleChannel('email', event)" id="ch-email" class="channel-pill selected inline-flex items-center gap-2 px-3 py-1.5 border border-[#E5E7EB] rounded-full text-sm font-medium text-dms-mar bg-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    E-mail
+                  </div>
+                  <div onclick="toggleChannel('whatsapp', event)" id="ch-whatsapp" class="channel-pill inline-flex items-center gap-2 px-3 py-1.5 border border-[#E5E7EB] rounded-full text-sm font-medium text-dms-mar bg-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    WhatsApp
+                  </div>
+                  <div onclick="toggleChannel('push', event)" id="ch-push" class="channel-pill inline-flex items-center gap-2 px-3 py-1.5 border border-[#E5E7EB] rounded-full text-sm font-medium text-dms-mar bg-white opacity-50 cursor-not-allowed" title="Push depende de app mobile (Fase 2)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    Push
+                    <span class="text-[10px] uppercase tracking-wider opacity-70">fase 2</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ========== SIDEBAR DIREITA — LIVE PREVIEW ========== -->
+        <aside class="col-span-4 sticky-sidebar self-start">
+          <div class="bg-white border-2 border-dms-sabedoria/30 rounded-lg shadow-dms-md overflow-hidden">
+
+            <div class="px-5 py-3 bg-gradient-to-r from-dms-sabedoria/5 to-dms-ceu/5 border-b border-[#E5E7EB] flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="relative flex h-2.5 w-2.5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-dms-sabedoria opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-dms-sabedoria"></span>
+                </span>
+                <h3 class="caption text-dms-mar font-semibold">Live Preview</h3>
+              </div>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[rgba(100,53,133,0.10)] text-dms-sabedoria">Escalation</span>
+            </div>
+
+            <div class="p-5 space-y-5">
+
+              <!-- Narrativa -->
+              <div>
+                <div class="caption text-dms-sabedoria mb-2">Quando</div>
+                <p class="narrativa text-dms-mar">
+                  o estágio <span class="pill-stage" id="np-stage">Aprovação Diretor</span> estiver em <span class="pill-time" id="np-status">Delay</span> por mais de <span class="pill-time" id="np-tempo">48 horas</span>,
+                </p>
+              </div>
+
+              <div>
+                <div class="caption text-[#7A8F24] mb-2">Então</div>
+                <p class="narrativa text-dms-mar">
+                  <span class="pill-action" id="np-mode">redirecionar</span> a tarefa para <span class="pill-stage" id="np-dest">Head do Departamento</span> via <span id="np-channels" class="font-semibold text-dms-confianca">card no cockpit + e-mail</span><span id="np-startstage-text">, iniciando o estágio <span class="pill-stage">Aprovação Head</span></span>.
+                </p>
+              </div>
+
+              <!-- Fluxo -->
+              <div class="pt-4 border-t border-[#E5E7EB]">
+                <div class="caption text-dms-tecnologia mb-3">Fluxo</div>
+                <div class="space-y-1">
+                  <div class="flow-step s1">
+                    <span class="font-semibold text-dms-sabedoria">1. SLA monitor</span> — Stage "<span id="diag-stage">Aprovação Diretor</span>" excedeu <span class="mono text-xs" id="diag-tempo">48h</span>
+                  </div>
+                  <div class="flow-arrow">↓</div>
+                  <div class="flow-step s2">
+                    <span class="font-semibold" style="color:#854D0E">2. Status check</span> — em <span id="diag-status">Delay</span>? ✓
+                  </div>
+                  <div class="flow-arrow">↓</div>
+                  <div class="flow-step s3">
+                    <span class="font-semibold text-dms-confianca">3. Resolve destinatário</span> — <span id="diag-dest">Head do Departamento</span>
+                  </div>
+                  <div class="flow-arrow">↓</div>
+                  <div class="flow-step s4">
+                    <span class="font-semibold" style="color:#7A8F24">4. Notify + <span id="diag-mode-action">Start stage</span></span> — <span id="diag-stage-new">Aprovação Head</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Canais visuais -->
+              <div class="pt-4 border-t border-[#E5E7EB]">
+                <div class="caption text-dms-tecnologia mb-2">Canais</div>
+                <div class="flex flex-wrap gap-1.5" id="preview-channels">
+                  <span class="inline-flex items-center gap-1 px-2 py-1 bg-dms-ceu/10 text-dms-confianca text-xs rounded-full font-medium">📋 Card cockpit</span>
+                  <span class="inline-flex items-center gap-1 px-2 py-1 bg-dms-ceu/10 text-dms-confianca text-xs rounded-full font-medium">✉️ E-mail</span>
+                </div>
+              </div>
+
+              <!-- Validação -->
+              <div class="pt-4 border-t border-[#E5E7EB]">
+                <div class="bg-[rgba(176,201,52,0.10)] border border-dms-tropicalidade/30 rounded-md p-3 flex items-start gap-2">
+                  <svg class="w-4 h-4 text-[#7A8F24] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                  <div class="text-xs">
+                    <p class="font-semibold text-[#7A8F24]">Procedure válida</p>
+                    <p class="text-[#7A8F24]/80 mt-0.5">Stage existe · destinatário resolvível · canais ativos</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-[10px] text-dms-tecnologia italic pt-3 border-t border-[#E5E7EB] leading-relaxed">
+                Live Preview client-side: atualiza ao editar campos à esquerda.
+              </div>
+
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+const STATUS_LABEL = { delay: 'Delay', warning: 'Warning', sla_excedido: 'SLA Excedido' };
+const STAGE_LABEL = {
+  aprovacao_diretor: 'Aprovação Diretor',
+  aprovacao_gerente: 'Aprovação Gerente',
+  aprovacao_coord: 'Aprovação Coordenador',
+  validacao_nf: 'Validação NF',
+};
+const DEST_LABEL = {
+  head_departamento: 'Head do Departamento',
+  diretor_operacoes: 'Diretor de Operações',
+  c_level: 'C-Level',
+  gerente_compras: 'Gerente Compras',
+};
+const MODE_LABEL = {
+  redirecionar: 'redirecionar',
+  adicionar: 'adicionar como responsável adicional',
+  prioridade: 'aumentar prioridade',
+};
+const MODE_ACTION_DIAG = {
+  redirecionar: 'Start stage',
+  adicionar: 'Add responsible',
+  prioridade: 'Bump priority',
+};
+const UNIT_LABEL = { horas: 'horas', minutos: 'minutos', dias: 'dias' };
+const UNIT_SHORT = { horas: 'h', minutos: 'min', dias: 'd' };
+
+const CHANNEL_LABEL = {
+  cockpit: { icon: '📋', label: 'Card cockpit' },
+  email: { icon: '✉️', label: 'E-mail' },
+  whatsapp: { icon: '💬', label: 'WhatsApp' },
+};
+
+let mode = 'redirecionar';
+let channels = new Set(['cockpit', 'email']);
+let slaCheck = false;
+
+function selectMode(m) {
+  mode = m;
+  ['redirecionar', 'adicionar', 'prioridade'].forEach(x => {
+    document.getElementById('mode-' + x).classList.toggle('selected', x === m);
+  });
+  updatePreview();
+}
+
+function toggleChannel(c, event) {
+  event.stopPropagation();
+  if (c === 'push') return;
+  const el = document.getElementById('ch-' + c);
+  if (channels.has(c)) { channels.delete(c); el.classList.remove('selected'); }
+  else { channels.add(c); el.classList.add('selected'); }
+  updatePreview();
+}
+
+function toggleSlaCheck(event) {
+  event.stopPropagation();
+  slaCheck = !slaCheck;
+  document.getElementById('sla-check').classList.toggle('checked', slaCheck);
+  updatePreview();
+}
+
+function updatePreview() {
+  const stage = document.getElementById('f-stage').value;
+  const status = document.getElementById('f-status').value;
+  const tempo = document.getElementById('f-tempo').value;
+  const unit = document.getElementById('f-unit').value;
+  const tipoDest = document.getElementById('f-tipo-dest').value;
+  const dest = document.getElementById('f-dest').value;
+
+  // Narrativa
+  document.getElementById('np-stage').textContent = STAGE_LABEL[stage];
+  document.getElementById('np-status').textContent = STATUS_LABEL[status];
+  document.getElementById('np-tempo').textContent = `${tempo} ${UNIT_LABEL[unit]}`;
+  document.getElementById('np-mode').textContent = MODE_LABEL[mode];
+  document.getElementById('np-dest').textContent = DEST_LABEL[dest];
+
+  // Canais
+  const channelLabels = Array.from(channels).map(c => `${CHANNEL_LABEL[c].label.toLowerCase()}`).join(' + ');
+  document.getElementById('np-channels').textContent = channelLabels || '(nenhum)';
+
+  // Iniciar novo estágio apenas no modo Redirecionar
+  const startStageEl = document.getElementById('np-startstage-text');
+  if (mode === 'redirecionar') {
+    startStageEl.style.display = '';
+    // Pega o stage destino — convertendo destinatário em nome de stage equivalente
+    const newStageName = dest === 'head_departamento' ? 'Aprovação Head' :
+                         dest === 'diretor_operacoes' ? 'Aprovação Diretor Op.' :
+                         dest === 'c_level' ? 'Aprovação C-Level' :
+                         'Aprovação Gerente';
+    startStageEl.innerHTML = `, iniciando o estágio <span class="pill-stage">${newStageName}</span>`;
+    document.getElementById('diag-stage-new').textContent = newStageName;
+    document.getElementById('diag-mode-action').textContent = 'Start stage';
+  } else {
+    startStageEl.style.display = 'none';
+    document.getElementById('diag-mode-action').textContent = mode === 'adicionar' ? 'Add responsible' : 'Bump priority';
+    document.getElementById('diag-stage-new').textContent = mode === 'adicionar' ? 'card duplicado' : 'topo da fila';
+  }
+
+  // Diagrama
+  document.getElementById('diag-stage').textContent = STAGE_LABEL[stage];
+  document.getElementById('diag-tempo').textContent = `${tempo}${UNIT_SHORT[unit]}`;
+  document.getElementById('diag-status').textContent = STATUS_LABEL[status];
+  document.getElementById('diag-dest').textContent = DEST_LABEL[dest];
+
+  // Canais visual
+  const ch = document.getElementById('preview-channels');
+  ch.innerHTML = Array.from(channels).map(c => `
+    <span class="inline-flex items-center gap-1 px-2 py-1 bg-dms-ceu/10 text-dms-confianca text-xs rounded-full font-medium">${CHANNEL_LABEL[c].icon} ${CHANNEL_LABEL[c].label}</span>
+  `).join('') || `<span class="text-xs text-red-600 italic">⚠ Nenhum canal selecionado</span>`;
+}
+
+['f-stage','f-status','f-tempo','f-unit','f-tipo-dest','f-dest'].forEach(id => {
+  document.getElementById(id).addEventListener('change', updatePreview);
+  document.getElementById(id).addEventListener('input', updatePreview);
+});
+
+updatePreview();
+</script>
+
+</body>
+</html>

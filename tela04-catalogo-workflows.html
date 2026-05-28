@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Catálogo de Workflows</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C', ceu: '#00AEEE', confianca: '#005290',
+          sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+        'dms-lg': '0 10px 15px -3px rgba(0, 56, 108, 0.10), 0 4px 6px -2px rgba(0, 56, 108, 0.05)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+  .kpi-card { transition: transform 150ms ease, box-shadow 150ms ease; cursor: pointer; }
+  .kpi-card:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0, 56, 108, 0.10); }
+  .kpi-card.active { box-shadow: inset 0 0 0 2px #00AEEE; }
+  /* Workflow card */
+  .wf-card { transition: transform 150ms ease, box-shadow 150ms ease; cursor: pointer; }
+  .wf-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 56, 108, 0.10), 0 4px 6px -2px rgba(0, 56, 108, 0.05); border-color: #00AEEE; }
+  /* Stages sequence — arrows */
+  .stages-seq { line-height: 1.6; }
+  .stages-seq .arrow { color: #00AEEE; margin: 0 4px; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+        <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
+      </div>
+      <div>
+        <div class="font-bold text-base leading-tight">DMS</div>
+        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
+      </div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+      <div class="caption text-white/40 px-6 mb-2">Workflow Builder</div>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        Catálogo de Tags
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Procedures
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Biblioteca SOP
+      </a>
+      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+        Catálogo de Workflows
+      </a>
+    </nav>
+    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">FA</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold truncate">Fernando Arruda</div>
+        <div class="text-xs text-white/60 truncate">Admin · DMS Log</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <!-- HEADER -->
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Workflow Builder</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Catálogo de Workflows</span>
+      </nav>
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Buscar em todo o sistema..." class="input-dms w-[260px] pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA]">
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <!-- PAGE HEADER -->
+      <div class="mb-6">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Catálogo de Workflows</h1>
+        </div>
+        <p class="text-sm text-dms-tecnologia max-w-3xl">
+          Conjunto de workflows pré-cadastrados que cobrem o fluxo completo do módulo Compras — da requisição ao pagamento. Cada workflow é uma SOP com seus stages, SLAs e procedures associadas.
+        </p>
+      </div>
+
+      <!-- KPI CARDS -->
+      <div class="grid grid-cols-5 gap-4 mb-6" id="kpi-row">
+        <button data-filter="todos" class="kpi-card active text-left bg-dms-mar text-white p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black">10</div>
+          <div class="caption text-white/80 mt-2">Workflows totais</div>
+        </button>
+        <button data-filter="requisicao" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black text-dms-mar">4</div>
+          <div class="caption text-dms-tecnologia mt-2">Requisição</div>
+        </button>
+        <button data-filter="contrato" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black text-dms-mar">3</div>
+          <div class="caption text-dms-tecnologia mt-2">Contratos</div>
+        </button>
+        <button data-filter="nf" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black text-dms-mar">2</div>
+          <div class="caption text-dms-tecnologia mt-2">NFs</div>
+        </button>
+        <button data-filter="sub_fluxo" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black text-dms-mar">1</div>
+          <div class="caption text-dms-tecnologia mt-2">Sub-fluxo</div>
+        </button>
+      </div>
+
+      <!-- TOOLBAR -->
+      <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+        <div class="flex items-center gap-3 flex-1">
+          <div class="relative flex-1 max-w-md">
+            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input id="search-input" type="text" placeholder="Buscar por código, nome..." class="input-dms w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          </div>
+          <select id="filter-type" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+            <option value="">Todos os tipos</option>
+            <option value="requisicao">Requisição</option>
+            <option value="contrato">Contrato</option>
+            <option value="nf">NF</option>
+            <option value="sub_fluxo">Sub-fluxo</option>
+            <option value="po">PO</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button class="flex items-center gap-2 text-sm font-semibold text-dms-mar px-4 py-2 bg-white border border-dms-mar rounded-md hover:bg-dms-mar hover:text-white transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            Clonar
+          </button>
+          <button class="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Novo Workflow
+          </button>
+        </div>
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div id="empty-state" class="hidden bg-white border border-[#E5E7EB] rounded-lg p-16 text-center">
+        <div class="w-16 h-16 bg-[#F8F9FA] rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-dms-mar mb-2">Nenhum workflow encontrado</h3>
+        <p class="text-sm text-dms-tecnologia mb-6 max-w-sm mx-auto">Não há workflows que correspondam aos filtros aplicados. Tente ajustar a busca, ou crie um novo workflow.</p>
+        <button class="inline-flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Novo Workflow
+        </button>
+      </div>
+
+      <!-- WORKFLOWS GRID -->
+      <div id="wf-grid" class="grid grid-cols-2 gap-4"></div>
+
+      <!-- Contador no rodapé -->
+      <div class="mt-6 text-sm text-dms-tecnologia">
+        Mostrando <span class="font-semibold text-dms-mar" id="wf-count">10</span> de <span class="font-semibold text-dms-mar">10</span> workflows
+      </div>
+
+      <!-- Nota informativa -->
+      <div class="mt-4 p-4 bg-dms-ceu/5 border border-dms-ceu/20 rounded-lg flex gap-3">
+        <svg class="w-5 h-5 text-dms-confianca flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <p class="text-sm text-dms-mar">
+          <strong>Workflows seed</strong> criados via migration na implantação. Viram a base operacional do módulo Compras. Cada um pode ser editado, clonado ou desativado no Workflow Builder.
+        </p>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+const MOCK_WFS = [
+  { code: 'WF-01', type: 'requisicao', typeLabel: 'REQUISIÇÃO', name: 'Requisição Avulsa Padrão', desc: 'Avulsa, dentro alçada Coordenador', stages: ['Solicitação', 'Aprov. Coord.', 'Cotação', 'Aprov. PO', 'PO Emitido', 'NF', 'Pagamento'], slaTotal: '7 dias', procedures: 5, escalations: 2, match: 'tipo_compra=avulsa · valor ≤ alçada Coord. · qualquer fornecedor', status: 'ativo', extras: [] },
+  { code: 'WF-02', type: 'requisicao', typeLabel: 'REQUISIÇÃO', name: 'Requisição Avulsa Alto Valor', desc: 'Avulsa, valor > alçada Gerente', stages: ['Solicitação', 'Coord.', 'Gerente', 'Diretor', 'Cotação', 'C-Level', 'PO', 'NF', 'Pagamento'], slaTotal: '14 dias', procedures: 7, escalations: 4, match: 'tipo_compra=avulsa · valor > alçada Gerente · qualquer fornecedor', status: 'ativo', extras: [] },
+  { code: 'WF-03', type: 'requisicao', typeLabel: 'REQUISIÇÃO', name: 'Requisição com Estouro de Orçamento', desc: 'Sem saldo no Centro de Custo', stages: ['Solicitação', 'Bypass', 'Aprov. C-Level', 'Cotação', 'PO', 'NF', 'Pagamento'], slaTotal: '10 dias', procedures: 4, escalations: 0, match: 'tipo_compra=qualquer · saldo_orcamento < 0 (estouro)', status: 'ativo', extras: [{ icon: '⚡', label: 'procedure Bypass automático', color: 'tropicalidade' }] },
+  { code: 'WF-04', type: 'sub_fluxo', typeLabel: 'SUB-FLUXO', name: 'Cotação Padrão (3 fornecedores)', desc: 'Sub-fluxo invocado por requisição', stages: ['Abertura', 'Convites', 'Recebimento Propostas', 'Score IA', 'Seleção', 'Vencedor'], slaTotal: '5 dias', procedures: 3, escalations: 0, match: '(sub-fluxo invocado) — tipo_compra=avulsa · sem cotação prévia', status: 'ativo', extras: [{ icon: '✨', label: 'IA: Score', color: 'sabedoria' }] },
+  { code: 'WF-05', type: 'po', typeLabel: 'PO', name: 'PO Padrão (Avulsa)', desc: 'Sub-fluxo de pedido após cotação', stages: ['Emissão', 'Confirm. Fornecedor', 'Recebimento', 'Lançamento Omie', 'Pagamento'], slaTotal: '30 dias', procedures: 4, escalations: 0, match: '(sub-fluxo invocado) — após Cotação aprovada', status: 'ativo', extras: [{ icon: '🔌', label: 'Integração Omie', color: 'ceu' }] },
+  { code: 'WF-06', type: 'contrato', typeLabel: 'CONTRATO', name: 'Contrato Recorrente — Mensal', desc: 'Parcela mensal automática de contrato vigente', stages: ['Geração Mensal', 'Confirmação', 'NF', 'Lançamento Omie', 'Pagamento'], slaTotal: '30 dias', procedures: 3, escalations: 0, match: 'tipo_compra=contrato_recorrente · contrato_id IS NOT NULL · trigger=cron mensal', status: 'ativo', extras: [{ icon: '⏰', label: 'Trigger: cron mensal', color: 'ceu' }] },
+  { code: 'WF-07', type: 'contrato', typeLabel: 'CONTRATO', name: 'Renovação D-90 de Contrato', desc: 'Disparado a 90 dias do fim de contrato', stages: ['Alerta D-90', 'Análise Gestor', 'Negociação Reajuste', 'Decisão', 'Assinatura', 'Vigência Renovada'], slaTotal: '90 dias', procedures: 5, escalations: 0, match: 'tipo_compra=contrato_recorrente · end_date - 90 dias', status: 'ativo', extras: [{ icon: '🔔', label: 'Alertas D-60, D-30, D-15', color: 'tropicalidade' }] },
+  { code: 'WF-08', type: 'contrato', typeLabel: 'CONTRATO', name: 'Cláusula Avulsa de Contrato', desc: 'Acionamento de cláusula em contrato vigente', stages: ['Solicitação', 'Aprovação (se >X)', 'PO Cláusula', 'Execução', 'NF', 'Pagamento'], slaTotal: '14 dias', procedures: 4, escalations: 0, match: 'tipo_compra=cláusula_avulsa · contrato_id IS NOT NULL', status: 'ativo', extras: [] },
+  { code: 'WF-09', type: 'nf', typeLabel: 'NF', name: 'NF Avulsa Padrão', desc: 'NF chega no e-mail e é validada/lançada automaticamente', stages: ['Recebimento', 'Validação Auto', 'Aprov. (se >50k)', 'Aprov. C-Level (sem saldo)', 'Lançamento Omie', 'Pagamento', 'Concluído'], slaTotal: '5 dias', procedures: 8, escalations: 0, match: 'origem=email_NF · tipo_compra=avulsa · sem reprovação validação', status: 'ativo', extras: [{ icon: '🤖', label: 'DOCSIA + MAILIA', color: 'sabedoria' }] },
+  { code: 'WF-10', type: 'nf', typeLabel: 'NF', name: 'NF em Quarentena', desc: 'Tratamento de NF que falhou na validação automática', stages: ['Quarentena', 'Análise Time Compras', 'Decisão', 'Reentrada no Fluxo', 'Concluído'], slaTotal: '3 dias', procedures: 3, escalations: 0, match: 'origem=email_NF · status=quarentena (validação reprovou)', status: 'rascunho', extras: [{ icon: '📧', label: 'Email automático ao fornecedor', color: 'ceu' }] },
+];
+
+const typeColor = {
+  requisicao: 'text-dms-confianca',
+  contrato: 'text-dms-sabedoria',
+  nf: 'text-[#7A8F24]',
+  sub_fluxo: 'text-dms-sabedoria',
+  po: 'text-dms-confianca',
+};
+
+const extraColor = {
+  tropicalidade: 'bg-[rgba(176,201,52,0.15)] text-[#7A8F24]',
+  ceu: 'bg-[rgba(0,174,238,0.15)] text-[#005290]',
+  sabedoria: 'bg-[rgba(100,53,133,0.10)] text-dms-sabedoria',
+};
+
+let activeFilter = 'todos';
+let searchQuery = '';
+let typeFilter = '';
+
+function renderCards() {
+  const grid = document.getElementById('wf-grid');
+  let rows = MOCK_WFS;
+
+  if (activeFilter !== 'todos') rows = rows.filter(w => w.type === activeFilter);
+  if (typeFilter) rows = rows.filter(w => w.type === typeFilter);
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    rows = rows.filter(w => w.code.toLowerCase().includes(q) || w.name.toLowerCase().includes(q) || w.desc.toLowerCase().includes(q));
+  }
+
+  grid.innerHTML = rows.map(w => {
+    const statusBadge = w.status === 'ativo'
+      ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(176,201,52,0.15)] text-[#7A8F24]"><span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade"></span>Ativo</span>`
+      : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(0,174,238,0.15)] text-[#005290]"><span class="w-1.5 h-1.5 rounded-full bg-dms-ceu"></span>Rascunho</span>`;
+
+    const stagesText = w.stages.map(s => `<span>${s}</span>`).join('<span class="arrow">→</span>');
+
+    return `
+    <div class="wf-card bg-white border border-[#E5E7EB] rounded-lg p-5 shadow-dms-md">
+      <!-- Header: código · tipo + status -->
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div class="flex items-center gap-2 text-xs font-bold tracking-wide">
+          <span class="mono text-dms-mar">${w.code}</span>
+          <span class="text-dms-tecnologia">·</span>
+          <span class="${typeColor[w.type] || 'text-dms-mar'}">${w.typeLabel}</span>
+        </div>
+        ${statusBadge}
+      </div>
+
+      <!-- Título -->
+      <h3 class="text-lg font-bold text-dms-mar mb-1 leading-tight">${w.name}</h3>
+      <p class="text-sm text-dms-tecnologia mb-4">${w.desc}</p>
+
+      <!-- Stages sequence -->
+      <div class="mb-4 pb-4 border-b border-[#E5E7EB]">
+        <div class="caption text-dms-tecnologia mb-1.5">${w.stages.length} stages</div>
+        <div class="stages-seq text-sm text-dms-mar font-medium">
+          ${stagesText}
+        </div>
+      </div>
+
+      <!-- Badges -->
+      <div class="flex flex-wrap gap-2 mb-3">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(0,174,238,0.15)] text-[#005290]">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          SLA total: ${w.slaTotal}
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(176,201,52,0.15)] text-[#7A8F24]">
+          ${w.procedures} procedures
+        </span>
+        ${w.escalations > 0 ? `
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(100,53,133,0.10)] text-dms-sabedoria">
+          ${w.escalations} escalations
+        </span>
+        ` : ''}
+        ${w.extras.map(e => `
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${extraColor[e.color]}">
+          ${e.icon} ${e.label}
+        </span>
+        `).join('')}
+      </div>
+
+      <!-- Match -->
+      <div class="flex items-start gap-2 pt-3 border-t border-[#E5E7EB]">
+        <svg class="w-4 h-4 text-dms-tecnologia flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        <div class="text-xs">
+          <span class="font-semibold text-dms-tecnologia">Match: </span>
+          <span class="mono text-dms-mar">${w.match}</span>
+        </div>
+      </div>
+    </div>
+    `;
+  }).join('');
+
+  document.getElementById('wf-count').textContent = rows.length;
+
+  if (rows.length === 0) {
+    grid.style.display = 'none';
+    document.getElementById('empty-state').classList.remove('hidden');
+  } else {
+    grid.style.display = '';
+    document.getElementById('empty-state').classList.add('hidden');
+  }
+}
+
+document.getElementById('kpi-row').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-filter]');
+  if (!card) return;
+  document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  activeFilter = card.dataset.filter;
+  renderCards();
+});
+
+document.getElementById('search-input').addEventListener('input', (e) => { searchQuery = e.target.value; renderCards(); });
+document.getElementById('filter-type').addEventListener('change', (e) => { typeFilter = e.target.value; renderCards(); });
+
+renderCards();
+</script>
+
+</body>
+</html>

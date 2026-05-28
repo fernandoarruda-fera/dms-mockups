@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Cockpit · E-mail expandido</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = { corePlugins: { preflight: true }, theme: { extend: { colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' }}, fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] }, boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)' }}}};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 11px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 16px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+
+  .kpi-cell { padding: 12px 14px; }
+  .kpi-cell .label { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #656464; }
+  .kpi-cell .value { font-size: 26px; font-weight: 800; line-height: 1; color: #00386C; margin-top: 6px; }
+  .kpi-cell .delta { font-size: 10px; color: #656464; margin-top: 4px; }
+
+  .filter-label { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #00386C; margin-bottom: 6px; display: block; }
+
+  .kanban-col { background: white; border: 1px solid #E5E7EB; border-radius: 6px; display: flex; flex-direction: column; overflow: hidden; }
+  .kanban-col-header { padding: 10px 12px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: space-between; background: #FAFBFC; }
+  .kanban-col.caixa { border-top: 3px solid #00AEEE; }
+  .kanban-col.todo { border-top: 3px solid #00386C; }
+  .kanban-col.followup { border-top: 3px solid #643585; }
+  .kanban-col.update { border-top: 3px solid #B0C934; }
+  .kanban-col-header .title { font-size: 12px; font-weight: 700; color: #00386C; }
+  .kanban-col-header .count { background: #F3F4F6; color: #00386C; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+
+  .email-card { background: white; border: 1px solid #E5E7EB; border-radius: 6px; padding: 10px 12px; cursor: pointer; transition: all 150ms ease; display: flex; flex-direction: column; gap: 6px; }
+  .email-card:hover { box-shadow: 0 2px 6px -1px rgba(0,56,108,0.10); transform: translateY(-1px); border-color: #D1D5DB; }
+  .email-card.reclamacao { border-left: 3px solid #DC2626; }
+  .email-card.documento { border-left: 3px solid #00AEEE; }
+  .email-card.info { border-left: 3px solid #B0C934; }
+  .email-card.thread { border-left: 3px solid #00386C; }
+  .email-card.naoclassif { border-left: 3px solid #9CA3AF; }
+  .email-card .head { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .email-card .sender-row { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; }
+  .email-card .avatar { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 10px; flex-shrink: 0; }
+  .email-card .sender { font-size: 12px; font-weight: 700; color: #00386C; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .email-card .time { font-size: 10px; color: #656464; font-weight: 600; flex-shrink: 0; }
+  .email-card .subject { font-size: 11.5px; font-weight: 600; color: #1A1A1A; line-height: 1.3; }
+  .email-card .preview { font-size: 10.5px; color: #656464; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .email-card .meta-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+
+  .badge-mailia { padding: 1px 6px; border-radius: 3px; font-size: 9px; font-weight: 600; }
+  .badge-reclamacao { background: rgba(220,38,38,0.10); color: #991B1B; }
+  .badge-documento { background: rgba(0,174,238,0.15); color: #005290; }
+  .badge-informacao { background: rgba(176,201,52,0.15); color: #5C7818; }
+  .badge-thread { background: rgba(0,56,108,0.08); color: #00386C; }
+  .badge-naoclassif { background: #F3F4F6; color: #6B7280; }
+  .badge-process { background: rgba(100,53,133,0.10); color: #643585; font-family: 'JetBrains Mono', monospace; }
+
+  .drawer-overlay { background: rgba(0, 56, 108, 0.40); backdrop-filter: blur(2px); }
+  .drawer-panel { animation: slideIn 200ms ease-out; }
+  @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  .thread-msg { border-left: 2px solid #E5E7EB; padding-left: 12px; padding-bottom: 12px; }
+  .thread-msg.from-me { border-left-color: #00AEEE; }
+  .composer-toolbar button { padding: 4px; color: #656464; border-radius: 4px; transition: all 120ms; cursor: pointer; background: none; border: none; }
+  .composer-toolbar button:hover { color: #00386C; background: #F8F9FA; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center"><span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span></div>
+      <div><div class="font-bold text-base leading-tight">DMS</div><div class="text-xs text-white/70 leading-tight">Workflow Engine</div></div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+      <div class="caption text-white/40 px-6 mb-2">Trabalho</div>
+      <a href="tela16-cockpit-overview.html" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Cockpit
+      </a>
+      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>E-mail expandido
+      </a>
+    </nav>
+    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">MC</div>
+      <div class="flex-1 min-w-0"><div class="text-sm font-semibold truncate">Maria Costa</div><div class="text-xs text-white/60 truncate">Diretor Financeiro</div></div>
+    </div>
+  </aside>
+
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="bg-white border-b border-[#E5E7EB] px-6 py-3 sticky top-0 z-20">
+      <div class="flex items-start justify-between gap-6">
+        <div class="flex-1 min-w-0">
+          <nav class="flex items-center gap-1.5 text-xs text-dms-tecnologia mb-1.5">
+            <a href="tela16-cockpit-overview.html" class="hover:text-dms-mar transition-colors flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>Cockpit
+            </a>
+            <svg class="w-3 h-3 text-dms-tecnologia/50" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+            <span class="text-dms-mar font-semibold">E-mail (expandido)</span>
+          </nav>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[22px] leading-tight font-bold text-dms-mar">📧 Caixa de E-mails — Maria Costa</h1>
+          </div>
+          <p class="text-xs text-dms-tecnologia ml-[60px] mt-0.5">
+            <strong class="text-dms-mar">23</strong> emails · classificados pela MAILIA · Última sincronização <strong class="text-dms-mar">há 1min</strong>
+          </p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <div class="relative">
+            <svg class="w-3.5 h-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" placeholder="Buscar nome, assunto..." class="input-dms w-[220px] pl-7 pr-3 py-1.5 text-xs border border-[#E5E7EB] rounded bg-[#F8F9FA]">
+          </div>
+          <button class="flex items-center gap-1.5 text-xs font-semibold text-dms-tecnologia px-2.5 py-1.5 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Sincronizar
+          </button>
+          <button onclick="window.open('tela15-mailia-admin.html','_self')" class="flex items-center gap-1.5 text-xs font-semibold text-dms-tecnologia px-2.5 py-1.5 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Regras MAILIA
+          </button>
+          <button onclick="window.open('tela16-cockpit-overview.html?openConfig=email','_self')" class="flex items-center gap-1.5 text-xs font-semibold text-dms-confianca px-2.5 py-1.5 bg-white border border-dms-confianca rounded-md hover:bg-dms-confianca hover:text-white transition-colors">
+            ⚙ Configurar
+          </button>
+          <button onclick="openComposer()" class="flex items-center gap-1.5 text-xs font-semibold text-white px-3 py-1.5 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            Compor
+          </button>
+          <a href="tela16-cockpit-overview.html" class="flex items-center gap-1.5 text-xs font-semibold text-dms-mar px-3 py-1.5 bg-white border border-dms-mar rounded-md hover:bg-dms-mar hover:text-white transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/></svg>
+            Voltar
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 p-4 w-full mx-auto" style="max-width: 1700px;">
+
+      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md mb-4 grid" style="grid-template-columns: repeat(5, 1fr) 260px;">
+        <div class="kpi-cell"><div class="label">Total</div><div class="value">23</div><div class="delta">emails</div></div>
+        <div class="kpi-cell border-l border-[#F3F4F6]"><div class="label flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-dms-ceu"></span>Caixa entrada</div><div class="value" style="color:#005290">8</div><div class="delta">aguarda MAILIA</div></div>
+        <div class="kpi-cell border-l border-[#F3F4F6]"><div class="label flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-dms-mar"></span>To Do</div><div class="value">6</div><div class="delta">com ação</div></div>
+        <div class="kpi-cell border-l border-[#F3F4F6]"><div class="label flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-dms-sabedoria"></span>Follow Up</div><div class="value" style="color:#643585">5</div><div class="delta">aguarda resposta</div></div>
+        <div class="kpi-cell border-l border-[#F3F4F6]"><div class="label flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-dms-tropicalidade"></span>Update</div><div class="value" style="color:#5C7818">4</div><div class="delta">informativo</div></div>
+        <div class="kpi-cell border-l border-[#F3F4F6]" style="padding: 10px 14px;">
+          <div class="label mb-1.5">Top 5 Classificação MAILIA</div>
+          <div class="space-y-0.5 text-[11px]">
+            <div class="flex items-center justify-between"><span class="text-dms-mar">📄 Documentos</span><strong class="text-dms-mar">9</strong></div>
+            <div class="flex items-center justify-between"><span class="text-dms-mar">💬 Continuação</span><strong class="text-dms-mar">6</strong></div>
+            <div class="flex items-center justify-between"><span class="text-dms-mar">ℹ Info esperada</span><strong class="text-dms-mar">4</strong></div>
+            <div class="flex items-center justify-between"><span class="text-red-700">⚠ Reclamações</span><strong class="text-red-700">2</strong></div>
+            <div class="text-dms-tecnologia text-[10px] mt-0.5">+ 2 não classificadas</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid gap-4" style="grid-template-columns: 220px 1fr;">
+
+        <aside class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md p-4 h-fit">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="caption text-dms-mar font-bold">🔍 Filtros</h3>
+            <button class="text-[10px] text-dms-tecnologia hover:text-dms-mar transition-colors">Limpar</button>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="filter-label">Período</label>
+              <select class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white">
+                <option selected>Últimos 7 dias</option><option>Hoje</option><option>Esta semana</option>
+              </select>
+            </div>
+            <div>
+              <label class="filter-label">Classificação MAILIA</label>
+              <div class="space-y-1.5">
+                <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="text-red-700">⚠ Reclamação (2)</span></label>
+                <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="text-[#005290]">📄 Documento (9)</span></label>
+                <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="text-[#5C7818]">ℹ Info esperada (4)</span></label>
+                <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="text-dms-mar">💬 Continuação (6)</span></label>
+                <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" class="w-3.5 h-3.5 text-dms-mar rounded"><span class="text-dms-tecnologia">Não classificado (2)</span></label>
+              </div>
+            </div>
+            <div><label class="filter-label">Remetente</label><input type="text" placeholder="Nome ou email..." class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white"></div>
+            <div><label class="filter-label">Processo atrelado</label><input type="text" placeholder="REQ, NF, PO..." class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white"></div>
+            <div><label class="filter-label">Status leitura</label><select class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white"><option>Todos</option><option>Não lidos</option><option>Lidos</option></select></div>
+            <div><label class="filter-label">Ordenar por</label><select class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white"><option selected>Mais recente</option><option>Por prioridade</option></select></div>
+          </div>
+        </aside>
+
+        <div class="grid gap-3" style="grid-template-columns: repeat(4, 1fr);">
+
+          <div class="kanban-col caixa">
+            <div class="kanban-col-header">
+              <div class="title">📥 Caixa de entrada</div>
+              <span class="count">8</span>
+            </div>
+            <div class="p-2.5 overflow-y-auto" style="max-height: 720px; display: flex; flex-direction: column; gap: 8px;">
+              <div class="email-card naoclassif" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#9CA3AF">NV</div><span class="sender">novo.contato@empresa.com</span></div><span class="time">2min</span></div>
+                <div class="subject">Proposta comercial Q2 2026</div>
+                <div class="preview">"Boa tarde, segue em anexo a proposta comercial atualizada conforme conversamos..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-naoclassif">⏳ MAILIA analisando...</span></div>
+              </div>
+              <div class="email-card naoclassif" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#9CA3AF">DG</div><span class="sender">diego@parceiro.com.br</span></div><span class="time">8min</span></div>
+                <div class="subject">Re: Reunião sobre integração</div>
+                <div class="preview">"Maria, pode confirmar o horário de amanhã? Sugiro às 14h, mas se preferir podemos..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-naoclassif">⏳ MAILIA analisando...</span></div>
+              </div>
+              <div class="email-card naoclassif" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#9CA3AF">CL</div><span class="sender">cliente.x@grupocliente.com</span></div><span class="time">15min</span></div>
+                <div class="subject">Solicitação contratual urgente</div>
+                <div class="preview">"Prezada, precisamos revisar a cláusula 7.3 do contrato CONT-022..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-naoclassif">⏳ MAILIA analisando...</span></div>
+              </div>
+              <div class="email-card naoclassif" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#9CA3AF">??</div><span class="sender">noreply@servico.io</span></div><span class="time">42min</span></div>
+                <div class="subject">Sua fatura do serviço X</div>
+                <div class="preview">"Sua fatura mensal está disponível. Vencimento: 28/05/2026 · Valor: R$ 1.290..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-naoclassif">⏳ MAILIA analisando...</span></div>
+              </div>
+              <div class="text-center text-[10px] text-dms-tecnologia italic py-2">+ 4 emails</div>
+            </div>
+          </div>
+
+          <div class="kanban-col todo">
+            <div class="kanban-col-header"><div class="title">📋 To Do</div><span class="count">6</span></div>
+            <div class="p-2.5 overflow-y-auto" style="max-height: 720px; display: flex; flex-direction: column; gap: 8px;">
+              <div class="email-card reclamacao" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#DC2626">FA</div><span class="sender">Fornecedor A</span></div><span class="time">12min</span></div>
+                <div class="subject">atraso URGENTE no pagamento</div>
+                <div class="preview">"Estamos sem o pagamento da NF 0531 há 5 dias além do combinado. Precisamos..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-reclamacao">⚠ Reclamação</span><span class="badge-mailia badge-process">REQ-2026-0142</span></div>
+              </div>
+              <div class="email-card documento" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#005290">FB</div><span class="sender">Fornecedor B</span></div><span class="time">35min</span></div>
+                <div class="subject">NF anexa (NFe 8821)</div>
+                <div class="preview">"Segue NF emitida conforme PO-2026-0089. Anexo: NFe_8821.xml + nota.pdf"</div>
+                <div class="meta-row"><span class="badge-mailia badge-documento">📄 Documento</span><span class="badge-mailia badge-process">PO-2026-0089</span></div>
+              </div>
+              <div class="email-card documento" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#005290">FC</div><span class="sender">Fornecedor C</span></div><span class="time">3h</span></div>
+                <div class="subject">Cotação RFQ-0048 — Proposta</div>
+                <div class="preview">"Segue proposta atualizada com 5% de desconto sobre a anterior conforme..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-documento">📄 Documento</span><span class="badge-mailia badge-process">RFQ-0048</span></div>
+              </div>
+              <div class="email-card reclamacao" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#DC2626">CC</div><span class="sender">Cliente Corporativo</span></div><span class="time">5h</span></div>
+                <div class="subject">Insatisfação com entrega</div>
+                <div class="preview">"Precisamos urgentemente de uma posição sobre o atraso na entrega do projeto..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-reclamacao">⚠ Reclamação</span><span class="badge-mailia badge-process">CONT-2026-017</span></div>
+              </div>
+              <div class="text-center text-[10px] text-dms-tecnologia italic py-2">+ 2 emails</div>
+            </div>
+          </div>
+
+          <div class="kanban-col followup">
+            <div class="kanban-col-header"><div class="title">👀 Follow Up</div><span class="count">5</span></div>
+            <div class="p-2.5 overflow-y-auto" style="max-height: 720px; display: flex; flex-direction: column; gap: 8px;">
+              <div class="email-card thread" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#00386C">CR</div><span class="sender">Carlos Reis</span></div><span class="time">2h</span></div>
+                <div class="subject">RE: Cotação cláusula avulsa</div>
+                <div class="preview">"Bom dia, segue proposta atualizada com 5% de desconto. Aguardo seu retorno..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-thread">💬 Aguardando</span><span class="badge-mailia badge-process">RFQ-0044</span></div>
+              </div>
+              <div class="email-card thread" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#00386C">MK</div><span class="sender">Marketing CO</span></div><span class="time">5h</span></div>
+                <div class="subject">RE: Renovação contrato</div>
+                <div class="preview">"Maria, agradeço o retorno. Vamos avaliar os termos e te enviamos posição até..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-thread">💬 Aguardando</span><span class="badge-mailia badge-process">CONT-022</span></div>
+              </div>
+              <div class="email-card thread" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#00386C">TS</div><span class="sender">TI Solutions</span></div><span class="time">Ontem</span></div>
+                <div class="subject">RE: Esclarecimentos contrato TI</div>
+                <div class="preview">"Recebemos suas perguntas. Vamos preparar as respostas técnicas e enviamos..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-thread">💬 Aguardando</span><span class="badge-mailia badge-process">PO-2026-0091</span></div>
+              </div>
+              <div class="email-card thread" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#00386C">FC</div><span class="sender">Fornecedor C</span></div><span class="time">2d</span></div>
+                <div class="subject">RE: Pedido de esclarecimento</div>
+                <div class="preview">"Vamos enviar os documentos solicitados ainda esta semana, em conjunto com..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-thread">💬 Aguardando</span><span class="badge-mailia badge-process">CONT-017</span></div>
+              </div>
+              <div class="text-center text-[10px] text-dms-tecnologia italic py-2">+ 1 email</div>
+            </div>
+          </div>
+
+          <div class="kanban-col update">
+            <div class="kanban-col-header"><div class="title">🔔 Update</div><span class="count">4</span></div>
+            <div class="p-2.5 overflow-y-auto" style="max-height: 720px; display: flex; flex-direction: column; gap: 8px;">
+              <div class="email-card info" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#7A8F24">JS</div><span class="sender">João Silva</span></div><span class="time">1h 12min</span></div>
+                <div class="subject">Confirmação data de entrega</div>
+                <div class="preview">"Confirmo entrega para 30/04/2026, conforme combinado. Sem impedimentos..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-informacao">ℹ Info</span><span class="badge-mailia badge-process">PO-2026-0091</span></div>
+              </div>
+              <div class="email-card info" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#7A8F24">BK</div><span class="sender">noreply@bank.com</span></div><span class="time">3h</span></div>
+                <div class="subject">Notificação de pagamento PO-0085</div>
+                <div class="preview">"Pagamento confirmado: R$ 12.400,00 para Operacional Logística. Comprovante anexo..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-informacao">ℹ Info</span><span class="badge-mailia badge-process">PO-2026-0085</span></div>
+              </div>
+              <div class="email-card info" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#7A8F24">OM</div><span class="sender">Omie Sistema</span></div><span class="time">Ontem</span></div>
+                <div class="subject">Conciliação automática Webhook OK</div>
+                <div class="preview">"Webhook recebido: PO-2026-0085 conciliado com sucesso. Processo concluído..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-informacao">ℹ Info</span><span class="badge-mailia badge-process">PO-2026-0085</span></div>
+              </div>
+              <div class="email-card info" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#7A8F24">DC</div><span class="sender">DOCSIA</span></div><span class="time">Ontem</span></div>
+                <div class="subject">NFe 8821 extraída com sucesso</div>
+                <div class="preview">"Dados extraídos: CNPJ, valor, competência, fornecedor. Validação: 5/6 passou..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-informacao">ℹ Info</span><span class="badge-mailia badge-process">PO-2026-0089</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div id="email-drawer" class="fixed inset-0 z-50 hidden">
+  <div class="drawer-overlay absolute inset-0" onclick="closeEmail()"></div>
+  <div class="drawer-panel absolute right-0 top-0 h-full w-[640px] max-w-[95vw] bg-white shadow-2xl flex flex-col">
+    <div class="border-b border-[#E5E7EB] px-5 py-4 bg-[#FAFBFC] flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="badge-mailia badge-reclamacao">⚠ Reclamação</span>
+        <span class="badge-mailia badge-process">REQ-2026-0142</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <button class="p-1.5 text-dms-tecnologia hover:text-dms-mar hover:bg-white rounded transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></button>
+        <button onclick="closeEmail()" class="p-1 text-dms-tecnologia hover:text-dms-mar hover:bg-white rounded transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </div>
+    </div>
+    <div class="flex-1 overflow-y-auto">
+      <div class="px-5 py-4 border-b border-[#E5E7EB]">
+        <h2 class="text-base font-bold text-dms-mar mb-2">atraso URGENTE no pagamento</h2>
+        <div class="flex items-center gap-2 mb-2">
+          <div style="background:#DC2626;width:36px;height:36px;font-size:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700">FA</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-dms-mar">Fornecedor A <span class="text-xs text-dms-tecnologia font-normal">&lt;contato@fornecedora.com.br&gt;</span></div>
+            <div class="text-xs text-dms-tecnologia">para <strong class="text-dms-mar">dmsinvoice@dmslog.com</strong> · há 12 min</div>
+          </div>
+        </div>
+      </div>
+      <div style="background: rgba(220,38,38,0.03); border: 2px solid rgba(220,38,38,0.30); border-radius: 6px; margin: 16px 20px; overflow: hidden;">
+        <div class="px-4 py-3 border-b border-red-200 bg-white/50 flex items-center gap-2">
+          <svg class="w-3.5 h-3.5 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/></svg>
+          <h3 class="caption text-red-700 font-bold">MAILIA — Ação Sugerida</h3>
+        </div>
+        <div class="p-4 space-y-3">
+          <p class="text-xs text-dms-mar">Detectada urgência alta. Workflow do stage atual <strong>"Aprov. Diretor"</strong> tem <strong>escalation #3 (Reclamação)</strong> acionável.</p>
+          <div class="flex items-center gap-2">
+            <button class="flex-1 text-xs font-semibold text-white px-2 py-1.5 bg-red-600 rounded hover:bg-red-700 transition-colors">✓ Acionar escalation</button>
+            <button class="flex-1 text-xs font-semibold text-dms-confianca px-2 py-1.5 bg-white border border-dms-confianca rounded hover:bg-dms-confianca hover:text-white transition-colors">Resposta IA</button>
+          </div>
+        </div>
+      </div>
+      <div class="px-5 py-4">
+        <div class="text-sm text-dms-mar leading-relaxed space-y-3">
+          <p>Prezada Maria,</p>
+          <p>Estamos sem o pagamento da <strong>NF 0531</strong> há <strong>5 dias além do combinado</strong>. Precisamos de uma posição urgente, pois temos compromissos financeiros vinculados a este recebimento.</p>
+          <p>Conforme acordo no PO PO-2026-0089, o pagamento deveria ter sido realizado em 20/04/2026. Já entramos em contato com seu departamento em 22/04 e 24/04 sem retorno.</p>
+          <p>Pedimos uma resposta até o final do dia. Caso contrário, seremos obrigados a suspender novas entregas até regularização.</p>
+          <p class="text-dms-tecnologia">Atenciosamente,<br><strong class="text-dms-mar">Carlos Pereira</strong><br>Gerente Comercial — Fornecedor A</p>
+        </div>
+        <div class="mt-6 pt-4 border-t border-[#E5E7EB]">
+          <div class="caption text-dms-tecnologia mb-3">Thread anterior (2 mensagens)</div>
+          <div class="thread-msg mb-3">
+            <div class="flex items-center gap-2 mb-1">
+              <div style="background:#DC2626;width:24px;height:24px;font-size:10px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700">FA</div>
+              <div class="text-xs"><strong class="text-dms-mar">Fornecedor A</strong> <span class="text-dms-tecnologia ml-1">há 5 dias</span></div>
+            </div>
+            <p class="text-xs text-dms-tecnologia italic ml-8">"Bom dia Maria, gostaria de confirmar o pagamento da NF 0531..."</p>
+          </div>
+          <div class="thread-msg from-me">
+            <div class="flex items-center gap-2 mb-1">
+              <div style="background:linear-gradient(135deg, #00AEEE, #005290);width:24px;height:24px;font-size:10px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700">MC</div>
+              <div class="text-xs"><strong class="text-dms-mar">Maria Costa</strong> <span class="text-dms-tecnologia">(você)</span> <span class="text-dms-tecnologia ml-1">há 4 dias</span></div>
+            </div>
+            <p class="text-xs text-dms-tecnologia italic ml-8">"Carlos, obrigada pelo contato. Vou verificar com o financeiro e retorno..."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="border-t-2 border-dms-ceu/30 p-4 bg-white flex-shrink-0">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="caption text-dms-tecnologia">Responder a Fornecedor A</span>
+        <span class="text-xs text-dms-tecnologia">·</span>
+        <button class="text-xs text-dms-sabedoria hover:text-dms-mar font-semibold transition-colors">⚡ Usar sugestão IA</button>
+      </div>
+      <textarea rows="3" placeholder="Digite sua resposta..." class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded bg-[#F8F9FA] resize-none">Prezado Carlos, recebemos sua mensagem com atenção. A NF 0531 está em processo de aprovação por questão de orçamento. Estimativa de pagamento: 28/04/2026. Pedimos desculpas pelo transtorno...</textarea>
+      <div class="flex items-center justify-between mt-2">
+        <div class="composer-toolbar flex items-center gap-1">
+          <button title="Negrito"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6V4zm0 8h9a4 4 0 014 4 4 4 0 01-4 4H6v-8z"/></svg></button>
+          <button title="Anexar"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg></button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="closeEmail()" class="text-xs font-semibold text-dms-tecnologia px-3 py-1.5 hover:text-dms-mar transition-colors">Descartar</button>
+          <button class="flex items-center gap-1.5 text-xs font-semibold text-white px-4 py-1.5 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>Enviar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function openEmail() {
+  document.getElementById('email-drawer').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeEmail() {
+  document.getElementById('email-drawer').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+function openComposer() { alert('Composer de novo email — modal/drawer'); }
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeEmail(); });
+</script>
+
+</body>
+</html>

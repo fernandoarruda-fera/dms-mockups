@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Catálogo de Tags @</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C',
+          ceu: '#00AEEE',
+          confianca: '#005290',
+          sabedoria: '#643585',
+          tropicalidade: '#B0C934',
+          tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+        'dms-lg': '0 10px 15px -3px rgba(0, 56, 108, 0.10), 0 4px 6px -2px rgba(0, 56, 108, 0.05)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  /* Tabela: hover de linha */
+  tbody tr { transition: background-color 150ms ease; }
+  tbody tr:hover { background-color: #FAFBFC; }
+  /* Row actions: fade in no hover */
+  .row-actions { opacity: 0; transition: opacity 150ms ease; }
+  tbody tr:hover .row-actions { opacity: 1; }
+  /* Toggle switch */
+  .toggle-input:checked + .toggle-track { background-color: #B0C934; }
+  .toggle-input:checked + .toggle-track .toggle-dot { transform: translateX(16px); }
+  .toggle-track { transition: background-color 150ms ease; }
+  .toggle-dot { transition: transform 150ms ease; }
+  /* Botão arredondado nas pontas (estilo mockup com cantos retos no meio) */
+  .btn-pill { border-radius: 14px 14px 14px 14px / 14px 14px 14px 14px; }
+  /* KPI card hover */
+  .kpi-card { transition: transform 150ms ease, box-shadow 150ms ease; cursor: pointer; }
+  .kpi-card:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0, 56, 108, 0.10); }
+  .kpi-card.active { box-shadow: inset 0 0 0 2px #00AEEE; }
+  /* Skeleton */
+  @keyframes pulse-skel { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .skel { background: #E5E7EB; border-radius: 4px; animation: pulse-skel 1.5s ease-in-out infinite; }
+  /* Search input focus ring DMS */
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  /* Sidebar item active */
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ========== APP SHELL ========== -->
+<div class="flex min-h-screen">
+
+  <!-- ========== SIDEBAR ========== -->
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <!-- Logo -->
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+        <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
+      </div>
+      <div>
+        <div class="font-bold text-base leading-tight">DMS</div>
+        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex-1 py-4 overflow-y-auto">
+      <div class="caption text-white/40 px-6 mb-2">Workflow Builder</div>
+      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        Catálogo de Tags
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Procedures
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Biblioteca SOP
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+        Catálogo de Workflows
+      </a>
+
+      <div class="caption text-white/40 px-6 mt-6 mb-2">Operação</div>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+        Cockpit
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        Cockpit E-mails
+      </a>
+    </nav>
+
+    <!-- User footer -->
+    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">FA</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold truncate">Fernando Arruda</div>
+        <div class="text-xs text-white/60 truncate">Admin · DMS Log</div>
+      </div>
+      <button class="text-white/60 hover:text-white" aria-label="Sair">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN AREA ========== -->
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <!-- ========== HEADER ========== -->
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <!-- Breadcrumbs -->
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Workflow Builder</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Catálogo de Tags @</span>
+      </nav>
+
+      <!-- Search + ações -->
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Buscar em todo o sistema..." class="input-dms w-[260px] pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA]">
+        </div>
+      </div>
+    </header>
+
+    <!-- ========== CONTENT ========== -->
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <!-- ========== PAGE HEADER (com tilt accent obrigatório) ========== -->
+      <div class="mb-6">
+        <div class="flex items-center gap-3 mb-2">
+          <!-- Tilt accent obrigatório: 48×3px -->
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Catálogo de Tags @</h1>
+        </div>
+        <p class="text-sm text-dms-tecnologia max-w-3xl">
+          Catálogo híbrido: campos do schema viram <span class="mono text-dms-mar">@</span> automaticamente; admin pode esconder os sensíveis. Toda tag segue o padrão <span class="mono text-dms-mar">@modulo_tabela_campo</span>.
+        </p>
+      </div>
+
+      <!-- ========== KPI CARDS (clicáveis, filtram a tabela) ========== -->
+      <div class="grid grid-cols-5 gap-4 mb-6" id="kpi-row">
+        <button data-filter="todas" class="kpi-card active text-left bg-dms-mar text-white p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black">147</div>
+          <div class="caption text-white/80 mt-2">Todas</div>
+        </button>
+        <button data-filter="visiveis" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black text-dms-mar">128</div>
+          <div class="caption text-dms-tecnologia mt-2">Visíveis</div>
+        </button>
+        <button data-filter="escondidas" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black text-dms-mar">19</div>
+          <div class="caption text-dms-tecnologia mt-2">Escondidas</div>
+        </button>
+        <button data-filter="com_filtro" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black text-dms-mar">12</div>
+          <div class="caption text-dms-tecnologia mt-2">Com filtro</div>
+        </button>
+        <button data-filter="override" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black text-dms-mar">3</div>
+          <div class="caption text-dms-tecnologia mt-2">Tipo override</div>
+        </button>
+      </div>
+
+      <!-- ========== TOOLBAR ========== -->
+      <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+        <div class="flex items-center gap-3 flex-1">
+          <!-- Busca -->
+          <div class="relative flex-1 max-w-md">
+            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input id="search-input" type="text" placeholder="Buscar por tag, apelido, tabela, campo..." class="input-dms w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          </div>
+          <!-- Filtro módulo -->
+          <select id="filter-module" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+            <option value="">Todos os módulos</option>
+            <option value="compras">Compras</option>
+            <option value="auth">Auth</option>
+            <option value="workflow">Workflow</option>
+          </select>
+          <!-- Filtro tabela -->
+          <select id="filter-table" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+            <option value="">Todas as tabelas</option>
+            <option value="requisition">requisition</option>
+            <option value="purchase_order">purchase_order</option>
+            <option value="invoice">invoice</option>
+            <option value="contract">contract</option>
+            <option value="supplier">supplier</option>
+            <option value="budget">budget</option>
+            <option value="users">users</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button class="flex items-center gap-2 text-sm font-semibold text-dms-mar px-4 py-2 bg-white border border-dms-mar rounded-md hover:bg-dms-mar hover:text-white transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Resincronizar schema
+          </button>
+          <button class="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Nova Tag
+          </button>
+        </div>
+      </div>
+
+      <!-- ========== TABELA ========== -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden shadow-dms-md">
+
+        <!-- Loading state (escondido por padrão; demonstrável via toggle abaixo) -->
+        <div id="loading-state" class="hidden p-6 space-y-3">
+          <div class="skel h-4 w-full"></div>
+          <div class="skel h-4 w-full"></div>
+          <div class="skel h-4 w-full"></div>
+          <div class="skel h-4 w-full"></div>
+          <div class="skel h-4 w-full"></div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="empty-state" class="hidden p-16 text-center">
+          <div class="w-16 h-16 bg-[#F8F9FA] rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+          </div>
+          <h3 class="text-lg font-semibold text-dms-mar mb-2">Nenhuma tag encontrada</h3>
+          <p class="text-sm text-dms-tecnologia mb-6 max-w-sm mx-auto">
+            Não há tags que correspondam aos filtros aplicados. Tente ajustar a busca, ou crie uma nova tag manualmente.
+          </p>
+          <button class="inline-flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Nova Tag
+          </button>
+        </div>
+
+        <!-- Error state (escondido por padrão) -->
+        <div id="error-state" class="hidden p-8">
+          <div class="bg-red-50 border border-red-200 rounded-lg p-5">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <div class="flex-1">
+                <h4 class="text-sm font-semibold text-red-900">Erro ao carregar tags</h4>
+                <p class="text-sm text-red-700 mt-1">Não foi possível conectar ao servidor. Tente novamente em alguns instantes.</p>
+                <details class="mt-3 text-xs">
+                  <summary class="text-red-800 cursor-pointer font-medium">Detalhes técnicos</summary>
+                  <pre class="mt-2 p-2 bg-red-100 rounded mono text-red-900 overflow-x-auto">GET /api/v1/tags → 503 Service Unavailable
+Connection timeout after 30s</pre>
+                </details>
+                <button class="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-white px-4 py-2 bg-red-600 rounded-md hover:bg-red-700 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                  Tentar novamente
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabela normal -->
+        <table id="tags-table" class="w-full text-sm">
+          <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+            <tr>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">Tag</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">Módulo</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">Tabela</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">Campo</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">Tipo</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">Filtro</th>
+              <th class="text-center caption text-dms-tecnologia px-4 py-3 w-20">Visível</th>
+              <th class="text-right caption text-dms-tecnologia px-4 py-3 w-24">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tags-tbody" class="divide-y divide-[#E5E7EB]">
+            <!-- Linhas geradas via JS -->
+          </tbody>
+        </table>
+
+        <!-- Footer com contador + paginação -->
+        <div class="px-4 py-3 border-t border-[#E5E7EB] flex items-center justify-between text-sm text-dms-tecnologia">
+          <div>Mostrando <span class="font-semibold text-dms-mar" id="row-count">8</span> de <span class="font-semibold text-dms-mar">147</span> registros</div>
+          <div class="flex items-center gap-1">
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors disabled:opacity-30" disabled>‹ Anterior</button>
+            <button class="px-3 py-1 text-white bg-dms-mar rounded">1</button>
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">2</button>
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">3</button>
+            <span class="px-2">...</span>
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">19</button>
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">Próximo ›</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========== DEMO STATE TOGGLE (apenas pra alinhamento — REMOVER no React) ========== -->
+      <div class="mt-8 p-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg">
+        <div class="caption text-[#854D0E] mb-2">⚙ Demo · ver estados da tela</div>
+        <div class="flex gap-2 flex-wrap">
+          <button onclick="showState('normal')" class="px-3 py-1.5 text-xs font-semibold bg-white border border-[#FDE68A] rounded hover:bg-[#FEF3C7] transition-colors">Normal</button>
+          <button onclick="showState('loading')" class="px-3 py-1.5 text-xs font-semibold bg-white border border-[#FDE68A] rounded hover:bg-[#FEF3C7] transition-colors">Loading (skeleton)</button>
+          <button onclick="showState('empty')" class="px-3 py-1.5 text-xs font-semibold bg-white border border-[#FDE68A] rounded hover:bg-[#FEF3C7] transition-colors">Empty (sem registros)</button>
+          <button onclick="showState('error')" class="px-3 py-1.5 text-xs font-semibold bg-white border border-[#FDE68A] rounded hover:bg-[#FEF3C7] transition-colors">Error (falha de fetch)</button>
+        </div>
+        <p class="text-xs text-[#854D0E] mt-2 italic">Bloco de demonstração — não vai pro React final.</p>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ DADOS MOCK + JS ============ -->
+<script>
+const MOCK_TAGS = [
+  { tag: '@compras_requisition_status', module: 'Compras', table: 'requisition', field: 'status', type: 'select', filter: '—', visible: true, invalid: false, override: false },
+  { tag: '@compras_requisition_valor_total', module: 'Compras', table: 'requisition', field: 'valor_total', type: 'number', filter: '—', visible: true, invalid: false, override: false },
+  { tag: '@compras_requisition_centro_custo', module: 'Compras', table: 'requisition', field: 'centro_custo', type: 'select', filter: '—', visible: true, invalid: false, override: true },
+  { tag: '@compras_purchase_order_status', module: 'Compras', table: 'purchase_order', field: 'status', type: 'select', filter: '—', visible: true, invalid: false, override: false },
+  { tag: '@compras_purchase_order_valor_total', module: 'Compras', table: 'purchase_order', field: 'valor_total', type: 'number', filter: '—', visible: true, invalid: false, override: false },
+  { tag: '@compras_purchase_order_data_vencimento', module: 'Compras', table: 'purchase_order', field: 'data_vencimento', type: 'date', filter: '—', visible: true, invalid: false, override: false },
+  { tag: '@compras_invoice_status', module: 'Compras', table: 'invoice', field: 'status', type: 'select', filter: '—', visible: true, invalid: false, override: false },
+  { tag: '@compras_invoice_valor', module: 'Compras', table: 'invoice', field: 'valor', type: 'number', filter: 'document_type = invoice', visible: true, invalid: false, override: false },
+  { tag: '@compras_contract_end_date', module: 'Compras', table: 'contract', field: 'end_date', type: 'date', filter: '—', visible: true, invalid: false, override: false },
+  { tag: '@compras_supplier_status', module: 'Compras', table: 'supplier', field: 'status', type: 'select', filter: '—', visible: true, invalid: false, override: false },
+  { tag: '@compras_budget_saldo_disponivel', module: 'Compras', table: 'budget', field: 'saldo_disponivel', type: 'number', filter: 'ciclo_atual = true', visible: true, invalid: false, override: false },
+  { tag: '@compras_user_password_hash', module: 'Compras', table: 'users', field: 'password_hash', type: 'string', filter: '—', visible: false, invalid: false, override: false },
+  { tag: '@compras_supplier_documentos_homologacao', module: 'Compras', table: 'supplier', field: 'documentos_homologacao', type: 'json', filter: '—', visible: false, invalid: false, override: false },
+];
+
+const typeColors = {
+  select: 'bg-blue-50 text-blue-700 border-blue-200',
+  number: 'bg-purple-50 text-purple-700 border-purple-200',
+  date: 'bg-green-50 text-green-700 border-green-200',
+  string: 'bg-gray-50 text-gray-700 border-gray-200',
+  json: 'bg-orange-50 text-orange-700 border-orange-200',
+  currency: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+};
+
+let activeFilter = 'todas';
+let searchQuery = '';
+let moduleFilter = '';
+let tableFilter = '';
+
+function renderRows() {
+  const tbody = document.getElementById('tags-tbody');
+  let rows = MOCK_TAGS;
+
+  // Filtro KPI
+  if (activeFilter === 'visiveis') rows = rows.filter(t => t.visible);
+  if (activeFilter === 'escondidas') rows = rows.filter(t => !t.visible);
+  if (activeFilter === 'com_filtro') rows = rows.filter(t => t.filter !== '—');
+  if (activeFilter === 'override') rows = rows.filter(t => t.override);
+
+  // Busca
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    rows = rows.filter(t =>
+      t.tag.toLowerCase().includes(q) ||
+      t.table.toLowerCase().includes(q) ||
+      t.field.toLowerCase().includes(q)
+    );
+  }
+
+  // Filtros módulo/tabela
+  if (moduleFilter) rows = rows.filter(t => t.module.toLowerCase() === moduleFilter);
+  if (tableFilter) rows = rows.filter(t => t.table === tableFilter);
+
+  // Render
+  tbody.innerHTML = rows.map(t => `
+    <tr class="${!t.visible ? 'opacity-50' : ''}">
+      <td class="px-4 py-3">
+        <span class="mono text-dms-mar font-medium">${t.tag}</span>
+        ${t.override ? '<span class="ml-2 inline-flex items-center px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded bg-purple-100 text-purple-700">override</span>' : ''}
+      </td>
+      <td class="px-4 py-3">
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-dms-ceu/10 text-dms-confianca">${t.module}</span>
+      </td>
+      <td class="px-4 py-3 mono text-xs text-dms-tecnologia">${t.table}</td>
+      <td class="px-4 py-3 mono text-xs text-dms-tecnologia">${t.field}</td>
+      <td class="px-4 py-3">
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${typeColors[t.type] || typeColors.string}">${t.type}</span>
+      </td>
+      <td class="px-4 py-3 text-xs ${t.filter !== '—' ? 'text-dms-mar mono' : 'text-dms-tecnologia'}">${t.filter}</td>
+      <td class="px-4 py-3 text-center">
+        <label class="inline-block cursor-pointer">
+          <input type="checkbox" class="toggle-input sr-only" ${t.visible ? 'checked' : ''}>
+          <div class="toggle-track w-10 h-5 bg-gray-300 rounded-full relative">
+            <div class="toggle-dot w-4 h-4 bg-white rounded-full absolute top-0.5 left-0.5 shadow-sm"></div>
+          </div>
+        </label>
+      </td>
+      <td class="px-4 py-3 text-right">
+        <div class="row-actions inline-flex items-center gap-1">
+          <button class="p-1.5 text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] rounded transition-colors" title="Editar">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  document.getElementById('row-count').textContent = rows.length;
+
+  // Mostra empty state se zero linhas
+  if (rows.length === 0) {
+    document.getElementById('tags-table').style.display = 'none';
+    document.getElementById('empty-state').classList.remove('hidden');
+  } else {
+    document.getElementById('tags-table').style.display = '';
+    document.getElementById('empty-state').classList.add('hidden');
+  }
+}
+
+// KPI cards click → filtro
+document.getElementById('kpi-row').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-filter]');
+  if (!card) return;
+  document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  activeFilter = card.dataset.filter;
+  renderRows();
+});
+
+// Busca
+document.getElementById('search-input').addEventListener('input', (e) => {
+  searchQuery = e.target.value;
+  renderRows();
+});
+
+document.getElementById('filter-module').addEventListener('change', (e) => {
+  moduleFilter = e.target.value;
+  renderRows();
+});
+
+document.getElementById('filter-table').addEventListener('change', (e) => {
+  tableFilter = e.target.value;
+  renderRows();
+});
+
+// Toggle de estados (demo)
+function showState(state) {
+  const table = document.getElementById('tags-table');
+  const loading = document.getElementById('loading-state');
+  const empty = document.getElementById('empty-state');
+  const error = document.getElementById('error-state');
+
+  table.style.display = 'none';
+  loading.classList.add('hidden');
+  empty.classList.add('hidden');
+  error.classList.add('hidden');
+
+  if (state === 'normal') { table.style.display = ''; renderRows(); }
+  if (state === 'loading') loading.classList.remove('hidden');
+  if (state === 'empty') empty.classList.remove('hidden');
+  if (state === 'error') error.classList.remove('hidden');
+}
+
+// Init
+renderRows();
+</script>
+
+</body>
+</html>

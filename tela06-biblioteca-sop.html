@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Biblioteca SOP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C', ceu: '#00AEEE', confianca: '#005290',
+          sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+  tbody tr { transition: background-color 150ms ease; cursor: pointer; }
+  tbody tr:hover { background-color: #FAFBFC; }
+  .row-actions { opacity: 0; transition: opacity 150ms ease; }
+  tbody tr:hover .row-actions { opacity: 1; }
+  .kpi-card { transition: transform 150ms ease, box-shadow 150ms ease; cursor: pointer; }
+  .kpi-card:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0, 56, 108, 0.10); }
+  .kpi-card.active { box-shadow: inset 0 0 0 2px #00AEEE; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+        <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
+      </div>
+      <div>
+        <div class="font-bold text-base leading-tight">DMS</div>
+        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
+      </div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+      <div class="caption text-white/40 px-6 mb-2">Workflow Builder</div>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        Catálogo de Tags
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Procedures
+      </a>
+      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Biblioteca SOP
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+        Catálogo de Workflows
+      </a>
+    </nav>
+    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">FA</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold truncate">Fernando Arruda</div>
+        <div class="text-xs text-white/60 truncate">Admin · DMS Log</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <!-- HEADER -->
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Workflow Builder</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Biblioteca SOP</span>
+      </nav>
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Buscar em todo o sistema..." class="input-dms w-[260px] pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA]">
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <!-- PAGE HEADER -->
+      <div class="mb-6">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Biblioteca SOP</h1>
+        </div>
+        <p class="text-sm text-dms-tecnologia max-w-3xl">
+          Instruções textuais padronizadas de "como fazer". Diferente de <em>Procedure</em> (regra automática) e <em>Workflow</em> (sequência). Uma SOP pode ser anexada a múltiplos stages em diferentes workflows. Versionada, com governança via aprovação.
+        </p>
+      </div>
+
+      <!-- KPI CARDS (5 categorias agrupadas + total) -->
+      <!-- Nota: CONCEPT-sop-v2 §1.3.1 define 8 categorias enum FECHADO. Aqui agrupei nos 4 grupos principais pra caber em 5 KPIs (igual padrão das outras telas). Filtro completo de 8 está no select. -->
+      <div class="grid grid-cols-5 gap-4 mb-6" id="kpi-row">
+        <button data-filter="todas" class="kpi-card active text-left bg-dms-mar text-white p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black">38</div>
+          <div class="caption text-white/80 mt-2">Todas</div>
+        </button>
+        <button data-filter="aprovacao" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black text-dms-mar">12</div>
+          <div class="caption text-dms-tecnologia mt-2">Aprovação</div>
+        </button>
+        <button data-filter="operacao" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black text-dms-mar">9</div>
+          <div class="caption text-dms-tecnologia mt-2">Operação</div>
+        </button>
+        <button data-filter="financeiro" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black text-dms-mar">8</div>
+          <div class="caption text-dms-tecnologia mt-2">Financeiro/Fiscal</div>
+        </button>
+        <button data-filter="governanca" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black text-dms-mar">9</div>
+          <div class="caption text-dms-tecnologia mt-2">Governança/Compliance</div>
+        </button>
+      </div>
+
+      <!-- TOOLBAR -->
+      <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+        <div class="flex items-center gap-3 flex-1">
+          <div class="relative flex-1 max-w-md">
+            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input id="search-input" type="text" placeholder="Buscar por código, título, subtítulo..." class="input-dms w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          </div>
+          <select id="filter-category" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+            <option value="">Todas as categorias</option>
+            <optgroup label="Operacional">
+              <option value="operacao_documento">Operação · Documento</option>
+              <option value="operacao_fisica">Operação · Física</option>
+              <option value="operacao_comunicacao">Operação · Comunicação</option>
+            </optgroup>
+            <optgroup label="Governança">
+              <option value="aprovacao">Aprovação</option>
+              <option value="compliance">Compliance</option>
+              <option value="auditoria">Auditoria</option>
+            </optgroup>
+            <optgroup label="Financeiro/Fiscal">
+              <option value="financeiro">Financeiro</option>
+              <option value="fiscal_tributario">Fiscal/Tributário</option>
+            </optgroup>
+          </select>
+          <select id="filter-status" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+            <option value="">Todos os status</option>
+            <option value="ativo">Ativo</option>
+            <option value="em_revisao">Em revisão</option>
+            <option value="rascunho">Rascunho</option>
+            <option value="deprecated">Deprecated</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button class="flex items-center gap-2 text-sm font-semibold text-dms-mar px-4 py-2 bg-white border border-dms-mar rounded-md hover:bg-dms-mar hover:text-white transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            Clonar
+          </button>
+          <button class="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Nova SOP
+          </button>
+        </div>
+      </div>
+
+      <!-- TABELA -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden shadow-dms-md">
+        <div id="empty-state" class="hidden p-16 text-center">
+          <div class="w-16 h-16 bg-[#F8F9FA] rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <h3 class="text-lg font-semibold text-dms-mar mb-2">Nenhuma SOP encontrada</h3>
+          <p class="text-sm text-dms-tecnologia mb-6 max-w-sm mx-auto">Não há SOPs que correspondam aos filtros. Tente ajustar a busca, ou crie uma nova SOP.</p>
+          <button class="inline-flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Nova SOP
+          </button>
+        </div>
+
+        <table id="sop-table" class="w-full text-sm">
+          <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+            <tr>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-24">Código</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">Título</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-40">Categoria</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-32">Última edição</th>
+              <th class="text-center caption text-dms-tecnologia px-4 py-3 w-32">Stages que usam</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-36">Versão</th>
+              <th class="text-right caption text-dms-tecnologia px-4 py-3 w-20">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="sop-tbody" class="divide-y divide-[#E5E7EB]"></tbody>
+        </table>
+
+        <div class="px-4 py-3 border-t border-[#E5E7EB] flex items-center justify-between text-sm text-dms-tecnologia">
+          <div>Mostrando <span class="font-semibold text-dms-mar" id="row-count">7</span> de <span class="font-semibold text-dms-mar">38</span> registros</div>
+          <div class="flex items-center gap-1">
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors disabled:opacity-30" disabled>‹ Anterior</button>
+            <button class="px-3 py-1 text-white bg-dms-mar rounded">1</button>
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">2</button>
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">3</button>
+            <span class="px-2">...</span>
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">Próximo ›</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nota sobre categorias enum FECHADO -->
+      <div class="mt-4 p-4 bg-dms-ceu/5 border border-dms-ceu/20 rounded-lg flex gap-3">
+        <svg class="w-5 h-5 text-dms-confianca flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div class="text-sm text-dms-mar">
+          <strong>Categorias enum FECHADO</strong> (CONCEPT-sop-v2 §1.3.1, drift 2026-05-10): 8 valores oficiais — operacao_documento, operacao_fisica, operacao_comunicacao, aprovacao, compliance, auditoria, financeiro, fiscal_tributario. <strong>"Outros" não existe</strong> — se nenhuma se encaixar, abrir DP.
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+const MOCK_SOPS = [
+  { code: 'SOP-001', title: 'Como aprovar uma requisição como Diretor', subtitle: 'Checklist de validação financeira + carimbo de aprovação', category: 'aprovacao', categoryLabel: 'Aprovação', lastEdit: 'há 3 dias', stages: 7, version: '2.1', status: 'ativo' },
+  { code: 'SOP-002', title: 'Como aprovar como C-Level (estouro de orçamento)', subtitle: 'Análise de impacto financeiro + decisão documentada', category: 'aprovacao', categoryLabel: 'Aprovação', lastEdit: 'há 1 semana', stages: 3, version: '1.4', status: 'ativo' },
+  { code: 'SOP-003', title: 'Como receber e validar uma NF (6 critérios)', subtitle: 'Validação CNPJ, fornecedor, PO, valor, competência, duplicidade', category: 'operacao_documento', categoryLabel: 'Operação · Documento', lastEdit: 'há 12 dias', stages: 2, version: '3.0', status: 'ativo' },
+  { code: 'SOP-004', title: 'Como tratar NF em quarentena', subtitle: 'Análise da divergência + decisão devolver/corrigir + e-mail fornecedor', category: 'operacao_comunicacao', categoryLabel: 'Operação · Comunicação', lastEdit: 'há 2 semanas', stages: 1, version: '1.0', status: 'ativo' },
+  { code: 'SOP-005', title: 'Como solicitar e analisar 3 cotações', subtitle: 'Envio de convite, validação de propostas, análise comparativa', category: 'operacao_comunicacao', categoryLabel: 'Operação · Comunicação', lastEdit: 'há 5 dias', stages: 4, version: '2.0', status: 'ativo' },
+  { code: 'SOP-006', title: 'Como conferir pagamento na conciliação Omie', subtitle: 'Verificação webhook + baixa da parcela + atualização orçamento', category: 'financeiro', categoryLabel: 'Financeiro', lastEdit: 'há 1 mês', stages: 5, version: '1.2', status: 'ativo' },
+  { code: 'SOP-007', title: 'Como negociar renovação de contrato (D-90)', subtitle: 'Análise reajuste + benchmark + decisão + assinatura digital', category: 'aprovacao', categoryLabel: 'Aprovação', lastEdit: 'há 2 semanas', stages: 2, version: '1.0', status: 'em_revisao' },
+];
+
+// Cores por categoria — alinhadas ao DS v1.1 (paleta DMS)
+const categoryColor = {
+  aprovacao: 'bg-[rgba(0,174,238,0.15)] text-[#005290]',         // ceu/confianca — governança
+  compliance: 'bg-[rgba(100,53,133,0.10)] text-dms-sabedoria',    // sabedoria — regulatório
+  auditoria: 'bg-[rgba(100,53,133,0.10)] text-dms-sabedoria',
+  operacao_documento: 'bg-[rgba(0,56,108,0.08)] text-dms-mar',    // mar — operacional
+  operacao_fisica: 'bg-[rgba(0,56,108,0.08)] text-dms-mar',
+  operacao_comunicacao: 'bg-[rgba(0,56,108,0.08)] text-dms-mar',
+  financeiro: 'bg-[rgba(176,201,52,0.15)] text-[#7A8F24]',         // tropicalidade — financeiro
+  fiscal_tributario: 'bg-[rgba(176,201,52,0.15)] text-[#7A8F24]',
+};
+
+// Agrupamento pros KPIs
+const categoryGroup = {
+  aprovacao: 'aprovacao',
+  compliance: 'governanca',
+  auditoria: 'governanca',
+  operacao_documento: 'operacao',
+  operacao_fisica: 'operacao',
+  operacao_comunicacao: 'operacao',
+  financeiro: 'financeiro',
+  fiscal_tributario: 'financeiro',
+};
+
+let activeFilter = 'todas';
+let searchQuery = '';
+let categoryFilter = '';
+let statusFilter = '';
+
+function renderRows() {
+  const tbody = document.getElementById('sop-tbody');
+  let rows = MOCK_SOPS;
+
+  if (activeFilter !== 'todas') rows = rows.filter(s => categoryGroup[s.category] === activeFilter);
+  if (categoryFilter) rows = rows.filter(s => s.category === categoryFilter);
+  if (statusFilter) rows = rows.filter(s => s.status === statusFilter);
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    rows = rows.filter(s => s.code.toLowerCase().includes(q) || s.title.toLowerCase().includes(q) || s.subtitle.toLowerCase().includes(q));
+  }
+
+  tbody.innerHTML = rows.map(s => {
+    // Badge de versão muda conforme status
+    let versionBadge;
+    if (s.status === 'ativo') {
+      versionBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(176,201,52,0.15)] text-[#7A8F24] font-mono">v ${s.version}</span>`;
+    } else if (s.status === 'em_revisao') {
+      versionBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(234,179,8,0.15)] text-[#854D0E]"><span class="w-1.5 h-1.5 rounded-full bg-[#EAB308]"></span><span class="mono">v ${s.version}</span> · em revisão</span>`;
+    } else if (s.status === 'rascunho') {
+      versionBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(0,174,238,0.15)] text-[#005290]"><span class="w-1.5 h-1.5 rounded-full bg-dms-ceu"></span><span class="mono">v ${s.version}</span> · rascunho</span>`;
+    } else {
+      versionBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#E5E7EB] text-[#6B7280]"><span class="w-1.5 h-1.5 rounded-full bg-[#9CA3AF]"></span><span class="mono">v ${s.version}</span> · deprecated</span>`;
+    }
+
+    return `
+    <tr>
+      <td class="px-4 py-3">
+        <span class="mono text-dms-mar font-semibold text-xs">${s.code}</span>
+      </td>
+      <td class="px-4 py-3">
+        <div class="font-semibold text-dms-mar">${s.title}</div>
+        <div class="text-xs text-dms-tecnologia mt-0.5">${s.subtitle}</div>
+      </td>
+      <td class="px-4 py-3">
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${categoryColor[s.category]}">${s.categoryLabel}</span>
+      </td>
+      <td class="px-4 py-3 text-xs text-dms-tecnologia">${s.lastEdit}</td>
+      <td class="px-4 py-3 text-center">
+        ${s.stages > 0
+          ? `<a href="#" class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-dms-ceu/10 text-dms-confianca font-semibold text-xs hover:bg-dms-ceu/20 transition-colors" title="Ver stages que usam">${s.stages}</a>`
+          : `<span class="text-dms-tecnologia text-xs">0</span>`
+        }
+      </td>
+      <td class="px-4 py-3">${versionBadge}</td>
+      <td class="px-4 py-3 text-right">
+        <div class="row-actions inline-flex items-center gap-1">
+          <button class="p-1.5 text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] rounded transition-colors" title="Editar">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>
+    `;
+  }).join('');
+
+  document.getElementById('row-count').textContent = rows.length;
+
+  if (rows.length === 0) {
+    document.getElementById('sop-table').style.display = 'none';
+    document.getElementById('empty-state').classList.remove('hidden');
+  } else {
+    document.getElementById('sop-table').style.display = '';
+    document.getElementById('empty-state').classList.add('hidden');
+  }
+}
+
+document.getElementById('kpi-row').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-filter]');
+  if (!card) return;
+  document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  activeFilter = card.dataset.filter;
+  renderRows();
+});
+
+document.getElementById('search-input').addEventListener('input', (e) => { searchQuery = e.target.value; renderRows(); });
+document.getElementById('filter-category').addEventListener('change', (e) => { categoryFilter = e.target.value; renderRows(); });
+document.getElementById('filter-status').addEventListener('change', (e) => { statusFilter = e.target.value; renderRows(); });
+
+renderRows();
+</script>
+
+</body>
+</html>

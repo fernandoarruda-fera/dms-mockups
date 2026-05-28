@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — MVP v2 — Navegador de Mockups</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C',
+          ceu: '#00AEEE',
+          confianca: '#005290',
+          sabedoria: '#643585',
+          tropicalidade: '#B0C934',
+          tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; margin: 0; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .caption { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .nav-item { transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease; }
+  .nav-item:hover { background-color: #F1F5F9; }
+  .nav-item.active { background-color: #E0F2FE; color: #00386C; border-left-color: #00AEEE; }
+  .nav-num { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 11px; color: #9CA3AF; min-width: 28px; }
+  .nav-item.active .nav-num { color: #00386C; }
+  .group-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #94A3B8; padding: 16px 16px 6px 16px; }
+  iframe#viewer { border: 0; background: #FFFFFF; display: block; width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- Sidebar -->
+  <aside class="w-72 bg-white border-r border-gray-200 flex flex-col">
+    <!-- Header -->
+    <div class="px-5 py-4 border-b border-gray-200 bg-dms-mar text-white">
+      <div class="flex items-center gap-2">
+        <span class="tilt-skew-d inline-block w-2 h-6 bg-dms-ceu"></span>
+        <span class="caption text-white">DMS</span>
+      </div>
+      <div class="mt-1 font-semibold text-base leading-tight">MVP v2 — Mockups</div>
+      <div class="text-xs text-white/70 mt-0.5">20 telas · validação</div>
+    </div>
+
+    <!-- Nav list -->
+    <nav class="flex-1 overflow-y-auto py-2" id="nav">
+      <!-- Catálogos -->
+      <div class="group-label">Catálogos</div>
+      <a href="#" data-src="tela01-catalogo-tags.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">01</span><span>Catálogo de Tags</span>
+      </a>
+      <a href="#" data-src="tela02-tag-form.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">02</span><span>Tag Form</span>
+      </a>
+      <a href="#" data-src="tela03-procedures-list.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">03</span><span>Procedures List</span>
+      </a>
+      <a href="#" data-src="tela04-catalogo-workflows.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">04</span><span>Catálogo de Workflows</span>
+      </a>
+      <a href="#" data-src="tela05-invalidate-modal.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">05</span><span>Invalidate Modal</span>
+      </a>
+
+      <!-- SOPs -->
+      <div class="group-label">SOPs</div>
+      <a href="#" data-src="tela06-biblioteca-sop.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">06</span><span>Biblioteca SOP</span>
+      </a>
+      <a href="#" data-src="tela07-editor-sop.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">07</span><span>Editor SOP</span>
+      </a>
+
+      <!-- Builder -->
+      <div class="group-label">Workflow Builder</div>
+      <a href="#" data-src="tela08-builder-stage-trigger.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">08</span><span>Stage Trigger</span>
+      </a>
+      <a href="#" data-src="tela09-builder-escalation-trigger.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">09</span><span>Escalation Trigger</span>
+      </a>
+      <a href="#" data-src="tela10-workflow-builder.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">10</span><span>Workflow Builder</span>
+      </a>
+
+      <!-- Engine + Visibility -->
+      <div class="group-label">Engine &amp; Visibilidade</div>
+      <a href="#" data-src="tela11-match-engine.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">11</span><span>Match Engine</span>
+      </a>
+      <a href="#" data-src="tela12-execution-visibility.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">12</span><span>Execution Visibility</span>
+      </a>
+      <a href="#" data-src="tela13-audit-trail.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">13</span><span>Audit Trail</span>
+      </a>
+
+      <!-- Setup -->
+      <div class="group-label">Setup &amp; Admin</div>
+      <a href="#" data-src="tela14-setup-integracoes.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">14</span><span>Setup Integrações</span>
+      </a>
+      <a href="#" data-src="tela15-mailia-admin.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">15</span><span>Mail-IA Admin</span>
+      </a>
+
+      <!-- Cockpit -->
+      <div class="group-label">Cockpit</div>
+      <a href="#" data-src="tela16-cockpit-overview.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">16</span><span>Overview</span>
+      </a>
+      <a href="#" data-src="tela17-cockpit-email.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">17</span><span>Email</span>
+      </a>
+      <a href="#" data-src="tela18-cockpit-todo.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">18</span><span>To-Do</span>
+      </a>
+      <a href="#" data-src="tela19-cockpit-followup.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">19</span><span>Follow-up</span>
+      </a>
+      <a href="#" data-src="tela20-cockpit-update.html" class="nav-item flex items-center gap-2 px-4 py-2 border-l-2 border-transparent text-sm text-gray-700">
+        <span class="nav-num">20</span><span>Update</span>
+      </a>
+    </nav>
+
+    <!-- Footer -->
+    <div class="px-4 py-3 border-t border-gray-200 text-[11px] text-gray-500 leading-relaxed">
+      <div>MVP v2 · DMS Logistics</div>
+      <div class="mono">build: 2026-05-28</div>
+    </div>
+  </aside>
+
+  <!-- Viewer -->
+  <main class="flex-1 bg-white">
+    <iframe id="viewer" src="tela01-catalogo-tags.html" title="Mockup preview"></iframe>
+  </main>
+
+</div>
+
+<script>
+(function () {
+  var nav = document.getElementById('nav');
+  var viewer = document.getElementById('viewer');
+  var items = nav.querySelectorAll('a.nav-item');
+
+  function setActiveBySrc(src) {
+    items.forEach(function (it) {
+      if (it.getAttribute('data-src') === src) it.classList.add('active');
+      else it.classList.remove('active');
+    });
+  }
+
+  function loadFromHash() {
+    var h = (location.hash || '').replace(/^#/, '');
+    if (h) {
+      viewer.src = h;
+      setActiveBySrc(h);
+    } else {
+      setActiveBySrc('tela01-catalogo-tags.html');
+    }
+  }
+
+  items.forEach(function (it) {
+    it.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (it.getAttribute('data-missing') === '1') {
+        alert('Esta tela ainda não foi publicada. Será adicionada quando estiver disponível.');
+        return;
+      }
+      var src = it.getAttribute('data-src');
+      location.hash = src;
+      viewer.src = src;
+      setActiveBySrc(src);
+    });
+  });
+
+  window.addEventListener('hashchange', loadFromHash);
+  loadFromHash();
+})();
+</script>
+
+</body>
+</html>

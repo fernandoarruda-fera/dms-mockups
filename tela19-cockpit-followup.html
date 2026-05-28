@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Cockpit · Follow Up expandido</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = { corePlugins: { preflight: true }, theme: { extend: { colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' }}, fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] }, boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)' }}}};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 11px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 16px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+  .kpi-cell { padding: 12px 14px; }
+  .kpi-cell .label { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #656464; }
+  .kpi-cell .value { font-size: 26px; font-weight: 800; line-height: 1; color: #00386C; margin-top: 6px; }
+  .kpi-cell .delta { font-size: 10px; color: #656464; margin-top: 4px; }
+  .kpi-cell .delta.up { color: #5C7818; }
+
+  /* Card de grid (igual mockup pg 37 — 4 colunas lado a lado) */
+  .task-card {
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 150ms ease;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .task-card:hover { box-shadow: 0 2px 6px -1px rgba(0,56,108,0.10); transform: translateY(-1px); border-color: #D1D5DB; }
+  .task-card.delay { border-top: 3px solid #DC2626; }
+  .task-card.warning { border-top: 3px solid #EAB308; }
+  .task-card.ontime { border-top: 3px solid #B0C934; }
+
+  .task-card .card-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .task-card .stage-name { font-size: 12px; font-weight: 700; color: #00386C; line-height: 1.25; }
+  .task-card .process-id { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; color: #005290; }
+  .task-card .meta-list { display: flex; flex-direction: column; gap: 2px; font-size: 10.5px; color: #656464; line-height: 1.35; }
+  .task-card .meta-list .meta-row { display: flex; align-items: center; gap: 4px; }
+  .task-card .meta-list .meta-row strong { color: #1A1A1A; font-weight: 600; }
+  .task-card .card-foot { display: flex; align-items: center; justify-content: flex-end; padding-top: 4px; border-top: 1px solid #F3F4F6; margin-top: auto; }
+
+  .time-pill { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+  .time-pill.delay { background: rgba(220,38,38,0.10); color: #991B1B; }
+  .time-pill.warning { background: rgba(234,179,8,0.15); color: #854D0E; }
+  .time-pill.ontime { background: rgba(176,201,52,0.15); color: #5C7818; }
+
+  .prio-critica { background: rgba(220,38,38,0.10); color: #991B1B; }
+  .prio-alta { background: rgba(234,179,8,0.15); color: #854D0E; }
+  .prio-normal { background: rgba(0,56,108,0.08); color: #00386C; }
+
+  .filter-label { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #00386C; margin-bottom: 6px; display: block; }
+  .page-btn { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 26px; padding: 0 8px; font-size: 11px; font-weight: 600; color: #656464; border-radius: 4px; transition: all 120ms; cursor: pointer; border: none; background: transparent; }
+  .page-btn:hover { background: #F8F9FA; color: #00386C; }
+  .page-btn.active { background: #00386C; color: white; }
+  .btn-abrir { font-size: 10px; font-weight: 700; color: white; padding: 4px 10px; background: #00386C; border-radius: 4px; transition: background 120ms; border: none; cursor: pointer; }
+  .btn-abrir:hover { background: #005290; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center"><span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span></div>
+      <div><div class="font-bold text-base leading-tight">DMS</div><div class="text-xs text-white/70 leading-tight">Workflow Engine</div></div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+      <div class="caption text-white/40 px-6 mb-2">Trabalho</div>
+      <a href="tela16-cockpit-overview.html" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Cockpit
+      </a>
+      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>Follow Up expandido
+      </a>
+    </nav>
+    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">MC</div>
+      <div class="flex-1 min-w-0"><div class="text-sm font-semibold truncate">Maria Costa</div><div class="text-xs text-white/60 truncate">Diretor Financeiro</div></div>
+    </div>
+  </aside>
+
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="bg-white border-b border-[#E5E7EB] px-6 py-3 sticky top-0 z-20">
+      <div class="flex items-start justify-between gap-6">
+        <div class="flex-1 min-w-0">
+          <nav class="flex items-center gap-1.5 text-xs text-dms-tecnologia mb-1.5">
+            <a href="tela16-cockpit-overview.html" class="hover:text-dms-mar transition-colors flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>Cockpit
+            </a>
+            <svg class="w-3 h-3 text-dms-tecnologia/50" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+            <span class="text-dms-mar font-semibold">Follow Up (expandido)</span>
+          </nav>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-[3px] bg-dms-sabedoria tilt-accent rounded-sm"></div>
+            <h1 class="text-[22px] leading-tight font-bold text-dms-mar">👀 Follow Up — Maria Costa</h1>
+          </div>
+          <p class="text-xs text-dms-tecnologia ml-[60px] mt-0.5">
+            <strong class="text-dms-mar">128</strong> processos sob acompanhamento · <strong class="text-red-700">19</strong> atrasados · executados por <strong class="text-dms-mar">12 colaboradores</strong> diferentes
+          </p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <a href="tela16-cockpit-overview.html" class="flex items-center gap-1.5 text-xs font-semibold text-dms-mar px-3 py-1.5 bg-white border border-dms-mar rounded-md hover:bg-dms-mar hover:text-white transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/></svg>Voltar ao overview
+          </a>
+          <button class="flex items-center gap-1.5 text-xs font-semibold text-dms-tecnologia px-3 py-1.5 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Exportar
+          </button>
+          
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 p-4 w-full mx-auto" style="max-width: 1600px;">
+
+      <!-- 6 KPIs + 2 TOP 5 -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md mb-4 grid" style="grid-template-columns: repeat(5, 1fr) 200px 200px;">
+        <div class="kpi-cell"><div class="label">Total</div><div class="value">128</div><div class="delta">12 colab.</div></div>
+        <div class="kpi-cell border-l border-[#F3F4F6]"><div class="label flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-dms-tropicalidade"></span>No prazo</div><div class="value" style="color:#5C7818">93</div><div class="delta">73%</div></div>
+        <div class="kpi-cell border-l border-[#F3F4F6]"><div class="label flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#EAB308]"></span>Atenção</div><div class="value" style="color:#854D0E">16</div><div class="delta">12%</div></div>
+        <div class="kpi-cell border-l border-[#F3F4F6]"><div class="label flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-red-600"></span>Atrasados</div><div class="value text-red-700">19</div><div class="delta">15%</div></div>
+        <div class="kpi-cell border-l border-[#F3F4F6]"><div class="label">Tempo médio</div><div class="value">3.2d</div><div class="delta">em curso</div></div>
+        <div class="kpi-cell border-l border-[#F3F4F6]" style="padding: 10px 14px;">
+          <div class="label mb-1.5">Top 5 Executor</div>
+          <div class="space-y-0.5 text-[11px]">
+            <div class="flex items-center justify-between"><span class="text-dms-mar">Coord. TI</span><span><strong class="text-dms-mar">32</strong> <span class="text-red-600">(5⚠)</span></span></div>
+            <div class="flex items-center justify-between"><span class="text-dms-mar">Gerente Fin</span><strong class="text-dms-mar">28</strong></div>
+            <div class="flex items-center justify-between"><span class="text-dms-mar">Coord. Fac</span><strong class="text-dms-mar">21</strong></div>
+            <div class="flex items-center justify-between"><span class="text-red-700">C-Level</span><span><strong class="text-red-700">14</strong> <span class="text-red-600">(6⚠)</span></span></div>
+            <div class="text-dms-tecnologia text-[10px] mt-0.5">+33 outros</div>
+          </div>
+        </div>
+        <div class="kpi-cell border-l border-[#F3F4F6]" style="padding: 10px 14px;">
+          <div class="label mb-1.5">Top 5 Workflow</div>
+          <div class="space-y-0.5 text-[11px]">
+            <div class="flex items-center justify-between"><span class="text-dms-mar">NF Avulsa</span><strong class="text-dms-mar">43</strong></div>
+            <div class="flex items-center justify-between"><span class="text-dms-mar">Avulsa Alto Vlr</span><strong class="text-dms-mar">32</strong></div>
+            <div class="flex items-center justify-between"><span class="text-dms-mar">Contrato Rec.</span><strong class="text-dms-mar">21</strong></div>
+            <div class="flex items-center justify-between"><span class="text-dms-mar">Cláusula Avulsa</span><strong class="text-dms-mar">18</strong></div>
+            <div class="text-dms-tecnologia text-[10px] mt-0.5">+14 outros</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GRID 2 COLUNAS -->
+      <div class="grid gap-4" style="grid-template-columns: 220px 1fr;">
+
+        <!-- FILTROS -->
+        <aside class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md p-4 h-fit">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="caption text-dms-mar font-bold flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>Filtros
+            </h3>
+            <button class="text-[10px] text-dms-tecnologia hover:text-dms-mar transition-colors">Limpar</button>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="filter-label">Busca livre</label>
+              <div class="relative">
+                <svg class="w-3.5 h-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="text" placeholder="Buscar..." class="input-dms w-full pl-7 pr-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-[#F8F9FA]">
+              </div>
+            </div>
+            <div>
+              <label class="filter-label">Status</label>
+              <div class="space-y-1.5">
+                <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="text-dms-mar flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade"></span>No prazo (93)</span></label>
+                <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="text-dms-mar flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-[#EAB308]"></span>Atenção (16)</span></label>
+                <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="text-dms-mar flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>Atrasados (19)</span></label>
+              </div>
+            </div>
+            <div><label class="filter-label">Executor</label><select class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white"><option>Todos</option><option>Coord. TI</option><option>Gerente Financeiro</option><option>Coord. Facilities</option><option>C-Level</option></select></div>
+            <div><label class="filter-label">Workflow</label><select class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white"><option>Todos</option><option>NF Avulsa</option><option>Avulsa Alto Valor</option><option>Cláusula Avulsa</option></select></div>
+            <div><label class="filter-label">Ordenar por</label><select class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white"><option selected>Maior atraso</option><option>Tempo c/ executor ↓</option><option>Mais recente</option></select></div>
+          </div>
+        </aside>
+
+        <!-- TABELA -->
+        <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+
+          <div class="px-3 py-2 border-b border-[#E5E7EB] bg-[#FAFBFC] flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-3 text-xs">
+              <label class="flex items-center gap-1.5 cursor-pointer text-dms-mar"><input type="checkbox" class="w-3.5 h-3.5 text-dms-mar rounded"><span>Marcar todos</span></label>
+              <span class="text-dms-tecnologia">·</span>
+              <span class="text-dms-tecnologia">Processos sob acompanhamento <strong class="text-dms-mar">(mostrando 12 de 128)</strong></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="window.open('tela16-cockpit-overview.html?openConfig=followup','_self')" class="flex items-center gap-1.5 text-xs font-semibold text-dms-confianca px-2.5 py-1 bg-white border border-dms-confianca rounded hover:bg-dms-confianca hover:text-white transition-colors" title="Configurar colunas visíveis para a aba FOLLOW UP">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
+                Configurar colunas (8/8)
+              </button>
+              <button class="text-xs font-semibold text-dms-tecnologia px-2.5 py-1 bg-white border border-[#E5E7EB] rounded hover:bg-[#F8F9FA] transition-colors">Ações em massa ▼</button>
+            </div>
+          </div>
+
+          <div class="px-3 py-1.5 text-[10px] text-dms-tecnologia bg-dms-ceu/5 border-b border-dms-ceu/20 flex items-center gap-1.5">
+            <svg class="w-3 h-3 text-dms-confianca" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>Grid de cards (igual mockup pg 37): <strong class="text-dms-mar">4 colunas</strong> · cards com tempo + prioridade · stage · processo · até <strong>4 campos meta</strong> configuráveis · botão Abrir. Default DMS: Executor · Tempo c/ executor · Workflow · Valor. Máx 8 campos via ⚙. Scroll vertical conforme conteúdo.</span>
+          </div>
+
+          <div class="p-3 grid gap-3" style="grid-template-columns: repeat(4, 1fr);">
+
+            <!-- Card 1: +3 dias C-Level -->
+            <div class="task-card delay" onclick="openTask('REQ-2026-0138')">
+              <div class="card-head">
+                <span class="time-pill delay">+3d</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase prio-critica">Atrasado</span>
+              </div>
+              <div class="stage-name">Aprovação C-Level</div>
+              <div class="process-id">REQ-2026-0138</div>
+              <div class="meta-list">
+                <div class="meta-row">Executor: <strong>C-Level</strong></div>
+                <div class="meta-row"><strong>4d c/ executor</strong></div>
+                <div class="meta-row">Fluxo <strong>Avulsa Alto Vlr</strong></div>
+                <div class="meta-row">R$ <strong>67.800</strong></div>
+              </div>
+              <div class="card-foot"><button class="btn-abrir">💬 Lembrar →</button></div>
+            </div>
+
+            <!-- Card 2: +1 dia Coord. TI -->
+            <div class="task-card delay" onclick="openTask('RFQ-0044')">
+              <div class="card-head">
+                <span class="time-pill delay">+1d</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase prio-critica">Atrasado</span>
+              </div>
+              <div class="stage-name">Cotação 3 fornec.</div>
+              <div class="process-id">RFQ-0044</div>
+              <div class="meta-list">
+                <div class="meta-row">Executor: <strong>Coord. TI</strong></div>
+                <div class="meta-row"><strong>7d c/ executor</strong></div>
+                <div class="meta-row">Fluxo <strong>Cláusula</strong></div>
+                <div class="meta-row text-dms-tecnologia/50">—</div>
+              </div>
+              <div class="card-foot"><button class="btn-abrir">💬 Lembrar →</button></div>
+            </div>
+
+            <!-- Card 3: 4d/5d Gerente Fin -->
+            <div class="task-card warning" onclick="openTask('CONT-017')">
+              <div class="card-head">
+                <span class="time-pill warning">4d/5d</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase prio-alta">Atenção</span>
+              </div>
+              <div class="stage-name">Renovação Contrato</div>
+              <div class="process-id">CONT-017</div>
+              <div class="meta-list">
+                <div class="meta-row">Executor: <strong>Gerente Fin</strong></div>
+                <div class="meta-row"><strong>4d c/ executor</strong></div>
+                <div class="meta-row">Fluxo <strong>Renovação</strong></div>
+                <div class="meta-row">R$ <strong>120.000</strong></div>
+              </div>
+              <div class="card-foot"><button class="btn-abrir">Abrir →</button></div>
+            </div>
+
+            <!-- Card 4: 2d/5d Coord. Fac -->
+            <div class="task-card ontime" onclick="openTask('RFQ-0048')">
+              <div class="card-head">
+                <span class="time-pill ontime">2d/5d</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase prio-normal">No prazo</span>
+              </div>
+              <div class="stage-name">Cotação cláusula</div>
+              <div class="process-id">RFQ-0048</div>
+              <div class="meta-list">
+                <div class="meta-row">Executor: <strong>Coord. Fac</strong></div>
+                <div class="meta-row"><strong>2d c/ executor</strong></div>
+                <div class="meta-row">Fluxo <strong>Cláusula</strong></div>
+                <div class="meta-row text-dms-tecnologia/50">—</div>
+              </div>
+              <div class="card-foot"><button class="btn-abrir">Abrir →</button></div>
+            </div>
+
+            <!-- Card 5: C-Level outro atrasado -->
+            <div class="task-card delay" onclick="openTask('REQ-2026-0145')">
+              <div class="card-head">
+                <span class="time-pill delay">+2d</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase prio-critica">Atrasado</span>
+              </div>
+              <div class="stage-name">Aprovação C-Level</div>
+              <div class="process-id">REQ-2026-0145</div>
+              <div class="meta-list">
+                <div class="meta-row">Executor: <strong>C-Level</strong></div>
+                <div class="meta-row"><strong>5d c/ executor</strong></div>
+                <div class="meta-row">Fluxo <strong>Avulsa Alto Vlr</strong></div>
+                <div class="meta-row">R$ <strong>95.200</strong></div>
+              </div>
+              <div class="card-foot"><button class="btn-abrir">💬 Lembrar →</button></div>
+            </div>
+
+            <!-- Card 6: Coord. TI normal -->
+            <div class="task-card ontime" onclick="openTask('PO-0089')">
+              <div class="card-head">
+                <span class="time-pill ontime">1d</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase prio-normal">No prazo</span>
+              </div>
+              <div class="stage-name">Recebimento PO</div>
+              <div class="process-id">PO-2026-0089</div>
+              <div class="meta-list">
+                <div class="meta-row">Executor: <strong>Coord. TI</strong></div>
+                <div class="meta-row"><strong>1d c/ executor</strong></div>
+                <div class="meta-row">Fluxo <strong>PO Padrão</strong></div>
+                <div class="meta-row">R$ <strong>23.500</strong></div>
+              </div>
+              <div class="card-foot"><button class="btn-abrir">Abrir →</button></div>
+            </div>
+
+            <!-- Card 7: Gerente Fin warning -->
+            <div class="task-card warning" onclick="openTask('CONT-022')">
+              <div class="card-head">
+                <span class="time-pill warning">3d/5d</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase prio-alta">Atenção</span>
+              </div>
+              <div class="stage-name">Aprovação Fin</div>
+              <div class="process-id">CONT-2026-022</div>
+              <div class="meta-list">
+                <div class="meta-row">Executor: <strong>Gerente Fin</strong></div>
+                <div class="meta-row"><strong>3d c/ executor</strong></div>
+                <div class="meta-row">Fluxo <strong>Contrato Rec.</strong></div>
+                <div class="meta-row">R$ <strong>45.000</strong></div>
+              </div>
+              <div class="card-foot"><button class="btn-abrir">Abrir →</button></div>
+            </div>
+
+            <!-- Card 8: Op Logística -->
+            <div class="task-card ontime" onclick="openTask('PO-0091')">
+              <div class="card-head">
+                <span class="time-pill ontime">12h</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase prio-normal">No prazo</span>
+              </div>
+              <div class="stage-name">Confirmar Recebimento</div>
+              <div class="process-id">PO-2026-0091</div>
+              <div class="meta-list">
+                <div class="meta-row">Executor: <strong>Op. Logística</strong></div>
+                <div class="meta-row"><strong>12h c/ executor</strong></div>
+                <div class="meta-row">Fluxo <strong>PO Padrão</strong></div>
+                <div class="meta-row">R$ <strong>18.200</strong></div>
+              </div>
+              <div class="card-foot"><button class="btn-abrir">Abrir →</button></div>
+            </div>
+
+            <!-- Card 9: Coord. Fac warning -->
+            <div class="task-card warning" onclick="openTask('REQ-2026-0152')">
+              <div class="card-head">
+                <span class="time-pill warning">36h</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase prio-alta">Atenção</span>
+              </div>
+              <div class="stage-name">Aprovação Coord.</div>
+              <div class="process-id">REQ-2026-0152</div>
+              <div class="meta-list">
+                <div class="meta-row">Executor: <strong>Coord. Fac</strong></div>
+                <div class="meta-row"><strong>36h c/ executor</strong></div>
+                <div class="meta-row">Fluxo <strong>Avulsa Padrão</strong></div>
+                <div class="meta-row">R$ <strong>15.300</strong></div>
+              </div>
+              <div class="card-foot"><button class="btn-abrir">Abrir →</button></div>
+            </div>
+
+            <!-- Card 10: Validação Auto -->
+            <div class="task-card ontime" onclick="openTask('NF-2026-0528')">
+              <div class="card-head">
+                <span class="time-pill ontime">2h</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase prio-normal">Auto</span>
+              </div>
+              <div class="stage-name">Validação NF</div>
+              <div class="process-id">NF-2026-0528</div>
+              <div class="meta-list">
+                <div class="meta-row">Executor: <strong>Validação Auto</strong></div>
+                <div class="meta-row"><strong>2h c/ executor</strong></div>
+                <div class="meta-row">Fluxo <strong>NF Avulsa</strong></div>
+                <div class="meta-row">R$ <strong>9.450</strong></div>
+              </div>
+              <div class="card-foot"><button class="btn-abrir">Abrir →</button></div>
+            </div>
+
+            <!-- Card 11: Marketing CO -->
+            <div class="task-card ontime" onclick="openTask('REQ-2026-0155')">
+              <div class="card-head">
+                <span class="time-pill ontime">8h</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase prio-normal">No prazo</span>
+              </div>
+              <div class="stage-name">Aprovação Coord.</div>
+              <div class="process-id">REQ-2026-0155</div>
+              <div class="meta-list">
+                <div class="meta-row">Executor: <strong>Coord. Marketing</strong></div>
+                <div class="meta-row"><strong>8h c/ executor</strong></div>
+                <div class="meta-row">Fluxo <strong>Avulsa Padrão</strong></div>
+                <div class="meta-row">R$ <strong>6.700</strong></div>
+              </div>
+              <div class="card-foot"><button class="btn-abrir">Abrir →</button></div>
+            </div>
+
+            <!-- Card 12: Coord. TI normal -->
+            <div class="task-card ontime" onclick="openTask('REQ-2026-0148')">
+              <div class="card-head">
+                <span class="time-pill ontime">4h</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase prio-normal">No prazo</span>
+              </div>
+              <div class="stage-name">Aprovação Coord.</div>
+              <div class="process-id">REQ-2026-0148</div>
+              <div class="meta-list">
+                <div class="meta-row">Executor: <strong>Coord. TI</strong></div>
+                <div class="meta-row"><strong>4h c/ executor</strong></div>
+                <div class="meta-row">Fluxo <strong>Avulsa Padrão</strong></div>
+                <div class="meta-row">R$ <strong>11.800</strong></div>
+              </div>
+              <div class="card-foot"><button class="btn-abrir">Abrir →</button></div>
+            </div>
+
+          </div>
+
+          <div class="px-3 py-2 border-t border-[#E5E7EB] flex items-center justify-between">
+            <div class="text-[11px] text-dms-tecnologia">… + 116 outros processos · Página <strong class="text-dms-mar">1</strong> de <strong class="text-dms-mar">11</strong></div>
+            <div class="flex items-center gap-1">
+              <button class="page-btn" disabled style="opacity:0.3">‹</button>
+              <button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">3</button>
+              <span class="text-dms-tecnologia text-xs px-1">...</span>
+              <button class="page-btn">11</button>
+              <button class="page-btn">›</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+function openTask(id) { alert('Abriria a tela operacional do processo: ' + id); }
+</script>
+
+</body>
+</html>

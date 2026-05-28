@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Setup Integrações</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C', ceu: '#00AEEE', confianca: '#005290',
+          sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+  /* Integration card */
+  .integration-card { transition: all 200ms ease; }
+  .integration-card:hover { transform: translateY(-2px); box-shadow: 0 8px 16px -4px rgba(0, 56, 108, 0.10); }
+  /* Connection dot pulsing */
+  .conn-dot-ok { animation: pulse-ok 2s infinite; }
+  @keyframes pulse-ok { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+  /* Log entry */
+  .log-entry { transition: background-color 150ms ease; }
+  .log-entry:hover { background: #FAFBFC; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+        <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
+      </div>
+      <div>
+        <div class="font-bold text-base leading-tight">DMS</div>
+        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
+      </div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+      <div class="caption text-white/40 px-6 mb-2">Sistema</div>
+      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Setup Integrações
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        MAILIA
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+        Permissões
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Observabilidade
+      </a>
+    </nav>
+    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">FA</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold truncate">Fernando Arruda</div>
+        <div class="text-xs text-white/60 truncate">Admin · DMS Log</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Sistema</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Setup Integrações</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <!-- PageHeader -->
+      <div class="mb-6">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Setup Integrações</h1>
+        </div>
+        <p class="text-sm text-dms-tecnologia max-w-3xl">
+          Status, credenciais e diagnóstico das integrações externas. Configuração de credenciais via <span class="mono text-xs">.env</span> do backend (não editável aqui — somente leitura mascarada). Botões de testar e forçar sincronização restritos a admin.
+        </p>
+      </div>
+
+      <!-- KPI BAR — status global -->
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-5">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2 h-2 rounded-full bg-dms-tropicalidade conn-dot-ok"></span>
+            <div class="text-[28px] leading-none font-black text-dms-mar">4</div>
+          </div>
+          <div class="caption text-dms-tecnologia mt-2">Conectadas</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-5">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2 h-2 rounded-full bg-[#EAB308]"></span>
+            <div class="text-[28px] leading-none font-black text-dms-mar">1</div>
+          </div>
+          <div class="caption text-dms-tecnologia mt-2">Degradadas</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-5">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2 h-2 rounded-full bg-red-600"></span>
+            <div class="text-[28px] leading-none font-black text-dms-mar">0</div>
+          </div>
+          <div class="caption text-dms-tecnologia mt-2">Offline</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-5">
+          <div class="flex items-center gap-2 mb-1">
+            <svg class="w-4 h-4 text-dms-confianca" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div class="text-[28px] leading-none font-black text-dms-mar">há 2min</div>
+          </div>
+          <div class="caption text-dms-tecnologia mt-2">Última sync global</div>
+        </div>
+      </div>
+
+      <!-- GRID DE INTEGRAÇÕES — 2 por linha -->
+      <div class="grid grid-cols-2 gap-6">
+
+        <!-- ========== OMIE ========== -->
+        <div class="integration-card bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+          <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between bg-gradient-to-r from-dms-tropicalidade/5 to-transparent">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-lg bg-dms-tropicalidade/10 flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-dms-tropicalidade-dark" style="color:#5C7818" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18M3 3v18M3 3l18 18M21 3v6M21 3h-6"/></svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-lg font-bold text-dms-mar">Omie</h3>
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[rgba(176,201,52,0.15)] text-[#7A8F24]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade conn-dot-ok"></span>
+                    Conectado
+                  </span>
+                </div>
+                <p class="text-xs text-dms-tecnologia mt-0.5">ERP financeiro · Contas a pagar + Pagamentos</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 space-y-4">
+            <!-- Credenciais -->
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">App Key</span>
+                <span class="mono text-dms-mar">2104****8932</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">App Secret</span>
+                <span class="mono text-dms-tecnologia">••••••••••••••••</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">Endpoint</span>
+                <span class="mono text-dms-mar truncate ml-2" title="https://app.omie.com.br/api/v1/financas/contapagar/">app.omie.com.br/api/v1/...</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">Última sync</span>
+                <span class="text-dms-mar">há 5 min</span>
+              </div>
+            </div>
+
+            <!-- Logs recentes -->
+            <div class="border-t border-[#E5E7EB] pt-3">
+              <div class="caption text-dms-tecnologia mb-2">Últimos eventos</div>
+              <div class="space-y-1 text-xs">
+                <div class="log-entry flex items-center gap-2 p-1.5 rounded">
+                  <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade flex-shrink-0"></span>
+                  <span class="text-dms-tecnologia mono text-[10px]">17:42</span>
+                  <span class="text-dms-mar flex-1">IncluirContaPagar · NF-2026-0531 · OK</span>
+                </div>
+                <div class="log-entry flex items-center gap-2 p-1.5 rounded">
+                  <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade flex-shrink-0"></span>
+                  <span class="text-dms-tecnologia mono text-[10px]">17:38</span>
+                  <span class="text-dms-mar flex-1">LancarPagamento · PO-2026-0089 · OK</span>
+                </div>
+                <div class="log-entry flex items-center gap-2 p-1.5 rounded">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#EAB308] flex-shrink-0"></span>
+                  <span class="text-dms-tecnologia mono text-[10px]">17:35</span>
+                  <span class="text-[#854D0E] flex-1">Webhook timeout 30s · retry OK em 2ª tentativa</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 pt-2">
+              <button class="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-dms-mar px-3 py-2 bg-white border border-dms-mar rounded-md hover:bg-dms-mar hover:text-white transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                Testar conexão
+              </button>
+              <button class="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-dms-tecnologia px-3 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                Ver logs completos
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== CLICKSIGN ========== -->
+        <div class="integration-card bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+          <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between bg-gradient-to-r from-dms-ceu/5 to-transparent">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-lg bg-dms-ceu/10 flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-dms-confianca" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h3 class="text-lg font-bold text-dms-mar">ClickSign</h3>
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[rgba(176,201,52,0.15)] text-[#7A8F24]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade conn-dot-ok"></span>
+                    Conectado
+                  </span>
+                </div>
+                <p class="text-xs text-dms-tecnologia mt-0.5">Assinatura digital · Único provider produção</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 space-y-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">API Token</span>
+                <span class="mono text-dms-tecnologia">••••••••••a32f</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">Ambiente</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[rgba(176,201,52,0.15)] text-[#7A8F24]">Produção</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">Webhook URL</span>
+                <span class="mono text-dms-mar truncate ml-2" title="https://dms.dmslog.com/api/v1/contracts/clicksign/webhook">/api/v1/contracts/clicksign/webhook</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">Envelopes ativos</span>
+                <span class="text-dms-mar font-semibold">3 aguardando assinatura</span>
+              </div>
+            </div>
+
+            <div class="border-t border-[#E5E7EB] pt-3">
+              <div class="caption text-dms-tecnologia mb-2">Últimos eventos</div>
+              <div class="space-y-1 text-xs">
+                <div class="log-entry flex items-center gap-2 p-1.5 rounded">
+                  <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade flex-shrink-0"></span>
+                  <span class="text-dms-tecnologia mono text-[10px]">17:40</span>
+                  <span class="text-dms-mar flex-1">Envelope signed · CONTRACT-2026-019 · OK</span>
+                </div>
+                <div class="log-entry flex items-center gap-2 p-1.5 rounded">
+                  <span class="w-1.5 h-1.5 rounded-full bg-dms-ceu flex-shrink-0"></span>
+                  <span class="text-dms-tecnologia mono text-[10px]">17:22</span>
+                  <span class="text-dms-mar flex-1">Envelope sent · CONTRACT-2026-020 · pending</span>
+                </div>
+                <div class="log-entry flex items-center gap-2 p-1.5 rounded">
+                  <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade flex-shrink-0"></span>
+                  <span class="text-dms-tecnologia mono text-[10px]">15:18</span>
+                  <span class="text-dms-mar flex-1">Webhook received · CONTRACT-2026-017 · activated</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Aviso providers fora MVP -->
+            <div class="bg-[#FFFBEB] border border-[#FDE68A] rounded-md p-2.5 flex gap-2 items-start">
+              <svg class="w-3.5 h-3.5 text-[#EAB308] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <p class="text-[11px] text-[#854D0E]">DocuSign e D4Sign são <strong>mock-string</strong> no MVP (DECISOES-CONSOLIDADAS §3). Apenas ClickSign é integração real.</p>
+            </div>
+
+            <div class="flex items-center gap-2 pt-2">
+              <button class="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-dms-mar px-3 py-2 bg-white border border-dms-mar rounded-md hover:bg-dms-mar hover:text-white transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                Testar conexão
+              </button>
+              <button class="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-dms-tecnologia px-3 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                Ver logs completos
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== GMAIL/IMAP MAILIA ========== -->
+        <div class="integration-card bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+          <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between bg-gradient-to-r from-dms-sabedoria/5 to-transparent">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-lg bg-dms-sabedoria/10 flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h3 class="text-lg font-bold text-dms-mar">Gmail / IMAP <span class="text-dms-tecnologia font-normal text-sm">— MAILIA</span></h3>
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[rgba(234,179,8,0.15)] text-[#854D0E]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#EAB308]"></span>
+                    Degradado
+                  </span>
+                </div>
+                <p class="text-xs text-dms-tecnologia mt-0.5">Polling IMAP de NFe + classificação MAILIA</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 space-y-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">Mailbox</span>
+                <span class="mono text-dms-mar">dmsinvoice@dmslog.com</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">Host : porta</span>
+                <span class="mono text-dms-mar">imap.gmail.com:993</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">App Password</span>
+                <span class="mono text-dms-tecnologia">•••• •••• •••• 7d4f</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">Intervalo polling</span>
+                <span class="text-dms-mar">5 min</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">Último poll</span>
+                <span class="text-[#854D0E] font-semibold">há 18 min ⚠</span>
+              </div>
+            </div>
+
+            <!-- Alerta degradado -->
+            <div class="bg-[#FFFBEB] border border-[#FDE68A] rounded-md p-3 flex gap-2 items-start">
+              <svg class="w-4 h-4 text-[#EAB308] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <div class="text-xs text-[#854D0E]">
+                <p class="font-semibold mb-0.5">Polling atrasado (esperado: 5min)</p>
+                <p class="text-[#854D0E]/90">Celery beat reportou último heartbeat há 18min. Verificar worker.</p>
+              </div>
+            </div>
+
+            <div class="border-t border-[#E5E7EB] pt-3">
+              <div class="caption text-dms-tecnologia mb-2">Últimos eventos</div>
+              <div class="space-y-1 text-xs">
+                <div class="log-entry flex items-center gap-2 p-1.5 rounded">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#EAB308] flex-shrink-0"></span>
+                  <span class="text-dms-tecnologia mono text-[10px]">17:25</span>
+                  <span class="text-[#854D0E] flex-1">Polling não executou · last heartbeat 17:24</span>
+                </div>
+                <div class="log-entry flex items-center gap-2 p-1.5 rounded">
+                  <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade flex-shrink-0"></span>
+                  <span class="text-dms-tecnologia mono text-[10px]">17:24</span>
+                  <span class="text-dms-mar flex-1">3 NFes ingeridas · 2 OK · 1 quarantine</span>
+                </div>
+                <div class="log-entry flex items-center gap-2 p-1.5 rounded">
+                  <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade flex-shrink-0"></span>
+                  <span class="text-dms-tecnologia mono text-[10px]">17:19</span>
+                  <span class="text-dms-mar flex-1">Polling: 0 novos emails</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 pt-2">
+              <button class="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-dms-mar px-3 py-2 bg-white border border-dms-mar rounded-md hover:bg-dms-mar hover:text-white transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg>
+                Testar conexão
+              </button>
+              <button class="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-white px-3 py-2 bg-dms-sabedoria rounded-md hover:opacity-90 transition-opacity" title="Admin only · roda polling agora">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                Forçar polling
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== RECEITA FEDERAL ========== -->
+        <div class="integration-card bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+          <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between bg-gradient-to-r from-dms-confianca/5 to-transparent">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-lg bg-dms-confianca/10 flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-dms-confianca" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3M5.636 5.636a9 9 0 0112.728 0M5.636 18.364a9 9 0 0012.728 0M5.636 5.636l12.728 12.728"/></svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h3 class="text-lg font-bold text-dms-mar">Receita Federal <span class="text-dms-tecnologia font-normal text-sm">(BrasilAPI)</span></h3>
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[rgba(176,201,52,0.15)] text-[#7A8F24]">
+                    <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade conn-dot-ok"></span>
+                    Conectado
+                  </span>
+                </div>
+                <p class="text-xs text-dms-tecnologia mt-0.5">Consulta CNPJ · API pública sem chave</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 space-y-4">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">Endpoint</span>
+                <span class="mono text-dms-mar truncate ml-2">brasilapi.com.br/api/cnpj/v1</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">Autenticação</span>
+                <span class="text-dms-tecnologia italic">— (público)</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">Cache TTL</span>
+                <span class="text-dms-mar">24h em memória</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">Rate limit</span>
+                <span class="text-dms-mar">~300 req/min</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="caption text-dms-tecnologia">Consultas 24h</span>
+                <span class="text-dms-mar font-semibold">47 (cache hits: 38)</span>
+              </div>
+            </div>
+
+            <div class="border-t border-[#E5E7EB] pt-3">
+              <div class="caption text-dms-tecnologia mb-2">Últimos eventos</div>
+              <div class="space-y-1 text-xs">
+                <div class="log-entry flex items-center gap-2 p-1.5 rounded">
+                  <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade flex-shrink-0"></span>
+                  <span class="text-dms-tecnologia mono text-[10px]">17:30</span>
+                  <span class="text-dms-mar flex-1">CNPJ 12.345.678/0001-90 · status ATIVA</span>
+                </div>
+                <div class="log-entry flex items-center gap-2 p-1.5 rounded">
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-600 flex-shrink-0"></span>
+                  <span class="text-dms-tecnologia mono text-[10px]">17:15</span>
+                  <span class="text-red-700 flex-1">CNPJ 99.999.999/0001-99 · INAPTA · fornecedor bloqueado</span>
+                </div>
+                <div class="log-entry flex items-center gap-2 p-1.5 rounded">
+                  <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade flex-shrink-0"></span>
+                  <span class="text-dms-tecnologia mono text-[10px]">17:02</span>
+                  <span class="text-dms-mar flex-1">5 CNPJs validados em batch</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 pt-2">
+              <button class="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-dms-mar px-3 py-2 bg-white border border-dms-mar rounded-md hover:bg-dms-mar hover:text-white transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg>
+                Testar conexão
+              </button>
+              <button class="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-dms-tecnologia px-3 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                Limpar cache
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========== INTEGRAÇÕES FORA MVP (informativo) ========== -->
+      <div class="mt-6 bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+        <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
+          <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h2 class="text-lg font-semibold text-dms-mar">Integrações fora do MVP</h2>
+          <span class="caption text-dms-tecnologia">(wave 2+)</span>
+        </div>
+        <div class="p-6">
+          <div class="grid grid-cols-3 gap-3">
+            <div class="border border-dashed border-[#E5E7EB] rounded-md p-3 opacity-60">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-semibold text-dms-tecnologia">Dmsys</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-600">fixtures dev</span>
+              </div>
+              <p class="text-[11px] text-dms-tecnologia">Configurar credencial real antes da Fase 4</p>
+            </div>
+            <div class="border border-dashed border-[#E5E7EB] rounded-md p-3 opacity-60">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-semibold text-dms-tecnologia">DOCSIA</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-600">XML real · PDF mock</span>
+              </div>
+              <p class="text-[11px] text-dms-tecnologia">PDF OCR aceitar mock no MVP</p>
+            </div>
+            <div class="border border-dashed border-[#E5E7EB] rounded-md p-3 opacity-60">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-semibold text-dms-tecnologia">DocuSign · D4Sign</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-600">mock-string</span>
+              </div>
+              <p class="text-[11px] text-dms-tecnologia">Apenas ClickSign produção</p>
+            </div>
+            <div class="border border-dashed border-[#E5E7EB] rounded-md p-3 opacity-60">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-semibold text-dms-tecnologia">SEFAZ webservice</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-600">não implementado</span>
+              </div>
+              <p class="text-[11px] text-dms-tecnologia">NFe entrada só via Mailia</p>
+            </div>
+            <div class="border border-dashed border-[#E5E7EB] rounded-md p-3 opacity-60">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-semibold text-dms-tecnologia">WhatsApp / SMS</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-600">wave 2</span>
+              </div>
+              <p class="text-[11px] text-dms-tecnologia">Notificações por canal alternativo</p>
+            </div>
+            <div class="border border-dashed border-[#E5E7EB] rounded-md p-3 opacity-60">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-semibold text-dms-tecnologia">Portal fornecedor</span>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-600">wave 2+</span>
+              </div>
+              <p class="text-[11px] text-dms-tecnologia">API portal de fornecedores</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== AVISO ESTRATÉGIA ========== -->
+      <div class="mt-6 p-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg flex gap-3">
+        <svg class="w-5 h-5 text-[#EAB308] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div class="text-sm text-[#854D0E]">
+          <p class="font-semibold mb-1">Estratégia desta tela (sem mockup direto — inventada com base em DECISOES-CONSOLIDADAS §3 + KIT-DISPARO):</p>
+          <p class="leading-relaxed">
+            <strong>Credenciais não editáveis aqui</strong> — vivem no <span class="mono text-xs">.env</span> do backend (Mac Mini local). Setup inicial é feito por Fernando na primeira inicialização. Botões "Testar conexão" e "Forçar polling" requerem <span class="mono text-xs">admin</span> role. Logs históricos completos ficam na tela <strong>Observabilidade</strong> (sidebar). Esta tela é dashboard de status, não tela de configuração.
+          </p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

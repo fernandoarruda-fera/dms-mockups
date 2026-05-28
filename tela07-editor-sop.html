@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Editor SOP</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C', ceu: '#00AEEE', confianca: '#005290',
+          sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+  .sticky-sidebar { position: sticky; top: 88px; }
+  /* Modal */
+  .modal-overlay { background: rgba(0, 56, 108, 0.5); backdrop-filter: blur(2px); }
+  /* Editor markdown */
+  .md-editor { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 14px; line-height: 1.6; }
+  .md-editor:focus { outline: none; }
+  /* Toolbar md botões */
+  .md-btn { padding: 6px 10px; font-size: 13px; color: #656464; border-radius: 4px; transition: all 150ms ease; cursor: pointer; }
+  .md-btn:hover { background: #F8F9FA; color: #00386C; }
+  .md-btn.active { background: #00386C; color: white; }
+  /* Card "IA" gradient */
+  .card-ia { background: linear-gradient(135deg, rgba(100,53,133,0.05), rgba(0,174,238,0.05)); border-color: rgba(100,53,133,0.2); }
+  /* Stage card no modal IA */
+  .stage-card { transition: all 150ms ease; }
+  .stage-card.accepted { background: rgba(176,201,52,0.08); border-color: #B0C934; }
+  .stage-card.rejected { opacity: 0.4; }
+  /* Tag chip (autocomplete @-tag) */
+  .tag-chip { display: inline-block; background: rgba(0,174,238,0.15); color: #005290; padding: 1px 6px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+        <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
+      </div>
+      <div>
+        <div class="font-bold text-base leading-tight">DMS</div>
+        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
+      </div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+      <div class="caption text-white/40 px-6 mb-2">Workflow Builder</div>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        Catálogo de Tags
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Procedures
+      </a>
+      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Biblioteca SOP
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+        Catálogo de Workflows
+      </a>
+    </nav>
+    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">FA</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold truncate">Fernando Arruda</div>
+        <div class="text-xs text-white/60 truncate">Admin · DMS Log</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <!-- HEADER -->
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Workflow Builder</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Biblioteca SOP</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Editar SOP</span>
+      </nav>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <!-- PAGE HEADER + ações -->
+      <div class="flex items-start justify-between mb-6 gap-6">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-3 mb-2 flex-wrap">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Editar SOP</h1>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(176,201,52,0.15)] text-[#7A8F24] ml-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade"></span>
+              Ativo
+            </span>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(176,201,52,0.15)] text-[#7A8F24] mono">v 2.1</span>
+          </div>
+          <div class="flex items-center gap-3 text-sm">
+            <span class="mono text-dms-tecnologia font-semibold">SOP-001</span>
+            <span class="text-dms-tecnologia">·</span>
+            <span class="text-dms-tecnologia">Última edição há 3 dias por Fernando Arruda</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 flex-shrink-0">
+          <a href="#" class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 transition-colors">Cancelar</a>
+          <button class="text-sm font-semibold text-dms-tecnologia px-4 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">Salvar rascunho</button>
+          <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Publicar nova versão</button>
+        </div>
+      </div>
+
+      <!-- ========== CARD IA STAGES (topo) ========== -->
+      <div class="card-ia border rounded-lg p-4 mb-6 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 flex-1">
+          <div class="w-10 h-10 rounded-lg bg-dms-sabedoria/10 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-semibold text-dms-mar text-sm">Assistente IA — Stages a partir desta SOP</h3>
+            <p class="text-xs text-dms-tecnologia">A IA analisa o texto da SOP e sugere a cadeia de stages que monta o workflow correspondente. Prompt visível e editável.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button onclick="openIaModal()" class="flex items-center gap-2 text-sm font-semibold text-white px-4 py-2 bg-dms-sabedoria rounded-md hover:opacity-90 transition-opacity">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            IA Stages
+          </button>
+        </div>
+      </div>
+
+      <!-- ========== GRID 2 COLUNAS ========== -->
+      <div class="grid grid-cols-12 gap-6">
+
+        <!-- ========== COLUNA PRINCIPAL ========== -->
+        <div class="col-span-8 space-y-6">
+
+          <!-- CARD: Identidade -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
+              <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+              <h2 class="text-lg font-semibold text-dms-mar">Identidade</h2>
+            </div>
+            <div class="p-6 space-y-5">
+
+              <div class="grid grid-cols-3 gap-4">
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Código <span class="text-red-500">*</span></label>
+                  <input type="text" value="SOP-001" readonly class="mono input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA] text-dms-mar font-semibold cursor-not-allowed">
+                  <p class="text-xs text-dms-tecnologia mt-1.5">Gerado automaticamente — único.</p>
+                </div>
+                <div class="col-span-2">
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Título <span class="text-red-500">*</span></label>
+                  <input type="text" value="Como aprovar uma requisição como Diretor" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+                </div>
+              </div>
+
+              <div>
+                <label class="caption text-dms-tecnologia mb-1.5 block">Subtítulo</label>
+                <input type="text" value="Checklist de validação financeira + carimbo de aprovação" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+                <p class="text-xs text-dms-tecnologia mt-1.5">Descrição operacional curta (aparece na listagem).</p>
+              </div>
+
+              <div class="grid grid-cols-3 gap-4">
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Categoria <span class="text-red-500">*</span></label>
+                  <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                    <optgroup label="Operacional">
+                      <option value="operacao_documento">Operação · Documento</option>
+                      <option value="operacao_fisica">Operação · Física</option>
+                      <option value="operacao_comunicacao">Operação · Comunicação</option>
+                    </optgroup>
+                    <optgroup label="Governança">
+                      <option value="aprovacao" selected>Aprovação</option>
+                      <option value="compliance">Compliance</option>
+                      <option value="auditoria">Auditoria</option>
+                    </optgroup>
+                    <optgroup label="Financeiro/Fiscal">
+                      <option value="financeiro">Financeiro</option>
+                      <option value="fiscal_tributario">Fiscal/Tributário</option>
+                    </optgroup>
+                  </select>
+                </div>
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Business Module <span class="text-red-500">*</span></label>
+                  <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                    <option selected>Compras</option>
+                    <option>Workflow</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Tipo SOP <span class="text-red-500">*</span></label>
+                  <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                    <option selected>Default</option>
+                    <option>Compliance</option>
+                  </select>
+                  <p class="text-xs text-dms-tecnologia mt-1.5">Específica é criada no Workflow Builder.</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- CARD: Conteúdo Textual (editor markdown) -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+                <h2 class="text-lg font-semibold text-dms-mar">Conteúdo textual</h2>
+                <span class="caption text-dms-tecnologia">(markdown · suporta interpolação @-tag)</span>
+              </div>
+              <button class="text-xs font-semibold text-dms-confianca hover:text-dms-mar transition-colors flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                Preview
+              </button>
+            </div>
+
+            <!-- Toolbar markdown -->
+            <div class="flex items-center gap-1 px-3 py-2 border-b border-[#E5E7EB] bg-[#F8F9FA]">
+              <button class="md-btn" title="Negrito (Ctrl+B)"><strong>B</strong></button>
+              <button class="md-btn italic" title="Itálico (Ctrl+I)">I</button>
+              <div class="w-px h-5 bg-[#E5E7EB] mx-1"></div>
+              <button class="md-btn" title="H1"># H1</button>
+              <button class="md-btn" title="H2">## H2</button>
+              <div class="w-px h-5 bg-[#E5E7EB] mx-1"></div>
+              <button class="md-btn" title="Lista">• Lista</button>
+              <button class="md-btn" title="Lista numerada">1. Num</button>
+              <button class="md-btn" title="Checklist">☐ Check</button>
+              <div class="w-px h-5 bg-[#E5E7EB] mx-1"></div>
+              <button class="md-btn" title="Link">🔗 Link</button>
+              <button class="md-btn" title="Código">{ }</button>
+              <div class="w-px h-5 bg-[#E5E7EB] mx-1"></div>
+              <button class="md-btn flex items-center gap-1 text-dms-confianca font-semibold" title="Inserir @-tag">
+                <span class="mono">@</span> Tag
+              </button>
+              <div class="flex-1"></div>
+              <div class="text-xs text-dms-tecnologia">Digite <span class="mono">@</span> para autocomplete de tags</div>
+            </div>
+
+            <!-- Editor -->
+            <div class="p-6">
+              <textarea id="md-editor" class="md-editor w-full h-80 border border-[#E5E7EB] rounded-md p-4 bg-white text-dms-mar focus:border-dms-ceu" placeholder="Escreva o conteúdo textual da SOP em markdown..."># Como aprovar uma requisição como Diretor
+
+## Pré-condições
+- Requisição deve ter status **Aprovada pelo Coordenador**
+- Valor da requisição: @compras_requisition_valor_total
+- Centro de Custo: @compras_requisition_centro_custo
+
+## Checklist obrigatório
+
+1. ☐ Validar saldo orçamentário em @compras_budget_saldo_disponivel
+2. ☐ Conferir justificativa técnica e comercial
+3. ☐ Verificar se fornecedor está homologado (@compras_supplier_status)
+4. ☐ Validar coerência entre objeto e centro de custo
+5. ☐ Conferir alçada de aprovação aplicável
+
+## Decisão
+
+Se todos os itens validados, **aprovar** com carimbo digital.
+
+Se valor exceder alçada (@compras_requisition_valor_total > limite_diretor), **escalar para C-Level** com justificativa.
+
+Se houver pendência, **devolver ao solicitante** com explicação textual.
+
+## Observações
+
+> Toda decisão é registrada no audit_log e fica disponível para SOX por 7 anos.</textarea>
+              <p class="text-xs text-dms-tecnologia mt-2 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Tags <span class="tag-chip">@compras_*</span> são resolvidas em runtime pelo Resolver Engine (RN-SOP-16).
+              </p>
+            </div>
+          </div>
+
+          <!-- CARD: Governança / DP-SOP-06 + DP-SOP-09 -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
+              <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+              <h2 class="text-lg font-semibold text-dms-mar">Governança</h2>
+              <span class="caption text-dms-tecnologia">(DP-SOP-06 + DP-SOP-09 a confirmar)</span>
+            </div>
+            <div class="p-6 space-y-4">
+              <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" checked class="mt-1 w-4 h-4 text-dms-mar rounded border-[#E5E7EB] focus:ring-dms-ceu">
+                <div class="flex-1">
+                  <div class="text-sm font-semibold text-dms-mar">Nova versão exige aprovação antes de publicar</div>
+                  <p class="text-xs text-dms-tecnologia">Cria estado "em revisão" até aprovador com permissão <span class="mono">sop.approve</span> aprovar.</p>
+                </div>
+              </label>
+
+              <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" class="mt-1 w-4 h-4 text-dms-mar rounded border-[#E5E7EB] focus:ring-dms-ceu">
+                <div class="flex-1">
+                  <div class="text-sm font-semibold text-dms-mar">Disparar impact analysis em workflows ativos</div>
+                  <p class="text-xs text-dms-tecnologia">RN-SOP-02. Lista stages afetados antes de publicar.</p>
+                </div>
+              </label>
+
+              <div class="bg-[#FFFBEB] border border-[#FDE68A] rounded-md p-3 flex gap-2 items-start">
+                <svg class="w-4 h-4 text-[#EAB308] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <p class="text-xs text-[#854D0E]">Publicar nova versão (v 2.2) substitui v 2.1 em <strong>7 workflows ativos</strong>. Operadores recebem card UPDATE pra ciência (RN-SOP-11).</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ========== SIDEBAR DIREITA ========== -->
+        <aside class="col-span-4 space-y-5 sticky-sidebar self-start">
+
+          <!-- Versionamento -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+            <div class="px-5 py-3 bg-[#F8F9FA] border-b border-[#E5E7EB] flex items-center gap-2">
+              <svg class="w-4 h-4 text-dms-confianca" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <h3 class="caption text-dms-mar font-semibold">Versionamento</h3>
+            </div>
+            <div class="p-5 space-y-3">
+              <div class="space-y-2.5">
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-dms-tropicalidade"></span>
+                    <span class="mono text-dms-mar font-semibold">v 2.1</span>
+                    <span class="caption text-dms-tropicalidade">atual</span>
+                  </div>
+                  <span class="text-xs text-dms-tecnologia">há 3 dias</span>
+                </div>
+                <div class="flex items-center justify-between text-sm pl-4">
+                  <div class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-dms-tecnologia"></span>
+                    <span class="mono text-dms-tecnologia">v 2.0</span>
+                  </div>
+                  <span class="text-xs text-dms-tecnologia">há 1 mês</span>
+                </div>
+                <div class="flex items-center justify-between text-sm pl-4">
+                  <div class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-dms-tecnologia"></span>
+                    <span class="mono text-dms-tecnologia">v 1.4</span>
+                  </div>
+                  <span class="text-xs text-dms-tecnologia">há 3 meses</span>
+                </div>
+              </div>
+              <button class="w-full text-xs font-semibold text-dms-confianca hover:text-dms-mar transition-colors text-left flex items-center gap-1 pt-2 border-t border-[#E5E7EB]">
+                Ver histórico completo
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Reverse Lookup (RN-SOP-25) -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+            <div class="px-5 py-3 bg-[#F8F9FA] border-b border-[#E5E7EB] flex items-center gap-2">
+              <svg class="w-4 h-4 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+              <h3 class="caption text-dms-mar font-semibold">Onde está sendo usada</h3>
+            </div>
+            <div class="p-5 space-y-3">
+              <div class="grid grid-cols-2 gap-2 text-center">
+                <div class="border border-[#E5E7EB] rounded-md p-3">
+                  <div class="text-2xl font-black text-dms-mar leading-none">7</div>
+                  <div class="caption text-dms-tecnologia mt-1.5">Stages</div>
+                </div>
+                <div class="border border-[#E5E7EB] rounded-md p-3">
+                  <div class="text-2xl font-black text-dms-mar leading-none">5</div>
+                  <div class="caption text-dms-tecnologia mt-1.5">Workflows</div>
+                </div>
+                <div class="border border-[#E5E7EB] rounded-md p-3 col-span-2">
+                  <div class="text-2xl font-black text-dms-mar leading-none">142</div>
+                  <div class="caption text-dms-tecnologia mt-1.5">Processos ativos rodando</div>
+                </div>
+              </div>
+
+              <button class="w-full text-sm font-semibold text-dms-confianca px-3 py-2 bg-white border border-dms-confianca rounded-md hover:bg-dms-confianca hover:text-white transition-colors">
+                Ver dependências →
+              </button>
+
+              <div class="pt-2 border-t border-[#E5E7EB] text-xs text-dms-tecnologia">
+                Últimos 30 dias: <span class="font-semibold text-dms-mar">847 execuções</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Zona de perigo -->
+          <div class="bg-white border border-red-200 rounded-lg overflow-hidden">
+            <div class="px-5 py-3 bg-red-50 border-b border-red-200 flex items-center gap-2">
+              <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <h3 class="caption text-red-700 font-semibold">Zona de perigo</h3>
+            </div>
+            <div class="p-5 space-y-3">
+              <button class="w-full text-sm font-semibold text-red-700 px-4 py-2 bg-white border border-red-300 rounded-md hover:bg-red-50 transition-colors text-left">
+                Marcar como deprecated
+              </button>
+              <p class="text-xs text-dms-tecnologia">Versão deprecated não aparece em buscas default mas continua disponível para workflows existentes que a referenciam.</p>
+            </div>
+          </div>
+
+        </aside>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ MODAL IA STAGES ============ -->
+<div id="ia-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <div class="modal-overlay absolute inset-0" onclick="closeIaModal()"></div>
+
+  <div class="relative bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+
+    <!-- HEADER IA -->
+    <div class="px-6 py-5 border-b border-[#E5E7EB] card-ia">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-dms-sabedoria/10 flex items-center justify-center">
+            <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-dms-mar">Assistente IA — Stages a partir desta SOP</h3>
+            <p class="text-xs text-dms-tecnologia mt-0.5">Prompt visível e editável · audit registra cada geração (RN-SOP-21)</p>
+          </div>
+        </div>
+        <button onclick="closeIaModal()" class="p-1 text-dms-tecnologia hover:text-dms-mar hover:bg-white rounded transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- BODY scrollável -->
+    <div class="overflow-y-auto flex-1 p-6 space-y-5">
+
+      <!-- Prompt gerado/editável -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="caption text-dms-tecnologia">Prompt gerado pela IA</h4>
+          <span class="caption text-dms-sabedoria">EDITÁVEL</span>
+        </div>
+        <textarea class="md-editor w-full h-32 border border-[#E5E7EB] rounded-md p-4 bg-[#F8F9FA] text-dms-mar focus:border-dms-ceu focus:bg-white">Analisar SOP-001 "Como aprovar uma requisição como Diretor":
+- Fluxo de aprovação financeira com checklist obrigatório
+- Validação de saldo orçamentário (@compras_budget_saldo_disponivel)
+- Decisão binária (aprovar/escalar/devolver)
+- Escalation por alçada se valor exceder limite_diretor
+- Audit log perpétuo (SOX 7 anos)
+
+Sugerir stages do catálogo Default + novos stages quando não houver match.</textarea>
+        <div class="flex items-center gap-2 mt-2">
+          <button class="text-xs font-semibold text-dms-confianca hover:text-dms-mar transition-colors">↺ Restaurar prompt original</button>
+          <span class="text-dms-tecnologia text-xs">·</span>
+          <button class="text-xs font-semibold text-dms-sabedoria hover:opacity-80 transition-opacity flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Re-gerar com prompt editado
+          </button>
+        </div>
+      </div>
+
+      <!-- Stages sugeridos -->
+      <div>
+        <h4 class="caption text-dms-tecnologia mb-3">Stages sugeridos <span class="text-dms-mar">(6)</span></h4>
+        <div class="space-y-2" id="stages-list">
+          <!-- gerados via JS -->
+        </div>
+        <div class="flex items-center gap-2 mt-3 pt-3 border-t border-[#E5E7EB]">
+          <button onclick="acceptAll()" class="text-xs font-semibold text-dms-tropicalidade-dark hover:text-dms-mar transition-colors">✓ Aceitar todos</button>
+          <span class="text-dms-tecnologia text-xs">·</span>
+          <button onclick="rejectAll()" class="text-xs font-semibold text-dms-tecnologia hover:text-red-600 transition-colors">✕ Rejeitar todos</button>
+        </div>
+      </div>
+
+      <!-- Aviso governance -->
+      <div class="bg-[rgba(0,174,238,0.05)] border border-[rgba(0,174,238,0.2)] rounded-lg p-4 flex gap-3">
+        <svg class="w-5 h-5 text-dms-confianca flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div class="text-sm text-dms-mar leading-relaxed">
+          <strong>Stages "novos sugeridos"</strong> são cadastrados na Biblioteca Default ANTES de entrar em workflow (P12 — Reuse before rebuild). Compliance NUNCA é criada pela IA (governança SOX). Audit log registra cada decisão (RN-SOP-21).
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="px-6 py-4 bg-[#F8F9FA] border-t border-[#E5E7EB] flex items-center justify-end gap-3">
+      <button onclick="closeIaModal()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 hover:text-dms-mar transition-colors">Cancelar</button>
+      <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Aplicar stages aceitos</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const STAGES = [
+  { id: 's1', name: 'Receber Requisição', source: 'catalogo', desc: 'Stage existente · usado em 12 workflows', accepted: true },
+  { id: 's2', name: 'Validar Saldo Orçamentário', source: 'catalogo', desc: 'Stage existente · usado em 8 workflows', accepted: true },
+  { id: 's3', name: 'Aprovar como Diretor', source: 'catalogo', desc: 'Stage existente · usado em 5 workflows', accepted: true },
+  { id: 's4', name: 'Devolver com Explicação Textual', source: 'novo', desc: 'Sugerido pela IA · será cadastrado na Biblioteca', accepted: true },
+  { id: 's5', name: 'Escalar para C-Level (alçada excedida)', source: 'catalogo', desc: 'Stage existente · usado em 3 workflows', accepted: true },
+  { id: 's6', name: 'Registrar Decisão no Audit Log', source: 'novo', desc: 'Sugerido pela IA · será cadastrado na Biblioteca', accepted: true },
+];
+
+function renderStages() {
+  const list = document.getElementById('stages-list');
+  list.innerHTML = STAGES.map((s, i) => `
+    <div class="stage-card ${s.accepted ? 'accepted' : 'rejected'} border rounded-lg p-3 flex items-center gap-3" id="stage-${s.id}">
+      <div class="flex items-center justify-center w-7 h-7 rounded-full ${s.source === 'novo' ? 'bg-dms-sabedoria/10 text-dms-sabedoria' : 'bg-dms-ceu/10 text-dms-confianca'} font-semibold text-xs mono flex-shrink-0">${i+1}</div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-semibold text-dms-mar text-sm">${s.name}</span>
+          ${s.source === 'novo'
+            ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-dms-sabedoria/15 text-dms-sabedoria">novo</span>`
+            : `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-dms-ceu/15 text-dms-confianca">catálogo</span>`
+          }
+        </div>
+        <div class="text-xs text-dms-tecnologia mt-0.5">${s.desc}</div>
+      </div>
+      <div class="flex items-center gap-1 flex-shrink-0">
+        <button onclick="toggleStage('${s.id}')" class="p-2 ${s.accepted ? 'text-dms-tropicalidade hover:bg-dms-tropicalidade/10' : 'text-dms-tecnologia hover:bg-[#F8F9FA]'} rounded transition-colors" title="${s.accepted ? 'Aceito — clique pra rejeitar' : 'Rejeitado — clique pra aceitar'}">
+          ${s.accepted
+            ? `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>`
+            : `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`
+          }
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleStage(id) {
+  const s = STAGES.find(x => x.id === id);
+  if (s) { s.accepted = !s.accepted; renderStages(); }
+}
+
+function acceptAll() { STAGES.forEach(s => s.accepted = true); renderStages(); }
+function rejectAll() { STAGES.forEach(s => s.accepted = false); renderStages(); }
+
+function openIaModal() {
+  document.getElementById('ia-modal').classList.remove('hidden');
+  document.getElementById('ia-modal').classList.add('flex');
+  document.body.style.overflow = 'hidden';
+}
+function closeIaModal() {
+  document.getElementById('ia-modal').classList.add('hidden');
+  document.getElementById('ia-modal').classList.remove('flex');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeIaModal();
+});
+
+renderStages();
+</script>
+
+</body>
+</html>

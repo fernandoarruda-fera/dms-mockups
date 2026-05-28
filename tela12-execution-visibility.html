@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Execution Visibility</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C', ceu: '#00AEEE', confianca: '#005290',
+          sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+  tbody tr { transition: background-color 150ms ease; cursor: pointer; }
+  tbody tr:hover { background-color: #FAFBFC; }
+  .kpi-card { transition: transform 150ms ease, box-shadow 150ms ease; cursor: pointer; }
+  .kpi-card:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0, 56, 108, 0.10); }
+  .kpi-card.active { box-shadow: inset 0 0 0 2px #00AEEE; }
+
+  /* SLA bar (reusa da Tela 10) */
+  .sla-mini { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: #E5E7EB; }
+  .sla-mini .seg { transition: width 200ms ease; }
+
+  /* Drawer */
+  .drawer-overlay { background: rgba(0, 56, 108, 0.5); backdrop-filter: blur(2px); }
+  .drawer-panel { animation: slideIn 200ms ease-out; }
+  @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+  /* Stage chip horizontal no drawer */
+  .stage-chip { display: flex; align-items: center; padding: 6px 10px; border-radius: 6px; border: 1px solid #E5E7EB; font-size: 11px; font-weight: 600; }
+  .stage-chip.done { background: rgba(176,201,52,0.10); border-color: #B0C934; color: #5C7818; }
+  .stage-chip.current { background: rgba(0,174,238,0.10); border-color: #00386C; color: #00386C; box-shadow: 0 0 0 2px rgba(0,174,238,0.15); }
+  .stage-chip.delay { background: rgba(220,38,38,0.10); border-color: #DC2626; color: #991B1B; }
+  .stage-chip.pending { background: white; border-color: #E5E7EB; color: #9CA3AF; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+        <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
+      </div>
+      <div>
+        <div class="font-bold text-base leading-tight">DMS</div>
+        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
+      </div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+      <div class="caption text-white/40 px-6 mb-2">Workflow Builder</div>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5z"/></svg>
+        Catálogo de Workflows
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Match Engine
+      </a>
+      <div class="caption text-white/40 px-6 mt-6 mb-2">Execução</div>
+      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Execution Visibility
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Audit Trail
+      </a>
+    </nav>
+    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">FA</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold truncate">Fernando Arruda</div>
+        <div class="text-xs text-white/60 truncate">Admin · DMS Log</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Execução</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Execution Visibility</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <!-- PageHeader -->
+      <div class="mb-6">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Execution Visibility</h1>
+        </div>
+        <p class="text-sm text-dms-tecnologia max-w-3xl">
+          Workflows rodando em tempo real · exceções abertas · histórico · intervenção manual (avançar/retroceder com justificativa). Transparência total da automação.
+        </p>
+      </div>
+
+      <!-- KPI CARDS -->
+      <div class="grid grid-cols-5 gap-4 mb-6" id="kpi-row">
+        <button data-filter="todos" class="kpi-card active text-left bg-dms-mar text-white p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black">62</div>
+          <div class="caption text-white/80 mt-2">Rodando agora</div>
+        </button>
+        <button data-filter="on_time" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-dms-tropicalidade"></span>
+            <div class="text-[36px] leading-none font-black text-dms-mar">47</div>
+          </div>
+          <div class="caption text-dms-tecnologia mt-2">On Time</div>
+        </button>
+        <button data-filter="warning" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#EAB308]"></span>
+            <div class="text-[36px] leading-none font-black text-dms-mar">11</div>
+          </div>
+          <div class="caption text-dms-tecnologia mt-2">Warning</div>
+        </button>
+        <button data-filter="delay" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-red-600"></span>
+            <div class="text-[36px] leading-none font-black text-dms-mar">4</div>
+          </div>
+          <div class="caption text-dms-tecnologia mt-2">Delay</div>
+        </button>
+        <button data-filter="bloqueado" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="flex items-center gap-2">
+            <svg class="w-3 h-3 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <div class="text-[36px] leading-none font-black text-dms-mar">3</div>
+          </div>
+          <div class="caption text-dms-tecnologia mt-2">Bloqueado/Exceção</div>
+        </button>
+      </div>
+
+      <!-- TOOLBAR -->
+      <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+        <div class="flex items-center gap-3 flex-1">
+          <div class="relative flex-1 max-w-md">
+            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input id="search-input" type="text" placeholder="Buscar por processo, workflow, responsável..." class="input-dms w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          </div>
+          <select id="filter-workflow" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+            <option value="">Todos os workflows</option>
+            <option value="WF-01">WF-01 Requisição Avulsa Padrão</option>
+            <option value="WF-09">WF-09 Fluxo NF Avulsa Padrão</option>
+            <option value="WF-07">WF-07 Renovação D-90</option>
+          </select>
+          <select id="filter-period" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+            <option value="">Iniciado em</option>
+            <option value="24h">Últimas 24h</option>
+            <option value="7d" selected>Últimos 7 dias</option>
+            <option value="30d">Últimos 30 dias</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- TABELA INSTÂNCIAS -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden shadow-dms-md">
+        <table class="w-full text-sm">
+          <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+            <tr>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-40">Processo</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">Workflow</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-48">Stage atual</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-44">SLA</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-32">Responsável</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-28">Status</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-28">Iniciado</th>
+            </tr>
+          </thead>
+          <tbody id="instances-tbody" class="divide-y divide-[#E5E7EB]"></tbody>
+        </table>
+
+        <div class="px-4 py-3 border-t border-[#E5E7EB] flex items-center justify-between text-sm text-dms-tecnologia">
+          <div>Mostrando <span class="font-semibold text-dms-mar" id="row-count">8</span> de <span class="font-semibold text-dms-mar">62</span> instâncias</div>
+          <div class="flex items-center gap-1">
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors disabled:opacity-30" disabled>‹ Anterior</button>
+            <button class="px-3 py-1 text-white bg-dms-mar rounded">1</button>
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">2</button>
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">Próximo ›</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nota dual-use -->
+      <div class="mt-4 p-4 bg-dms-ceu/5 border border-dms-ceu/20 rounded-lg flex gap-3">
+        <svg class="w-5 h-5 text-dms-confianca flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div class="text-sm text-dms-mar">
+          <p class="font-semibold mb-1">Visibilidade dual:</p>
+          <p class="leading-relaxed text-dms-tecnologia">
+            Esta tela mostra <strong>todas as instâncias rodando</strong> (visão admin/dev). O <strong>mesmo conteúdo embutido</strong> aparece como aba "Automações" dentro de cada Requisição/PO/NF/Contrato (visão operador). Clique numa linha pra abrir o drawer com Executed + Upcoming + intervenção manual.
+          </p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ DRAWER LATERAL ============ -->
+<div id="drawer" class="fixed inset-0 z-50 hidden">
+  <div class="drawer-overlay absolute inset-0" onclick="closeDrawer()"></div>
+
+  <div class="drawer-panel absolute right-0 top-0 h-full w-[800px] max-w-[90vw] bg-white shadow-2xl overflow-y-auto">
+
+    <!-- Header drawer -->
+    <div class="sticky top-0 bg-white border-b border-[#E5E7EB] px-6 py-4 z-10">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="mono text-dms-mar font-bold">REQ-2026-0142</span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(234,179,8,0.15)] text-[#854D0E]">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#EAB308]"></span>
+              Warning
+            </span>
+          </div>
+          <h2 class="text-xl font-bold text-dms-mar">Stage atual: Aprovação C-Level</h2>
+          <p class="text-xs text-dms-tecnologia mt-1">Workflow: <strong class="text-dms-mar">WF-09 Fluxo NF Avulsa Padrão</strong> · Solicitante: João Silva · R$ 73.500 · CC: Facilities</p>
+        </div>
+        <button onclick="closeDrawer()" class="p-1 text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] rounded transition-colors flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Sequência de stages horizontal -->
+      <div class="flex items-center gap-1.5 flex-wrap pt-2">
+        <div class="stage-chip done">
+          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+          1. NF Recebida
+        </div>
+        <span class="text-dms-tecnologia">→</span>
+        <div class="stage-chip done">
+          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+          2. Validação Auto
+        </div>
+        <span class="text-dms-tecnologia">→</span>
+        <div class="stage-chip done">
+          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+          3. Aprov. Diretor
+        </div>
+        <span class="text-dms-tecnologia">→</span>
+        <div class="stage-chip current">
+          ⚠ 4. Aprov. C-Level
+        </div>
+        <span class="text-dms-tecnologia">→</span>
+        <div class="stage-chip pending">5. Lançamento Omie</div>
+        <span class="text-dms-tecnologia">→</span>
+        <div class="stage-chip pending">6. Pagamento</div>
+      </div>
+    </div>
+
+    <!-- Body drawer -->
+    <div class="p-6 space-y-6">
+
+      <!-- 4 KPIs -->
+      <div class="grid grid-cols-4 gap-3">
+        <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded-md p-3">
+          <div class="text-2xl font-black text-dms-mar leading-none">12</div>
+          <div class="caption text-dms-tecnologia mt-1.5">Avaliações</div>
+        </div>
+        <div class="bg-[rgba(176,201,52,0.08)] border border-dms-tropicalidade/30 rounded-md p-3">
+          <div class="text-2xl font-black text-[#5C7818] leading-none">8</div>
+          <div class="caption text-[#5C7818] mt-1.5">Triggered</div>
+        </div>
+        <div class="bg-[rgba(0,174,238,0.05)] border border-dms-ceu/30 rounded-md p-3">
+          <div class="text-2xl font-black text-dms-confianca leading-none">3</div>
+          <div class="caption text-dms-confianca mt-1.5">Not Triggered</div>
+        </div>
+        <div class="bg-[rgba(234,179,8,0.10)] border border-[#FDE68A] rounded-md p-3">
+          <div class="text-2xl font-black text-[#854D0E] leading-none">1</div>
+          <div class="caption text-[#854D0E] mt-1.5">Pending</div>
+        </div>
+      </div>
+
+      <!-- EXECUTED -->
+      <div>
+        <h3 class="caption text-dms-mar font-bold mb-3 flex items-center gap-2">
+          <svg class="w-3.5 h-3.5 text-dms-tropicalidade" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+          Executed
+          <span class="text-dms-tecnologia font-normal">(últimas 8)</span>
+        </h3>
+        <div class="border border-[#E5E7EB] rounded-md overflow-hidden">
+          <table class="w-full text-xs">
+            <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+              <tr>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Procedure</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2 w-32">Stage</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2 w-28">Status</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2 w-20">Quando</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#E5E7EB]">
+              <tr>
+                <td class="px-3 py-2 font-medium text-dms-mar">Atualizar data pagamento ao receber PO</td>
+                <td class="px-3 py-2 text-dms-tecnologia">Aprov. Diretor</td>
+                <td class="px-3 py-2"><span class="inline-flex items-center gap-1 text-xs text-[#5C7818] font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade"></span>Triggered</span></td>
+                <td class="px-3 py-2 text-dms-tecnologia">há 2min</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-medium text-dms-mar">Bypass aprovação Diretor (estouro)</td>
+                <td class="px-3 py-2 text-dms-tecnologia">Aprov. Diretor</td>
+                <td class="px-3 py-2"><span class="inline-flex items-center gap-1 text-xs text-[#5C7818] font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade"></span>Triggered</span></td>
+                <td class="px-3 py-2 text-dms-tecnologia">há 12min</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-medium text-dms-mar">Auto-aprovar NF dentro tolerância (±2%)</td>
+                <td class="px-3 py-2 text-dms-tecnologia">Validação Auto</td>
+                <td class="px-3 py-2"><span class="inline-flex items-center gap-1 text-xs text-[#854D0E] font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-[#EAB308]"></span>Not Triggered</span><div class="text-[10px] text-dms-tecnologia mt-0.5">Divergência 4.5%</div></td>
+                <td class="px-3 py-2 text-dms-tecnologia">há 18min</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-medium text-dms-mar">Escalation Aprov. Diretor 48h</td>
+                <td class="px-3 py-2 text-dms-tecnologia">Aprov. Diretor</td>
+                <td class="px-3 py-2"><span class="inline-flex items-center gap-1 text-xs text-red-700 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>Send error</span><div class="text-[10px] text-dms-tecnologia mt-0.5">SMTP timeout · <a href="#" class="text-dms-confianca">↻ Reenviar</a></div></td>
+                <td class="px-3 py-2 text-dms-tecnologia">há 35min</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-medium text-dms-mar">Confirmar Lançamento Omie</td>
+                <td class="px-3 py-2 text-dms-tecnologia">Validação Auto</td>
+                <td class="px-3 py-2"><span class="inline-flex items-center gap-1 text-xs text-dms-tecnologia font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>cooldown active</span><div class="text-[10px] text-dms-tecnologia mt-0.5">Última há 6h, cooldown 24h</div></td>
+                <td class="px-3 py-2 text-dms-tecnologia">há 1h</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- UPCOMING -->
+      <div>
+        <h3 class="caption text-dms-mar font-bold mb-3 flex items-center gap-2">
+          <svg class="w-3.5 h-3.5 text-dms-confianca" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Upcoming
+          <span class="text-dms-tecnologia font-normal">(procedures aguardando condição)</span>
+        </h3>
+        <div class="border border-[#E5E7EB] rounded-md overflow-hidden">
+          <table class="w-full text-xs">
+            <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+              <tr>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Procedure</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2 w-32">Stage</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Aguardando</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#E5E7EB]">
+              <tr>
+                <td class="px-3 py-2 font-medium text-dms-mar">Lançar Omie ao aprovar C-Level</td>
+                <td class="px-3 py-2 text-dms-tecnologia">Lançamento Omie</td>
+                <td class="px-3 py-2"><span class="mono text-[11px] text-dms-tecnologia">@compras_requisition_status = 'aprovada_clevel'</span></td>
+              </tr>
+              <tr>
+                <td class="px-3 py-2 font-medium text-dms-mar">Atualizar data pagamento</td>
+                <td class="px-3 py-2 text-dms-tecnologia">Pagamento</td>
+                <td class="px-3 py-2"><span class="mono text-[11px] text-dms-tecnologia">@compras_po_status updated to recebido_total</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- INTERVENÇÃO MANUAL -->
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <h3 class="text-sm font-bold text-red-700">Intervenção manual</h3>
+        </div>
+        <p class="text-xs text-red-700/80 mb-3">Avançar ou retroceder stage requer justificativa SOX. Audit log registra user + before/after + texto. <strong>Permissão restrita</strong> (workflow.intervene).</p>
+        <div class="flex items-center gap-2">
+          <button onclick="openInterventionModal('advance')" class="text-sm font-semibold text-white px-4 py-2 bg-red-600 rounded-md hover:bg-red-700 transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Avançar pra próximo stage
+          </button>
+          <button onclick="openInterventionModal('retreat')" class="text-sm font-semibold text-red-700 px-4 py-2 bg-white border border-red-300 rounded-md hover:bg-red-50 transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h13M5 12a7 7 0 1014 0 7 7 0 00-14 0z"/></svg>
+            Retroceder stage
+          </button>
+          <button class="text-sm font-semibold text-dms-tecnologia px-4 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">
+            Pausar workflow
+          </button>
+        </div>
+      </div>
+
+      <!-- Legenda -->
+      <div class="text-xs text-dms-tecnologia border-t border-[#E5E7EB] pt-4">
+        <div class="caption mb-2">Status possíveis</div>
+        <div class="flex flex-wrap gap-3">
+          <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-dms-tropicalidade"></span>Triggered — regra disparou</span>
+          <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#EAB308]"></span>condition not met — false</span>
+          <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-gray-400"></span>cooldown active — pausa temporária</span>
+          <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-600"></span>send error — falha técnica</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL INTERVENÇÃO -->
+<div id="intervention-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-4">
+  <div class="drawer-overlay absolute inset-0" onclick="closeInterventionModal()"></div>
+  <div class="relative bg-white rounded-lg shadow-2xl max-w-lg w-full overflow-hidden">
+    <div class="px-6 py-5 border-b border-red-200 bg-red-50">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+          <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-red-700" id="intervention-title">Avançar stage manualmente</h3>
+          <p class="text-xs text-red-600 mt-0.5">Audit log permanente (SOX)</p>
+        </div>
+      </div>
+    </div>
+    <div class="p-6 space-y-4">
+      <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded-md p-3 text-sm text-dms-mar">
+        <strong class="mono text-dms-tecnologia text-xs">REQ-2026-0142</strong><br>
+        <span class="text-xs text-dms-tecnologia">Stage atual: <strong class="text-dms-mar">Aprovação C-Level</strong></span><br>
+        <span class="text-xs text-dms-tecnologia" id="intervention-target">Próximo stage: <strong class="text-dms-mar">Lançamento Omie</strong></span>
+      </div>
+
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">Justificativa <span class="text-red-500">*</span></label>
+        <textarea rows="4" placeholder="Por que essa intervenção manual? Explique o contexto (vai pro audit log perpetuamente)." class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
+        <p class="text-xs text-dms-tecnologia mt-1.5">Mínimo 20 caracteres. Não pode ser genérica.</p>
+      </div>
+    </div>
+    <div class="px-6 py-4 bg-[#F8F9FA] border-t border-[#E5E7EB] flex items-center justify-end gap-3">
+      <button onclick="closeInterventionModal()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 hover:text-dms-mar transition-colors">Cancelar</button>
+      <button class="text-sm font-semibold text-white px-5 py-2 bg-red-600 rounded-md hover:bg-red-700 transition-colors">Confirmar intervenção</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const INSTANCES = [
+  { id: 'REQ-2026-0142', wfCode: 'WF-09', wfName: 'Fluxo NF Avulsa Padrão', stage: 'Aprovação C-Level', stageNum: 4, totalStages: 6, slaUsed: 75, slaTotal: 100, slaState: 'warning', responsavel: 'C-Level', status: 'warning', started: 'há 3d' },
+  { id: 'REQ-2026-0140', wfCode: 'WF-01', wfName: 'Req. Avulsa Padrão', stage: 'Aprovação Diretor', stageNum: 3, totalStages: 7, slaUsed: 110, slaTotal: 100, slaState: 'delay', responsavel: 'Head Dep.', status: 'delay', started: 'há 5d' },
+  { id: 'NF-2026-0531', wfCode: 'WF-10', wfName: 'NF em Quarentena', stage: 'Análise Time Compras', stageNum: 2, totalStages: 5, slaUsed: 0, slaTotal: 0, slaState: 'blocked', responsavel: 'Time Compras', status: 'bloqueado', started: 'há 2h' },
+  { id: 'PO-2026-0089', wfCode: 'WF-05', wfName: 'PO Padrão', stage: 'Recebimento', stageNum: 3, totalStages: 5, slaUsed: 30, slaTotal: 100, slaState: 'on_time', responsavel: 'Op Recebimento', started: 'há 12d', status: 'on_time' },
+  { id: 'CONTRACT-2026-017', wfCode: 'WF-07', wfName: 'Renovação D-90', stage: 'Negociação Reajuste', stageNum: 3, totalStages: 6, slaUsed: 50, slaTotal: 100, slaState: 'on_time', responsavel: 'Gestor Contratos', started: 'há 23d', status: 'on_time' },
+  { id: 'REQ-2026-0145', wfCode: 'WF-01', wfName: 'Req. Avulsa Padrão', stage: 'Aprovação Coord.', stageNum: 2, totalStages: 7, slaUsed: 40, slaTotal: 100, slaState: 'on_time', responsavel: 'Coord. Compras', status: 'on_time', started: 'há 1d' },
+  { id: 'NF-2026-0528', wfCode: 'WF-09', wfName: 'Fluxo NF Avulsa Padrão', stage: 'Lançamento Omie', stageNum: 5, totalStages: 6, slaUsed: 80, slaTotal: 100, slaState: 'warning', responsavel: 'Sistema', status: 'warning', started: 'há 4d' },
+  { id: 'REQ-2026-0148', wfCode: 'WF-03', wfName: 'Req. com Estouro', stage: 'Aprov. C-Level', stageNum: 3, totalStages: 7, slaUsed: 20, slaTotal: 100, slaState: 'on_time', responsavel: 'C-Level', status: 'on_time', started: 'há 6h' },
+];
+
+const STATUS_BADGE = {
+  on_time: 'bg-[rgba(176,201,52,0.15)] text-[#7A8F24]" data-dot="#B0C934',
+  warning: 'bg-[rgba(234,179,8,0.15)] text-[#854D0E]" data-dot="#EAB308',
+  delay: 'bg-[rgba(220,38,38,0.10)] text-[#991B1B]" data-dot="#DC2626',
+  bloqueado: 'bg-[rgba(100,53,133,0.10)] text-dms-sabedoria" data-dot="#643585',
+};
+const STATUS_LABEL = { on_time: 'On Time', warning: 'Warning', delay: 'Delay', bloqueado: 'Bloqueado' };
+const STATUS_DOT = { on_time: '#B0C934', warning: '#EAB308', delay: '#DC2626', bloqueado: '#643585' };
+
+let activeFilter = 'todos';
+let searchQuery = '';
+let wfFilter = '';
+
+function renderRows() {
+  const tbody = document.getElementById('instances-tbody');
+  let rows = INSTANCES;
+
+  if (activeFilter !== 'todos') rows = rows.filter(i => i.status === activeFilter);
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    rows = rows.filter(i => i.id.toLowerCase().includes(q) || i.wfName.toLowerCase().includes(q) || i.responsavel.toLowerCase().includes(q));
+  }
+  if (wfFilter) rows = rows.filter(i => i.wfCode === wfFilter);
+
+  tbody.innerHTML = rows.map(i => {
+    const dotColor = STATUS_DOT[i.status];
+    const slaSegColor = i.slaState === 'on_time' ? '#B0C934' : i.slaState === 'warning' ? '#EAB308' : i.slaState === 'delay' ? '#DC2626' : '#9CA3AF';
+    const slaPercent = Math.min(i.slaUsed, 100);
+
+    return `
+    <tr onclick="openDrawer('${i.id}')">
+      <td class="px-4 py-3"><span class="mono text-dms-mar font-semibold text-xs">${i.id}</span></td>
+      <td class="px-4 py-3">
+        <div class="flex items-center gap-2">
+          <span class="mono text-xs text-dms-confianca font-semibold">${i.wfCode}</span>
+          <span class="text-sm text-dms-mar">${i.wfName}</span>
+        </div>
+      </td>
+      <td class="px-4 py-3">
+        <div class="text-sm text-dms-mar">${i.stage}</div>
+        <div class="caption text-dms-tecnologia mt-0.5">${i.stageNum} de ${i.totalStages}</div>
+      </td>
+      <td class="px-4 py-3">
+        ${i.slaTotal === 0 ? `
+          <span class="inline-flex items-center gap-1 text-xs text-dms-sabedoria font-semibold">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            SLA pausado
+          </span>
+        ` : `
+          <div class="sla-mini mb-1">
+            <div class="seg" style="width:${slaPercent}%; background:${slaSegColor};"></div>
+          </div>
+          <div class="text-[11px] text-dms-tecnologia">${i.slaUsed}% do SLA usado</div>
+        `}
+      </td>
+      <td class="px-4 py-3 text-xs text-dms-tecnologia">${i.responsavel}</td>
+      <td class="px-4 py-3">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_BADGE[i.status].split('" data-dot="')[0]}">
+          <span class="w-1.5 h-1.5 rounded-full" style="background:${dotColor}"></span>
+          ${STATUS_LABEL[i.status]}
+        </span>
+      </td>
+      <td class="px-4 py-3 text-xs text-dms-tecnologia">${i.started}</td>
+    </tr>
+    `;
+  }).join('');
+
+  document.getElementById('row-count').textContent = rows.length;
+}
+
+document.getElementById('kpi-row').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-filter]');
+  if (!card) return;
+  document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  activeFilter = card.dataset.filter;
+  renderRows();
+});
+
+document.getElementById('search-input').addEventListener('input', (e) => { searchQuery = e.target.value; renderRows(); });
+document.getElementById('filter-workflow').addEventListener('change', (e) => { wfFilter = e.target.value; renderRows(); });
+
+// Drawer
+function openDrawer(id) {
+  // No mock só temos detalhe pra REQ-2026-0142, mas abre pra qualquer um
+  document.getElementById('drawer').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+// Intervention modal
+function openInterventionModal(type) {
+  document.getElementById('intervention-modal').classList.remove('hidden');
+  document.getElementById('intervention-modal').classList.add('flex');
+  document.getElementById('intervention-title').textContent = type === 'advance' ? 'Avançar stage manualmente' : 'Retroceder stage manualmente';
+  document.getElementById('intervention-target').innerHTML = type === 'advance'
+    ? 'Próximo stage: <strong class="text-dms-mar">Lançamento Omie</strong>'
+    : 'Voltar para: <strong class="text-dms-mar">Aprovação Diretor</strong>';
+}
+function closeInterventionModal() {
+  document.getElementById('intervention-modal').classList.add('hidden');
+  document.getElementById('intervention-modal').classList.remove('flex');
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { closeDrawer(); closeInterventionModal(); }
+});
+
+renderRows();
+</script>
+
+</body>
+</html>

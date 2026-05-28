@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Match Engine</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C', ceu: '#00AEEE', confianca: '#005290',
+          sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+  /* Criterion row */
+  .criterion-row { transition: background-color 150ms ease; }
+  .criterion-row:hover { background: #FAFBFC; }
+  .criterion-row .row-remove { opacity: 0; transition: opacity 150ms ease; }
+  .criterion-row:hover .row-remove { opacity: 1; }
+  /* Test result */
+  .test-true { background: rgba(176,201,52,0.08); border-color: #B0C934; }
+  .test-false { background: rgba(220,38,38,0.05); border-color: #DC2626; }
+  .sticky-sidebar { position: sticky; top: 88px; max-height: calc(100vh - 110px); overflow-y: auto; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+        <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
+      </div>
+      <div>
+        <div class="font-bold text-base leading-tight">DMS</div>
+        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
+      </div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+      <div class="caption text-white/40 px-6 mb-2">Workflow Builder</div>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        Catálogo de Tags
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Procedures
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Biblioteca SOP
+      </a>
+      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        Match Engine
+      </a>
+    </nav>
+    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">FA</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold truncate">Fernando Arruda</div>
+        <div class="text-xs text-white/60 truncate">Admin · DMS Log</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Workflow Builder</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Match Engine</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Fluxo NF Avulsa Padrão</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <!-- PageHeader -->
+      <div class="flex items-start justify-between mb-6 gap-6">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-3 mb-2 flex-wrap">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[32px] leading-[40px] font-bold text-dms-mar">Match Engine</h1>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(176,201,52,0.15)] text-[#7A8F24] ml-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade"></span>
+              Workflow ativo
+            </span>
+          </div>
+          <div class="flex items-center gap-3 text-sm text-dms-tecnologia">
+            <span class="mono text-dms-mar font-semibold">WF-09</span>
+            <span>·</span>
+            <span><strong class="text-dms-mar">Fluxo NF Avulsa Padrão</strong></span>
+            <span>·</span>
+            <span>Módulo: <strong class="text-dms-mar">Compras</strong></span>
+            <span>·</span>
+            <span><strong class="text-dms-mar">47</strong> processos ativos</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 flex-shrink-0">
+          <a href="#" class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 transition-colors">Cancelar</a>
+          <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Salvar critérios</button>
+        </div>
+      </div>
+
+      <!-- ========== AVISO MVP MÍNIMO ========== -->
+      <div class="mb-6 p-4 bg-dms-ceu/5 border border-dms-ceu/20 rounded-lg flex gap-3">
+        <svg class="w-5 h-5 text-dms-confianca flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div class="text-sm text-dms-mar">
+          <p class="font-semibold mb-1">Match Engine MVP — versão mínima determinística (MAPEAMENTO-FRONTEND-MVP § Conceito 4):</p>
+          <p class="leading-relaxed text-dms-tecnologia">
+            <strong class="text-dms-mar">Inclui:</strong> critérios determinísticos (=, IN, BETWEEN, IS NULL), módulo Compras, AND lógico entre critérios, teste rápido com JSON de entrada.<br>
+            <strong class="text-dms-mar">Fora do MVP (wave 2+):</strong> peso/score ponderado, simulador inline rico com histórico, multi-módulo (Logística/Vendas), fallback inteligente, MATCHIA agent.
+          </p>
+        </div>
+      </div>
+
+      <!-- ========== GRID 2 COLUNAS: CRITÉRIOS + TESTAR ========== -->
+      <div class="grid grid-cols-12 gap-6">
+
+        <!-- COLUNA PRINCIPAL: CRITÉRIOS -->
+        <div class="col-span-8">
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+                <h2 class="text-lg font-semibold text-dms-mar">Critérios de Match</h2>
+                <span class="caption text-dms-tecnologia">(schema do módulo Compras)</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(0,174,238,0.15)] text-[#005290]">7 tags disponíveis</span>
+              </div>
+            </div>
+
+            <div class="p-6">
+              <p class="text-sm text-dms-tecnologia mb-4">
+                Quando uma <strong class="text-dms-mar">Requisição/PO/Contrato/NF</strong> é criada no módulo Compras, o motor avalia todos os critérios abaixo em <strong class="text-dms-mar">AND lógico</strong>. Se todos derem <span class="mono text-dms-tropicalidade-dark" style="color:#7A8F24">true</span>, este workflow é o escolhido.
+              </p>
+
+              <!-- Tabela de critérios -->
+              <div class="border border-[#E5E7EB] rounded-lg overflow-hidden">
+                <table class="w-full text-sm">
+                  <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+                    <tr>
+                      <th class="text-left caption text-dms-tecnologia px-4 py-3">Critério</th>
+                      <th class="text-left caption text-dms-tecnologia px-4 py-3 w-40">Operador</th>
+                      <th class="text-left caption text-dms-tecnologia px-4 py-3">Valor(es)</th>
+                      <th class="text-right caption text-dms-tecnologia px-4 py-3 w-12"></th>
+                    </tr>
+                  </thead>
+                  <tbody id="criteria-tbody" class="divide-y divide-[#E5E7EB]">
+                    <!-- gerados via JS -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Adicionar critério -->
+              <div class="mt-4 flex items-center gap-3">
+                <select id="add-criterion-select" class="input-dms flex-1 text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+                  <option value="">Adicionar critério... (escolha uma @-tag disponível)</option>
+                  <option value="tipo_compra">Tipo de Compra · @compras_requisicao_tipo_compra</option>
+                  <option value="valor_total">Faixa de Valor · @compras_requisicao_valor_total</option>
+                  <option value="fornecedor_id">Fornecedor · @compras_requisicao_fornecedor_id</option>
+                  <option value="tipo_servico">Tipo de Serviço · @compras_requisicao_tipo_servico</option>
+                  <option value="centro_custo">Centro de Custo · @compras_requisicao_centro_custo</option>
+                  <option value="contrato_id">Contrato Vigente · @compras_requisicao_contrato_id</option>
+                  <option value="origem">Origem do processo · @compras_requisicao_origem</option>
+                </select>
+                <button onclick="addCriterion()" class="flex items-center gap-2 text-sm font-semibold text-white px-4 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                  Adicionar
+                </button>
+              </div>
+
+              <!-- Nota AND lógico -->
+              <div class="mt-4 p-3 bg-[#F8F9FA] border border-[#E5E7EB] rounded-md flex gap-2 items-start">
+                <svg class="w-4 h-4 text-dms-confianca flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <p class="text-xs text-dms-mar">
+                  <strong>Lógica AND:</strong> todos os critérios devem dar true pra esse workflow ser escolhido. Sistema garante <strong>match único</strong> (RN-WF-03): se nenhum workflow casa, processo vai pra triagem manual.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card: workflows do módulo -->
+          <div class="mt-6 bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+                <h2 class="text-lg font-semibold text-dms-mar">Workflows do módulo Compras</h2>
+              </div>
+              <span class="caption text-dms-tecnologia">10 workflows · 1 fallback</span>
+            </div>
+            <div class="p-6">
+              <p class="text-sm text-dms-tecnologia mb-4">
+                Match Engine garante que <strong class="text-dms-mar">todo processo cai em exatamente 1 workflow</strong> (RN-WF-03). Se nenhum critério casa, processo vai pro fallback "Genérico Compras" que pede revisão manual (RN-MATCH-24).
+              </p>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div class="border border-dms-tropicalidade rounded-md p-3 bg-[rgba(176,201,52,0.04)]">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="mono text-xs font-bold text-dms-mar">WF-09</span>
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-dms-tropicalidade text-white">você está aqui</span>
+                  </div>
+                  <div class="text-sm font-semibold text-dms-mar">Fluxo NF Avulsa Padrão</div>
+                  <div class="text-xs text-dms-tecnologia mt-1">47 processos ativos</div>
+                </div>
+
+                <div class="border border-[#E5E7EB] rounded-md p-3 hover:bg-[#FAFBFC] cursor-pointer transition-colors">
+                  <div class="mono text-xs font-bold text-dms-tecnologia mb-1">WF-10</div>
+                  <div class="text-sm font-semibold text-dms-mar">NF em Quarentena</div>
+                  <div class="text-xs text-dms-tecnologia mt-1">3 processos ativos</div>
+                </div>
+
+                <div class="border border-[#E5E7EB] rounded-md p-3 hover:bg-[#FAFBFC] cursor-pointer transition-colors">
+                  <div class="mono text-xs font-bold text-dms-tecnologia mb-1">WF-01</div>
+                  <div class="text-sm font-semibold text-dms-mar">Requisição Avulsa Padrão</div>
+                  <div class="text-xs text-dms-tecnologia mt-1">12 processos ativos</div>
+                </div>
+
+                <div class="border border-dashed border-[#FDE68A] rounded-md p-3 bg-[#FFFBEB]">
+                  <div class="flex items-center gap-1.5 mb-1">
+                    <svg class="w-3 h-3 text-[#EAB308]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495z" clip-rule="evenodd"/></svg>
+                    <span class="mono text-xs font-bold text-[#854D0E]">WF-FB</span>
+                  </div>
+                  <div class="text-sm font-semibold text-[#854D0E]">Genérico Compras (fallback)</div>
+                  <div class="text-xs text-[#854D0E]/80 mt-1">Aciona quando nada mais casa · triagem manual</div>
+                </div>
+              </div>
+
+              <p class="text-xs text-dms-tecnologia mt-4 italic">
+                Ver todos os 10 workflows na <a href="#" class="text-dms-confianca hover:text-dms-mar font-semibold">Catálogo de Workflows →</a>
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SIDEBAR: TESTAR MATCH -->
+        <aside class="col-span-4 sticky-sidebar self-start">
+          <div class="bg-white border-2 border-dms-sabedoria/30 rounded-lg shadow-dms-md overflow-hidden">
+
+            <div class="px-5 py-3 bg-gradient-to-r from-dms-sabedoria/5 to-dms-ceu/5 border-b border-[#E5E7EB] flex items-center justify-between">
+              <h3 class="caption text-dms-mar font-semibold flex items-center gap-2">
+                <svg class="w-4 h-4 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                Testar Match
+              </h3>
+              <span class="caption text-dms-tecnologia">determinístico</span>
+            </div>
+
+            <div class="p-5 space-y-4">
+              <p class="text-xs text-dms-tecnologia leading-relaxed">
+                Preencha valores de um processo hipotético pra ver se ele <strong>casa</strong> com os critérios deste workflow.
+              </p>
+
+              <!-- Form de teste -->
+              <div class="space-y-3">
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1 block">Tipo de Compra</label>
+                  <select id="test-tipo" class="input-dms w-full px-2 py-1.5 text-sm border border-[#E5E7EB] rounded bg-white cursor-pointer">
+                    <option value="avulsa" selected>avulsa</option>
+                    <option value="contrato_recorrente">contrato_recorrente</option>
+                    <option value="clausula_avulsa">clausula_avulsa</option>
+                    <option value="cotacao">cotacao</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1 block">Valor (R$)</label>
+                  <input id="test-valor" type="number" value="35000" class="input-dms w-full px-2 py-1.5 text-sm border border-[#E5E7EB] rounded bg-white">
+                </div>
+
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1 block">Tipo de Serviço</label>
+                  <select id="test-servico" class="input-dms w-full px-2 py-1.5 text-sm border border-[#E5E7EB] rounded bg-white cursor-pointer">
+                    <option value="TI" selected>TI</option>
+                    <option value="Facilities">Facilities</option>
+                    <option value="Logística">Logística</option>
+                    <option value="RH">RH</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1 block">Contrato vinculado?</label>
+                  <select id="test-contrato" class="input-dms w-full px-2 py-1.5 text-sm border border-[#E5E7EB] rounded bg-white cursor-pointer">
+                    <option value="null" selected>NULL (sem contrato)</option>
+                    <option value="123">Sim — contrato_id=123</option>
+                  </select>
+                </div>
+              </div>
+
+              <button onclick="runTest()" class="w-full flex items-center justify-center gap-2 text-sm font-semibold text-white px-4 py-2.5 bg-dms-sabedoria rounded-md hover:opacity-90 transition-opacity">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Rodar Teste
+              </button>
+
+              <!-- Resultado -->
+              <div id="test-result" class="pt-4 border-t border-[#E5E7EB] hidden">
+                <div class="caption text-dms-tecnologia mb-2">Resultado</div>
+                <div id="result-box" class="border-2 rounded-md p-3">
+                  <!-- preenchido via JS -->
+                </div>
+
+                <!-- Breakdown por critério -->
+                <div class="caption text-dms-tecnologia mt-4 mb-2">Avaliação por critério</div>
+                <div id="breakdown" class="space-y-1.5">
+                  <!-- preenchido via JS -->
+                </div>
+              </div>
+
+              <div class="text-[10px] text-dms-tecnologia italic pt-3 border-t border-[#E5E7EB] leading-relaxed">
+                Teste client-side puro: avalia regras sem persistir nada. Não é um simulador completo (sem score, sem peso, sem histórico).
+              </div>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ========== STATE ==========
+const OPERATORS = {
+  'eq': '= (igual)',
+  'neq': '≠ (diferente)',
+  'in': 'IN (qualquer)',
+  'between': 'BETWEEN',
+  'isnull': 'IS NULL',
+  'isnotnull': 'IS NOT NULL',
+};
+
+const CRITERION_META = {
+  tipo_compra: { label: 'Tipo de Compra', tag: '@compras_requisicao_tipo_compra', defaultOp: 'eq', valueType: 'multi', defaultValue: ['avulsa', 'contrato_recorrente'] },
+  valor_total: { label: 'Faixa de Valor', tag: '@compras_requisicao_valor_total', defaultOp: 'between', valueType: 'range', defaultValue: [0, 50000] },
+  fornecedor_id: { label: 'Fornecedor', tag: '@compras_requisicao_fornecedor_id', defaultOp: 'in', valueType: 'multi', defaultValue: ['Todos', 'Op Logística', 'Fornecedor A'] },
+  tipo_servico: { label: 'Tipo de Serviço', tag: '@compras_requisicao_tipo_servico', defaultOp: 'in', valueType: 'multi', defaultValue: ['TI', 'Facilities', 'Logística'] },
+  centro_custo: { label: 'Centro de Custo', tag: '@compras_requisicao_centro_custo', defaultOp: 'in', valueType: 'multi', defaultValue: ['Todos'] },
+  contrato_id: { label: 'Contrato Vigente', tag: '@compras_requisicao_contrato_id', defaultOp: 'isnull', valueType: 'none', defaultValue: null },
+  origem: { label: 'Origem do processo', tag: '@compras_requisicao_origem', defaultOp: 'in', valueType: 'multi', defaultValue: ['email_NF', 'manual'] },
+};
+
+let criteria = [
+  { key: 'tipo_compra', op: 'eq', value: ['avulsa', 'contrato_recorrente'] },
+  { key: 'valor_total', op: 'between', value: [0, 50000] },
+  { key: 'fornecedor_id', op: 'in', value: ['Todos', 'Op Logística', 'Fornecedor A'] },
+  { key: 'tipo_servico', op: 'in', value: ['TI', 'Facilities', 'Logística'] },
+  { key: 'centro_custo', op: 'in', value: ['Todos'] },
+  { key: 'contrato_id', op: 'isnull', value: null },
+];
+
+function renderCriteria() {
+  const tbody = document.getElementById('criteria-tbody');
+  if (criteria.length === 0) {
+    tbody.innerHTML = `
+      <tr><td colspan="4" class="p-8 text-center">
+        <div class="text-dms-tecnologia text-sm">Nenhum critério ainda. Adicione abaixo pra começar a configurar o match.</div>
+      </td></tr>`;
+    return;
+  }
+  tbody.innerHTML = criteria.map((c, i) => {
+    const meta = CRITERION_META[c.key];
+    let valueDisplay = '';
+    if (meta.valueType === 'multi') {
+      valueDisplay = `<div class="space-y-1">${c.value.map(v => `<div class="mono text-xs text-dms-mar">${v}</div>`).join('')}</div>`;
+    } else if (meta.valueType === 'range') {
+      valueDisplay = `<div class="flex items-center gap-2 text-sm"><input type="number" value="${c.value[0]}" class="mono input-dms w-20 px-2 py-1 text-xs border border-[#E5E7EB] rounded"> – <input type="number" value="${c.value[1]}" class="mono input-dms w-20 px-2 py-1 text-xs border border-[#E5E7EB] rounded"></div>`;
+    } else {
+      valueDisplay = `<span class="text-xs text-dms-tecnologia italic">— (sem valor)</span>`;
+    }
+
+    return `
+    <tr class="criterion-row">
+      <td class="px-4 py-3">
+        <div class="font-semibold text-dms-mar text-sm">${meta.label}</div>
+        <div class="mono text-xs text-dms-tecnologia mt-0.5">${meta.tag}</div>
+      </td>
+      <td class="px-4 py-3">
+        <select class="input-dms text-sm border border-[#E5E7EB] rounded bg-white px-2 py-1 cursor-pointer w-full">
+          ${Object.entries(OPERATORS).map(([k, v]) => `<option value="${k}" ${k === c.op ? 'selected' : ''}>${v}</option>`).join('')}
+        </select>
+      </td>
+      <td class="px-4 py-3">${valueDisplay}</td>
+      <td class="px-4 py-3 text-right">
+        <button onclick="removeCriterion(${i})" class="row-remove text-red-600 hover:text-red-700 text-sm" title="Remover critério">✕</button>
+      </td>
+    </tr>
+    `;
+  }).join('');
+}
+
+function addCriterion() {
+  const select = document.getElementById('add-criterion-select');
+  const key = select.value;
+  if (!key) return;
+  if (criteria.find(c => c.key === key)) {
+    alert('Esse critério já foi adicionado.');
+    return;
+  }
+  const meta = CRITERION_META[key];
+  criteria.push({ key, op: meta.defaultOp, value: meta.defaultValue });
+  select.value = '';
+  renderCriteria();
+}
+
+function removeCriterion(i) {
+  criteria.splice(i, 1);
+  renderCriteria();
+}
+
+// ========== TEST MATCH ==========
+function runTest() {
+  const input = {
+    tipo_compra: document.getElementById('test-tipo').value,
+    valor_total: parseFloat(document.getElementById('test-valor').value),
+    tipo_servico: document.getElementById('test-servico').value,
+    contrato_id: document.getElementById('test-contrato').value === 'null' ? null : 123,
+  };
+
+  const breakdown = [];
+  let allTrue = true;
+
+  for (const c of criteria) {
+    const meta = CRITERION_META[c.key];
+    const inputValue = input[c.key];
+    let result = null;
+    let reason = '';
+
+    if (c.op === 'eq' || c.op === 'in') {
+      result = Array.isArray(c.value) ? c.value.includes(inputValue) : inputValue === c.value;
+      reason = `${inputValue} ${result ? '∈' : '∉'} {${Array.isArray(c.value) ? c.value.join(', ') : c.value}}`;
+    } else if (c.op === 'between') {
+      result = inputValue >= c.value[0] && inputValue <= c.value[1];
+      reason = `${inputValue} ${result ? '∈' : '∉'} [${c.value[0]}, ${c.value[1]}]`;
+    } else if (c.op === 'isnull') {
+      result = inputValue === null || inputValue === undefined;
+      reason = inputValue === null ? 'null (✓)' : `${inputValue} (não null)`;
+    } else if (c.op === 'isnotnull') {
+      result = inputValue !== null && inputValue !== undefined;
+      reason = inputValue !== null ? `${inputValue} (não null)` : 'null (✗)';
+    } else if (c.op === 'neq') {
+      result = inputValue !== c.value;
+      reason = `${inputValue} ${result ? '≠' : '='} ${c.value}`;
+    } else {
+      result = false;
+      reason = 'tipo não suportado em teste';
+    }
+
+    if (!result) allTrue = false;
+    breakdown.push({ label: meta.label, op: OPERATORS[c.op], reason, result });
+  }
+
+  // Render
+  const resultBox = document.getElementById('result-box');
+  const resultEl = document.getElementById('test-result');
+  resultEl.classList.remove('hidden');
+
+  if (allTrue) {
+    resultBox.className = 'test-true border-2 rounded-md p-3';
+    resultBox.innerHTML = `
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 text-[#7A8F24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+        <div>
+          <div class="font-bold text-[#7A8F24] text-sm">MATCH ✓</div>
+          <div class="text-xs text-[#7A8F24]/80">Todos os ${criteria.length} critérios bateram. Workflow seria escolhido.</div>
+        </div>
+      </div>
+    `;
+  } else {
+    const passed = breakdown.filter(b => b.result).length;
+    resultBox.className = 'test-false border-2 rounded-md p-3';
+    resultBox.innerHTML = `
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        <div>
+          <div class="font-bold text-red-700 text-sm">NÃO MATCH</div>
+          <div class="text-xs text-red-700/80">${passed}/${criteria.length} critérios bateram. Workflow descartado · processo iria pro fallback ou outro workflow.</div>
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById('breakdown').innerHTML = breakdown.map(b => `
+    <div class="flex items-start gap-2 p-2 rounded text-xs ${b.result ? 'bg-[rgba(176,201,52,0.08)]' : 'bg-red-50'}">
+      ${b.result
+        ? `<svg class="w-3 h-3 text-[#7A8F24] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>`
+        : `<svg class="w-3 h-3 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`
+      }
+      <div class="flex-1 min-w-0">
+        <div class="font-semibold ${b.result ? 'text-[#7A8F24]' : 'text-red-700'}">${b.label}</div>
+        <div class="mono text-[10px] ${b.result ? 'text-[#7A8F24]/70' : 'text-red-700/70'} mt-0.5 truncate">${b.reason}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+renderCriteria();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Workflow Builder</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C', ceu: '#00AEEE', confianca: '#005290',
+          sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+  .card-ia { background: linear-gradient(135deg, rgba(100,53,133,0.05), rgba(0,174,238,0.05)); border-color: rgba(100,53,133,0.2); }
+
+  /* Stage card sidebar */
+  .stage-item { transition: all 150ms ease; cursor: pointer; }
+  .stage-item:hover { background: #FAFBFC; }
+  .stage-item.editing { background: rgba(0,174,238,0.05); border-color: #00386C; box-shadow: inset 3px 0 0 #00386C; }
+  .stage-item .reorder-btn { opacity: 0; transition: opacity 150ms ease; }
+  .stage-item:hover .reorder-btn { opacity: 1; }
+
+  /* Tabs */
+  .tab-btn { transition: all 150ms ease; cursor: pointer; }
+  .tab-btn:hover { color: #00386C; }
+  .tab-btn.active { color: #00386C; border-bottom: 2px solid #00AEEE; font-weight: 600; }
+
+  /* SLA bar (segmented) */
+  .sla-bar { display: flex; height: 36px; border-radius: 6px; overflow: hidden; border: 1px solid #E5E7EB; }
+  .sla-seg { display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; padding: 0 12px; }
+  .sla-on-time { background: rgba(176,201,52,0.20); color: #5C7818; }
+  .sla-warning { background: rgba(234,179,8,0.25); color: #854D0E; }
+  .sla-delay { background: rgba(220,38,38,0.18); color: #991B1B; }
+
+  /* Live Preview stage card horizontal */
+  .preview-step { padding: 8px 10px; border-radius: 6px; border: 1px solid #E5E7EB; font-size: 12px; transition: all 150ms ease; }
+  .preview-step.current { border: 2px solid #00386C; background: rgba(0,174,238,0.04); }
+  .preview-arrow { text-align: center; color: #9CA3AF; font-size: 12px; padding: 2px 0; }
+
+  /* Escalation card */
+  .escalation-card { border-left: 3px solid #643585; background: rgba(100,53,133,0.03); }
+  .escalation-card .esc-remove { opacity: 0; transition: opacity 150ms ease; }
+  .escalation-card:hover .esc-remove { opacity: 1; }
+
+  .sticky-preview { position: sticky; top: 88px; max-height: calc(100vh - 110px); overflow-y: auto; }
+
+  /* Placeholder de aba inativa */
+  .tab-placeholder { background: linear-gradient(135deg, rgba(0,174,238,0.03), rgba(0,56,108,0.03)); border: 2px dashed rgba(0,174,238,0.2); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- SIDEBAR ESQUERDA (NAV GERAL) -->
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+        <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
+      </div>
+      <div>
+        <div class="font-bold text-base leading-tight">DMS</div>
+        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
+      </div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+      <div class="caption text-white/40 px-6 mb-2">Workflow Builder</div>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        Catálogo de Tags
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Procedures
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Biblioteca SOP
+      </a>
+      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+        Catálogo de Workflows
+      </a>
+    </nav>
+    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">FA</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold truncate">Fernando Arruda</div>
+        <div class="text-xs text-white/60 truncate">Admin · DMS Log</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Workflow Builder</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Catálogo de Workflows</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Fluxo NF Avulsa Padrão</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1600px] w-full mx-auto">
+
+      <!-- PageHeader -->
+      <div class="flex items-start justify-between mb-6 gap-6">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-3 mb-2 flex-wrap">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[32px] leading-[40px] font-bold text-dms-mar">Workflow Builder</h1>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(0,174,238,0.15)] text-[#005290] ml-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-dms-ceu"></span>
+              Em construção
+            </span>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(100,53,133,0.10)] text-dms-sabedoria mono">v 1.0</span>
+          </div>
+          <div class="flex items-center gap-3 text-sm text-dms-tecnologia">
+            <span class="mono text-dms-mar font-semibold">WF-09</span>
+            <span>·</span>
+            <span><strong class="text-dms-mar">Fluxo NF Avulsa Padrão</strong></span>
+            <span>·</span>
+            <span>Stage selecionado: <strong class="text-dms-mar">3 · Aprovação Diretor</strong></span>
+            <span>·</span>
+            <span>6 stages</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 flex-shrink-0">
+          <a href="#" class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 transition-colors">Cancelar</a>
+          <button class="text-sm font-semibold text-dms-tecnologia px-4 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">Salvar rascunho</button>
+          <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Aprovar v1.0
+          </button>
+        </div>
+      </div>
+
+      <!-- ========== TOPO: IDENTIDADE DO WORKFLOW ========== -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md mb-6">
+        <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h2 class="text-lg font-semibold text-dms-mar">Identidade do Workflow</h2>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <span class="text-dms-tecnologia">Módulo:</span>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(0,56,108,0.08)] text-dms-mar">Compras</span>
+            <span class="text-dms-tecnologia ml-2">define schema de critérios de match</span>
+          </div>
+        </div>
+        <div class="p-6 space-y-5">
+
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label class="caption text-dms-tecnologia mb-1.5 block">Módulo <span class="text-red-500">*</span></label>
+              <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                <option selected>Compras</option>
+                <option disabled>Logística (Sprint futura)</option>
+                <option disabled>Vendas (Sprint futura)</option>
+                <option disabled>Custom via API</option>
+              </select>
+            </div>
+            <div>
+              <label class="caption text-dms-tecnologia mb-1.5 block">Nome <span class="text-red-500">*</span></label>
+              <input type="text" value="Fluxo NF Avulsa Padrão" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+            </div>
+            <div>
+              <label class="caption text-dms-tecnologia mb-1.5 block">Responsável <span class="text-red-500">*</span></label>
+              <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                <option selected>Time Compras</option>
+                <option>Time Fiscal</option>
+                <option>Customer Care</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="caption text-dms-tecnologia mb-1.5 block">Objetivo <span class="text-red-500">*</span></label>
+            <textarea rows="2" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none">Padronizar processamento de NFs com validação automática e lançamento Omie em até 5 dias úteis.</textarea>
+          </div>
+
+          <div>
+            <label class="caption text-dms-tecnologia mb-1.5 block">Resultados esperados <span class="text-red-500">*</span></label>
+            <textarea rows="2" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none">99% NFs validadas automaticamente · SLA total ≤ 5 dias · zero NF perdida.</textarea>
+          </div>
+
+          <!-- Critérios de Match resumo -->
+          <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded-md p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="caption text-dms-confianca flex items-center gap-2">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                Critérios de Match (resumo)
+              </div>
+              <a href="#" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar transition-colors">Configurar no Match Engine →</a>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span class="mono text-xs px-2 py-1 bg-white border border-[#E5E7EB] rounded text-dms-mar">tipo_compra IN [avulsa, contrato_recorrente]</span>
+              <span class="mono text-xs px-2 py-1 bg-white border border-[#E5E7EB] rounded text-dms-mar">valor_total BETWEEN 0 e 50000</span>
+              <span class="mono text-xs px-2 py-1 bg-white border border-[#E5E7EB] rounded text-dms-mar">tipo_servico IN [TI, Facilities]</span>
+              <span class="mono text-xs px-2 py-1 bg-white border border-[#E5E7EB] rounded text-dms-mar">contrato_id IS NULL</span>
+              <span class="text-xs px-2 py-1 bg-dms-ceu/10 text-dms-confianca rounded">+ 2 outros</span>
+            </div>
+          </div>
+
+          <!-- IA Assistente -->
+          <div class="card-ia border rounded-lg p-4 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3 flex-1">
+              <div class="w-10 h-10 rounded-lg bg-dms-sabedoria/10 flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-dms-mar text-sm">Assistente IA — Workflow</h3>
+                <p class="text-xs text-dms-tecnologia">A IA leu objetivo + resultados esperados e pode propor a estrutura completa de stages ou validar o que você montou.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <button class="flex items-center gap-2 text-sm font-semibold text-dms-sabedoria px-4 py-2 bg-white border border-dms-sabedoria/30 rounded-md hover:bg-dms-sabedoria/5 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                Gerar pela IA
+              </button>
+              <button class="flex items-center gap-2 text-sm font-semibold text-white px-4 py-2 bg-dms-sabedoria rounded-md hover:opacity-90 transition-opacity">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                Validar com IA
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ========== GRID 3 COLUNAS: STAGES + DETAIL + LIVE PREVIEW ========== -->
+      <div class="grid grid-cols-12 gap-6">
+
+        <!-- COLUNA 1: STAGES SIDEBAR -->
+        <aside class="col-span-3">
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+            <div class="px-4 py-3 border-b border-[#E5E7EB] flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <h3 class="caption text-dms-mar font-bold">Stages</h3>
+                <span class="caption text-dms-tecnologia">(6)</span>
+              </div>
+              <button class="flex items-center gap-1 text-xs font-semibold text-white bg-dms-mar px-2.5 py-1 rounded hover:bg-dms-confianca transition-colors">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                Novo
+              </button>
+            </div>
+
+            <div id="stages-list" class="divide-y divide-[#E5E7EB]"></div>
+
+            <div class="px-4 py-3 bg-[#F8F9FA] border-t border-[#E5E7EB] text-[10px] text-dms-tecnologia italic leading-relaxed">
+              Reorder via botões ↑↓ no hover (MVP). Drag-drop @dnd-kit chega na wave 1.5.
+            </div>
+          </div>
+        </aside>
+
+        <!-- COLUNA 2: DETALHE DO STAGE -->
+        <div class="col-span-6">
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+
+            <!-- Header do stage -->
+            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between bg-gradient-to-r from-dms-ceu/5 to-transparent">
+              <div>
+                <div class="caption text-dms-confianca mb-0.5">Stage 3 · editando</div>
+                <h2 class="text-xl font-bold text-dms-mar">Aprovação Diretor</h2>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="text-sm font-semibold text-dms-tecnologia px-3 py-1.5 hover:text-dms-mar transition-colors" title="Excluir stage">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="border-b border-[#E5E7EB] flex items-center px-4 overflow-x-auto">
+              <button onclick="selectTab('identidade')" id="tab-identidade" class="tab-btn text-sm text-dms-tecnologia px-4 py-3">Identidade</button>
+              <button onclick="selectTab('sop')" id="tab-sop" class="tab-btn text-sm text-dms-tecnologia px-4 py-3">SOP texto <span class="ml-1 text-xs text-dms-tecnologia">(SOP-001)</span></button>
+              <button onclick="selectTab('procedures')" id="tab-procedures" class="tab-btn text-sm text-dms-tecnologia px-4 py-3">Procedures <span class="ml-1 text-xs text-dms-tecnologia">(2)</span></button>
+              <button onclick="selectTab('alertas')" id="tab-alertas" class="tab-btn text-sm text-dms-tecnologia px-4 py-3">Alertas <span class="ml-1 text-xs text-dms-tecnologia">(1)</span></button>
+              <button onclick="selectTab('agentes')" id="tab-agentes" class="tab-btn text-sm text-dms-tecnologia px-4 py-3">Agentes <span class="ml-1 text-xs text-dms-tecnologia">(0)</span></button>
+              <button onclick="selectTab('sla')" id="tab-sla" class="tab-btn active text-sm px-4 py-3">SLA + Escalation</button>
+            </div>
+
+            <!-- ========== TAB CONTENT: SLA + ESCALATION (ATIVA) ========== -->
+            <div id="content-sla" class="p-6 space-y-6">
+
+              <!-- SLA EXTERNAL -->
+              <div class="border-2 border-dms-tropicalidade/30 rounded-lg p-5">
+                <div class="flex items-start justify-between mb-3">
+                  <div>
+                    <h4 class="caption text-[#7A8F24] mb-0.5">SLA External (Customer/Vendor)</h4>
+                    <p class="text-xs text-dms-tecnologia">Prazo total acordado · define conclusão</p>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <input type="number" value="48" class="input-dms w-16 px-2 py-1 text-sm border border-[#E5E7EB] rounded text-center">
+                    <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1 cursor-pointer">
+                      <option selected>horas</option>
+                      <option>minutos</option>
+                      <option>dias</option>
+                    </select>
+                    <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1 cursor-pointer">
+                      <option selected>dias úteis</option>
+                      <option>dias corridos</option>
+                    </select>
+                  </div>
+                </div>
+
+                <p class="text-xs text-dms-mar mb-3">Total: <strong>48 horas</strong> · <strong>2 dias úteis</strong></p>
+
+                <!-- SLA Bar segmentada -->
+                <div class="sla-bar mb-3">
+                  <div class="sla-seg sla-on-time" style="flex: 75">
+                    <span class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-dms-tropicalidade"></span>
+                      On Time · 0–36h
+                    </span>
+                  </div>
+                  <div class="sla-seg sla-warning" style="flex: 25">
+                    <span class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-[#EAB308]"></span>
+                      Warning · 36–48h
+                    </span>
+                  </div>
+                </div>
+                <div class="sla-bar mb-3" style="height: 24px;">
+                  <div class="sla-seg sla-delay" style="flex: 100">
+                    <span class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-red-600"></span>
+                      Delay · após 48h
+                    </span>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1 block flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade"></span>
+                      On Time até
+                    </label>
+                    <div class="flex items-center gap-1">
+                      <input type="number" value="36" class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded text-center">
+                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer"><option>h</option></select>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1 block flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-[#EAB308]"></span>
+                      Warning até
+                    </label>
+                    <div class="flex items-center gap-1">
+                      <input type="number" value="48" class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded text-center">
+                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer"><option>h</option></select>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1 block flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                      Delay após
+                    </label>
+                    <div class="flex items-center gap-1">
+                      <input type="number" value="48" class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded text-center">
+                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer"><option>h</option></select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SLA DMS -->
+              <div class="border-2 border-dms-ceu/30 rounded-lg p-5">
+                <div class="flex items-start justify-between mb-3">
+                  <div>
+                    <h4 class="caption text-dms-confianca mb-0.5">SLA DMS (interno)</h4>
+                    <p class="text-xs text-dms-tecnologia">Não conclui, sinaliza ação interna</p>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <input type="number" value="24" class="input-dms w-16 px-2 py-1 text-sm border border-[#E5E7EB] rounded text-center">
+                    <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1 cursor-pointer"><option>horas</option></select>
+                    <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1 cursor-pointer"><option>dias úteis</option></select>
+                  </div>
+                </div>
+
+                <p class="text-xs text-dms-mar mb-3">Total: <strong>24 horas</strong> · <strong>1 dia útil</strong></p>
+
+                <div class="sla-bar mb-3">
+                  <div class="sla-seg sla-on-time" style="flex: 75">
+                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-dms-tropicalidade"></span>On Time · 0–18h</span>
+                  </div>
+                  <div class="sla-seg sla-warning" style="flex: 25">
+                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#EAB308]"></span>Warning · 18–24h</span>
+                  </div>
+                </div>
+                <div class="sla-bar mb-3" style="height: 24px;">
+                  <div class="sla-seg sla-delay" style="flex: 100">
+                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-red-600"></span>Delay · após 24h</span>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1 block">On Time até</label>
+                    <div class="flex items-center gap-1">
+                      <input type="number" value="18" class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded text-center">
+                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer"><option>h</option></select>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1 block">Warning até</label>
+                    <div class="flex items-center gap-1">
+                      <input type="number" value="24" class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded text-center">
+                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer"><option>h</option></select>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1 block">Delay após</label>
+                    <div class="flex items-center gap-1">
+                      <input type="number" value="24" class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded text-center">
+                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer"><option>h</option></select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ESCALATIONS DESTE STAGE -->
+              <div>
+                <div class="flex items-start justify-between mb-3">
+                  <div>
+                    <h4 class="caption text-dms-sabedoria mb-0.5">Escalations deste stage <span class="text-dms-mar">(3)</span></h4>
+                    <p class="text-xs text-dms-tecnologia">Múltiplas regras pra situações diferentes. Sistema bloqueia regras duplicadas (D17).</p>
+                  </div>
+                  <button class="flex items-center gap-1 text-xs font-semibold text-dms-sabedoria px-2.5 py-1 bg-white border border-dms-sabedoria/30 rounded hover:bg-dms-sabedoria/5 transition-colors">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                    Adicionar
+                  </button>
+                </div>
+
+                <div class="space-y-3">
+                  <!-- Escalation 1 -->
+                  <div class="escalation-card rounded-md p-3">
+                    <div class="flex items-center justify-between mb-2">
+                      <div class="caption text-dms-sabedoria">#1 — Atraso 24h (após Warning)</div>
+                      <button class="esc-remove text-red-600 hover:text-red-700 text-sm" title="Remover">✕</button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
+                        <option selected>Após Warning</option>
+                        <option>Após Delay</option>
+                      </select>
+                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
+                        <option selected>Adicionar responsável</option>
+                        <option>Redirecionar</option>
+                        <option>Aumentar prioridade</option>
+                      </select>
+                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
+                        <option selected>TL Compras</option>
+                        <option>Head Departamento</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Escalation 2 -->
+                  <div class="escalation-card rounded-md p-3">
+                    <div class="flex items-center justify-between mb-2">
+                      <div class="caption text-dms-sabedoria">#2 — Delay (SLA estourado)</div>
+                      <button class="esc-remove text-red-600 hover:text-red-700 text-sm" title="Remover">✕</button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
+                        <option selected>Após Delay</option>
+                      </select>
+                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
+                        <option selected>Redirecionar</option>
+                      </select>
+                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
+                        <option selected>Head Departamento</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Escalation 3 (MAILIA) -->
+                  <div class="escalation-card rounded-md p-3">
+                    <div class="flex items-center justify-between mb-2">
+                      <div class="caption text-dms-sabedoria">#3 — Reclamação MAILIA</div>
+                      <button class="esc-remove text-red-600 hover:text-red-700 text-sm" title="Remover">✕</button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
+                        <option selected>Tag MAILIA: complaint</option>
+                      </select>
+                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
+                        <option selected>Aumentar prioridade</option>
+                      </select>
+                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
+                        <option selected>Customer Care + TL</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Resumo das outras abas -->
+              <div class="bg-dms-ceu/5 border border-dms-ceu/20 rounded-md p-3 flex items-center gap-2">
+                <svg class="w-4 h-4 text-dms-confianca flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <p class="text-xs text-dms-mar">
+                  <strong>Outras abas (este stage):</strong> Identidade · SOP texto (anexo <span class="mono">SOP-001</span>) · Procedures (2) · Alertas (1) · Agentes (0)
+                </p>
+              </div>
+
+            </div>
+
+            <!-- ========== PLACEHOLDERS PRAS OUTRAS ABAS ========== -->
+            <div id="content-identidade" class="hidden p-6">
+              <div class="tab-placeholder rounded-lg p-8 text-center">
+                <h3 class="text-base font-semibold text-dms-mar mb-2">Aba Identidade</h3>
+                <p class="text-sm text-dms-tecnologia">Nome do stage · Categoria (tarefa_humana/automacao/alerta/validacao) · Responsável role · Cadeiras (executor / observador / destinatária) · Execution mode · Outputs declarados.</p>
+                <p class="text-xs text-dms-tecnologia mt-3 italic">Mockup omite essa aba para foco no SLA + Escalation. UI segue o mesmo padrão de form 2 colunas das telas anteriores.</p>
+              </div>
+            </div>
+
+            <div id="content-sop" class="hidden p-6">
+              <div class="tab-placeholder rounded-lg p-8 text-center">
+                <h3 class="text-base font-semibold text-dms-mar mb-2">Aba SOP texto</h3>
+                <p class="text-sm text-dms-tecnologia">Seletor de SOP da Biblioteca (combo box com autocomplete + SOP-001 atual selecionado) · Preview do conteúdo da SOP em markdown · Botões "Criar Específica deste workflow" e "View Origin Default".</p>
+                <p class="text-xs text-dms-tecnologia mt-3 italic">Reusa o renderer markdown da Tela 7.</p>
+              </div>
+            </div>
+
+            <div id="content-procedures" class="hidden p-6">
+              <div class="tab-placeholder rounded-lg p-8 text-center">
+                <h3 class="text-base font-semibold text-dms-mar mb-2">Aba Procedures</h3>
+                <p class="text-sm text-dms-tecnologia">Lista de Procedures associadas em ordem de execução (stage_step). Cada item: Procedure name + Trigger Type badge + reorder ↑↓ + remover. Botão "+ Adicionar Procedure" abre seletor da Biblioteca filtrado por Applies To.</p>
+                <p class="text-xs text-dms-tecnologia mt-3 italic">2 procedures associadas neste stage.</p>
+              </div>
+            </div>
+
+            <div id="content-alertas" class="hidden p-6">
+              <div class="tab-placeholder rounded-lg p-8 text-center">
+                <h3 class="text-base font-semibold text-dms-mar mb-2">Aba Alertas</h3>
+                <p class="text-sm text-dms-tecnologia">Lista de Alertas anexados (1) com sua regra, canal, destinatário, cooldown. Botão "+ Adicionar Alerta" abre seletor da Biblioteca de Alertas.</p>
+              </div>
+            </div>
+
+            <div id="content-agentes" class="hidden p-6">
+              <div class="tab-placeholder rounded-lg p-8 text-center">
+                <h3 class="text-base font-semibold text-dms-mar mb-2">Aba Agentes</h3>
+                <p class="text-sm text-dms-tecnologia">Lista de IA Agents helpers anexados ao stage (0 no exemplo). Tipo, modelo, role no stage (sugerir/decidir/classificar).</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- COLUNA 3: LIVE PREVIEW VERTICAL -->
+        <aside class="col-span-3 sticky-preview self-start">
+          <div class="bg-white border-2 border-dms-sabedoria/30 rounded-lg shadow-dms-md overflow-hidden">
+
+            <div class="px-4 py-3 bg-gradient-to-r from-dms-sabedoria/5 to-dms-ceu/5 border-b border-[#E5E7EB] flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="relative flex h-2.5 w-2.5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-dms-sabedoria opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-dms-sabedoria"></span>
+                </span>
+                <h3 class="caption text-dms-mar font-semibold">Live Preview</h3>
+              </div>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[rgba(0,174,238,0.15)] text-[#005290]">tempo real</span>
+            </div>
+
+            <div class="p-4 space-y-2">
+              <div class="caption text-dms-tecnologia mb-2">Workflow se construindo</div>
+
+              <!-- Step 1 -->
+              <div class="preview-step">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-dms-ceu/15 text-dms-confianca font-bold text-[10px]">1</span>
+                    <span class="font-semibold text-dms-mar">NF Recebida</span>
+                  </div>
+                  <span class="mono text-xs text-dms-tecnologia">2h</span>
+                </div>
+              </div>
+              <div class="preview-arrow">↓</div>
+
+              <div class="preview-step">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-dms-ceu/15 text-dms-confianca font-bold text-[10px]">2</span>
+                    <span class="font-semibold text-dms-mar">Validação Auto</span>
+                  </div>
+                  <span class="mono text-xs text-dms-tecnologia">5min</span>
+                </div>
+              </div>
+              <div class="preview-arrow">↓</div>
+
+              <!-- Step 3 atual -->
+              <div class="preview-step current">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-dms-mar text-white font-bold text-[10px]">3</span>
+                    <span class="font-semibold text-dms-mar">Aprovação Diretor</span>
+                  </div>
+                  <span class="mono text-xs text-dms-mar font-semibold">48h ✎</span>
+                </div>
+              </div>
+              <div class="preview-arrow">↓ <span class="text-yellow-600">?</span></div>
+
+              <div class="preview-step">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-dms-ceu/15 text-dms-confianca font-bold text-[10px]">4</span>
+                    <div class="flex items-center gap-1">
+                      <span class="font-semibold text-dms-mar">Aprov. C-Level</span>
+                      <span class="text-[10px] uppercase tracking-wider px-1 rounded bg-[#FFFBEB] text-[#854D0E]">condicional</span>
+                    </div>
+                  </div>
+                  <span class="mono text-xs text-dms-tecnologia">72h</span>
+                </div>
+              </div>
+              <div class="preview-arrow">↓</div>
+
+              <div class="preview-step">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-dms-ceu/15 text-dms-confianca font-bold text-[10px]">5</span>
+                    <span class="font-semibold text-dms-mar">Lançamento Omie</span>
+                  </div>
+                  <span class="mono text-xs text-dms-tecnologia">15min</span>
+                </div>
+              </div>
+              <div class="preview-arrow">↓</div>
+
+              <div class="preview-step">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-dms-ceu/15 text-dms-confianca font-bold text-[10px]">6</span>
+                    <span class="font-semibold text-dms-mar">Pagamento</span>
+                  </div>
+                  <span class="mono text-xs text-dms-tecnologia">5d</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- SLA TOTAL -->
+            <div class="bg-dms-ceu/5 border-t border-[#E5E7EB] p-4">
+              <div class="caption text-dms-tecnologia mb-1">SLA Total</div>
+              <div class="text-lg font-bold text-dms-mar">120 horas · 5 dias úteis</div>
+              <div class="text-xs text-dms-tropicalidade mt-1 flex items-center gap-1">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                Soma compatível
+              </div>
+            </div>
+
+            <!-- Validação -->
+            <div class="p-4 border-t border-[#E5E7EB]">
+              <div class="bg-[rgba(176,201,52,0.10)] border border-dms-tropicalidade/30 rounded-md p-2.5 flex items-start gap-2">
+                <svg class="w-4 h-4 text-[#7A8F24] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                <div class="text-xs">
+                  <p class="font-semibold text-[#7A8F24]">Workflow válido</p>
+                  <p class="text-[#7A8F24]/80 mt-0.5">6 stages · 3 escalations · SLA somando 120h</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Nota TR-8 -->
+          <p class="text-[10px] text-dms-tecnologia italic mt-2 px-2 leading-relaxed">
+            Live Preview client-side: atualiza ao editar qualquer campo (TR-8).
+          </p>
+        </aside>
+
+      </div>
+
+      <!-- ========== AVISO SOBRE ESTRATÉGIA DAS ABAS ========== -->
+      <div class="mt-6 p-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg flex gap-3">
+        <svg class="w-5 h-5 text-[#EAB308] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div class="text-sm text-[#854D0E]">
+          <p class="font-semibold mb-1">Estratégia desta tela (decisão consciente):</p>
+          <p class="leading-relaxed">A aba <strong>SLA + Escalation</strong> está renderizada completa (mais densa e específica, segue mockup pg 20). As outras 5 abas têm <strong>placeholders explicativos</strong> que descrevem o conteúdo previsto — clique nelas pra ver. No React, cada aba será um componente próprio reutilizando padrões já validados em A1/A2 (form 2 colunas, badges, etc.). Decisão tomada pra manter este HTML em ~50KB em vez de 120KB+.</p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ========== STAGES SIDEBAR ==========
+const STAGES = [
+  { num: 1, name: 'NF Recebida', conditional: false, editing: false },
+  { num: 2, name: 'Validação Auto', conditional: false, editing: false },
+  { num: 3, name: 'Aprovação Diretor', conditional: false, editing: true },
+  { num: 4, name: 'Aprovação C-Level', conditional: true, editing: false },
+  { num: 5, name: 'Lançamento Omie', conditional: false, editing: false },
+  { num: 6, name: 'Pagamento', conditional: false, editing: false },
+];
+
+function renderStages() {
+  document.getElementById('stages-list').innerHTML = STAGES.map((s, i) => `
+    <div class="stage-item ${s.editing ? 'editing' : ''} p-3 relative">
+      <div class="flex items-start gap-2">
+        <div class="flex flex-col items-center gap-0.5 mt-0.5">
+          <button onclick="moveStage(${i}, -1)" class="reorder-btn ${i === 0 ? 'opacity-0 cursor-not-allowed pointer-events-none' : ''} text-dms-tecnologia hover:text-dms-mar text-xs leading-none" title="Mover acima">▲</button>
+          <button onclick="moveStage(${i}, 1)" class="reorder-btn ${i === STAGES.length - 1 ? 'opacity-0 cursor-not-allowed pointer-events-none' : ''} text-dms-tecnologia hover:text-dms-mar text-xs leading-none" title="Mover abaixo">▼</button>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="caption text-dms-tecnologia mb-0.5 flex items-center gap-1">
+            <span>Stage ${s.num}</span>
+            ${s.editing ? '<span class="text-dms-confianca font-bold">· editando</span>' : ''}
+            ${s.conditional ? '<span class="text-[#854D0E] font-bold">· condicional</span>' : ''}
+          </div>
+          <div class="font-semibold text-sm ${s.editing ? 'text-dms-mar' : 'text-dms-mar'}">${s.name}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function moveStage(idx, delta) {
+  const newIdx = idx + delta;
+  if (newIdx < 0 || newIdx >= STAGES.length) return;
+  [STAGES[idx], STAGES[newIdx]] = [STAGES[newIdx], STAGES[idx]];
+  // renumera
+  STAGES.forEach((s, i) => s.num = i + 1);
+  renderStages();
+}
+
+// ========== TABS ==========
+const ALL_TABS = ['identidade', 'sop', 'procedures', 'alertas', 'agentes', 'sla'];
+
+function selectTab(tab) {
+  ALL_TABS.forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('tab-' + t).classList.toggle('text-dms-tecnologia', t !== tab);
+    document.getElementById('content-' + t).classList.toggle('hidden', t !== tab);
+  });
+}
+
+renderStages();
+</script>
+
+</body>
+</html>

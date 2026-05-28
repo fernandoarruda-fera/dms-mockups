@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Audit Trail</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C', ceu: '#00AEEE', confianca: '#005290',
+          sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+  tbody tr { transition: background-color 150ms ease; cursor: pointer; }
+  tbody tr:hover { background-color: #FAFBFC; }
+  .row-actions { opacity: 0; transition: opacity 150ms ease; }
+  tbody tr:hover .row-actions { opacity: 1; }
+  .kpi-card { transition: transform 150ms ease, box-shadow 150ms ease; cursor: pointer; }
+  .kpi-card:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0, 56, 108, 0.10); }
+  .kpi-card.active { box-shadow: inset 0 0 0 2px #00AEEE; }
+  /* Drawer */
+  .drawer-overlay { background: rgba(0, 56, 108, 0.5); backdrop-filter: blur(2px); }
+  .drawer-panel { animation: slideIn 200ms ease-out; }
+  @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+        <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
+      </div>
+      <div>
+        <div class="font-bold text-base leading-tight">DMS</div>
+        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
+      </div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+      <div class="caption text-white/40 px-6 mb-2">Workflow Builder</div>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5z"/></svg>
+        Catálogo de Workflows
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Match Engine
+      </a>
+      <div class="caption text-white/40 px-6 mt-6 mb-2">Execução</div>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Execution Visibility
+      </a>
+      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Audit Trail
+      </a>
+    </nav>
+    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">FA</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold truncate">Fernando Arruda</div>
+        <div class="text-xs text-white/60 truncate">Admin · DMS Log</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Execução</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Audit Trail</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <!-- PageHeader -->
+      <div class="mb-6">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Audit Trail</h1>
+        </div>
+        <p class="text-sm text-dms-tecnologia max-w-3xl">
+          Histórico cronológico <strong>imutável</strong> de todas as procedures avaliadas pelo motor. Mesmo dataset alimenta Execution Visibility (Seção 12) e Cockpit. Retenção SOX: 7 anos.
+        </p>
+      </div>
+
+      <!-- KPI CARDS -->
+      <div class="grid grid-cols-5 gap-4 mb-6" id="kpi-row">
+        <button data-filter="todos" class="kpi-card active text-left bg-dms-mar text-white p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black">2.847</div>
+          <div class="caption text-white/80 mt-2">Total 7d</div>
+        </button>
+        <button data-filter="triggered" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-dms-tropicalidade"></span>
+            <div class="text-[36px] leading-none font-black text-dms-mar">2.142</div>
+          </div>
+          <div class="caption text-dms-tecnologia mt-2">Triggered</div>
+        </button>
+        <button data-filter="not_triggered" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#EAB308]"></span>
+            <div class="text-[36px] leading-none font-black text-dms-mar">681</div>
+          </div>
+          <div class="caption text-dms-tecnologia mt-2">Not Triggered</div>
+        </button>
+        <button data-filter="send_error" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-red-600"></span>
+            <div class="text-[36px] leading-none font-black text-dms-mar">24</div>
+          </div>
+          <div class="caption text-dms-tecnologia mt-2">Send error</div>
+        </button>
+        <div class="bg-dms-ceu/10 border border-dms-ceu/30 p-5 rounded-lg">
+          <div class="text-[36px] leading-none font-black text-dms-confianca">75.3<span class="text-xl">%</span></div>
+          <div class="caption text-dms-confianca mt-2">Trigger rate</div>
+        </div>
+      </div>
+
+      <!-- TOOLBAR -->
+      <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+        <div class="flex items-center gap-3 flex-1">
+          <div class="relative flex-1 max-w-md">
+            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input id="search-input" type="text" placeholder="Buscar por processo, procedure, SOP..." class="input-dms w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          </div>
+          <select id="filter-status" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+            <option value="">Todos os status</option>
+            <option value="triggered">Triggered</option>
+            <option value="not_triggered">Condition not met</option>
+            <option value="cooldown">Cooldown active</option>
+            <option value="send_error">Send error</option>
+            <option value="no_recipient">No recipient</option>
+          </select>
+          <select id="filter-sop" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+            <option value="">Todas as SOPs</option>
+            <option value="WF-09">Fluxo NF Avulsa</option>
+            <option value="WF-01">Req. Avulsa Padrão</option>
+            <option value="WF-05">PO Padrão</option>
+            <option value="WF-07">Contrato Recorrente</option>
+          </select>
+          <select id="filter-period" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+            <option value="24h">Últimas 24h</option>
+            <option value="7d" selected>Últimos 7 dias</option>
+            <option value="30d">Últimos 30 dias</option>
+            <option value="custom">Personalizado...</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button class="flex items-center gap-2 text-sm font-semibold text-dms-mar px-4 py-2 bg-white border border-dms-mar rounded-md hover:bg-dms-mar hover:text-white transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            Exportar
+          </button>
+        </div>
+      </div>
+
+      <!-- TABELA AUDIT -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden shadow-dms-md">
+        <table class="w-full text-sm">
+          <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+            <tr>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-24">Quando</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-44">Processo</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">Procedure</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-44">SOP</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-36">Status</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">Detalhes</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-20">Origem</th>
+            </tr>
+          </thead>
+          <tbody id="audit-tbody" class="divide-y divide-[#E5E7EB]"></tbody>
+        </table>
+
+        <div class="px-4 py-3 border-t border-[#E5E7EB] flex items-center justify-between text-sm text-dms-tecnologia">
+          <div>Mostrando <span class="font-semibold text-dms-mar" id="row-count">8</span> de <span class="font-semibold text-dms-mar">2.847</span> registros · ordenado por mais recente</div>
+          <div class="flex items-center gap-1">
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors disabled:opacity-30" disabled>‹ Anterior</button>
+            <button class="px-3 py-1 text-white bg-dms-mar rounded">1</button>
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">2</button>
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">3</button>
+            <span class="px-2">...</span>
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">356</button>
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">Próximo ›</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nota dual-source -->
+      <div class="mt-4 p-4 bg-dms-ceu/5 border border-dms-ceu/20 rounded-lg flex gap-3">
+        <svg class="w-5 h-5 text-dms-confianca flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div class="text-sm text-dms-mar">
+          <p class="font-semibold mb-1">Dataset único, 3 consumidores:</p>
+          <p class="leading-relaxed text-dms-tecnologia">
+            Mesmo audit_log alimenta: <strong class="text-dms-mar">(a)</strong> esta tela (visão admin/dev), <strong class="text-dms-mar">(b)</strong> Execution Visibility embedded no processo, <strong class="text-dms-mar">(c)</strong> Cockpit operacional (cards de alertas/updates). <strong>Imutável + 7 anos retenção (SOX).</strong>
+          </p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- DRAWER DETALHE AUDIT -->
+<div id="drawer" class="fixed inset-0 z-50 hidden">
+  <div class="drawer-overlay absolute inset-0" onclick="closeDrawer()"></div>
+
+  <div class="drawer-panel absolute right-0 top-0 h-full w-[600px] max-w-[90vw] bg-white shadow-2xl overflow-y-auto">
+
+    <div class="sticky top-0 bg-white border-b border-[#E5E7EB] px-6 py-4 z-10 flex items-start justify-between gap-3">
+      <div>
+        <div class="caption text-dms-tecnologia mb-1">Audit log entry</div>
+        <h2 class="text-lg font-bold text-dms-mar">Detalhe da avaliação</h2>
+      </div>
+      <button onclick="closeDrawer()" class="p-1 text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] rounded transition-colors flex-shrink-0">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-5">
+
+      <!-- Identificação -->
+      <div class="grid grid-cols-2 gap-3 text-sm">
+        <div>
+          <div class="caption text-dms-tecnologia mb-1">Quando</div>
+          <div class="text-dms-mar font-semibold">há 2 min</div>
+          <div class="mono text-xs text-dms-tecnologia mt-0.5">2026-05-26T17:42:18Z</div>
+        </div>
+        <div>
+          <div class="caption text-dms-tecnologia mb-1">Origem</div>
+          <div class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">Manual</div>
+        </div>
+        <div>
+          <div class="caption text-dms-tecnologia mb-1">Processo</div>
+          <div class="mono text-dms-mar font-semibold">REQ-2026-0142</div>
+        </div>
+        <div>
+          <div class="caption text-dms-tecnologia mb-1">Correlation ID</div>
+          <div class="mono text-xs text-dms-tecnologia truncate" title="corr_8f3a2b1e9d4c">corr_8f3a2b1e9d4c</div>
+        </div>
+      </div>
+
+      <!-- Procedure -->
+      <div class="border-t border-[#E5E7EB] pt-4">
+        <div class="caption text-dms-tecnologia mb-2">Procedure</div>
+        <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded-md p-3">
+          <div class="font-semibold text-dms-mar text-sm mb-1">Bypass aprovação Diretor por estouro de orçamento</div>
+          <div class="flex items-center gap-2 mt-2">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200">Stage Trigger</span>
+            <span class="mono text-xs text-dms-tecnologia">@ Fluxo Avulsa Padrão · Stage 3</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status + Resultado -->
+      <div class="border-t border-[#E5E7EB] pt-4">
+        <div class="caption text-dms-tecnologia mb-2">Status</div>
+        <div class="bg-[rgba(176,201,52,0.08)] border border-dms-tropicalidade/30 rounded-md p-3">
+          <div class="flex items-center gap-2 mb-2">
+            <svg class="w-4 h-4 text-[#5C7818]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+            <span class="font-bold text-[#5C7818]">Triggered ✓</span>
+          </div>
+          <p class="text-xs text-[#5C7818]/80">Stage Diretor pulado · Stage C-Level iniciado para João Silva</p>
+        </div>
+      </div>
+
+      <!-- Avaliação técnica -->
+      <div class="border-t border-[#E5E7EB] pt-4">
+        <div class="caption text-dms-tecnologia mb-2">When expression avaliada</div>
+        <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded-md p-3 mono text-xs space-y-2">
+          <div>
+            <span class="text-dms-tecnologia">expression:</span>
+            <div class="text-dms-mar mt-0.5">@compras_requisition_valor_total &gt; @compras_budget_saldo_disponivel</div>
+          </div>
+          <div class="border-t border-[#E5E7EB] pt-2">
+            <span class="text-dms-tecnologia">resolved:</span>
+            <div class="text-dms-mar mt-0.5">73500.00 &gt; 12000.00</div>
+          </div>
+          <div class="border-t border-[#E5E7EB] pt-2">
+            <span class="text-dms-tecnologia">result:</span>
+            <span class="text-[#5C7818] font-bold">TRUE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action invocada -->
+      <div class="border-t border-[#E5E7EB] pt-4">
+        <div class="caption text-dms-tecnologia mb-2">Action invocada</div>
+        <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded-md p-3 mono text-xs">
+          <div class="mb-2">
+            <span class="text-dms-tecnologia">action:</span>
+            <span class="text-dms-mar font-semibold ml-1">skip_stage_and_start</span>
+          </div>
+          <div class="text-dms-tecnologia">parameters:</div>
+          <pre class="text-dms-mar mt-1 text-[11px]">{
+  "skip_stage": "aprovacao_diretor",
+  "start_stage": "aprovacao_clevel",
+  "reason": "estouro_orcamento"
+}</pre>
+        </div>
+      </div>
+
+      <!-- Imutabilidade -->
+      <div class="border-t border-[#E5E7EB] pt-4">
+        <div class="bg-dms-sabedoria/5 border border-dms-sabedoria/20 rounded-md p-3 flex gap-2 items-start">
+          <svg class="w-4 h-4 text-dms-sabedoria flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <div class="text-xs text-dms-mar">
+            <p class="font-semibold mb-1">Entrada imutável · SOX</p>
+            <p class="text-dms-tecnologia leading-relaxed">Registros do audit_log nunca são alterados ou deletados. Retenção: 7 anos. Hash de integridade: <span class="mono text-[10px]">sha256:7a3f...</span></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const AUDIT = [
+  { when: 'há 2 min', proc_id: 'REQ-2026-0142', procedure: 'Bypass aprovação Diretor por estouro', triggerType: 'Stage Trigger', sop: 'Fluxo Avulsa Padrão', status: 'triggered', detail: 'Stage Diretor pulado · Stage C-Level iniciado', origem: 'Manual', sopCode: 'WF-01' },
+  { when: 'há 5 min', proc_id: 'PO-2026-0089', procedure: 'Atualizar data de pagamento ao receber PO', triggerType: 'Stage Trigger', sop: 'Fluxo PO Padrão', status: 'triggered', detail: 'Stage Pagamento atualizado para 27/05/2026', origem: 'Manual', sopCode: 'WF-05' },
+  { when: 'há 12 min', proc_id: 'NF-2026-0531', procedure: 'Auto-aprovar NF dentro tolerância (±2%)', triggerType: 'Stage Trigger', sop: 'Fluxo NF Avulsa', status: 'not_triggered', detail: 'Divergência 4.5% (acima de 2%)', origem: 'Manual', sopCode: 'WF-09' },
+  { when: 'há 14 min', proc_id: 'REQ-2026-0140', procedure: 'Escalation — Aprovação Diretor 48h', triggerType: 'Escalation Trigger', sop: 'Fluxo Avulsa Padrão', status: 'triggered', detail: 'Card movido para Head do Departamento', origem: 'Manual', sopCode: 'WF-01' },
+  { when: 'há 30 min', proc_id: 'PO-2026-0085', procedure: 'Atualizar data de pagamento ao receber PO', triggerType: 'Stage Trigger', sop: 'Fluxo PO Padrão', status: 'cooldown', detail: 'Última execução há 6h, cooldown 24h', origem: 'Manual', sopCode: 'WF-05' },
+  { when: 'há 35 min', proc_id: 'REQ-2026-0139', procedure: 'Escalation — Aprovação Diretor 48h', triggerType: 'Escalation Trigger', sop: 'Fluxo Avulsa Padrão', status: 'send_error', detail: 'SMTP timeout', origem: 'Manual', sopCode: 'WF-01', resend: true },
+  { when: 'há 1h', proc_id: 'CONTRACT-2026-017', procedure: 'Renovação automática contrato — alerta D-90', triggerType: 'Stage Trigger', sop: 'Contrato Recorrente', status: 'triggered', detail: 'Stage "Renovação Contrato" iniciado para gestor', origem: 'Manual', sopCode: 'WF-07' },
+  { when: 'há 1h 12min', proc_id: 'NF-2026-0528', procedure: 'Confirmar Lançamento Omie quando NF aprovada', triggerType: 'Stage Trigger', sop: 'Fluxo NF Avulsa', status: 'triggered', detail: 'Stage "Lançamento Omie" confirmado · Omie ID 4471', origem: 'Manual', sopCode: 'WF-09' },
+];
+
+const STATUS_META = {
+  triggered: { label: 'Triggered', bg: 'bg-[rgba(176,201,52,0.15)]', text: 'text-[#7A8F24]', dot: '#B0C934' },
+  not_triggered: { label: 'condition not met', bg: 'bg-[rgba(234,179,8,0.15)]', text: 'text-[#854D0E]', dot: '#EAB308' },
+  cooldown: { label: 'cooldown active', bg: 'bg-gray-100', text: 'text-gray-600', dot: '#9CA3AF' },
+  send_error: { label: 'send error', bg: 'bg-[rgba(220,38,38,0.10)]', text: 'text-red-700', dot: '#DC2626' },
+  no_recipient: { label: 'no recipient', bg: 'bg-[rgba(100,53,133,0.10)]', text: 'text-dms-sabedoria', dot: '#643585' },
+};
+
+const TRIGGER_TYPE_BADGE = {
+  'Stage Trigger': 'bg-blue-50 text-blue-700 border-blue-200',
+  'Escalation Trigger': 'bg-purple-50 text-purple-700 border-purple-200',
+};
+
+let activeFilter = 'todos';
+let searchQuery = '';
+let statusFilter = '';
+let sopFilter = '';
+
+function renderRows() {
+  const tbody = document.getElementById('audit-tbody');
+  let rows = AUDIT;
+
+  if (activeFilter !== 'todos') rows = rows.filter(r => r.status === activeFilter);
+  if (statusFilter) rows = rows.filter(r => r.status === statusFilter);
+  if (sopFilter) rows = rows.filter(r => r.sopCode === sopFilter);
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    rows = rows.filter(r => r.proc_id.toLowerCase().includes(q) || r.procedure.toLowerCase().includes(q) || r.sop.toLowerCase().includes(q));
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    const sm = STATUS_META[r.status];
+    return `
+    <tr onclick="openDrawer('${r.proc_id}')">
+      <td class="px-4 py-3 text-xs text-dms-tecnologia">${r.when}</td>
+      <td class="px-4 py-3"><span class="mono text-dms-mar font-semibold text-xs">${r.proc_id}</span></td>
+      <td class="px-4 py-3">
+        <div class="font-medium text-dms-mar text-sm">${r.procedure}</div>
+        <div class="text-xs mt-0.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${TRIGGER_TYPE_BADGE[r.triggerType] || ''}">${r.triggerType}</span></div>
+      </td>
+      <td class="px-4 py-3 text-xs text-dms-tecnologia">${r.sop}</td>
+      <td class="px-4 py-3">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${sm.bg} ${sm.text}">
+          <span class="w-1.5 h-1.5 rounded-full" style="background:${sm.dot}"></span>
+          ${sm.label}
+        </span>
+      </td>
+      <td class="px-4 py-3 text-xs text-dms-tecnologia">
+        ${r.detail}
+        ${r.resend ? '<button class="ml-2 text-dms-confianca hover:text-dms-mar font-semibold text-xs" onclick="event.stopPropagation(); alert(\'Reenviando...\')">↻ Reenviar</button>' : ''}
+      </td>
+      <td class="px-4 py-3"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-700">${r.origem}</span></td>
+    </tr>
+    `;
+  }).join('');
+
+  document.getElementById('row-count').textContent = rows.length;
+}
+
+document.getElementById('kpi-row').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-filter]');
+  if (!card) return;
+  document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  activeFilter = card.dataset.filter;
+  renderRows();
+});
+
+document.getElementById('search-input').addEventListener('input', (e) => { searchQuery = e.target.value; renderRows(); });
+document.getElementById('filter-status').addEventListener('change', (e) => { statusFilter = e.target.value; renderRows(); });
+document.getElementById('filter-sop').addEventListener('change', (e) => { sopFilter = e.target.value; renderRows(); });
+
+function openDrawer(id) {
+  document.getElementById('drawer').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+
+renderRows();
+</script>
+
+</body>
+</html>

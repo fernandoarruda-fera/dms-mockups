@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Builder Procedure (Stage Trigger)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C', ceu: '#00AEEE', confianca: '#005290',
+          sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+  .sticky-sidebar { position: sticky; top: 88px; max-height: calc(100vh - 110px); overflow-y: auto; }
+  /* Card "IA" gradient */
+  .card-ia { background: linear-gradient(135deg, rgba(100,53,133,0.05), rgba(0,174,238,0.05)); border-color: rgba(100,53,133,0.2); }
+  /* Bloco WHEN: borda esquerda azul */
+  .block-when { border-left: 3px solid #00AEEE; }
+  /* Bloco THEN: borda esquerda verde */
+  .block-then { border-left: 3px solid #B0C934; background: rgba(176,201,52,0.04); }
+  /* Live preview narrativa */
+  .narrativa { font-size: 14px; line-height: 1.7; }
+  .narrativa .pill-tag { display: inline-block; background: rgba(0,174,238,0.15); color: #005290; padding: 1px 6px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .narrativa .pill-action { display: inline-block; background: rgba(176,201,52,0.15); color: #7A8F24; padding: 1px 6px; border-radius: 3px; font-weight: 600; font-size: 13px; }
+  /* Flow diagram steps */
+  .flow-step { border-left: 3px solid; padding: 8px 12px; background: #F8F9FA; border-radius: 4px; font-size: 13px; transition: all 200ms ease; }
+  .flow-step.s1 { border-color: #00AEEE; }
+  .flow-step.s2 { border-color: #EAB308; }
+  .flow-step.s3 { border-color: #643585; }
+  .flow-step.s4 { border-color: #B0C934; }
+  .flow-arrow { text-align: center; color: #9CA3AF; font-size: 14px; line-height: 1; padding: 2px 0; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+        <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
+      </div>
+      <div>
+        <div class="font-bold text-base leading-tight">DMS</div>
+        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
+      </div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+      <div class="caption text-white/40 px-6 mb-2">Workflow Builder</div>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        Catálogo de Tags
+      </a>
+      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Procedures
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Biblioteca SOP
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+        Catálogo de Workflows
+      </a>
+    </nav>
+    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">FA</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold truncate">Fernando Arruda</div>
+        <div class="text-xs text-white/60 truncate">Admin · DMS Log</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <!-- HEADER -->
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Workflow Builder</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Procedures</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Builder de Procedure</span>
+      </nav>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <!-- PAGE HEADER + ações -->
+      <div class="flex items-start justify-between mb-6 gap-6">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-3 mb-2 flex-wrap">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Editar Procedure</h1>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(176,201,52,0.15)] text-[#7A8F24] ml-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade"></span>
+              Ativa
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(0,174,238,0.15)] text-[#005290]">
+              Stage Trigger
+            </span>
+          </div>
+          <div class="flex items-center gap-3 text-sm text-dms-tecnologia">
+            <span>Atualizar data de pagamento ao receber PO completo</span>
+            <span>·</span>
+            <span><strong class="text-dms-mar">4 SOPs</strong> usando</span>
+            <span>·</span>
+            <span><strong class="text-dms-mar">30 execuções</strong> últimos 7 dias</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 flex-shrink-0">
+          <a href="#" class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 transition-colors">Cancelar</a>
+          <button class="text-sm font-semibold text-dms-tecnologia px-4 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">Salvar rascunho</button>
+          <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Publicar</button>
+        </div>
+      </div>
+
+      <!-- CARD IA ASSISTENTE -->
+      <div class="card-ia border rounded-lg p-4 mb-6 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 flex-1">
+          <div class="w-10 h-10 rounded-lg bg-dms-sabedoria/10 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h3 class="font-semibold text-dms-mar text-sm">Assistente IA — Procedure</h3>
+            <p class="text-xs text-dms-tecnologia">A IA leu o nome + descrição + contexto da SOP/workflow e pode te ajudar a construir a regra ou validar o que você fez.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button class="flex items-center gap-2 text-sm font-semibold text-dms-sabedoria px-4 py-2 bg-white border border-dms-sabedoria/30 rounded-md hover:bg-dms-sabedoria/5 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            Gerar pela IA
+          </button>
+          <button class="flex items-center gap-2 text-sm font-semibold text-white px-4 py-2 bg-dms-sabedoria rounded-md hover:opacity-90 transition-opacity">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            Validar com IA
+          </button>
+        </div>
+      </div>
+
+      <!-- GRID 2 COLUNAS: FORM + LIVE PREVIEW -->
+      <div class="grid grid-cols-12 gap-6">
+
+        <!-- ========== COLUNA PRINCIPAL (form) ========== -->
+        <div class="col-span-8 space-y-6">
+
+          <!-- CARD: Metadados -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
+              <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+              <h2 class="text-lg font-semibold text-dms-mar">Metadados</h2>
+            </div>
+            <div class="p-6 space-y-5">
+
+              <div class="grid grid-cols-3 gap-4">
+                <div class="col-span-2">
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Procedure Name <span class="text-red-500">*</span></label>
+                  <input id="f-name" type="text" value="Atualizar data de pagamento ao receber PO completo" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+                </div>
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Origin</label>
+                  <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                    <option selected>Manual</option>
+                    <option>IA Generated</option>
+                    <option>Seed</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="caption text-dms-tecnologia mb-1.5 block">Description</label>
+                <textarea rows="2" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none">Quando o PO transita para recebido_total, recalcula a data de pagamento como data_emissao + prazo do PO.</textarea>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Trigger Type <span class="text-red-500">*</span></label>
+                  <select id="f-trigger" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                    <option value="stage" selected>Stage Trigger</option>
+                    <option value="field">Field Trigger</option>
+                    <option value="mail">Mail Trigger</option>
+                    <option value="doc">Doc / DOCSIA</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Applies To <span class="caption text-dms-tecnologia normal-case tracking-normal">(filtro UX)</span></label>
+                  <input id="f-applies" type="text" value="tipo_compra: avulsa, contrato" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+                  <p class="text-xs text-dms-tecnologia mt-1.5">Filtra a lista de procedures disponíveis ao admin ao montar uma SOP. Não é avaliado em runtime.</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- CARD: Regra (When → Action) -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+                <h2 class="text-lg font-semibold text-dms-mar">Regra (When → Action)</h2>
+              </div>
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(0,174,238,0.15)] text-[#005290]">Stage Trigger</span>
+            </div>
+
+            <div class="p-6 space-y-5">
+
+              <!-- BLOCO WHEN -->
+              <div class="block-when bg-[#F8F9FA] rounded-md p-4">
+                <div class="caption text-dms-confianca mb-3 flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                  When
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1.5 block">Tag (@)</label>
+                    <select id="f-tag" class="mono input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                      <option value="@compras_purchase_order_status" selected>@compras_purchase_order_status</option>
+                      <option value="@compras_invoice_status">@compras_invoice_status</option>
+                      <option value="@compras_requisition_status">@compras_requisition_status</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1.5 block">Condition</label>
+                    <select id="f-cond" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                      <option value="updated_to" selected>Updated to</option>
+                      <option value="equals">Equals</option>
+                      <option value="not_equals">Not equals</option>
+                      <option value="contains">Contains</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1.5 block">Value</label>
+                    <select id="f-value" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                      <option value="recebido_total" selected>recebido_total</option>
+                      <option value="recebido_parcial">recebido_parcial</option>
+                      <option value="emitido">emitido</option>
+                      <option value="cancelado">cancelado</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- BLOCO THEN -->
+              <div class="block-then rounded-md p-4">
+                <div class="caption text-[#7A8F24] mb-3 flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  Then (Action)
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1.5 block">Action <span class="text-red-500">*</span></label>
+                    <select id="f-action" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                      <option value="update" selected>Update</option>
+                      <option value="start_stage">Start Stage</option>
+                      <option value="invoke_action">Invoke Action</option>
+                      <option value="set_tag">Set Tag</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="caption text-dms-tecnologia mb-1.5 block">Target Stage <span class="text-red-500">*</span></label>
+                    <select id="f-stage" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                      <option value="pagamento" selected>Pagamento</option>
+                      <option value="conferencia">Conferência</option>
+                      <option value="lancamento_omie">Lançamento Omie</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- UPDATE DATE AS (sub-bloco que aparece quando Action=Update) -->
+                <div class="bg-white border border-dashed border-[#B0C934] rounded-md p-3">
+                  <div class="caption text-[#7A8F24] mb-2">Update date as</div>
+                  <div class="grid grid-cols-4 gap-2">
+                    <div>
+                      <label class="caption text-dms-tecnologia mb-1 block">Parameter</label>
+                      <select id="f-param" class="mono input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white cursor-pointer">
+                        <option value="data_pagamento" selected>data_pagamento</option>
+                        <option value="data_vencimento">data_vencimento</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="caption text-dms-tecnologia mb-1 block">Operator</label>
+                      <select id="f-op" class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white cursor-pointer">
+                        <option value="plus" selected>+</option>
+                        <option value="minus">−</option>
+                        <option value="set">=</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="caption text-dms-tecnologia mb-1 block">Value</label>
+                      <input id="f-val" type="number" value="30" class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white">
+                    </div>
+                    <div>
+                      <label class="caption text-dms-tecnologia mb-1 block">Unit</label>
+                      <select id="f-unit" class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white cursor-pointer">
+                        <option value="dias_uteis">dias úteis</option>
+                        <option value="dias_corridos" selected>dias corridos</option>
+                        <option value="horas">horas</option>
+                      </select>
+                    </div>
+                  </div>
+                  <p class="text-xs text-[#7A8F24] mt-2 italic">Base: <span class="mono">data_emissao</span> do PO. Resultado: <span class="mono font-semibold" id="calc-preview">data_emissao + 30 dias corridos</span></p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ========== SIDEBAR DIREITA (LIVE PREVIEW) ========== -->
+        <aside class="col-span-4 sticky-sidebar self-start">
+          <div class="bg-white border-2 border-dms-sabedoria/30 rounded-lg shadow-dms-md overflow-hidden">
+
+            <!-- Header Live Preview -->
+            <div class="px-5 py-3 bg-gradient-to-r from-dms-sabedoria/5 to-dms-ceu/5 border-b border-[#E5E7EB] flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="relative flex h-2.5 w-2.5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-dms-sabedoria opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-dms-sabedoria"></span>
+                </span>
+                <h3 class="caption text-dms-mar font-semibold">Live Preview</h3>
+              </div>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[rgba(0,174,238,0.15)] text-[#005290]">Stage</span>
+            </div>
+
+            <div class="p-5 space-y-5">
+
+              <!-- Narrativa em linguagem natural -->
+              <div>
+                <div class="caption text-dms-confianca mb-2">Quando</div>
+                <p class="narrativa text-dms-mar">
+                  o stage do PO transita para a tag <span class="pill-tag" id="np-tag">@compras_purchase_order_status</span> <span id="np-cond">atualizado para</span> <span class="pill-tag" id="np-value">recebido_total</span>,
+                </p>
+              </div>
+
+              <div>
+                <div class="caption text-dms-tropicalidade-dark mb-2" style="color: #7A8F24;">Então</div>
+                <p class="narrativa text-dms-mar">
+                  executa <span class="pill-action" id="np-action">Update</span> no estágio <span class="pill-tag" id="np-stage">Pagamento</span>, definindo <span class="pill-tag" id="np-param">data_pagamento</span> como <span class="font-semibold" id="np-calc">data_emissao + 30 dias corridos</span>.
+                </p>
+              </div>
+
+              <!-- Diagrama de fluxo -->
+              <div class="pt-4 border-t border-[#E5E7EB]">
+                <div class="caption text-dms-tecnologia mb-3">Fluxo</div>
+                <div class="space-y-1">
+                  <div class="flow-step s1">
+                    <span class="font-semibold text-dms-confianca">1. Trigger</span> — PO muda status pra <span class="mono text-xs" id="diag-value">recebido_total</span>
+                  </div>
+                  <div class="flow-arrow">↓</div>
+                  <div class="flow-step s2">
+                    <span class="font-semibold" style="color:#854D0E">2. Avalia condição</span> — <span class="mono text-xs" id="diag-tag">@compras_purchase_order_status</span> updated? ✓
+                  </div>
+                  <div class="flow-arrow">↓</div>
+                  <div class="flow-step s3">
+                    <span class="font-semibold text-dms-sabedoria">3. Resolve base</span> — lê <span class="mono text-xs">data_emissao</span> do PO
+                  </div>
+                  <div class="flow-arrow">↓</div>
+                  <div class="flow-step s4">
+                    <span class="font-semibold" style="color:#7A8F24">4. Execute</span> — Update <span class="mono text-xs" id="diag-stage">Pagamento</span> · <span class="mono text-xs" id="diag-param">data_pagamento</span> = <span id="diag-calc">+30d</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tags consumidas -->
+              <div class="pt-4 border-t border-[#E5E7EB]">
+                <div class="caption text-dms-tecnologia mb-2">Tags consumidas <span class="text-dms-mar font-bold" id="tags-count">(2)</span></div>
+                <div class="flex flex-wrap gap-1.5" id="tags-list">
+                  <span class="pill-tag">@compras_purchase_order_status</span>
+                  <span class="pill-tag">@compras_purchase_order_data_emissao</span>
+                </div>
+              </div>
+
+              <!-- Validação -->
+              <div class="pt-4 border-t border-[#E5E7EB]">
+                <div class="bg-[rgba(176,201,52,0.10)] border border-dms-tropicalidade/30 rounded-md p-3 flex items-start gap-2">
+                  <svg class="w-4 h-4 text-[#7A8F24] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                  <div class="text-xs">
+                    <p class="font-semibold text-[#7A8F24]">Procedure válida</p>
+                    <p class="text-[#7A8F24]/80 mt-0.5">When + Then bem formados · tags existem · stage destino existe</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Aviso TR-8: client-side puro -->
+              <div class="text-[10px] text-dms-tecnologia italic pt-3 border-t border-[#E5E7EB] leading-relaxed">
+                Live Preview client-side: renderização em tempo real sem chamada ao backend. Edite os campos à esquerda pra ver atualizar.
+              </div>
+
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ========== LIVE PREVIEW (client-side puro, TR-8) ==========
+
+const CONDITION_NARRATIVE = {
+  updated_to: 'atualizado para',
+  equals: 'igual a',
+  not_equals: 'diferente de',
+  contains: 'contém',
+};
+
+const ACTION_LABEL = {
+  update: 'Update',
+  start_stage: 'Start Stage',
+  invoke_action: 'Invoke Action',
+  set_tag: 'Set Tag',
+};
+
+const STAGE_LABEL = {
+  pagamento: 'Pagamento',
+  conferencia: 'Conferência',
+  lancamento_omie: 'Lançamento Omie',
+};
+
+const UNIT_LABEL = {
+  dias_uteis: 'dias úteis',
+  dias_corridos: 'dias corridos',
+  horas: 'horas',
+};
+
+const OPERATOR_LABEL = {
+  plus: '+',
+  minus: '−',
+  set: '=',
+};
+
+function updatePreview() {
+  const tag = document.getElementById('f-tag').value;
+  const cond = document.getElementById('f-cond').value;
+  const value = document.getElementById('f-value').value;
+  const action = document.getElementById('f-action').value;
+  const stage = document.getElementById('f-stage').value;
+  const param = document.getElementById('f-param').value;
+  const op = document.getElementById('f-op').value;
+  const val = document.getElementById('f-val').value;
+  const unit = document.getElementById('f-unit').value;
+
+  // Cálculo da expressão
+  const opSymbol = OPERATOR_LABEL[op];
+  const unitLabel = UNIT_LABEL[unit];
+  const calcExpr = opSymbol === '=' ? `${val} ${unitLabel}` : `data_emissao ${opSymbol} ${val} ${unitLabel}`;
+  const calcShort = opSymbol === '=' ? `=${val}` : `${opSymbol}${val}${unit === 'dias_corridos' ? 'd' : unit === 'dias_uteis' ? 'du' : 'h'}`;
+
+  // Narrativa
+  document.getElementById('np-tag').textContent = tag;
+  document.getElementById('np-cond').textContent = CONDITION_NARRATIVE[cond] || cond;
+  document.getElementById('np-value').textContent = value;
+  document.getElementById('np-action').textContent = ACTION_LABEL[action];
+  document.getElementById('np-stage').textContent = STAGE_LABEL[stage];
+  document.getElementById('np-param').textContent = param;
+  document.getElementById('np-calc').textContent = calcExpr;
+
+  // Diagrama
+  document.getElementById('diag-value').textContent = value;
+  document.getElementById('diag-tag').textContent = tag;
+  document.getElementById('diag-stage').textContent = STAGE_LABEL[stage];
+  document.getElementById('diag-param').textContent = param;
+  document.getElementById('diag-calc').textContent = calcShort;
+
+  // Texto do bloco THEN
+  document.getElementById('calc-preview').textContent = calcExpr;
+
+  // Tags consumidas (apenas a tag do When + a tag derivada da base de cálculo)
+  const baseTag = tag.replace('_status', '_data_emissao');
+  const tagsList = document.getElementById('tags-list');
+  tagsList.innerHTML = `
+    <span class="pill-tag">${tag}</span>
+    ${action === 'update' && op !== 'set' ? `<span class="pill-tag">${baseTag}</span>` : ''}
+  `;
+  document.getElementById('tags-count').textContent = `(${action === 'update' && op !== 'set' ? 2 : 1})`;
+}
+
+// Listeners
+['f-tag','f-cond','f-value','f-action','f-stage','f-param','f-op','f-val','f-unit'].forEach(id => {
+  document.getElementById(id).addEventListener('change', updatePreview);
+  document.getElementById(id).addEventListener('input', updatePreview);
+});
+
+updatePreview();
+</script>
+
+</body>
+</html>

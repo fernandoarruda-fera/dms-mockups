@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Editar Tag @compras_invoice_valor</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C', ceu: '#00AEEE', confianca: '#005290',
+          sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+  /* Toggle switch */
+  .toggle-input:checked + .toggle-track { background-color: #B0C934; }
+  .toggle-input:checked + .toggle-track .toggle-dot { transform: translateX(20px); }
+  .toggle-track { transition: background-color 150ms ease; }
+  .toggle-dot { transition: transform 150ms ease; }
+  /* Modal overlay */
+  .modal-overlay { background: rgba(0, 56, 108, 0.5); }
+  /* Sidebar lateral direita sticky */
+  .sticky-sidebar { position: sticky; top: 88px; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
+        <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
+      </div>
+      <div>
+        <div class="font-bold text-base leading-tight">DMS</div>
+        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
+      </div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+      <div class="caption text-white/40 px-6 mb-2">Workflow Builder</div>
+      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        Catálogo de Tags
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Procedures
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Biblioteca SOP
+      </a>
+      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+        Catálogo de Workflows
+      </a>
+    </nav>
+    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">FA</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-semibold truncate">Fernando Arruda</div>
+        <div class="text-xs text-white/60 truncate">Admin · DMS Log</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN AREA -->
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <!-- HEADER -->
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Workflow Builder</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Catálogo de Tags</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Editar Tag</span>
+      </nav>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <!-- PAGE HEADER + ações -->
+      <div class="flex items-start justify-between mb-6 gap-6">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Editar Tag</h1>
+            <!-- Badge visível (active) -->
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(176,201,52,0.15)] text-[#7A8F24] ml-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade"></span>
+              Visível
+            </span>
+          </div>
+          <p class="mono text-sm text-dms-tecnologia">@compras_invoice_valor</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="#" class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 transition-colors">Cancelar</a>
+          <button onclick="openModal('hide')" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">Esconder do builder</button>
+          <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Salvar</button>
+        </div>
+      </div>
+
+      <!-- GRID 2 COLUNAS -->
+      <div class="grid grid-cols-12 gap-6">
+
+        <!-- ========== COLUNA PRINCIPAL ========== -->
+        <div class="col-span-8 space-y-6">
+
+          <!-- CARD: Identidade da Tag -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
+              <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+              <h2 class="text-lg font-semibold text-dms-mar">Identidade</h2>
+            </div>
+            <div class="p-6 space-y-5">
+
+              <!-- Tag Label -->
+              <div>
+                <label class="caption text-dms-tecnologia mb-1.5 block">Tag Label <span class="text-red-500">*</span></label>
+                <input type="text" value="@compras_invoice_valor" readonly class="mono input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA] text-dms-mar font-medium cursor-not-allowed">
+                <p class="text-xs text-dms-tecnologia mt-1.5">Gerada por introspection do schema — somente leitura. Padrão: <span class="mono">@modulo_tabela_campo</span></p>
+              </div>
+
+              <!-- Linha: Module + Table -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Business Module <span class="text-red-500">*</span></label>
+                  <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                    <option selected>Compras</option>
+                    <option>Auth</option>
+                    <option>Workflow</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Table Entity <span class="text-red-500">*</span></label>
+                  <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                    <option selected>invoice</option>
+                    <option>requisition</option>
+                    <option>purchase_order</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Linha: Field + Type -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Field <span class="text-red-500">*</span></label>
+                  <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                    <option selected>valor</option>
+                    <option>status</option>
+                    <option>data_vencimento</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Type Logical <span class="text-red-500">*</span></label>
+                  <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                    <option selected>number (do schema)</option>
+                    <option>currency</option>
+                    <option>string</option>
+                    <option>select</option>
+                  </select>
+                  <p class="text-xs text-dms-tecnologia mt-1.5">Default vem do SQL; você pode sobrescrever quando o tipo lógico difere.</p>
+                </div>
+              </div>
+
+              <!-- Name Override -->
+              <div>
+                <label class="caption text-dms-tecnologia mb-1.5 block">Apelido (Name Override)</label>
+                <input type="text" placeholder="ex: @nf_valor" class="mono input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+                <p class="text-xs text-dms-tecnologia mt-1.5">Opcional. Apelido legível pra reduzir verbosidade. Deve ser único globalmente.</p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- CARD: Filter complementar -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+                <h2 class="text-lg font-semibold text-dms-mar">Filter complementar</h2>
+                <span class="caption text-dms-tecnologia">(opcional)</span>
+              </div>
+              <!-- Toggle pra ativar filtro -->
+              <label class="inline-flex items-center cursor-pointer gap-2">
+                <span class="text-sm text-dms-tecnologia">Aplicar filtro</span>
+                <input type="checkbox" id="filter-toggle" class="toggle-input sr-only" checked>
+                <div class="toggle-track w-11 h-6 bg-gray-300 rounded-full relative">
+                  <div class="toggle-dot w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 shadow-sm"></div>
+                </div>
+              </label>
+            </div>
+            <div id="filter-body" class="p-6 space-y-4">
+              <p class="text-sm text-dms-tecnologia">Use quando a tabela pode ter múltiplos registros para o mesmo processo e a tag precisa restringir quais entram (ex: <span class="mono">document_type = invoice</span>).</p>
+
+              <div class="grid grid-cols-3 gap-4">
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Filter Field</label>
+                  <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                    <option selected>document_type</option>
+                    <option>company_id</option>
+                    <option>status</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Operator</label>
+                  <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                    <option selected>= (igual)</option>
+                    <option>!= (diferente)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1.5 block">Filter Value</label>
+                  <input type="text" value="invoice" class="mono input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+                </div>
+              </div>
+
+              <!-- Leitura -->
+              <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded-md p-3 flex gap-2 items-start">
+                <svg class="w-4 h-4 text-dms-ceu flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <p class="text-sm text-dms-mar"><strong>Leitura:</strong> "Considere apenas registros onde <span class="mono">document_type</span> for igual a <span class="mono">invoice</span>."</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD: Ações destrutivas -->
+          <div class="bg-white border border-red-200 rounded-lg">
+            <div class="px-6 py-4 border-b border-red-200 flex items-center gap-3">
+              <div class="w-8 h-[2px] bg-red-500 tilt-accent rounded-sm"></div>
+              <h2 class="text-lg font-semibold text-red-700">Zona de perigo</h2>
+            </div>
+            <div class="p-6 flex items-center justify-between gap-4">
+              <div>
+                <h3 class="text-sm font-semibold text-dms-mar mb-1">Marcar como inválida</h3>
+                <p class="text-sm text-dms-tecnologia">Tag fica visível só pra admins. Procedures que a usam param de funcionar. Exige justificativa.</p>
+              </div>
+              <button onclick="openModal('invalidate')" class="flex-shrink-0 text-sm font-semibold text-red-700 px-4 py-2 bg-white border border-red-300 rounded-md hover:bg-red-50 transition-colors">Marcar inválida</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ========== SIDEBAR DIREITA ========== -->
+        <aside class="col-span-4 space-y-5 sticky-sidebar self-start">
+
+          <!-- Origem da Tag -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+            <div class="px-5 py-3 bg-[#F8F9FA] border-b border-[#E5E7EB] flex items-center gap-2">
+              <svg class="w-4 h-4 text-dms-confianca" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              <h3 class="caption text-dms-mar font-semibold">Origem da Tag</h3>
+            </div>
+            <div class="p-5 space-y-3">
+              <div class="text-sm text-dms-tecnologia leading-relaxed">
+                ↳ Detectada automaticamente via introspection do schema
+              </div>
+
+              <dl class="space-y-2 text-sm border-t border-[#E5E7EB] pt-3">
+                <div class="flex justify-between gap-3">
+                  <dt class="text-dms-tecnologia">SQL Type</dt>
+                  <dd class="mono text-dms-mar font-medium">NUMERIC(15,2)</dd>
+                </div>
+                <div class="flex justify-between gap-3">
+                  <dt class="text-dms-tecnologia">Nullable</dt>
+                  <dd class="mono text-dms-mar font-medium">false</dd>
+                </div>
+                <div class="flex justify-between gap-3">
+                  <dt class="text-dms-tecnologia">Default</dt>
+                  <dd class="mono text-dms-mar font-medium">0</dd>
+                </div>
+                <div class="flex justify-between gap-3">
+                  <dt class="text-dms-tecnologia">Migration</dt>
+                  <dd class="mono text-dms-confianca text-xs truncate" title="a1b2c3_add_invoice.py">a1b2c3_add_invoice.py</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+
+          <!-- Onde está sendo usada -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+            <div class="px-5 py-3 bg-[#F8F9FA] border-b border-[#E5E7EB] flex items-center gap-2">
+              <svg class="w-4 h-4 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+              <h3 class="caption text-dms-mar font-semibold">Onde está sendo usada</h3>
+            </div>
+            <div class="p-5 space-y-3">
+              <div class="grid grid-cols-3 gap-2 text-center">
+                <div class="border border-[#E5E7EB] rounded-md p-3">
+                  <div class="text-2xl font-black text-dms-mar leading-none">3</div>
+                  <div class="caption text-dms-tecnologia mt-1.5">Procedures</div>
+                </div>
+                <div class="border border-[#E5E7EB] rounded-md p-3">
+                  <div class="text-2xl font-black text-dms-mar leading-none">7</div>
+                  <div class="caption text-dms-tecnologia mt-1.5">SOPs</div>
+                </div>
+                <div class="border border-[#E5E7EB] rounded-md p-3">
+                  <div class="text-2xl font-black text-dms-mar leading-none">1</div>
+                  <div class="caption text-dms-tecnologia mt-1.5">Filtros</div>
+                </div>
+              </div>
+
+              <button class="w-full text-sm font-semibold text-dms-confianca px-3 py-2 bg-white border border-dms-confianca rounded-md hover:bg-dms-confianca hover:text-white transition-colors">
+                Ver dependências →
+              </button>
+            </div>
+          </div>
+
+          <!-- Card warning de uso ativo -->
+          <div class="bg-[#FFFBEB] border border-[#FDE68A] rounded-lg p-4 flex gap-3">
+            <svg class="w-5 h-5 text-[#EAB308] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <div class="text-sm">
+              <p class="font-semibold text-[#854D0E] mb-1">Atenção: tag em uso ativo</p>
+              <p class="text-[#854D0E]/90 leading-relaxed">Alterar <span class="mono">Filter</span> ou esconder pode quebrar 3 procedures que consomem essa tag. Mudanças são propagadas após confirmação.</p>
+            </div>
+          </div>
+
+        </aside>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ MODAL: ESCONDER TAG ============ -->
+<div id="modal-hide" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <div class="modal-overlay absolute inset-0" onclick="closeModal('hide')"></div>
+  <div class="relative bg-white rounded-lg shadow-2xl max-w-lg w-full overflow-hidden">
+    <div class="px-6 py-5 border-b border-[#E5E7EB]">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-[#FFFBEB] flex items-center justify-center">
+          <svg class="w-5 h-5 text-[#EAB308]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-dms-mar">Esconder tag do builder</h3>
+          <p class="text-xs text-dms-tecnologia mt-0.5">Esta ação afeta consumidores ativos</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6 space-y-4">
+      <!-- Impacto -->
+      <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded-md p-4">
+        <h4 class="caption text-dms-tecnologia mb-2">Impacto</h4>
+        <p class="text-sm text-dms-mar leading-relaxed">
+          Esta tag está sendo usada em <strong>3 procedures</strong>, <strong>7 SOPs</strong> e <strong>1 filtro</strong>. Após esconder, procedures que a referenciam param de funcionar.
+        </p>
+      </div>
+
+      <!-- Justificativa obrigatória -->
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">Justificativa <span class="text-red-500">*</span></label>
+        <textarea rows="3" placeholder="Por que essa tag está sendo escondida?" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
+        <p class="text-xs text-dms-tecnologia mt-1.5">Vai pro audit log (SOX). Texto não pode ser vazio.</p>
+      </div>
+    </div>
+
+    <div class="px-6 py-4 bg-[#F8F9FA] border-t border-[#E5E7EB] flex items-center justify-end gap-3">
+      <button onclick="closeModal('hide')" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 hover:text-dms-mar transition-colors">Cancelar</button>
+      <button class="text-sm font-semibold text-white px-5 py-2 bg-[#EAB308] rounded-md hover:bg-[#CA8A04] transition-colors">Esconder tag</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: MARCAR INVÁLIDA ============ -->
+<div id="modal-invalidate" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <div class="modal-overlay absolute inset-0" onclick="closeModal('invalidate')"></div>
+  <div class="relative bg-white rounded-lg shadow-2xl max-w-lg w-full overflow-hidden">
+    <div class="px-6 py-5 border-b border-red-200">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+          <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-red-700">Marcar tag como inválida</h3>
+          <p class="text-xs text-red-600 mt-0.5">Tag fica visível só pra admins</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6 space-y-4">
+      <div class="bg-red-50 border border-red-200 rounded-md p-4">
+        <h4 class="caption text-red-700 mb-2">Impacto</h4>
+        <p class="text-sm text-red-900 leading-relaxed">
+          <strong>3 procedures</strong> e <strong>7 SOPs</strong> que referenciam esta tag <strong>vão parar de funcionar</strong>. Operações que dependem delas falharão em runtime.
+        </p>
+      </div>
+
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">Justificativa <span class="text-red-500">*</span></label>
+        <textarea rows="3" placeholder="Por que esta tag está sendo invalidada?" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
+      </div>
+    </div>
+
+    <div class="px-6 py-4 bg-[#F8F9FA] border-t border-[#E5E7EB] flex items-center justify-end gap-3">
+      <button onclick="closeModal('invalidate')" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 hover:text-dms-mar transition-colors">Cancelar</button>
+      <button class="text-sm font-semibold text-white px-5 py-2 bg-red-600 rounded-md hover:bg-red-700 transition-colors">Marcar como inválida</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function openModal(name) {
+  const m = document.getElementById('modal-' + name);
+  m.classList.remove('hidden');
+  m.classList.add('flex');
+}
+function closeModal(name) {
+  const m = document.getElementById('modal-' + name);
+  m.classList.add('hidden');
+  m.classList.remove('flex');
+}
+
+// Toggle do filtro
+document.getElementById('filter-toggle').addEventListener('change', (e) => {
+  document.getElementById('filter-body').style.opacity = e.target.checked ? '1' : '0.4';
+  document.getElementById('filter-body').style.pointerEvents = e.target.checked ? '' : 'none';
+});
+
+// ESC fecha modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeModal('hide');
+    closeModal('invalidate');
+  }
+});
+</script>
+
+</body>
+</html>

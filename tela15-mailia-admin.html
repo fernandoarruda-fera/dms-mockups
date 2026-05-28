@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — MAILIA Admin</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = { corePlugins: { preflight: true }, theme: { extend: { colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' }}, fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] }, boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)' }}}};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 11px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 16px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+
+  /* TABS */
+  .tab-btn { cursor: pointer; font-size: 13px; font-weight: 600; padding: 12px 18px; color: #656464; border-bottom: 2px solid transparent; transition: all 150ms; }
+  .tab-btn:hover { color: #00386C; }
+  .tab-btn.active { color: #00386C; border-bottom-color: #00AEEE; font-weight: 700; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* RULE CARD */
+  .rule-card { background: white; border: 1px solid #E5E7EB; border-radius: 6px; padding: 12px 14px; transition: all 150ms ease; display: flex; flex-direction: column; gap: 8px; }
+  .rule-card:hover { box-shadow: 0 2px 6px -1px rgba(0,56,108,0.10); border-color: #D1D5DB; }
+  .rule-card.reclamacao { border-left: 3px solid #DC2626; }
+  .rule-card.documento { border-left: 3px solid #00AEEE; }
+  .rule-card.info { border-left: 3px solid #B0C934; }
+  .rule-card.thread { border-left: 3px solid #00386C; }
+  .rule-card.naooperacional { border-left: 3px solid #9CA3AF; }
+
+  /* PROCESSING ROW */
+  .proc-row { background: white; border: 1px solid #E5E7EB; border-radius: 6px; padding: 10px 12px; transition: all 120ms ease; display: grid; grid-template-columns: 90px 60px 1fr 120px 100px; align-items: center; gap: 12px; font-size: 12px; }
+  .proc-row:hover { background: #FAFBFC; border-color: #D1D5DB; }
+  .proc-row .time { font-family: 'JetBrains Mono', monospace; color: #656464; font-size: 11px; }
+  .proc-row .status-dot { display: inline-flex; align-items: center; justify-content: center; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; }
+  .status-success { background: rgba(176,201,52,0.15); color: #5C7818; }
+  .status-processing { background: rgba(0,174,238,0.15); color: #005290; }
+  .status-error { background: rgba(220,38,38,0.10); color: #991B1B; }
+  .status-queued { background: rgba(101,100,100,0.10); color: #656464; }
+
+  /* TRAINING SAMPLE CARD */
+  .training-card { background: white; border: 1px solid #E5E7EB; border-radius: 6px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .training-card.divergente { border-left: 3px solid #EAB308; }
+  .training-card.correto { border-left: 3px solid #B0C934; }
+
+  /* KPI big */
+  .kpi-big { background: white; border: 1px solid #E5E7EB; border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; transition: all 150ms; }
+  .kpi-big:hover { box-shadow: 0 2px 6px -1px rgba(0,56,108,0.08); border-color: #D1D5DB; }
+  .kpi-big.warning { border-top: 3px solid #EAB308; }
+  .kpi-big.success { border-top: 3px solid #B0C934; }
+  .kpi-big.info { border-top: 3px solid #00AEEE; }
+  .kpi-big.error { border-top: 3px solid #DC2626; }
+  .kpi-big .label { font-size: 10px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #656464; }
+  .kpi-big .value { font-size: 28px; font-weight: 800; color: #00386C; line-height: 1; }
+  .kpi-big .delta { font-size: 11px; color: #656464; }
+
+  /* Badge */
+  .badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 3px; font-size: 10px; font-weight: 600; }
+  .badge-reclamacao { background: rgba(220,38,38,0.10); color: #991B1B; }
+  .badge-documento { background: rgba(0,174,238,0.15); color: #005290; }
+  .badge-informacao { background: rgba(176,201,52,0.15); color: #5C7818; }
+  .badge-thread { background: rgba(0,56,108,0.08); color: #00386C; }
+  .badge-naooperacional { background: #F3F4F6; color: #6B7280; }
+
+  .btn-icon { padding: 4px; color: #656464; border-radius: 4px; transition: all 120ms; cursor: pointer; background: none; border: none; }
+  .btn-icon:hover { color: #00386C; background: #F8F9FA; }
+  .btn-icon.danger:hover { color: #DC2626; background: rgba(220,38,38,0.05); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- SIDEBAR NAV -->
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center"><span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span></div>
+      <div><div class="font-bold text-base leading-tight">DMS</div><div class="text-xs text-white/70 leading-tight">Workflow Engine</div></div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+      <div class="caption text-white/40 px-6 mb-2">Trabalho</div>
+      <a href="tela16-cockpit-overview.html" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Cockpit
+      </a>
+
+      <div class="caption text-white/40 px-6 mb-2 mt-5">Sistema</div>
+      <a href="tela14-setup-integracoes.html" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Setup & Integrações
+      </a>
+      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>MAILIA Admin
+      </a>
+    </nav>
+    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">MC</div>
+      <div class="flex-1 min-w-0"><div class="text-sm font-semibold truncate">Maria Costa</div><div class="text-xs text-white/60 truncate">Admin MAILIA</div></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <!-- HEADER -->
+    <header class="bg-white border-b border-[#E5E7EB] px-6 py-3 sticky top-0 z-20">
+      <div class="flex items-start justify-between gap-6">
+        <div class="flex-1 min-w-0">
+          <nav class="flex items-center gap-1.5 text-xs text-dms-tecnologia mb-1.5">
+            <span>Sistema</span>
+            <svg class="w-3 h-3 text-dms-tecnologia/50" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+            <span class="text-dms-mar font-semibold">MAILIA Admin</span>
+          </nav>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-[3px] bg-dms-sabedoria tilt-accent rounded-sm"></div>
+            <h1 class="text-[22px] leading-tight font-bold text-dms-mar">🤖 MAILIA — Administração</h1>
+          </div>
+          <p class="text-xs text-dms-tecnologia ml-[60px] mt-0.5">
+            Configure regras de classificação · Monitore processamento · Treine o modelo · Status & métricas
+          </p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <span class="flex items-center gap-1.5 text-xs font-semibold text-[#5C7818] px-2.5 py-1.5 bg-dms-tropicalidade/10 border border-dms-tropicalidade/30 rounded-md">
+            <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade animate-pulse"></span>
+            MAILIA online
+          </span>
+          <button class="flex items-center gap-1.5 text-xs font-semibold text-dms-tecnologia px-2.5 py-1.5 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            Exportar
+          </button>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="mt-4 -mb-3 border-b border-[#E5E7EB] flex items-center -ml-1">
+        <button onclick="selectTab('regras')" id="tab-btn-regras" class="tab-btn active flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          Regras de classificação
+          <span class="text-[10px] bg-dms-mar text-white rounded-full px-1.5 py-0.5 ml-1">14</span>
+        </button>
+        <button onclick="selectTab('processamento')" id="tab-btn-processamento" class="tab-btn flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          Processamento
+          <span class="text-[10px] bg-[#00AEEE]/20 text-[#005290] rounded-full px-1.5 py-0.5 ml-1">3 ativos</span>
+        </button>
+        <button onclick="selectTab('treinamento')" id="tab-btn-treinamento" class="tab-btn flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          Treinamento
+          <span class="text-[10px] bg-[#EAB308]/20 text-[#854D0E] rounded-full px-1.5 py-0.5 ml-1">12 pendentes</span>
+        </button>
+        <button onclick="selectTab('status')" id="tab-btn-status" class="tab-btn flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          Status & métricas
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-1 p-4 w-full mx-auto" style="max-width: 1600px;">
+
+      <!-- ========== ABA 1: REGRAS ========== -->
+      <div id="tab-regras" class="tab-content active">
+
+        <!-- Toolbar Regras -->
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <div class="flex items-center gap-3 text-xs">
+            <span class="text-dms-tecnologia">14 regras ativas · prioridade decrescente · primeira match vence</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <svg class="w-3.5 h-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input type="text" placeholder="Buscar regra..." class="input-dms w-[200px] pl-7 pr-3 py-1.5 text-xs border border-[#E5E7EB] rounded bg-[#F8F9FA]">
+            </div>
+            <select class="input-dms px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white">
+              <option>Todas as classificações</option>
+              <option>Reclamação</option>
+              <option>Documento</option>
+              <option>Info esperada</option>
+              <option>Continuação thread</option>
+              <option>Não operacional</option>
+            </select>
+            <button class="flex items-center gap-1.5 text-xs font-semibold text-white px-3 py-1.5 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+              Nova regra
+            </button>
+          </div>
+        </div>
+
+        <!-- Lista de regras (grid 2 colunas) -->
+        <div class="grid gap-3" style="grid-template-columns: repeat(2, 1fr);">
+
+          <!-- Regra 1: Reclamação -->
+          <div class="rule-card reclamacao">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-[10px] font-bold text-dms-tecnologia mono">#1</span>
+                  <span class="badge badge-reclamacao">⚠ Reclamação</span>
+                  <span class="text-[10px] text-dms-tecnologia">prioridade alta</span>
+                </div>
+                <h4 class="text-sm font-bold text-dms-mar">Reclamação operacional de fornecedor</h4>
+              </div>
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <button class="btn-icon" title="Editar"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                <button class="btn-icon danger" title="Desativar"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg></button>
+              </div>
+            </div>
+            <div class="text-[11px] text-dms-tecnologia">
+              <div class="mb-1"><strong class="text-dms-mar">SE</strong> remetente em <code class="mono bg-[#F8F9FA] px-1.5 py-0.5 rounded">fornecedores_cadastrados</code></div>
+              <div class="mb-1"><strong class="text-dms-mar">E</strong> assunto contém <code class="mono bg-[#F8F9FA] px-1.5 py-0.5 rounded">"urgente" OR "atraso" OR "reclamação"</code></div>
+              <div><strong class="text-dms-mar">ENTÃO</strong> classifica como <strong class="text-red-700">Reclamação</strong> · aciona escalation #3</div>
+            </div>
+            <div class="text-[10px] text-dms-tecnologia border-t border-[#F3F4F6] pt-2 flex items-center justify-between">
+              <span>Disparada <strong>34 vezes</strong> nos últimos 30 dias</span>
+              <span class="text-[#5C7818]">Acurácia <strong>96%</strong></span>
+            </div>
+          </div>
+
+          <!-- Regra 2: Documento -->
+          <div class="rule-card documento">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-[10px] font-bold text-dms-tecnologia mono">#2</span>
+                  <span class="badge badge-documento">📄 Documento</span>
+                  <span class="text-[10px] text-dms-tecnologia">prioridade alta</span>
+                </div>
+                <h4 class="text-sm font-bold text-dms-mar">NF anexa via fornecedor</h4>
+              </div>
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <button class="btn-icon"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                <button class="btn-icon danger"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg></button>
+              </div>
+            </div>
+            <div class="text-[11px] text-dms-tecnologia">
+              <div class="mb-1"><strong class="text-dms-mar">SE</strong> remetente em <code class="mono bg-[#F8F9FA] px-1.5 py-0.5 rounded">fornecedores_cadastrados</code></div>
+              <div class="mb-1"><strong class="text-dms-mar">E</strong> anexo do tipo <code class="mono bg-[#F8F9FA] px-1.5 py-0.5 rounded">.xml OR .pdf (NF)</code></div>
+              <div><strong class="text-dms-mar">ENTÃO</strong> classifica como <strong class="text-[#005290]">Documento</strong> · aciona DOCSIA</div>
+            </div>
+            <div class="text-[10px] text-dms-tecnologia border-t border-[#F3F4F6] pt-2 flex items-center justify-between">
+              <span>Disparada <strong>241 vezes</strong> nos últimos 30 dias</span>
+              <span class="text-[#5C7818]">Acurácia <strong>99%</strong></span>
+            </div>
+          </div>
+
+          <!-- Regra 3: Info esperada -->
+          <div class="rule-card info">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-[10px] font-bold text-dms-tecnologia mono">#3</span>
+                  <span class="badge badge-informacao">ℹ Info esperada</span>
+                  <span class="text-[10px] text-dms-tecnologia">prioridade média</span>
+                </div>
+                <h4 class="text-sm font-bold text-dms-mar">Confirmação de entrega/data</h4>
+              </div>
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <button class="btn-icon"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                <button class="btn-icon danger"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg></button>
+              </div>
+            </div>
+            <div class="text-[11px] text-dms-tecnologia">
+              <div class="mb-1"><strong class="text-dms-mar">SE</strong> processo já aberto com expectativa de resposta</div>
+              <div class="mb-1"><strong class="text-dms-mar">E</strong> assunto contém <code class="mono bg-[#F8F9FA] px-1.5 py-0.5 rounded">"confirmação" OR "confirmo" OR data ISO</code></div>
+              <div><strong class="text-dms-mar">ENTÃO</strong> classifica como <strong class="text-[#5C7818]">Info esperada</strong> · salva no workflow</div>
+            </div>
+            <div class="text-[10px] text-dms-tecnologia border-t border-[#F3F4F6] pt-2 flex items-center justify-between">
+              <span>Disparada <strong>87 vezes</strong> nos últimos 30 dias</span>
+              <span class="text-[#854D0E]">Acurácia <strong>78%</strong></span>
+            </div>
+          </div>
+
+          <!-- Regra 4: Continuação thread -->
+          <div class="rule-card thread">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-[10px] font-bold text-dms-tecnologia mono">#4</span>
+                  <span class="badge badge-thread">💬 Continuação thread</span>
+                  <span class="text-[10px] text-dms-tecnologia">prioridade média</span>
+                </div>
+                <h4 class="text-sm font-bold text-dms-mar">Re: ou Fwd: de email já atrelado</h4>
+              </div>
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <button class="btn-icon"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                <button class="btn-icon danger"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg></button>
+              </div>
+            </div>
+            <div class="text-[11px] text-dms-tecnologia">
+              <div class="mb-1"><strong class="text-dms-mar">SE</strong> assunto inicia com <code class="mono bg-[#F8F9FA] px-1.5 py-0.5 rounded">"Re:" OR "Fwd:" OR "ENC:"</code></div>
+              <div class="mb-1"><strong class="text-dms-mar">E</strong> thread_id já existe no sistema</div>
+              <div><strong class="text-dms-mar">ENTÃO</strong> classifica como <strong class="text-dms-mar">Continuação</strong> · mantém atrelado ao processo</div>
+            </div>
+            <div class="text-[10px] text-dms-tecnologia border-t border-[#F3F4F6] pt-2 flex items-center justify-between">
+              <span>Disparada <strong>156 vezes</strong> nos últimos 30 dias</span>
+              <span class="text-[#5C7818]">Acurácia <strong>98%</strong></span>
+            </div>
+          </div>
+
+          <!-- Regra 5: Não operacional -->
+          <div class="rule-card naooperacional">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-[10px] font-bold text-dms-tecnologia mono">#5</span>
+                  <span class="badge badge-naooperacional">Não operacional</span>
+                  <span class="text-[10px] text-dms-tecnologia">prioridade baixa</span>
+                </div>
+                <h4 class="text-sm font-bold text-dms-mar">Notificação de sistema/marketing</h4>
+              </div>
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <button class="btn-icon"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                <button class="btn-icon danger"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg></button>
+              </div>
+            </div>
+            <div class="text-[11px] text-dms-tecnologia">
+              <div class="mb-1"><strong class="text-dms-mar">SE</strong> remetente contém <code class="mono bg-[#F8F9FA] px-1.5 py-0.5 rounded">"noreply" OR "marketing" OR "@bank.com"</code></div>
+              <div><strong class="text-dms-mar">ENTÃO</strong> classifica como <strong class="text-dms-tecnologia">Não operacional</strong> · arquiva</div>
+            </div>
+            <div class="text-[10px] text-dms-tecnologia border-t border-[#F3F4F6] pt-2 flex items-center justify-between">
+              <span>Disparada <strong>312 vezes</strong> nos últimos 30 dias</span>
+              <span class="text-[#5C7818]">Acurácia <strong>99%</strong></span>
+            </div>
+          </div>
+
+          <!-- Indicador outras regras -->
+          <div class="rule-card" style="background:#FAFBFC;border-style:dashed;align-items:center;justify-content:center;cursor:pointer;text-align:center">
+            <div class="text-xs text-dms-tecnologia italic">… + 9 outras regras configuradas</div>
+            <button class="text-xs text-dms-confianca font-semibold hover:underline">Ver todas →</button>
+          </div>
+        </div>
+
+        <div class="mt-4 p-3 bg-dms-ceu/5 border border-dms-ceu/20 rounded-md flex items-start gap-2">
+          <svg class="w-4 h-4 text-dms-confianca mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <div class="text-[11px] text-dms-tecnologia">
+            <strong class="text-dms-mar">Como MAILIA aplica:</strong> regras são avaliadas por prioridade decrescente (#1 primeiro). Primeira match vence — não há acúmulo. Quando nenhuma regra match, MAILIA usa modelo IA (Sonnet 4) para classificação aberta. Acurácia abaixo de 80% sugere refinar regra ou treinar mais samples.
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== ABA 2: PROCESSAMENTO ========== -->
+      <div id="tab-processamento" class="tab-content">
+
+        <!-- Seção: Fila live -->
+        <section class="mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="caption text-dms-mar font-bold flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-dms-ceu animate-pulse"></span>
+              Fila em processamento agora
+              <span class="text-[10px] text-dms-tecnologia">(3 emails)</span>
+            </h3>
+            <button class="text-xs text-dms-confianca hover:text-dms-mar font-semibold transition-colors flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              Atualizar
+            </button>
+          </div>
+
+          <div class="space-y-2">
+            <div class="proc-row">
+              <span class="time">há 2s</span>
+              <span class="status-dot status-processing">⏳ analyzing</span>
+              <div>
+                <div class="text-dms-mar font-semibold">contato@fornecedora.com.br</div>
+                <div class="text-dms-tecnologia text-[11px] truncate">"atraso URGENTE no pagamento" · 3 anexos</div>
+              </div>
+              <span class="text-dms-tecnologia text-[11px]">classifying</span>
+              <span class="text-[#005290] text-[11px] font-semibold">~3s restantes</span>
+            </div>
+            <div class="proc-row">
+              <span class="time">há 8s</span>
+              <span class="status-dot status-processing">⏳ analyzing</span>
+              <div>
+                <div class="text-dms-mar font-semibold">cliente.x@grupocliente.com</div>
+                <div class="text-dms-tecnologia text-[11px] truncate">"Solicitação contratual urgente"</div>
+              </div>
+              <span class="text-dms-tecnologia text-[11px]">embeddings</span>
+              <span class="text-[#005290] text-[11px] font-semibold">~5s restantes</span>
+            </div>
+            <div class="proc-row">
+              <span class="time">há 18s</span>
+              <span class="status-dot status-queued">📥 queued</span>
+              <div>
+                <div class="text-dms-mar font-semibold">novo.contato@empresa.com</div>
+                <div class="text-dms-tecnologia text-[11px] truncate">"Proposta comercial Q2 2026"</div>
+              </div>
+              <span class="text-dms-tecnologia text-[11px]">2º na fila</span>
+              <span class="text-[#656464] text-[11px]">aguardando</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Seção: Histórico 24h -->
+        <section class="mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="caption text-dms-mar font-bold">Histórico — últimas 24h <span class="text-[10px] text-dms-tecnologia">(82 emails processados)</span></h3>
+            <div class="flex items-center gap-2">
+              <select class="input-dms px-2 py-1 text-xs border border-[#E5E7EB] rounded bg-white">
+                <option>Todos os status</option>
+                <option>Sucesso</option>
+                <option>Erro</option>
+                <option>Re-tentativa</option>
+              </select>
+              <button class="text-xs text-dms-confianca hover:text-dms-mar font-semibold">Ver todos →</button>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="proc-row">
+              <span class="time">há 1min</span>
+              <span class="status-dot status-success">✓ success</span>
+              <div>
+                <div class="text-dms-mar font-semibold">Fornecedor B</div>
+                <div class="text-dms-tecnologia text-[11px] truncate">"NF anexa (NFe 8821)" → <span class="badge badge-documento">Documento</span> · DOCSIA acionado</div>
+              </div>
+              <span class="text-dms-tecnologia text-[11px]">regra #2</span>
+              <span class="text-[#5C7818] text-[11px] font-semibold">2.1s</span>
+            </div>
+            <div class="proc-row">
+              <span class="time">há 3min</span>
+              <span class="status-dot status-success">✓ success</span>
+              <div>
+                <div class="text-dms-mar font-semibold">João Silva</div>
+                <div class="text-dms-tecnologia text-[11px] truncate">"Confirmo data de entrega" → <span class="badge badge-informacao">Info esperada</span> · dado salvo no PO-0091</div>
+              </div>
+              <span class="text-dms-tecnologia text-[11px]">regra #3</span>
+              <span class="text-[#5C7818] text-[11px] font-semibold">1.8s</span>
+            </div>
+            <div class="proc-row">
+              <span class="time">há 12min</span>
+              <span class="status-dot status-success">✓ success</span>
+              <div>
+                <div class="text-dms-mar font-semibold">Fornecedor A</div>
+                <div class="text-dms-tecnologia text-[11px] truncate">"atraso URGENTE no pagamento" → <span class="badge badge-reclamacao">Reclamação</span> · escalation #3</div>
+              </div>
+              <span class="text-dms-tecnologia text-[11px]">regra #1</span>
+              <span class="text-[#5C7818] text-[11px] font-semibold">2.4s</span>
+            </div>
+            <div class="proc-row">
+              <span class="time">há 35min</span>
+              <span class="status-dot status-success">✓ success</span>
+              <div>
+                <div class="text-dms-mar font-semibold">Carlos Reis</div>
+                <div class="text-dms-tecnologia text-[11px] truncate">"RE: Cotação cláusula avulsa" → <span class="badge badge-thread">Continuação</span> · atrelado RFQ-0044</div>
+              </div>
+              <span class="text-dms-tecnologia text-[11px]">regra #4</span>
+              <span class="text-[#5C7818] text-[11px] font-semibold">1.2s</span>
+            </div>
+            <div class="proc-row">
+              <span class="time">há 1h</span>
+              <span class="status-dot status-error">✗ error</span>
+              <div>
+                <div class="text-dms-mar font-semibold">marketing@brand.com</div>
+                <div class="text-dms-tecnologia text-[11px] truncate">"Black Friday: 70% OFF" · <span class="text-red-700">erro: timeout no embedding</span></div>
+              </div>
+              <span class="text-dms-tecnologia text-[11px]">retry pending</span>
+              <button class="text-[#005290] text-[11px] font-semibold hover:underline">↻ Re-tentar</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Seção: Logs de erro -->
+        <section>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="caption text-dms-mar font-bold">Logs de erro & re-tentativas <span class="text-[10px] text-red-700">(3 erros nas últimas 24h)</span></h3>
+            <button class="text-xs text-dms-confianca hover:text-dms-mar font-semibold">Ver tudo →</button>
+          </div>
+
+          <div class="space-y-2">
+            <div class="proc-row" style="border-left: 3px solid #DC2626">
+              <span class="time">há 1h</span>
+              <span class="status-dot status-error">✗ error</span>
+              <div>
+                <div class="text-dms-mar font-semibold mono text-[11px]">embedding_timeout</div>
+                <div class="text-dms-tecnologia text-[11px] truncate">marketing@brand.com · timeout após 30s no provider Anthropic</div>
+              </div>
+              <span class="text-dms-tecnologia text-[11px]">tentativa 1/3</span>
+              <button class="text-[#005290] text-[11px] font-semibold hover:underline">↻ Re-tentar</button>
+            </div>
+            <div class="proc-row" style="border-left: 3px solid #DC2626">
+              <span class="time">há 4h</span>
+              <span class="status-dot status-error">✗ error</span>
+              <div>
+                <div class="text-dms-mar font-semibold mono text-[11px]">gmail_api_403</div>
+                <div class="text-dms-tecnologia text-[11px] truncate">OAuth token expirado · re-sincronização falhou</div>
+              </div>
+              <span class="text-dms-tecnologia text-[11px]">resolvido auto</span>
+              <span class="text-[#5C7818] text-[11px]">✓ token renewed</span>
+            </div>
+            <div class="proc-row" style="border-left: 3px solid #DC2626">
+              <span class="time">há 8h</span>
+              <span class="status-dot status-error">✗ error</span>
+              <div>
+                <div class="text-dms-mar font-semibold mono text-[11px]">classification_low_confidence</div>
+                <div class="text-dms-tecnologia text-[11px] truncate">contato@unknown.com · confidence 42% (threshold 70%) · enviado pra triagem manual</div>
+              </div>
+              <span class="text-dms-tecnologia text-[11px]">manual review</span>
+              <button class="text-[#005290] text-[11px] font-semibold hover:underline">Revisar →</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ========== ABA 3: TREINAMENTO ========== -->
+      <div id="tab-treinamento" class="tab-content">
+
+        <!-- KPIs treinamento -->
+        <div class="grid gap-3 mb-6" style="grid-template-columns: repeat(4, 1fr);">
+          <div class="kpi-big warning">
+            <div class="label">Pendentes feedback</div>
+            <div class="value text-[#854D0E]">12</div>
+            <div class="delta">aguardam você corrigir</div>
+          </div>
+          <div class="kpi-big success">
+            <div class="label">Samples no dataset</div>
+            <div class="value">2.847</div>
+            <div class="delta">+34 esta semana</div>
+          </div>
+          <div class="kpi-big info">
+            <div class="label">Modelo atual</div>
+            <div class="value" style="font-size:18px">v1.4.2</div>
+            <div class="delta">deployed 12/05/2026</div>
+          </div>
+          <div class="kpi-big">
+            <div class="label">Próximo retraining</div>
+            <div class="value" style="font-size:18px">7 dias</div>
+            <div class="delta">automático ao atingir 50 corrections</div>
+          </div>
+        </div>
+
+        <!-- Seção: Feedback humano (samples divergentes) -->
+        <section class="mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="caption text-dms-mar font-bold">Samples divergentes — operador discordou da MAILIA <span class="text-[10px] text-[#854D0E]">(12 pendentes)</span></h3>
+            <div class="flex items-center gap-2">
+              <button class="text-xs font-semibold text-dms-confianca hover:text-dms-mar transition-colors">↻ Recarregar</button>
+              <button class="flex items-center gap-1.5 text-xs font-semibold text-white px-3 py-1.5 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                Aplicar todas correções
+              </button>
+            </div>
+          </div>
+
+          <div class="grid gap-3" style="grid-template-columns: repeat(2, 1fr);">
+
+            <div class="training-card divergente">
+              <div class="flex items-start justify-between gap-2">
+                <div class="text-[11px] text-dms-tecnologia">há 3h · operador <strong class="text-dms-mar">Maria Costa</strong></div>
+                <span class="badge" style="background:rgba(234,179,8,0.15);color:#854D0E">⚠ Divergente</span>
+              </div>
+              <div class="text-sm font-semibold text-dms-mar leading-tight">"Cotação RFQ-0048 — Proposta"</div>
+              <div class="text-[11px] text-dms-tecnologia">de <strong>Fornecedor C</strong> · com anexo .pdf</div>
+              <div class="flex items-center gap-2 text-[11px]">
+                <span class="text-dms-tecnologia">MAILIA classificou:</span>
+                <span class="badge badge-documento">📄 Documento</span>
+              </div>
+              <div class="flex items-center gap-2 text-[11px]">
+                <span class="text-dms-tecnologia">Operador corrigiu para:</span>
+                <span class="badge badge-thread">💬 Continuação</span>
+              </div>
+              <div class="border-t border-[#F3F4F6] pt-2 flex items-center justify-end gap-2">
+                <button class="text-[11px] text-dms-tecnologia hover:text-dms-mar font-semibold transition-colors">Descartar</button>
+                <button class="text-[11px] font-semibold text-white px-3 py-1 bg-dms-mar rounded hover:bg-dms-confianca transition-colors">Aceitar correção</button>
+              </div>
+            </div>
+
+            <div class="training-card divergente">
+              <div class="flex items-start justify-between gap-2">
+                <div class="text-[11px] text-dms-tecnologia">há 5h · operador <strong class="text-dms-mar">João Santos</strong></div>
+                <span class="badge" style="background:rgba(234,179,8,0.15);color:#854D0E">⚠ Divergente</span>
+              </div>
+              <div class="text-sm font-semibold text-dms-mar leading-tight">"Suas faturas mensais"</div>
+              <div class="text-[11px] text-dms-tecnologia">de <strong>servico-cobranca@empresa.com</strong></div>
+              <div class="flex items-center gap-2 text-[11px]">
+                <span class="text-dms-tecnologia">MAILIA classificou:</span>
+                <span class="badge badge-naooperacional">Não operacional</span>
+              </div>
+              <div class="flex items-center gap-2 text-[11px]">
+                <span class="text-dms-tecnologia">Operador corrigiu para:</span>
+                <span class="badge badge-documento">📄 Documento</span>
+              </div>
+              <div class="border-t border-[#F3F4F6] pt-2 flex items-center justify-end gap-2">
+                <button class="text-[11px] text-dms-tecnologia hover:text-dms-mar font-semibold transition-colors">Descartar</button>
+                <button class="text-[11px] font-semibold text-white px-3 py-1 bg-dms-mar rounded hover:bg-dms-confianca transition-colors">Aceitar correção</button>
+              </div>
+            </div>
+
+            <div class="training-card divergente">
+              <div class="flex items-start justify-between gap-2">
+                <div class="text-[11px] text-dms-tecnologia">há 8h · operador <strong class="text-dms-mar">Maria Costa</strong></div>
+                <span class="badge" style="background:rgba(234,179,8,0.15);color:#854D0E">⚠ Divergente</span>
+              </div>
+              <div class="text-sm font-semibold text-dms-mar leading-tight">"Re: confirma data de entrega"</div>
+              <div class="text-[11px] text-dms-tecnologia">de <strong>parceiro@dmslog.com</strong> (interno)</div>
+              <div class="flex items-center gap-2 text-[11px]">
+                <span class="text-dms-tecnologia">MAILIA classificou:</span>
+                <span class="badge badge-informacao">ℹ Info esperada</span>
+              </div>
+              <div class="flex items-center gap-2 text-[11px]">
+                <span class="text-dms-tecnologia">Operador corrigiu para:</span>
+                <span class="badge badge-thread">💬 Continuação</span>
+              </div>
+              <div class="border-t border-[#F3F4F6] pt-2 flex items-center justify-end gap-2">
+                <button class="text-[11px] text-dms-tecnologia hover:text-dms-mar font-semibold transition-colors">Descartar</button>
+                <button class="text-[11px] font-semibold text-white px-3 py-1 bg-dms-mar rounded hover:bg-dms-confianca transition-colors">Aceitar correção</button>
+              </div>
+            </div>
+
+            <div class="training-card divergente">
+              <div class="flex items-start justify-between gap-2">
+                <div class="text-[11px] text-dms-tecnologia">há 1d · operador <strong class="text-dms-mar">Pedro Lima</strong></div>
+                <span class="badge" style="background:rgba(234,179,8,0.15);color:#854D0E">⚠ Divergente</span>
+              </div>
+              <div class="text-sm font-semibold text-dms-mar leading-tight">"Estamos sem retorno do orçamento"</div>
+              <div class="text-[11px] text-dms-tecnologia">de <strong>cliente.alfa@grupo.com</strong></div>
+              <div class="flex items-center gap-2 text-[11px]">
+                <span class="text-dms-tecnologia">MAILIA classificou:</span>
+                <span class="badge badge-informacao">ℹ Info esperada</span>
+              </div>
+              <div class="flex items-center gap-2 text-[11px]">
+                <span class="text-dms-tecnologia">Operador corrigiu para:</span>
+                <span class="badge badge-reclamacao">⚠ Reclamação</span>
+              </div>
+              <div class="border-t border-[#F3F4F6] pt-2 flex items-center justify-end gap-2">
+                <button class="text-[11px] text-dms-tecnologia hover:text-dms-mar font-semibold transition-colors">Descartar</button>
+                <button class="text-[11px] font-semibold text-white px-3 py-1 bg-dms-mar rounded hover:bg-dms-confianca transition-colors">Aceitar correção</button>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="mt-3 text-[11px] text-center text-dms-tecnologia italic">… + 8 outras correções pendentes</div>
+        </section>
+
+        <!-- Seção: Curação dataset + versões modelo -->
+        <div class="grid gap-4" style="grid-template-columns: 1fr 1fr;">
+
+          <!-- Curação dataset -->
+          <section>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="caption text-dms-mar font-bold">Dataset de treinamento</h3>
+              <button class="text-xs text-dms-confianca hover:text-dms-mar font-semibold">Gerenciar →</button>
+            </div>
+            <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 shadow-dms-md space-y-3">
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xs font-semibold text-dms-mar">📄 Documento</span>
+                  <span class="text-[11px] text-dms-tecnologia"><strong class="text-dms-mar">847</strong> samples · 30% do dataset</span>
+                </div>
+                <div class="w-full h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+                  <div class="h-full bg-dms-ceu" style="width: 30%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xs font-semibold text-dms-mar">💬 Continuação thread</span>
+                  <span class="text-[11px] text-dms-tecnologia"><strong class="text-dms-mar">623</strong> samples · 22%</span>
+                </div>
+                <div class="w-full h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+                  <div class="h-full bg-dms-mar" style="width: 22%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xs font-semibold text-dms-mar">Não operacional</span>
+                  <span class="text-[11px] text-dms-tecnologia"><strong class="text-dms-mar">587</strong> samples · 21%</span>
+                </div>
+                <div class="w-full h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+                  <div class="h-full bg-[#9CA3AF]" style="width: 21%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xs font-semibold text-dms-mar">ℹ Info esperada</span>
+                  <span class="text-[11px] text-dms-tecnologia"><strong class="text-dms-mar">456</strong> samples · 16%</span>
+                </div>
+                <div class="w-full h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+                  <div class="h-full bg-dms-tropicalidade" style="width: 16%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xs font-semibold text-dms-mar">⚠ Reclamação</span>
+                  <span class="text-[11px] text-[#854D0E]"><strong>334</strong> samples · 11% <span class="text-[10px]">(desbalanceado)</span></span>
+                </div>
+                <div class="w-full h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+                  <div class="h-full bg-red-500" style="width: 11%"></div>
+                </div>
+              </div>
+
+              <div class="text-[11px] text-dms-tecnologia border-t border-[#F3F4F6] pt-3 flex items-center justify-between">
+                <span>Total: <strong class="text-dms-mar">2.847 samples</strong></span>
+                <button class="text-dms-confianca font-semibold hover:underline">📥 Importar samples</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Versões do modelo -->
+          <section>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="caption text-dms-mar font-bold">Versões do modelo</h3>
+              <button class="text-xs text-dms-confianca hover:text-dms-mar font-semibold">Histórico completo →</button>
+            </div>
+            <div class="space-y-2">
+              <div class="bg-white border border-dms-tropicalidade rounded-lg p-3" style="border-left: 3px solid #B0C934">
+                <div class="flex items-center justify-between mb-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-dms-mar mono">v1.4.2</span>
+                    <span class="badge" style="background:rgba(176,201,52,0.15);color:#5C7818">● PRODUÇÃO</span>
+                  </div>
+                  <span class="text-[10px] text-dms-tecnologia">deployed 12/05/2026</span>
+                </div>
+                <div class="text-[11px] text-dms-tecnologia space-y-0.5">
+                  <div>Acurácia geral: <strong class="text-dms-mar">94.2%</strong></div>
+                  <div>Dataset: <strong class="text-dms-mar">2.813 samples</strong></div>
+                  <div>Provider: <strong class="text-dms-mar">claude-sonnet-4</strong></div>
+                </div>
+              </div>
+
+              <div class="bg-white border border-[#E5E7EB] rounded-lg p-3" style="border-left: 3px solid #00AEEE">
+                <div class="flex items-center justify-between mb-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-dms-mar mono">v1.5.0</span>
+                    <span class="badge badge-documento">🧪 RC (avaliação)</span>
+                  </div>
+                  <span class="text-[10px] text-dms-tecnologia">trained 25/05/2026</span>
+                </div>
+                <div class="text-[11px] text-dms-tecnologia space-y-0.5">
+                  <div>Acurácia: <strong class="text-[#5C7818]">96.1%</strong> <span class="text-[10px]">(+1.9pp vs v1.4.2)</span></div>
+                  <div>Dataset: <strong class="text-dms-mar">2.847 samples</strong> (+34)</div>
+                  <div class="flex items-center gap-2 mt-1">
+                    <button class="text-[11px] font-semibold text-dms-mar hover:underline">Ver A/B test →</button>
+                    <button class="text-[11px] font-semibold text-white px-2 py-0.5 bg-dms-mar rounded">Promover</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white border border-[#E5E7EB] rounded-lg p-3 opacity-60">
+                <div class="flex items-center justify-between mb-1">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-dms-tecnologia mono">v1.4.1</span>
+                    <span class="badge badge-naooperacional">arquivada</span>
+                  </div>
+                  <span class="text-[10px] text-dms-tecnologia">02/05/2026</span>
+                </div>
+                <div class="text-[11px] text-dms-tecnologia space-y-0.5">
+                  <div>Acurácia: 92.8% · Dataset: 2.731 samples</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+      <!-- ========== ABA 4: STATUS ========== -->
+      <div id="tab-status" class="tab-content">
+
+        <!-- Health check -->
+        <section class="mb-6">
+          <h3 class="caption text-dms-mar font-bold mb-3">Health check</h3>
+          <div class="grid gap-3" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="bg-white border border-[#E5E7EB] rounded-lg p-4" style="border-left: 3px solid #B0C934">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-dms-mar">📧 Gmail API</span>
+                <span class="w-2 h-2 rounded-full bg-dms-tropicalidade animate-pulse"></span>
+              </div>
+              <div class="text-[11px] text-dms-tecnologia">OAuth conectado · <strong class="text-[#5C7818]">healthy</strong></div>
+              <div class="text-[10px] text-dms-tecnologia mt-0.5">Última sincronização: <strong>há 1min</strong></div>
+            </div>
+            <div class="bg-white border border-[#E5E7EB] rounded-lg p-4" style="border-left: 3px solid #B0C934">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-dms-mar">🤖 Modelo IA</span>
+                <span class="w-2 h-2 rounded-full bg-dms-tropicalidade animate-pulse"></span>
+              </div>
+              <div class="text-[11px] text-dms-tecnologia">claude-sonnet-4 · <strong class="text-[#5C7818]">online</strong></div>
+              <div class="text-[10px] text-dms-tecnologia mt-0.5">Latência p95: <strong>1.8s</strong></div>
+            </div>
+            <div class="bg-white border border-[#E5E7EB] rounded-lg p-4" style="border-left: 3px solid #B0C934">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-dms-mar">🗄️ Vector store</span>
+                <span class="w-2 h-2 rounded-full bg-dms-tropicalidade animate-pulse"></span>
+              </div>
+              <div class="text-[11px] text-dms-tecnologia">Postgres pgvector · <strong class="text-[#5C7818]">healthy</strong></div>
+              <div class="text-[10px] text-dms-tecnologia mt-0.5">2.847 embeddings · 42MB</div>
+            </div>
+            <div class="bg-white border border-[#E5E7EB] rounded-lg p-4" style="border-left: 3px solid #EAB308">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-dms-mar">⚙ Fila Redis</span>
+                <span class="w-2 h-2 rounded-full bg-[#EAB308]"></span>
+              </div>
+              <div class="text-[11px] text-dms-tecnologia">3 jobs ativos · <strong class="text-[#854D0E]">backlog leve</strong></div>
+              <div class="text-[10px] text-dms-tecnologia mt-0.5">Throughput: 28 emails/min</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Métricas de performance -->
+        <section class="mb-6">
+          <h3 class="caption text-dms-mar font-bold mb-3">Métricas de performance (últimos 30 dias)</h3>
+          <div class="grid gap-3" style="grid-template-columns: repeat(5, 1fr);">
+            <div class="kpi-big success">
+              <div class="label">Acurácia geral</div>
+              <div class="value text-[#5C7818]">94.2%</div>
+              <div class="delta">+1.4pp vs mês anterior</div>
+            </div>
+            <div class="kpi-big">
+              <div class="label">Taxa de classificação</div>
+              <div class="value">87%</div>
+              <div class="delta">pelas regras DE/PARA</div>
+            </div>
+            <div class="kpi-big info">
+              <div class="label">Fallback IA</div>
+              <div class="value" style="color:#005290">13%</div>
+              <div class="delta">classificações sem regra</div>
+            </div>
+            <div class="kpi-big warning">
+              <div class="label">Taxa de feedback</div>
+              <div class="value text-[#854D0E]">2.8%</div>
+              <div class="delta">corrigidos pelo operador</div>
+            </div>
+            <div class="kpi-big error">
+              <div class="label">Erros 30d</div>
+              <div class="value text-red-700">17</div>
+              <div class="delta">0.6% do total</div>
+            </div>
+          </div>
+
+          <!-- Acurácia por classificação -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 mt-3 shadow-dms-md">
+            <h4 class="caption text-dms-mar font-bold mb-3">Acurácia por classificação</h4>
+            <div class="space-y-3">
+              <div>
+                <div class="flex items-center justify-between mb-1.5 text-xs">
+                  <span class="text-dms-mar font-semibold">📄 Documento</span>
+                  <span class="text-[#5C7818] font-semibold">99%</span>
+                </div>
+                <div class="w-full h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+                  <div class="h-full bg-dms-tropicalidade" style="width: 99%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-1.5 text-xs">
+                  <span class="text-dms-mar font-semibold">💬 Continuação thread</span>
+                  <span class="text-[#5C7818] font-semibold">98%</span>
+                </div>
+                <div class="w-full h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+                  <div class="h-full bg-dms-tropicalidade" style="width: 98%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-1.5 text-xs">
+                  <span class="text-dms-mar font-semibold">Não operacional</span>
+                  <span class="text-[#5C7818] font-semibold">96%</span>
+                </div>
+                <div class="w-full h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+                  <div class="h-full bg-dms-tropicalidade" style="width: 96%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-1.5 text-xs">
+                  <span class="text-dms-mar font-semibold">⚠ Reclamação</span>
+                  <span class="text-[#5C7818] font-semibold">92%</span>
+                </div>
+                <div class="w-full h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+                  <div class="h-full bg-dms-tropicalidade" style="width: 92%"></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-1.5 text-xs">
+                  <span class="text-dms-mar font-semibold">ℹ Info esperada</span>
+                  <span class="text-[#854D0E] font-semibold">78% <span class="text-[10px]">(precisa retraining)</span></span>
+                </div>
+                <div class="w-full h-2 bg-[#F3F4F6] rounded-full overflow-hidden">
+                  <div class="h-full bg-[#EAB308]" style="width: 78%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Volume e custo -->
+        <section>
+          <h3 class="caption text-dms-mar font-bold mb-3">Volume & custo (mês atual)</h3>
+          <div class="grid gap-3" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="kpi-big">
+              <div class="label">Emails processados</div>
+              <div class="value">2.847</div>
+              <div class="delta">94/dia média</div>
+            </div>
+            <div class="kpi-big">
+              <div class="label">Tokens IA consumidos</div>
+              <div class="value" style="font-size:22px">847K</div>
+              <div class="delta">in: 624K · out: 223K</div>
+            </div>
+            <div class="kpi-big">
+              <div class="label">Custo IA mês</div>
+              <div class="value" style="font-size:22px">US$ 12.40</div>
+              <div class="delta">$0.0044/email</div>
+            </div>
+            <div class="kpi-big info">
+              <div class="label">Projeção mês</div>
+              <div class="value" style="font-size:22px">US$ 18.60</div>
+              <div class="delta">considerando ritmo atual</div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+function selectTab(tab) {
+  ['regras', 'processamento', 'treinamento', 'status'].forEach(t => {
+    document.getElementById('tab-btn-' + t).classList.toggle('active', t === tab);
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
