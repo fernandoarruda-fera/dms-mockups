@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Novo Pedido</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C', ceu: '#00AEEE', confianca: '#005290',
+          sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+        'dms-lg': '0 10px 15px -3px rgba(0, 56, 108, 0.10), 0 4px 6px -2px rgba(0, 56, 108, 0.05)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .req-label { font-size: 12px; font-weight: 600; color: #00386C; margin-bottom: 6px; display: block; }
+  .req-label .req-star { color: #DC2626; margin-left: 2px; }
+  .seg-btn { padding: 8px 14px; font-size: 13px; font-weight: 600; border: 1px solid #E5E7EB; background: #fff; color: #656464; cursor: pointer; transition: all 150ms ease; }
+  .seg-btn:first-child { border-radius: 6px 0 0 6px; }
+  .seg-btn:last-child { border-radius: 0 6px 6px 0; border-left: 0; }
+  .seg-btn.active { background: #00386C; color: #fff; border-color: #00386C; }
+  .ro-cell { background: #F8FAFC; border: 1px solid #E5E7EB; border-radius: 6px; padding: 10px 12px; font-size: 14px; color: #00386C; font-weight: 500; }
+  .ro-cell .lbl { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #656464; margin-bottom: 2px; }
+</style>
+</head>
+<body class="min-h-screen pb-24">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar">Compras</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <a href="tela27-pedidos-list.html" class="text-dms-tecnologia hover:text-dms-mar">Pedidos</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Novo</span>
+      </nav>
+      <div class="flex items-center gap-3 text-xs text-dms-tecnologia">
+        <span class="mono">Rascunho · não emitido</span>
+        <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+      </div>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1100px] w-full mx-auto">
+
+      <div class="mb-6 flex items-center gap-3">
+        <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+        <h1 class="text-[32px] leading-[40px] font-bold text-dms-mar">Novo Pedido</h1>
+      </div>
+
+      <!-- SEÇÃO 1: Origem -->
+      <section class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md p-6 mb-5">
+        <div class="flex items-center gap-2 mb-5 pb-3 border-b border-[#F1F5F9]">
+          <span class="w-6 h-6 bg-dms-mar text-white rounded-full text-xs font-bold flex items-center justify-center">1</span>
+          <h2 class="text-base font-bold text-dms-mar">Origem</h2>
+          <span class="text-xs text-dms-tecnologia ml-2">cotação vencedora ou pedido avulso</span>
+        </div>
+
+        <div class="inline-flex mb-5">
+          <button id="origin-cot" class="seg-btn active">Da cotação</button>
+          <button id="origin-avl" class="seg-btn">Pedido avulso</button>
+        </div>
+
+        <div id="block-cot" class="grid grid-cols-2 gap-x-6 gap-y-5">
+          <div class="col-span-2">
+            <label class="req-label">Cotação<span class="req-star">*</span></label>
+            <div class="relative">
+              <input id="cot-search" type="text" value="COT-2026-0086 — TecPlus Distribuidora · R$ 11.820,00" placeholder="Digite COT-... ou fornecedor" class="input-dms w-full pl-10 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white mono">
+              <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+            <p class="text-xs text-dms-tecnologia mt-1">Apenas cotações com vencedor selecionado podem virar pedido.</p>
+          </div>
+
+          <div class="col-span-2 bg-[#F8FAFC] border border-[#E5E7EB] rounded-md p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <span class="caption text-dms-tecnologia">Resumo da cotação</span>
+                <a href="tela26-cotacao-detalhe.html" class="text-xs text-dms-ceu hover:underline">ver detalhe →</a>
+              </div>
+              <div class="text-xs text-dms-tecnologia">
+                <span class="mono text-dms-mar font-semibold">COT-2026-0086</span>
+                · origem <span class="mono text-dms-ceu">REQ-2026-0148</span>
+                · comprador <span class="text-gray-700">Fernando Arruda</span>
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-3 text-sm">
+              <div class="bg-white border border-[#E5E7EB] rounded p-3">
+                <div class="caption text-dms-tecnologia mb-1">Itens</div>
+                <div class="text-lg font-bold text-dms-mar">3</div>
+              </div>
+              <div class="bg-white border border-[#E5E7EB] rounded p-3">
+                <div class="caption text-dms-tecnologia mb-1">Vencedor</div>
+                <div class="text-sm font-bold text-emerald-700">TecPlus Distribuidora</div>
+              </div>
+              <div class="bg-white border border-[#E5E7EB] rounded p-3">
+                <div class="caption text-dms-tecnologia mb-1">Valor proposta</div>
+                <div class="text-lg font-bold text-dms-sabedoria mono">R$ 11.820,00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="block-avl" class="hidden grid grid-cols-2 gap-x-6 gap-y-5">
+          <div class="col-span-2 bg-amber-50 border border-amber-200 rounded-md p-4 text-sm text-amber-800 flex items-start gap-2">
+            <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5 19h14a2 2 0 001.84-2.75L13.74 4a2 2 0 00-3.48 0L3.16 16.25A2 2 0 005 19z"/></svg>
+            <div>
+              <strong>Pedido avulso:</strong> sem cotação prévia. Justificativa obrigatória e aprovação adicional do gestor.
+            </div>
+          </div>
+          <div class="col-span-2">
+            <label class="req-label">Justificativa do pedido avulso<span class="req-star">*</span></label>
+            <textarea rows="3" placeholder="Explique o motivo de emitir PO sem cotação..." class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEÇÃO 2: Fornecedor -->
+      <section class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md p-6 mb-5">
+        <div class="flex items-center gap-2 mb-5 pb-3 border-b border-[#F1F5F9]">
+          <span class="w-6 h-6 bg-dms-mar text-white rounded-full text-xs font-bold flex items-center justify-center">2</span>
+          <h2 class="text-base font-bold text-dms-mar">Fornecedor e contato</h2>
+          <span class="text-xs text-dms-tecnologia ml-2">dados do vencedor da cotação</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mb-5">
+          <div class="ro-cell">
+            <div class="lbl">Razão social</div>
+            TecPlus Distribuidora Ltda
+          </div>
+          <div class="ro-cell">
+            <div class="lbl">CNPJ</div>
+            <span class="mono">12.345.678/0001-90</span>
+          </div>
+          <div class="ro-cell">
+            <div class="lbl">Inscrição estadual</div>
+            <span class="mono">110.456.789.001</span>
+          </div>
+          <div class="ro-cell col-span-2">
+            <div class="lbl">Endereço de cobrança</div>
+            Av. Paulista, 1100 — Bela Vista, São Paulo/SP — CEP 01310-100
+          </div>
+          <div class="ro-cell">
+            <div class="lbl">E-mail principal</div>
+            <span class="mono text-xs">vendas@tecplus.com.br</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+          <div>
+            <label class="req-label">Contato responsável<span class="req-star">*</span></label>
+            <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option>Patrícia Lima — vendas SP (patricia.lima@tecplus.com.br)</option>
+              <option>Rodrigo Mendes — gerente de contas</option>
+              <option>Adicionar novo contato…</option>
+            </select>
+          </div>
+          <div>
+            <label class="req-label">E-mails adicionais (cópia)</label>
+            <input type="text" placeholder="financeiro@tecplus.com.br, ..." class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          </div>
+        </div>
+      </section>
+
+      <!-- SEÇÃO 3: Itens -->
+      <section class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md p-6 mb-5">
+        <div class="flex items-center gap-2 mb-5 pb-3 border-b border-[#F1F5F9]">
+          <span class="w-6 h-6 bg-dms-mar text-white rounded-full text-xs font-bold flex items-center justify-center">3</span>
+          <h2 class="text-base font-bold text-dms-mar">Itens</h2>
+          <span class="text-xs text-dms-tecnologia ml-2">trazidos da cotação vencedora · ajustes exigem motivo</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+              <tr>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Descrição</th>
+                <th class="text-right caption text-dms-tecnologia px-3 py-2 w-20">Qtd</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2 w-16">UN</th>
+                <th class="text-right caption text-dms-tecnologia px-3 py-2 w-32">Valor unit.</th>
+                <th class="text-right caption text-dms-tecnologia px-3 py-2 w-32">Subtotal</th>
+                <th class="px-2 w-10"></th>
+              </tr>
+            </thead>
+            <tbody id="items-tbody" class="divide-y divide-[#E5E7EB]"></tbody>
+            <tfoot class="bg-[#F8F9FA] border-t border-[#E5E7EB]">
+              <tr>
+                <td colspan="4" class="px-3 py-2 text-right caption text-dms-tecnologia">Total do pedido</td>
+                <td class="px-3 py-2 text-right mono font-bold text-dms-mar text-base" id="total-pedido">R$ 11.820,00</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div id="ajuste-warn" class="hidden mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
+          <label class="req-label text-amber-800">Motivo do ajuste vs. cotação<span class="req-star">*</span></label>
+          <input type="text" placeholder="Ex: ajuste de margem acordado em call com fornecedor..." class="input-dms w-full px-3 py-2 text-sm border border-amber-300 rounded-md bg-white">
+        </div>
+      </section>
+
+      <!-- SEÇÃO 4: Entrega -->
+      <section class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md p-6 mb-5">
+        <div class="flex items-center gap-2 mb-5 pb-3 border-b border-[#F1F5F9]">
+          <span class="w-6 h-6 bg-dms-mar text-white rounded-full text-xs font-bold flex items-center justify-center">4</span>
+          <h2 class="text-base font-bold text-dms-mar">Entrega</h2>
+          <span class="text-xs text-dms-tecnologia ml-2">local, prazo e logística</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+          <div>
+            <label class="req-label">Local de entrega<span class="req-star">*</span></label>
+            <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option>Matriz — Av. dos Bandeirantes, 8500, São Paulo/SP</option>
+              <option>Filial RJ — Av. Brasil, 12000, Rio de Janeiro/RJ</option>
+              <option>CD Cajamar — Rod. Anhanguera km 33, Cajamar/SP</option>
+              <option>CD Cariacica — Rod. BR-262 km 5, Cariacica/ES</option>
+              <option>Outro endereço…</option>
+            </select>
+          </div>
+          <div>
+            <label class="req-label">Data prevista de entrega<span class="req-star">*</span></label>
+            <input type="date" value="2026-06-05" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          </div>
+          <div>
+            <label class="req-label">Condição de frete<span class="req-star">*</span></label>
+            <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option>CIF — por conta do fornecedor</option>
+              <option>FOB — por conta do comprador</option>
+              <option>FOB com transportadora indicada</option>
+            </select>
+          </div>
+          <div>
+            <label class="req-label">Transportadora</label>
+            <input type="text" placeholder="(opcional)" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          </div>
+          <div class="col-span-2">
+            <label class="req-label">Observações logísticas</label>
+            <textarea rows="3" placeholder="Janela de recebimento, instruções de descarga, contato no local..." class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none">Recebimento das 08h às 16h. Contato no local: Marcos Silva (almoxarifado) — ramal 3411.</textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- SEÇÃO 5: Pagamento -->
+      <section class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md p-6 mb-5">
+        <div class="flex items-center gap-2 mb-5 pb-3 border-b border-[#F1F5F9]">
+          <span class="w-6 h-6 bg-dms-mar text-white rounded-full text-xs font-bold flex items-center justify-center">5</span>
+          <h2 class="text-base font-bold text-dms-mar">Pagamento</h2>
+          <span class="text-xs text-dms-tecnologia ml-2">condição, plano e centro de custo</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-x-6 gap-y-5">
+          <div>
+            <label class="req-label">Condição de pagamento<span class="req-star">*</span></label>
+            <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option>30 dias após emissão NF</option>
+              <option>30/60 dias</option>
+              <option>30/60/90 dias</option>
+              <option>À vista</option>
+              <option>Antecipado</option>
+              <option>Personalizado…</option>
+            </select>
+            <p class="text-xs text-dms-tecnologia mt-1">Padrão do fornecedor: 30 dias após NF</p>
+          </div>
+          <div>
+            <label class="req-label">Nº de parcelas<span class="req-star">*</span></label>
+            <input type="number" value="1" min="1" max="12" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          </div>
+          <div>
+            <label class="req-label">Plano de contas<span class="req-star">*</span></label>
+            <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option>3.1.04.001 — Equipamentos de TI</option>
+              <option>3.1.04.002 — Periféricos e cabos</option>
+              <option>3.2.01.005 — Manutenção operacional</option>
+              <option>3.3.02.001 — Material de escritório</option>
+            </select>
+          </div>
+          <div>
+            <label class="req-label">Centro de custo<span class="req-star">*</span></label>
+            <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option>CC-200 — Tecnologia da Informação</option>
+              <option>CC-100 — Operações</option>
+              <option>CC-300 — Comercial</option>
+              <option>CC-400 — Financeiro</option>
+            </select>
+          </div>
+          <div class="col-span-2 bg-[#F8FAFC] border border-[#E5E7EB] rounded-md p-3 text-sm flex items-center justify-between">
+            <span class="caption text-dms-tecnologia">Vencimento previsto da parcela única</span>
+            <span class="mono font-semibold text-dms-mar">27/06/2026</span>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- Footer fixo de ações -->
+<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E5E7EB] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-30" style="padding-left: var(--dms-sb-w, 240px); transition: padding-left .2s ease;">
+  <div class="max-w-[1100px] mx-auto px-8 py-3 flex items-center justify-between gap-3">
+    <div class="text-xs text-dms-tecnologia">
+      <span class="inline-flex items-center gap-1">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        Pronto para emissão — fornecedor será notificado por e-mail
+      </span>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="tela27-pedidos-list.html" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 hover:text-dms-mar transition-colors">Cancelar</a>
+      <button class="flex items-center gap-2 text-sm font-semibold text-dms-mar px-4 py-2 bg-white border border-dms-mar rounded-md hover:bg-[#F8F9FA] transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+        Salvar rascunho
+      </button>
+      <button class="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2 bg-dms-sabedoria rounded-md hover:opacity-90 transition-colors">
+        Emitir pedido
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const COT_UNIT = {
+  'Notebook Dell Latitude 5450 — i7, 16GB, 512GB': 3750.00,
+  'Monitor LG 27" UltraWide — Full HD': 480.00,
+  'Cabo HDMI 2.1 — 2m': 90.00,
+};
+
+let items = [
+  { desc: 'Notebook Dell Latitude 5450 — i7, 16GB, 512GB', qtd: 3, un: 'UN', vu: 3750.00 },
+  { desc: 'Monitor LG 27" UltraWide — Full HD',             qtd: 3, un: 'UN', vu:  480.00 },
+  { desc: 'Cabo HDMI 2.1 — 2m',                              qtd: 6, un: 'UN', vu:   90.00 },
+];
+
+function fmtBRL(n) { return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+
+function renderItems() {
+  const tbody = document.getElementById('items-tbody');
+  let total = 0;
+  let hasAdj = false;
+  tbody.innerHTML = items.map((it, i) => {
+    const sub = it.qtd * it.vu;
+    total += sub;
+    const origUnit = COT_UNIT[it.desc];
+    const adjusted = origUnit != null && Math.abs(origUnit - it.vu) > 0.001;
+    if (adjusted) hasAdj = true;
+    return `
+    <tr>
+      <td class="px-3 py-2">
+        <div class="text-sm font-medium text-dms-mar">${it.desc}</div>
+        ${adjusted ? `<div class="text-xs text-amber-700 mt-0.5">⚠ valor diverge da cotação (era ${fmtBRL(origUnit)})</div>` : ''}
+      </td>
+      <td class="px-3 py-2">
+        <input type="number" value="${it.qtd}" min="1" onchange="updateItem(${i},'qtd',this.value)" class="input-dms w-full px-2 py-1.5 text-sm text-right border border-[#E5E7EB] rounded-md bg-white">
+      </td>
+      <td class="px-3 py-2 text-sm text-gray-600">${it.un}</td>
+      <td class="px-3 py-2">
+        <input type="number" step="0.01" value="${it.vu.toFixed(2)}" onchange="updateItem(${i},'vu',this.value)" class="input-dms w-full px-2 py-1.5 text-sm text-right border border-[#E5E7EB] rounded-md bg-white mono">
+      </td>
+      <td class="px-3 py-2 text-right mono text-sm font-semibold text-dms-mar">${fmtBRL(sub)}</td>
+      <td class="px-2 py-2 text-center">
+        <button onclick="items.splice(${i},1);renderItems()" class="text-dms-tecnologia hover:text-red-600" aria-label="Remover">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+  document.getElementById('total-pedido').textContent = fmtBRL(total);
+  document.getElementById('ajuste-warn').classList.toggle('hidden', !hasAdj);
+}
+
+function updateItem(i, key, val) {
+  items[i][key] = parseFloat(val) || 0;
+  renderItems();
+}
+
+// Origin toggle
+document.getElementById('origin-cot').addEventListener('click', () => {
+  document.getElementById('origin-cot').classList.add('active');
+  document.getElementById('origin-avl').classList.remove('active');
+  document.getElementById('block-cot').classList.remove('hidden');
+  document.getElementById('block-avl').classList.add('hidden');
+});
+document.getElementById('origin-avl').addEventListener('click', () => {
+  document.getElementById('origin-avl').classList.add('active');
+  document.getElementById('origin-cot').classList.remove('active');
+  document.getElementById('block-avl').classList.remove('hidden');
+  document.getElementById('block-cot').classList.add('hidden');
+});
+
+renderItems();
+</script>
+
+<!-- ===== DMS COLLAPSIBLE SIDEBAR ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.disabled { cursor: not-allowed; opacity: 0.5; }
+  #dms-sidebar a.disabled:hover { background: transparent; }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label,
+  #dms-sidebar.collapsed .sb-section-title,
+  #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label,
+    #dms-sidebar.collapsed .sb-section-title,
+    #dms-sidebar.collapsed .sb-brand-text,
+    #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS Compras</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" title="Cockpit" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🎯</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" title="E-mail" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">E-mail</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" title="Tarefas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" title="Follow-up" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" title="Updates" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" title="Requisições" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" title="Cotações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" title="Pedidos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela01-catalogo-tags.html" title="Tags" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" title="Procedures" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" title="Workflows" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔄</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" title="SOPs" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📚</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" title="Triggers (em breve)" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚡</span><span class="sb-label">Triggers <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" title="Alertas (em breve)" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🚨</span><span class="sb-label">Alertas <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
+        <li><a href="tela12-execution-visibility.html" title="Execuções" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👁️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" title="Auditoria" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">Auditoria</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" title="Match Engine" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" title="Setup" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup &amp; Integrações</span></a></li>
+        <li><a href="tela15-mailia-admin.html" title="MAILIA" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🤖</span><span class="sb-label">MAILIA Admin</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+<script>
+(function(){
+  var sb = document.getElementById('dms-sidebar');
+  var toggle = document.getElementById('sidebar-toggle');
+  var mobBtn = document.getElementById('dms-sidebar-mobile-btn');
+  var overlay = document.getElementById('dms-sidebar-overlay');
+  if (!sb || !toggle) return;
+  var STORAGE_KEY = 'mockup-sidebar-collapsed-v2';
+  var collapsed = false;
+  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
+  try { localStorage.removeItem('mockup-sidebar-collapsed'); } catch(e) {}
+  function isMobile(){ return window.matchMedia('(max-width: 767px)').matches; }
+  function render(){
+    if (collapsed && !isMobile()) {
+      sb.classList.add('collapsed');
+      sb.style.width = '64px';
+      document.documentElement.style.setProperty('--dms-sb-w', '64px');
+    } else {
+      sb.classList.remove('collapsed');
+      sb.style.width = isMobile() ? '280px' : '240px';
+      document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px');
+    }
+  }
+  toggle.addEventListener('click', function(){
+    collapsed = !collapsed;
+    try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {}
+    render();
+  });
+  function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
+  function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
+  if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
+  if (overlay) overlay.addEventListener('click', closeMobile);
+  sb.querySelectorAll('nav a[href]:not(.disabled)').forEach(function(a){
+    a.addEventListener('click', function(){ if (isMobile()) closeMobile(); });
+  });
+  var current = (location.pathname.split('/').pop() || '').toLowerCase();
+  if (current) {
+    sb.querySelectorAll('nav a[href]').forEach(function(a){
+      var href = (a.getAttribute('href') || '').toLowerCase();
+      if (href && href === current) a.classList.add('sb-active');
+    });
+  }
+  window.addEventListener('resize', render);
+  render();
+})();
+</script>
+</body>
+</html>
