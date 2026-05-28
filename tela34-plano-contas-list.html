@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Plano de Contas</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = { corePlugins: { preflight: true }, theme: { extend: { colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } }, fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] }, boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)' } } } };
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .tree-node { transition: background-color 150ms ease; }
+  .tree-node:hover { background-color: #FAFBFC; }
+  .tree-toggle { cursor: pointer; user-select: none; }
+  .tree-toggle .chev { transition: transform .15s; }
+  .tree-children.collapsed { display: none; }
+  .tree-toggle.open .chev { transform: rotate(90deg); }
+  .node-actions { opacity: 0; transition: opacity 150ms ease; }
+  .tree-node:hover .node-actions { opacity: 1; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Cadastros</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Plano de Contas</span>
+      </nav>
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Buscar em todo o sistema..." class="input-dms w-[260px] pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA]">
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <div class="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Plano de Contas</h1>
+          </div>
+          <p class="text-sm text-dms-tecnologia max-w-3xl">Estrutura contábil hierárquica para classificação de receitas, despesas, ativos, passivos e patrimônio. Cada conta analítica recebe lançamentos.</p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button class="flex items-center gap-2 text-sm font-medium text-dms-mar px-4 py-2.5 border border-dms-mar/30 rounded-md hover:bg-dms-mar/5 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M16 8l-4-4m0 0L8 8m4-4v12"/></svg>
+            Importar Excel
+          </button>
+          <a href="tela35-plano-conta-form.html" class="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 bg-dms-sabedoria rounded-md hover:opacity-90 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Nova Conta
+          </a>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 mb-4 flex-wrap">
+        <div class="relative flex-1 min-w-[260px] max-w-md">
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Buscar por código ou nome..." class="input-dms w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+        </div>
+        <select class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+          <option value="">Tipo</option>
+          <option>Receita</option><option>Despesa</option><option>Ativo</option><option>Passivo</option><option>Patrimônio Líquido</option>
+        </select>
+        <select class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+          <option value="">Nível</option>
+          <option>1 — Grupo</option><option>2 — Subgrupo</option><option>3 — Conta</option><option>4 — Subconta</option>
+        </select>
+        <div class="ml-auto flex items-center gap-2">
+          <button id="expand-all" class="text-sm font-medium text-dms-tecnologia hover:text-dms-mar px-3 py-2">Expandir tudo</button>
+          <button id="collapse-all" class="text-sm font-medium text-dms-tecnologia hover:text-dms-mar px-3 py-2">Colapsar tudo</button>
+        </div>
+      </div>
+
+      <div class="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden shadow-dms-md">
+        <!-- header de colunas -->
+        <div class="grid items-center bg-[#F8F9FA] border-b border-[#E5E7EB] px-4 py-3 text-xs caption text-dms-tecnologia" style="grid-template-columns: 1fr 110px 140px 24px;">
+          <div>Código / Nome</div>
+          <div>Tipo</div>
+          <div class="text-right">Saldo orçado</div>
+          <div></div>
+        </div>
+
+        <div id="tree-root">
+          <!-- 3 - DESPESAS -->
+          <div class="tree-node" style="border-bottom: 1px solid #F0F0F0;">
+            <div class="tree-toggle open grid items-center px-4 py-2.5" data-target="g-3" style="grid-template-columns: 1fr 110px 140px 24px;">
+              <div class="flex items-center gap-2">
+                <svg class="chev w-3 h-3 text-dms-mar" fill="currentColor" viewBox="0 0 20 20"><path d="M6 4l8 6-8 6V4z"/></svg>
+                <span class="mono text-sm text-dms-mar font-bold">3</span>
+                <span class="text-sm font-bold text-dms-mar">DESPESAS</span>
+              </div>
+              <div><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border bg-red-50 text-red-700 border-red-200">Despesa</span></div>
+              <div class="text-right mono text-sm text-dms-mar font-semibold">R$ 4.820.000,00</div>
+              <div></div>
+            </div>
+            <div id="g-3" class="tree-children" style="padding-left: 28px;">
+
+              <div class="tree-node" style="border-top: 1px solid #F0F0F0;">
+                <div class="tree-toggle open grid items-center px-4 py-2.5" data-target="g-31" style="grid-template-columns: 1fr 110px 140px 24px;">
+                  <div class="flex items-center gap-2">
+                    <svg class="chev w-3 h-3 text-dms-confianca" fill="currentColor" viewBox="0 0 20 20"><path d="M6 4l8 6-8 6V4z"/></svg>
+                    <span class="mono text-sm text-dms-confianca font-semibold">3.1</span>
+                    <span class="text-sm text-gray-800">Operacional</span>
+                  </div>
+                  <div><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border bg-red-50 text-red-700 border-red-200">Despesa</span></div>
+                  <div class="text-right mono text-sm text-gray-700">R$ 3.420.000,00</div>
+                  <div></div>
+                </div>
+                <div id="g-31" class="tree-children" style="padding-left: 28px;">
+                  <a href="tela35-plano-conta-form.html" class="tree-node block" style="border-top: 1px solid #F0F0F0; text-decoration:none; color:inherit;">
+                    <div class="grid items-center px-4 py-2.5" style="grid-template-columns: 1fr 110px 140px 24px;">
+                      <div class="flex items-center gap-2 pl-4">
+                        <span class="w-3 h-3"></span>
+                        <span class="mono text-sm text-gray-600">3.1.01</span>
+                        <span class="text-sm text-gray-700">Combustível</span>
+                        <span class="text-[10px] uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1.5 py-0.5 ml-1">Analítica</span>
+                      </div>
+                      <div><span class="text-xs text-dms-tecnologia">—</span></div>
+                      <div class="text-right mono text-sm text-gray-700">R$ 1.240.000,00</div>
+                      <div></div>
+                    </div>
+                  </a>
+                  <a href="tela35-plano-conta-form.html" class="tree-node block" style="border-top: 1px solid #F0F0F0; text-decoration:none; color:inherit;">
+                    <div class="grid items-center px-4 py-2.5" style="grid-template-columns: 1fr 110px 140px 24px;">
+                      <div class="flex items-center gap-2 pl-4">
+                        <span class="w-3 h-3"></span>
+                        <span class="mono text-sm text-gray-600">3.1.02</span>
+                        <span class="text-sm text-gray-700">Manutenção de Frota</span>
+                        <span class="text-[10px] uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1.5 py-0.5 ml-1">Analítica</span>
+                      </div>
+                      <div><span class="text-xs text-dms-tecnologia">—</span></div>
+                      <div class="text-right mono text-sm text-gray-700">R$ 880.000,00</div>
+                      <div></div>
+                    </div>
+                  </a>
+                  <a href="tela35-plano-conta-form.html" class="tree-node block" style="border-top: 1px solid #F0F0F0; text-decoration:none; color:inherit;">
+                    <div class="grid items-center px-4 py-2.5" style="grid-template-columns: 1fr 110px 140px 24px;">
+                      <div class="flex items-center gap-2 pl-4">
+                        <span class="w-3 h-3"></span>
+                        <span class="mono text-sm text-gray-600">3.1.03</span>
+                        <span class="text-sm text-gray-700">Pedágio</span>
+                        <span class="text-[10px] uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1.5 py-0.5 ml-1">Analítica</span>
+                      </div>
+                      <div><span class="text-xs text-dms-tecnologia">—</span></div>
+                      <div class="text-right mono text-sm text-gray-700">R$ 410.000,00</div>
+                      <div></div>
+                    </div>
+                  </a>
+                  <a href="tela35-plano-conta-form.html" class="tree-node block" style="border-top: 1px solid #F0F0F0; text-decoration:none; color:inherit;">
+                    <div class="grid items-center px-4 py-2.5" style="grid-template-columns: 1fr 110px 140px 24px;">
+                      <div class="flex items-center gap-2 pl-4">
+                        <span class="w-3 h-3"></span>
+                        <span class="mono text-sm text-gray-600">3.1.04</span>
+                        <span class="text-sm text-gray-700">Material de Embalagem</span>
+                        <span class="text-[10px] uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1.5 py-0.5 ml-1">Analítica</span>
+                      </div>
+                      <div><span class="text-xs text-dms-tecnologia">—</span></div>
+                      <div class="text-right mono text-sm text-gray-700">R$ 890.000,00</div>
+                      <div></div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+              <div class="tree-node" style="border-top: 1px solid #F0F0F0;">
+                <div class="tree-toggle grid items-center px-4 py-2.5" data-target="g-32" style="grid-template-columns: 1fr 110px 140px 24px;">
+                  <div class="flex items-center gap-2">
+                    <svg class="chev w-3 h-3 text-dms-confianca" fill="currentColor" viewBox="0 0 20 20"><path d="M6 4l8 6-8 6V4z"/></svg>
+                    <span class="mono text-sm text-dms-confianca font-semibold">3.2</span>
+                    <span class="text-sm text-gray-800">Administrativa</span>
+                  </div>
+                  <div><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border bg-red-50 text-red-700 border-red-200">Despesa</span></div>
+                  <div class="text-right mono text-sm text-gray-700">R$ 980.000,00</div>
+                  <div></div>
+                </div>
+                <div id="g-32" class="tree-children collapsed" style="padding-left: 28px;">
+                  <a href="tela35-plano-conta-form.html" class="tree-node block" style="border-top: 1px solid #F0F0F0; text-decoration:none; color:inherit;">
+                    <div class="grid items-center px-4 py-2.5" style="grid-template-columns: 1fr 110px 140px 24px;">
+                      <div class="flex items-center gap-2 pl-4"><span class="w-3 h-3"></span><span class="mono text-sm text-gray-600">3.2.01</span><span class="text-sm text-gray-700">Salários e Encargos</span><span class="text-[10px] uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1.5 py-0.5 ml-1">Analítica</span></div>
+                      <div></div><div class="text-right mono text-sm text-gray-700">R$ 620.000,00</div><div></div>
+                    </div>
+                  </a>
+                  <a href="tela35-plano-conta-form.html" class="tree-node block" style="border-top: 1px solid #F0F0F0; text-decoration:none; color:inherit;">
+                    <div class="grid items-center px-4 py-2.5" style="grid-template-columns: 1fr 110px 140px 24px;">
+                      <div class="flex items-center gap-2 pl-4"><span class="w-3 h-3"></span><span class="mono text-sm text-gray-600">3.2.02</span><span class="text-sm text-gray-700">Aluguel e Condomínio</span><span class="text-[10px] uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1.5 py-0.5 ml-1">Analítica</span></div>
+                      <div></div><div class="text-right mono text-sm text-gray-700">R$ 240.000,00</div><div></div>
+                    </div>
+                  </a>
+                  <a href="tela35-plano-conta-form.html" class="tree-node block" style="border-top: 1px solid #F0F0F0; text-decoration:none; color:inherit;">
+                    <div class="grid items-center px-4 py-2.5" style="grid-template-columns: 1fr 110px 140px 24px;">
+                      <div class="flex items-center gap-2 pl-4"><span class="w-3 h-3"></span><span class="mono text-sm text-gray-600">3.2.03</span><span class="text-sm text-gray-700">Material de Escritório</span><span class="text-[10px] uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1.5 py-0.5 ml-1">Analítica</span></div>
+                      <div></div><div class="text-right mono text-sm text-gray-700">R$ 120.000,00</div><div></div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+              <div class="tree-node" style="border-top: 1px solid #F0F0F0;">
+                <div class="tree-toggle grid items-center px-4 py-2.5" data-target="g-33" style="grid-template-columns: 1fr 110px 140px 24px;">
+                  <div class="flex items-center gap-2">
+                    <svg class="chev w-3 h-3 text-dms-confianca" fill="currentColor" viewBox="0 0 20 20"><path d="M6 4l8 6-8 6V4z"/></svg>
+                    <span class="mono text-sm text-dms-confianca font-semibold">3.3</span>
+                    <span class="text-sm text-gray-800">Comercial</span>
+                  </div>
+                  <div><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border bg-red-50 text-red-700 border-red-200">Despesa</span></div>
+                  <div class="text-right mono text-sm text-gray-700">R$ 420.000,00</div>
+                  <div></div>
+                </div>
+                <div id="g-33" class="tree-children collapsed" style="padding-left: 28px;">
+                  <a href="tela35-plano-conta-form.html" class="tree-node block" style="border-top: 1px solid #F0F0F0; text-decoration:none; color:inherit;">
+                    <div class="grid items-center px-4 py-2.5" style="grid-template-columns: 1fr 110px 140px 24px;">
+                      <div class="flex items-center gap-2 pl-4"><span class="w-3 h-3"></span><span class="mono text-sm text-gray-600">3.3.01</span><span class="text-sm text-gray-700">Marketing e Publicidade</span><span class="text-[10px] uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1.5 py-0.5 ml-1">Analítica</span></div>
+                      <div></div><div class="text-right mono text-sm text-gray-700">R$ 280.000,00</div><div></div>
+                    </div>
+                  </a>
+                  <a href="tela35-plano-conta-form.html" class="tree-node block" style="border-top: 1px solid #F0F0F0; text-decoration:none; color:inherit;">
+                    <div class="grid items-center px-4 py-2.5" style="grid-template-columns: 1fr 110px 140px 24px;">
+                      <div class="flex items-center gap-2 pl-4"><span class="w-3 h-3"></span><span class="mono text-sm text-gray-600">3.3.02</span><span class="text-sm text-gray-700">Comissões sobre Vendas</span><span class="text-[10px] uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-1.5 py-0.5 ml-1">Analítica</span></div>
+                      <div></div><div class="text-right mono text-sm text-gray-700">R$ 140.000,00</div><div></div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- 4 - RECEITAS -->
+          <div class="tree-node" style="border-top: 1px solid #F0F0F0;">
+            <div class="tree-toggle grid items-center px-4 py-2.5" data-target="g-4" style="grid-template-columns: 1fr 110px 140px 24px;">
+              <div class="flex items-center gap-2">
+                <svg class="chev w-3 h-3 text-dms-mar" fill="currentColor" viewBox="0 0 20 20"><path d="M6 4l8 6-8 6V4z"/></svg>
+                <span class="mono text-sm text-dms-mar font-bold">4</span>
+                <span class="text-sm font-bold text-dms-mar">RECEITAS</span>
+              </div>
+              <div><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border bg-emerald-50 text-emerald-700 border-emerald-200">Receita</span></div>
+              <div class="text-right mono text-sm text-dms-mar font-semibold">R$ 7.350.000,00</div>
+              <div></div>
+            </div>
+            <div id="g-4" class="tree-children collapsed" style="padding-left: 28px;">
+              <a href="tela35-plano-conta-form.html" class="tree-node block" style="border-top: 1px solid #F0F0F0; text-decoration:none; color:inherit;">
+                <div class="grid items-center px-4 py-2.5" style="grid-template-columns: 1fr 110px 140px 24px;">
+                  <div class="flex items-center gap-2"><span class="w-3 h-3"></span><span class="mono text-sm text-dms-confianca font-semibold">4.1</span><span class="text-sm text-gray-700">Prestação de Serviços</span></div>
+                  <div></div><div class="text-right mono text-sm text-gray-700">R$ 5.820.000,00</div><div></div>
+                </div>
+              </a>
+              <a href="tela35-plano-conta-form.html" class="tree-node block" style="border-top: 1px solid #F0F0F0; text-decoration:none; color:inherit;">
+                <div class="grid items-center px-4 py-2.5" style="grid-template-columns: 1fr 110px 140px 24px;">
+                  <div class="flex items-center gap-2"><span class="w-3 h-3"></span><span class="mono text-sm text-dms-confianca font-semibold">4.2</span><span class="text-sm text-gray-700">Vendas de Mercadorias</span></div>
+                  <div></div><div class="text-right mono text-sm text-gray-700">R$ 1.530.000,00</div><div></div>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- 1 - ATIVO -->
+          <div class="tree-node" style="border-top: 1px solid #F0F0F0;">
+            <div class="tree-toggle grid items-center px-4 py-2.5" data-target="g-1" style="grid-template-columns: 1fr 110px 140px 24px;">
+              <div class="flex items-center gap-2">
+                <svg class="chev w-3 h-3 text-dms-mar" fill="currentColor" viewBox="0 0 20 20"><path d="M6 4l8 6-8 6V4z"/></svg>
+                <span class="mono text-sm text-dms-mar font-bold">1</span>
+                <span class="text-sm font-bold text-dms-mar">ATIVO</span>
+              </div>
+              <div><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border bg-sky-50 text-sky-700 border-sky-200">Ativo</span></div>
+              <div class="text-right mono text-sm text-dms-mar font-semibold">R$ 12.430.000,00</div>
+              <div></div>
+            </div>
+            <div id="g-1" class="tree-children collapsed" style="padding-left: 28px;">
+              <a href="tela35-plano-conta-form.html" class="tree-node block" style="border-top: 1px solid #F0F0F0; text-decoration:none; color:inherit;">
+                <div class="grid items-center px-4 py-2.5" style="grid-template-columns: 1fr 110px 140px 24px;">
+                  <div class="flex items-center gap-2"><span class="w-3 h-3"></span><span class="mono text-sm text-dms-confianca font-semibold">1.1</span><span class="text-sm text-gray-700">Ativo Circulante</span></div>
+                  <div></div><div class="text-right mono text-sm text-gray-700">R$ 5.840.000,00</div><div></div>
+                </div>
+              </a>
+              <a href="tela35-plano-conta-form.html" class="tree-node block" style="border-top: 1px solid #F0F0F0; text-decoration:none; color:inherit;">
+                <div class="grid items-center px-4 py-2.5" style="grid-template-columns: 1fr 110px 140px 24px;">
+                  <div class="flex items-center gap-2"><span class="w-3 h-3"></span><span class="mono text-sm text-dms-confianca font-semibold">1.2</span><span class="text-sm text-gray-700">Ativo Não Circulante</span></div>
+                  <div></div><div class="text-right mono text-sm text-gray-700">R$ 6.590.000,00</div><div></div>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- 2 - PASSIVO -->
+          <div class="tree-node" style="border-top: 1px solid #F0F0F0;">
+            <div class="tree-toggle grid items-center px-4 py-2.5" data-target="g-2" style="grid-template-columns: 1fr 110px 140px 24px;">
+              <div class="flex items-center gap-2">
+                <svg class="chev w-3 h-3 text-dms-mar" fill="currentColor" viewBox="0 0 20 20"><path d="M6 4l8 6-8 6V4z"/></svg>
+                <span class="mono text-sm text-dms-mar font-bold">2</span>
+                <span class="text-sm font-bold text-dms-mar">PASSIVO</span>
+              </div>
+              <div><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border bg-amber-50 text-amber-700 border-amber-200">Passivo</span></div>
+              <div class="text-right mono text-sm text-dms-mar font-semibold">R$ 8.120.000,00</div>
+              <div></div>
+            </div>
+            <div id="g-2" class="tree-children collapsed" style="padding-left: 28px;"></div>
+          </div>
+        </div>
+
+        <div id="empty-state" class="hidden text-center py-16 px-6">
+          <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <div class="text-sm font-semibold text-dms-mar mb-1">Plano de contas vazio</div>
+          <div class="text-xs text-dms-tecnologia mb-4">Importe um plano de contas existente ou crie a primeira conta manualmente.</div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.tree-toggle').forEach(t => {
+  t.addEventListener('click', (e) => {
+    if (e.target.closest('a')) return;
+    const tgtId = t.dataset.target;
+    const tgt = document.getElementById(tgtId);
+    if (!tgt) return;
+    const open = !tgt.classList.contains('collapsed');
+    if (open) { tgt.classList.add('collapsed'); t.classList.remove('open'); }
+    else { tgt.classList.remove('collapsed'); t.classList.add('open'); }
+  });
+});
+document.getElementById('expand-all').addEventListener('click', () => {
+  document.querySelectorAll('.tree-children').forEach(c => c.classList.remove('collapsed'));
+  document.querySelectorAll('.tree-toggle').forEach(t => t.classList.add('open'));
+});
+document.getElementById('collapse-all').addEventListener('click', () => {
+  document.querySelectorAll('.tree-children').forEach(c => c.classList.add('collapsed'));
+  document.querySelectorAll('.tree-toggle').forEach(t => t.classList.remove('open'));
+});
+</script>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR (M4) ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label,
+  #dms-sidebar.collapsed .sb-section-title,
+  #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+      <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+      <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+      <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+      <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+      <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+    </ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+      <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+      <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+      <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+    </ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+      <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+      <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+      <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+      <li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+    </ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+      <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+      <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+      <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+      <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+      <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+      <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
+    </ul></div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+      <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+      <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+      <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+    </ul></div>
+  </nav>
+</aside>
+<script>
+(function(){
+  var sb = document.getElementById('dms-sidebar'); var toggle = document.getElementById('sidebar-toggle');
+  var mobBtn = document.getElementById('dms-sidebar-mobile-btn'); var overlay = document.getElementById('dms-sidebar-overlay');
+  if (!sb || !toggle) return;
+  var STORAGE_KEY = 'mockup-sidebar-collapsed-v2'; var collapsed = false;
+  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
+  function isMobile(){ return window.matchMedia('(max-width: 767px)').matches; }
+  function render(){ if (collapsed && !isMobile()) { sb.classList.add('collapsed'); sb.style.width = '64px'; document.documentElement.style.setProperty('--dms-sb-w', '64px'); } else { sb.classList.remove('collapsed'); sb.style.width = isMobile() ? '280px' : '240px'; document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px'); } }
+  toggle.addEventListener('click', function(){ collapsed = !collapsed; try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {} render(); });
+  function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
+  function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
+  if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
+  if (overlay) overlay.addEventListener('click', closeMobile);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){ a.addEventListener('click', function(){ if (isMobile()) closeMobile(); }); });
+  var current = (location.pathname.split('/').pop() || '').toLowerCase();
+  if (current) { sb.querySelectorAll('nav a[href]').forEach(function(a){ var h = (a.getAttribute('href') || '').toLowerCase(); if (h && h === current) a.classList.add('sb-active'); }); }
+  window.addEventListener('resize', render); render();
+})();
+</script>
+</body>
+</html>

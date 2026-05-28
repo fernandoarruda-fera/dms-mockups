@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Empresas</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C', ceu: '#00AEEE', confianca: '#005290',
+          sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+        'dms-lg': '0 10px 15px -3px rgba(0, 56, 108, 0.10), 0 4px 6px -2px rgba(0, 56, 108, 0.05)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  tbody tr { transition: background-color 150ms ease; cursor: pointer; }
+  tbody tr:hover { background-color: #FAFBFC; }
+  .row-actions { opacity: 0; transition: opacity 150ms ease; }
+  tbody tr:hover .row-actions { opacity: 1; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Cadastros</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Empresas</span>
+      </nav>
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Buscar em todo o sistema..." class="input-dms w-[260px] pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA]">
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <div class="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Empresas</h1>
+          </div>
+          <p class="text-sm text-dms-tecnologia max-w-3xl">Empresas (CNPJs) vinculadas ao grupo. Cada empresa tem seus centros de custo, plano de contas e configurações fiscais próprias.</p>
+        </div>
+        <a href="tela31-empresa-form.html" class="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 bg-dms-sabedoria rounded-md hover:opacity-90 transition-colors flex-shrink-0">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Nova Empresa
+        </a>
+      </div>
+
+      <div class="flex items-center gap-3 mb-4 flex-wrap">
+        <div class="relative flex-1 min-w-[260px] max-w-md">
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input id="search-input" type="text" placeholder="Buscar por CNPJ, razão social ou nome fantasia..." class="input-dms w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+        </div>
+        <select class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+          <option value="">Estado (UF)</option>
+          <option>SP</option><option>RJ</option><option>MG</option><option>PR</option><option>RS</option><option>SC</option><option>BA</option>
+        </select>
+        <select id="status-filter" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+          <option value="">Status</option>
+          <option value="ativa">Ativa</option>
+          <option value="inativa">Inativa</option>
+        </select>
+        <button class="flex items-center gap-2 text-sm font-medium text-dms-tecnologia px-3 py-2 bg-white border border-[#E5E7EB] rounded-md hover:text-dms-mar transition-colors ml-auto">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Exportar
+        </button>
+      </div>
+
+      <div class="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden shadow-dms-md">
+        <table id="emp-table" class="w-full text-sm">
+          <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+            <tr>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">Razão Social</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">CNPJ</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">Nome Fantasia</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">UF</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">Cidade</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-3">Status</th>
+              <th class="text-right caption text-dms-tecnologia px-4 py-3">CCs</th>
+              <th class="text-right caption text-dms-tecnologia px-4 py-3 w-24">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="emp-tbody" class="divide-y divide-[#E5E7EB]"></tbody>
+        </table>
+
+        <div id="empty-state" class="hidden text-center py-16 px-6">
+          <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          <div class="text-sm font-semibold text-dms-mar mb-1">Nenhuma empresa cadastrada</div>
+          <div class="text-xs text-dms-tecnologia mb-4">Cadastre a primeira empresa do grupo para começar a vincular centros de custo.</div>
+          <a href="tela31-empresa-form.html" class="inline-flex items-center gap-2 text-sm font-semibold text-white px-4 py-2 bg-dms-sabedoria rounded-md hover:opacity-90 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Nova Empresa
+          </a>
+        </div>
+
+        <div class="px-4 py-3 border-t border-[#E5E7EB] flex items-center justify-between text-sm text-dms-tecnologia">
+          <div>Mostrando <span class="font-semibold text-dms-mar" id="row-count">6</span> de <span class="font-semibold text-dms-mar">6</span> empresas</div>
+          <div class="flex items-center gap-1">
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors disabled:opacity-30" disabled>‹ Anterior</button>
+            <button class="px-3 py-1 text-white bg-dms-mar rounded">1</button>
+            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors disabled:opacity-30" disabled>Próximo ›</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+const MOCK_EMP = [
+  { rs: 'DMS Logística e Transportes Ltda.',  cnpj: '12.345.678/0001-90', fant: 'DMS Logística',     uf: 'SP', cidade: 'São Paulo',     status: 'ativa',   ccs: 14 },
+  { rs: 'DMS Comércio e Distribuição S.A.',   cnpj: '12.345.678/0002-71', fant: 'DMS Distribuição', uf: 'SP', cidade: 'Guarulhos',     status: 'ativa',   ccs: 8  },
+  { rs: 'DMS Filial Sul Ltda.',                cnpj: '12.345.678/0003-52', fant: 'DMS Sul',          uf: 'PR', cidade: 'Curitiba',      status: 'ativa',   ccs: 6  },
+  { rs: 'DMS Operações Nordeste Ltda.',       cnpj: '12.345.678/0004-33', fant: 'DMS Nordeste',     uf: 'BA', cidade: 'Salvador',      status: 'ativa',   ccs: 5  },
+  { rs: 'DMS Centro-Oeste Ltda.',              cnpj: '12.345.678/0005-14', fant: 'DMS CO',           uf: 'GO', cidade: 'Goiânia',       status: 'inativa', ccs: 2  },
+  { rs: 'DMS Holdings S.A.',                   cnpj: '98.765.432/0001-10', fant: 'DMS Holdings',     uf: 'SP', cidade: 'São Paulo',     status: 'ativa',   ccs: 3  },
+];
+
+const STATUS = {
+  ativa:   { label: 'Ativa',   cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  inativa: { label: 'Inativa', cls: 'bg-gray-50 text-gray-600 border-gray-200' },
+};
+
+let statusFilter = '';
+let searchQuery = '';
+
+function renderRows() {
+  const tbody = document.getElementById('emp-tbody');
+  let rows = MOCK_EMP;
+  if (statusFilter) rows = rows.filter(r => r.status === statusFilter);
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    rows = rows.filter(r =>
+      r.rs.toLowerCase().includes(q) ||
+      r.cnpj.includes(q) ||
+      r.fant.toLowerCase().includes(q)
+    );
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr onclick="window.location.href='tela31-empresa-form.html'">
+      <td class="px-4 py-3 text-dms-mar font-semibold">${r.rs}</td>
+      <td class="px-4 py-3 mono text-gray-700">${r.cnpj}</td>
+      <td class="px-4 py-3 text-gray-800">${r.fant}</td>
+      <td class="px-4 py-3 text-gray-600">${r.uf}</td>
+      <td class="px-4 py-3 text-gray-600">${r.cidade}</td>
+      <td class="px-4 py-3"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${STATUS[r.status].cls}">${STATUS[r.status].label}</span></td>
+      <td class="px-4 py-3 text-right mono text-dms-mar font-medium">${r.ccs}</td>
+      <td class="px-4 py-3 text-right">
+        <div class="row-actions inline-flex items-center gap-1" onclick="event.stopPropagation()">
+          <a href="tela31-empresa-form.html" class="p-1.5 text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] rounded transition-colors" title="Editar">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+          </a>
+          <button class="p-1.5 text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] rounded transition-colors" title="Mais">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+  document.getElementById('row-count').textContent = rows.length;
+  document.getElementById('empty-state').classList.toggle('hidden', rows.length > 0);
+  document.getElementById('emp-table').classList.toggle('hidden', rows.length === 0);
+}
+
+document.getElementById('status-filter').addEventListener('change', e => { statusFilter = e.target.value; renderRows(); });
+document.getElementById('search-input').addEventListener('input', e => { searchQuery = e.target.value; renderRows(); });
+renderRows();
+</script>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR (M4) ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label,
+  #dms-sidebar.collapsed .sb-section-title,
+  #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label,
+    #dms-sidebar.collapsed .sb-section-title,
+    #dms-sidebar.collapsed .sb-brand-text,
+    #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" title="Cockpit" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" title="Email" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" title="Tarefas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" title="Follow-up" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" title="Updates" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" title="Requisições" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" title="Cotações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" title="Pedidos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela30-empresas-list.html" title="Empresas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" title="Centros de Custo" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" title="Plano de Contas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+        <li><a href="tela36-pre-lancamentos-list.html" title="Pré-lançamentos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela01-catalogo-tags.html" title="Tags" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" title="Procedures" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" title="Workflows" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" title="SOPs" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" title="Execuções" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" title="Auditoria" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" title="Match Engine" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" title="Setup" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" title="MAILIA Admin" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+<script>
+(function(){
+  var sb = document.getElementById('dms-sidebar');
+  var toggle = document.getElementById('sidebar-toggle');
+  var mobBtn = document.getElementById('dms-sidebar-mobile-btn');
+  var overlay = document.getElementById('dms-sidebar-overlay');
+  if (!sb || !toggle) return;
+  var STORAGE_KEY = 'mockup-sidebar-collapsed-v2';
+  var collapsed = false;
+  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
+  function isMobile(){ return window.matchMedia('(max-width: 767px)').matches; }
+  function render(){
+    if (collapsed && !isMobile()) {
+      sb.classList.add('collapsed');
+      sb.style.width = '64px';
+      document.documentElement.style.setProperty('--dms-sb-w', '64px');
+    } else {
+      sb.classList.remove('collapsed');
+      sb.style.width = isMobile() ? '280px' : '240px';
+      document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px');
+    }
+  }
+  toggle.addEventListener('click', function(){
+    collapsed = !collapsed;
+    try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {}
+    render();
+  });
+  function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
+  function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
+  if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
+  if (overlay) overlay.addEventListener('click', closeMobile);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){ a.addEventListener('click', function(){ if (isMobile()) closeMobile(); }); });
+  var current = (location.pathname.split('/').pop() || '').toLowerCase();
+  if (current) {
+    sb.querySelectorAll('nav a[href]').forEach(function(a){
+      var href = (a.getAttribute('href') || '').toLowerCase();
+      if (href && href === current) a.classList.add('sb-active');
+    });
+  }
+  window.addEventListener('resize', render);
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Nova Empresa</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: { colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } }, fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] }, boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)' } } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .field-label { font-size: 12px; font-weight: 600; color: #00386C; letter-spacing: 0.02em; }
+  .req::after { content: ' *'; color: #DC2626; }
+  .section-title { font-size: 14px; font-weight: 700; color: #00386C; text-transform: uppercase; letter-spacing: 0.06em; }
+</style>
+</head>
+<body class="min-h-screen pb-24">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Cadastros</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <a href="tela30-empresas-list.html" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Empresas</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Nova</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1080px] w-full mx-auto">
+
+      <div class="mb-6">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h1 class="text-[32px] leading-[40px] font-bold text-dms-mar">Nova Empresa</h1>
+        </div>
+        <p class="text-sm text-dms-tecnologia">Cadastre uma empresa (CNPJ) vinculada ao grupo. Após salvar, será possível vincular centros de custo e plano de contas específicos.</p>
+      </div>
+
+      <!-- IDENTIFICAÇÃO -->
+      <section class="bg-white border border-[#E5E7EB] rounded-lg p-6 mb-6 shadow-dms-md">
+        <div class="flex items-center gap-2 mb-5">
+          <div class="w-1 h-5 bg-dms-ceu rounded-sm"></div>
+          <h2 class="section-title">Identificação</h2>
+        </div>
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-8">
+            <label class="field-label req block mb-1.5">Razão Social</label>
+            <input type="text" placeholder="Ex.: DMS Logística e Transportes Ltda." class="input-dms w-full text-sm border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white"/>
+          </div>
+          <div class="col-span-4">
+            <label class="field-label block mb-1.5">Nome Fantasia</label>
+            <input type="text" placeholder="DMS Logística" class="input-dms w-full text-sm border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white"/>
+          </div>
+          <div class="col-span-4">
+            <label class="field-label req block mb-1.5">CNPJ</label>
+            <input type="text" placeholder="00.000.000/0000-00" class="input-dms w-full text-sm mono border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white"/>
+          </div>
+          <div class="col-span-4">
+            <label class="field-label block mb-1.5">Inscrição Estadual</label>
+            <input type="text" placeholder="000.000.000.000" class="input-dms w-full text-sm mono border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white"/>
+          </div>
+          <div class="col-span-4">
+            <label class="field-label block mb-1.5">Inscrição Municipal</label>
+            <input type="text" placeholder="0000000000" class="input-dms w-full text-sm mono border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white"/>
+          </div>
+        </div>
+      </section>
+
+      <!-- ENDEREÇO -->
+      <section class="bg-white border border-[#E5E7EB] rounded-lg p-6 mb-6 shadow-dms-md">
+        <div class="flex items-center gap-2 mb-5">
+          <div class="w-1 h-5 bg-dms-ceu rounded-sm"></div>
+          <h2 class="section-title">Endereço</h2>
+        </div>
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-3">
+            <label class="field-label block mb-1.5">CEP</label>
+            <input type="text" placeholder="00000-000" class="input-dms w-full text-sm mono border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white"/>
+          </div>
+          <div class="col-span-7">
+            <label class="field-label block mb-1.5">Logradouro</label>
+            <input type="text" placeholder="Av. das Nações Unidas" class="input-dms w-full text-sm border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white"/>
+          </div>
+          <div class="col-span-2">
+            <label class="field-label block mb-1.5">Número</label>
+            <input type="text" placeholder="14401" class="input-dms w-full text-sm border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white"/>
+          </div>
+          <div class="col-span-4">
+            <label class="field-label block mb-1.5">Complemento</label>
+            <input type="text" placeholder="Sala 1208" class="input-dms w-full text-sm border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white"/>
+          </div>
+          <div class="col-span-4">
+            <label class="field-label block mb-1.5">Bairro</label>
+            <input type="text" placeholder="Vila Gertrudes" class="input-dms w-full text-sm border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white"/>
+          </div>
+          <div class="col-span-3">
+            <label class="field-label block mb-1.5">Cidade</label>
+            <input type="text" placeholder="São Paulo" class="input-dms w-full text-sm border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white"/>
+          </div>
+          <div class="col-span-1">
+            <label class="field-label block mb-1.5">UF</label>
+            <select class="input-dms w-full text-sm border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white cursor-pointer">
+              <option>SP</option><option>RJ</option><option>MG</option><option>PR</option><option>RS</option><option>SC</option><option>BA</option><option>GO</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTATO -->
+      <section class="bg-white border border-[#E5E7EB] rounded-lg p-6 mb-6 shadow-dms-md">
+        <div class="flex items-center gap-2 mb-5">
+          <div class="w-1 h-5 bg-dms-ceu rounded-sm"></div>
+          <h2 class="section-title">Contato</h2>
+        </div>
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-5">
+            <label class="field-label block mb-1.5">Email principal</label>
+            <input type="email" placeholder="contato@dmslog.com" class="input-dms w-full text-sm border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white"/>
+          </div>
+          <div class="col-span-3">
+            <label class="field-label block mb-1.5">Telefone</label>
+            <input type="text" placeholder="(11) 0000-0000" class="input-dms w-full text-sm mono border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white"/>
+          </div>
+          <div class="col-span-4">
+            <label class="field-label block mb-1.5">Site</label>
+            <input type="text" placeholder="www.dmslog.com" class="input-dms w-full text-sm border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white"/>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONFIGURAÇÕES FISCAIS -->
+      <section class="bg-white border border-[#E5E7EB] rounded-lg p-6 mb-6 shadow-dms-md">
+        <div class="flex items-center gap-2 mb-5">
+          <div class="w-1 h-5 bg-dms-ceu rounded-sm"></div>
+          <h2 class="section-title">Configurações Fiscais</h2>
+        </div>
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-6">
+            <label class="field-label block mb-1.5">Regime tributário</label>
+            <select class="input-dms w-full text-sm border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white cursor-pointer">
+              <option>Lucro Real</option><option>Lucro Presumido</option><option>Simples Nacional</option><option>MEI</option>
+            </select>
+          </div>
+          <div class="col-span-6">
+            <label class="field-label block mb-1.5">Tipo de empresa</label>
+            <div class="flex gap-3">
+              <label class="flex-1 flex items-center gap-2 px-3 py-2.5 border border-[#E5E7EB] rounded-md cursor-pointer hover:border-dms-ceu">
+                <input type="radio" name="tipo" class="text-dms-ceu" checked> <span class="text-sm">Matriz</span>
+              </label>
+              <label class="flex-1 flex items-center gap-2 px-3 py-2.5 border border-[#E5E7EB] rounded-md cursor-pointer hover:border-dms-ceu">
+                <input type="radio" name="tipo" class="text-dms-ceu"> <span class="text-sm">Filial</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CC VINCULADOS -->
+      <section class="bg-white border border-[#E5E7EB] rounded-lg p-6 mb-6 shadow-dms-md">
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex items-center gap-2">
+            <div class="w-1 h-5 bg-dms-ceu rounded-sm"></div>
+            <h2 class="section-title">Centros de Custo Vinculados</h2>
+          </div>
+          <a href="tela33-centro-custo-form.html" class="text-xs font-semibold text-dms-ceu hover:underline">+ Novo CC</a>
+        </div>
+        <div class="space-y-2">
+          <div class="flex items-center justify-between px-3 py-2.5 bg-[#F8F9FA] border border-[#E5E7EB] rounded-md">
+            <div class="flex items-center gap-3">
+              <span class="mono text-xs text-dms-mar font-semibold">CC-001</span>
+              <span class="text-sm">Logística — Operação SP</span>
+            </div>
+            <span class="text-xs text-dms-tecnologia">Responsável: Carla M.</span>
+          </div>
+          <div class="flex items-center justify-between px-3 py-2.5 bg-[#F8F9FA] border border-[#E5E7EB] rounded-md">
+            <div class="flex items-center gap-3">
+              <span class="mono text-xs text-dms-mar font-semibold">CC-002</span>
+              <span class="text-sm">Comercial — Vendas</span>
+            </div>
+            <span class="text-xs text-dms-tecnologia">Responsável: Rafael S.</span>
+          </div>
+          <div class="flex items-center justify-between px-3 py-2.5 bg-[#F8F9FA] border border-[#E5E7EB] rounded-md">
+            <div class="flex items-center gap-3">
+              <span class="mono text-xs text-dms-mar font-semibold">CC-003</span>
+              <span class="text-sm">Administrativo — Sede</span>
+            </div>
+            <span class="text-xs text-dms-tecnologia">Responsável: Bianca L.</span>
+          </div>
+          <div class="text-xs text-dms-tecnologia px-3 pt-2">
+            Centros de custo são gerenciados em <a href="tela32-centros-custo-list.html" class="text-dms-ceu hover:underline">Cadastros &gt; Centros de Custo</a>.
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- Footer fixo -->
+<footer class="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E5E7EB] py-3 px-8 flex items-center justify-end gap-3 z-30" style="margin-left: var(--dms-sb-w, 240px);">
+  <a href="tela30-empresas-list.html" class="text-sm font-medium text-dms-tecnologia px-4 py-2 hover:text-dms-mar transition-colors">Cancelar</a>
+  <button class="text-sm font-semibold text-dms-mar px-4 py-2 border border-dms-mar/30 rounded-md hover:bg-dms-mar/5 transition-colors">Salvar rascunho</button>
+  <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-sabedoria rounded-md hover:opacity-90 transition-colors">Salvar e ativar</button>
+</footer>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR (M4) ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label,
+  #dms-sidebar.collapsed .sb-section-title,
+  #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+    footer { margin-left: 0 !important; }
+  }
+</style>
+
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+      <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+      <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+      <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+      <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+      <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+    </ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+      <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+      <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+      <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+    </ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+      <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+      <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+      <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+      <li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+    </ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+      <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+      <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+      <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+      <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+      <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+      <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
+    </ul></div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+      <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+      <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+      <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+    </ul></div>
+  </nav>
+</aside>
+
+<script>
+(function(){
+  var sb = document.getElementById('dms-sidebar');
+  var toggle = document.getElementById('sidebar-toggle');
+  var mobBtn = document.getElementById('dms-sidebar-mobile-btn');
+  var overlay = document.getElementById('dms-sidebar-overlay');
+  if (!sb || !toggle) return;
+  var STORAGE_KEY = 'mockup-sidebar-collapsed-v2';
+  var collapsed = false;
+  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
+  function isMobile(){ return window.matchMedia('(max-width: 767px)').matches; }
+  function render(){
+    if (collapsed && !isMobile()) { sb.classList.add('collapsed'); sb.style.width = '64px'; document.documentElement.style.setProperty('--dms-sb-w', '64px'); }
+    else { sb.classList.remove('collapsed'); sb.style.width = isMobile() ? '280px' : '240px'; document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px'); }
+  }
+  toggle.addEventListener('click', function(){ collapsed = !collapsed; try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {} render(); });
+  function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
+  function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
+  if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
+  if (overlay) overlay.addEventListener('click', closeMobile);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){ a.addEventListener('click', function(){ if (isMobile()) closeMobile(); }); });
+  var current = (location.pathname.split('/').pop() || '').toLowerCase();
+  if (current) { sb.querySelectorAll('nav a[href]').forEach(function(a){ var h = (a.getAttribute('href') || '').toLowerCase(); if (h && h === current) a.classList.add('sb-active'); }); }
+  // Highlight Empresas while in form
+  if (current === 'tela31-empresa-form.html') { var emp = sb.querySelector('a[href="tela30-empresas-list.html"]'); if (emp) emp.classList.add('sb-active'); }
+  window.addEventListener('resize', render);
+  render();
+})();
+</script>
+</body>
+</html>
