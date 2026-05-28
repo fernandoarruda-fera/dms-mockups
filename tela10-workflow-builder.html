@@ -766,5 +766,96 @@ function selectTab(tab) {
 renderStages();
 </script>
 
+<!-- ===== DMS COLLAPSIBLE SIDEBAR (injected) ===== -->
+<style id="dms-cs-style">
+  /* Hide legacy sidebar */
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  /* Override legacy main margin so it tracks the new sidebar */
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s; }
+  #dms-cs { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  #dms-cs nav { scrollbar-width: thin; }
+  #dms-cs nav::-webkit-scrollbar { width: 4px; }
+  #dms-cs nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-cs a { white-space: nowrap; }
+  #dms-cs.collapsed .sb-label { display: none; }
+  #dms-cs.collapsed .sb-section { display: none; }
+  #dms-cs.collapsed .sb-brand-text { display: none; }
+  #dms-cs.collapsed nav a { justify-content: center; padding-left: 0; padding-right: 0; }
+  #dms-cs .sb-toggle { transition: transform .2s; }
+  #dms-cs.collapsed .sb-toggle { transform: rotate(180deg); }
+  @media (max-width: 767px) {
+    #dms-cs { transform: translateX(-100%); }
+    #dms-cs.mobile-open { transform: translateX(0); }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-cs-mobile-btn { display: flex !important; }
+  }
+</style>
+
+<button id="dms-cs-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+
+<aside id="dms-cs" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40 overflow-hidden" style="width:240px;">
+  <div style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS Compras</span>
+    <button id="dms-cs-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.08); border:0; color:#fff; width:24px; height:24px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;">
+      <p class="sb-section" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Dashboard</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">🎯</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Suppliers</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">📄</span><span class="sb-label">Contracts</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Requisitions</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Quotes</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">🛒</span><span class="sb-label">Purchase Orders</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Invoices</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Approvals</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Budget</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">🧮</span><span class="sb-label">Tax Simulator</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Repositories</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Financeiro</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">System</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Administration</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">🏛️</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">💵</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">📚</span><span class="sb-label">Plano de Contas</span></a></li>
+        <li><a href="#" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; color:#fff; text-decoration:none; font-size:13px;" onmouseover="this.style.background='rgba(255,255,255,.08)'" onmouseout="this.style.background='transparent'"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Regras de Match NF</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+<script>
+(function(){
+  var sb = document.getElementById('dms-cs');
+  var toggle = document.getElementById('dms-cs-toggle');
+  var mobBtn = document.getElementById('dms-cs-mobile-btn');
+  function apply(c){
+    sb.style.width = c ? '60px' : '240px';
+    sb.classList.toggle('collapsed', c);
+    document.documentElement.style.setProperty('--dms-sb-w', (c?60:240)+'px');
+  }
+  var stored = localStorage.getItem('mockup-sidebar-collapsed') === '1';
+  apply(stored);
+  toggle && toggle.addEventListener('click', function(){
+    var c = !sb.classList.contains('collapsed');
+    apply(c);
+    try { localStorage.setItem('mockup-sidebar-collapsed', c?'1':'0'); } catch(e) {}
+  });
+  mobBtn && mobBtn.addEventListener('click', function(){ sb.classList.toggle('mobile-open'); });
+})();
+</script>
+<!-- ===== END DMS COLLAPSIBLE SIDEBAR ===== -->
 </body>
 </html>
