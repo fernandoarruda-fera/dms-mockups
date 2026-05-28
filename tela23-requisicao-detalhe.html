@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — REQ-2026-0142</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C', ceu: '#00AEEE', confianca: '#005290',
+          sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+        'dms-lg': '0 10px 15px -3px rgba(0, 56, 108, 0.10), 0 4px 6px -2px rgba(0, 56, 108, 0.05)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .tab { padding: 12px 4px; border-bottom: 2px solid transparent; font-size: 13px; font-weight: 600; color: #656464; cursor: pointer; transition: all 150ms ease; }
+  .tab:hover { color: #00386C; }
+  .tab.active { color: #00386C; border-bottom-color: #00AEEE; }
+  .field-card { background: #F8FAFC; border: 1px solid #E5E7EB; border-radius: 8px; padding: 14px 16px; }
+  .field-card .label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #656464; margin-bottom: 4px; }
+  .field-card .value { font-size: 14px; font-weight: 600; color: #00386C; }
+  .timeline-dot { width: 10px; height: 10px; border-radius: 999px; position: absolute; left: -5px; top: 6px; box-shadow: 0 0 0 3px #fff; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar">Compras</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <a href="tela21-requisicoes-list.html" class="text-dms-tecnologia hover:text-dms-mar">Requisições</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold mono">REQ-2026-0142</span>
+      </nav>
+      <div class="flex items-center gap-3">
+        <button class="text-dms-tecnologia hover:text-dms-mar text-sm flex items-center gap-1" title="Anterior">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <span class="text-xs mono text-dms-tecnologia">REQ-0142 de 142</span>
+        <button class="text-dms-tecnologia hover:text-dms-mar text-sm flex items-center gap-1" title="Próxima">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1200px] w-full mx-auto">
+
+      <!-- Cabeçalho do registro -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md p-6 mb-5">
+        <div class="flex items-start justify-between gap-4 flex-wrap">
+          <div class="flex-1 min-w-[300px]">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+              <span class="caption text-dms-tecnologia">Requisição de Compra</span>
+            </div>
+            <div class="flex items-center gap-3 mb-3 flex-wrap">
+              <h1 class="text-[32px] leading-none font-bold text-dms-mar mono">REQ-2026-0142</h1>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border bg-amber-50 text-amber-700 border-amber-200">
+                <span class="w-2 h-2 rounded-full bg-amber-500 mr-2 animate-pulse"></span>
+                Aguardando Aprovação
+              </span>
+            </div>
+            <div class="flex items-center gap-6 text-sm text-dms-tecnologia flex-wrap">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center text-white font-semibold text-[10px]" style="background: linear-gradient(135deg, #00AEEE, #005290);">BL</div>
+                <span><span class="text-gray-700 font-medium">Bruno Lima</span> · solicitante</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                Criada em <span class="font-medium text-gray-700 ml-1">24/05/2026</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                CC-400 Frota
+              </div>
+            </div>
+          </div>
+
+          <div class="text-right flex-shrink-0">
+            <div class="caption text-dms-tecnologia mb-1">Valor estimado</div>
+            <div class="text-[28px] leading-none font-black text-dms-sabedoria mono">R$ 18.620,00</div>
+            <div class="text-xs text-dms-tecnologia mt-1">6 itens</div>
+          </div>
+        </div>
+
+        <!-- Ações -->
+        <div class="flex items-center gap-2 mt-5 pt-5 border-t border-[#F1F5F9] flex-wrap">
+          <button class="flex items-center gap-2 text-sm font-semibold text-white px-4 py-2 bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+            Aprovar
+          </button>
+          <button class="flex items-center gap-2 text-sm font-semibold text-white px-4 py-2 bg-red-600 rounded-md hover:bg-red-700 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+            Rejeitar
+          </button>
+          <button disabled title="Disponível após aprovação" class="flex items-center gap-2 text-sm font-semibold text-white px-4 py-2 bg-dms-sabedoria rounded-md opacity-40 cursor-not-allowed">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Gerar Cotação
+          </button>
+          <div class="ml-auto flex items-center gap-2">
+            <button class="text-sm font-medium text-dms-tecnologia px-3 py-2 hover:text-dms-mar transition-colors">
+              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              Compartilhar
+            </button>
+            <button class="text-sm font-medium text-dms-tecnologia px-3 py-2 hover:text-dms-mar transition-colors">
+              <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              Editar
+            </button>
+            <button class="p-2 text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] rounded transition-colors" title="Mais">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Abas -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+        <div class="border-b border-[#E5E7EB] px-6 flex items-center gap-6">
+          <button class="tab active" data-tab="detalhes">Detalhes</button>
+          <button class="tab" data-tab="itens">Itens <span class="ml-1 text-[10px] bg-gray-100 px-1.5 py-0.5 rounded">6</span></button>
+          <button class="tab" data-tab="historico">Histórico de Aprovação</button>
+          <button class="tab" data-tab="anexos">Anexos <span class="ml-1 text-[10px] bg-gray-100 px-1.5 py-0.5 rounded">2</span></button>
+          <button class="tab" data-tab="auditoria">Auditoria</button>
+        </div>
+
+        <!-- Tab: Detalhes -->
+        <div data-tab-content="detalhes" class="p-6">
+          <div class="grid grid-cols-3 gap-4 mb-5">
+            <div class="field-card">
+              <div class="label">Solicitante</div>
+              <div class="value">Bruno Lima</div>
+              <div class="text-xs text-dms-tecnologia mt-1">bruno.lima@dmslog.com</div>
+            </div>
+            <div class="field-card">
+              <div class="label">Centro de Custo</div>
+              <div class="value">CC-400 Frota</div>
+            </div>
+            <div class="field-card">
+              <div class="label">Plano de Contas</div>
+              <div class="value">3.3.02 — Material de manutenção</div>
+            </div>
+            <div class="field-card">
+              <div class="label">Data necessidade</div>
+              <div class="value">10/06/2026</div>
+              <div class="text-xs text-dms-tecnologia mt-1">em 13 dias</div>
+            </div>
+            <div class="field-card">
+              <div class="label">Valor estimado</div>
+              <div class="value mono">R$ 18.620,00</div>
+            </div>
+            <div class="field-card">
+              <div class="label">Prioridade</div>
+              <div class="value flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span> Média
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-[#F8FAFC] border border-[#E5E7EB] rounded-lg p-4">
+            <div class="caption text-dms-tecnologia mb-2">Justificativa</div>
+            <p class="text-sm text-gray-700 leading-relaxed">
+              Pneus traseiros do caminhão placa <span class="mono text-dms-mar">XYZ-1A23</span> apresentam desgaste avançado e perda de pressão recorrente, gerando risco operacional. Substituição programada antes da próxima rota de longa distância prevista para meados de junho.
+            </p>
+          </div>
+        </div>
+
+        <!-- Tab: Itens -->
+        <div data-tab-content="itens" class="p-6 hidden">
+          <table class="w-full text-sm">
+            <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+              <tr>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">#</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Descrição</th>
+                <th class="text-right caption text-dms-tecnologia px-3 py-2">Qtd</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Unid.</th>
+                <th class="text-right caption text-dms-tecnologia px-3 py-2">Vl. unit.</th>
+                <th class="text-right caption text-dms-tecnologia px-3 py-2">Total</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#E5E7EB]">
+              <tr>
+                <td class="px-3 py-3 mono text-xs text-dms-tecnologia">01</td>
+                <td class="px-3 py-3 text-gray-800">Pneu 295/80 R22.5 — borrachudo Material XYZ</td>
+                <td class="px-3 py-3 text-right">4</td>
+                <td class="px-3 py-3">UN</td>
+                <td class="px-3 py-3 text-right mono">R$ 3.450,00</td>
+                <td class="px-3 py-3 text-right mono font-semibold text-dms-mar">R$ 13.800,00</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-3 mono text-xs text-dms-tecnologia">02</td>
+                <td class="px-3 py-3 text-gray-800">Câmara de ar reforçada — modelo TR-78</td>
+                <td class="px-3 py-3 text-right">4</td>
+                <td class="px-3 py-3">UN</td>
+                <td class="px-3 py-3 text-right mono">R$ 185,00</td>
+                <td class="px-3 py-3 text-right mono font-semibold text-dms-mar">R$ 740,00</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-3 mono text-xs text-dms-tecnologia">03</td>
+                <td class="px-3 py-3 text-gray-800">Serviço de montagem e balanceamento</td>
+                <td class="px-3 py-3 text-right">1</td>
+                <td class="px-3 py-3">SV</td>
+                <td class="px-3 py-3 text-right mono">R$ 4.080,00</td>
+                <td class="px-3 py-3 text-right mono font-semibold text-dms-mar">R$ 4.080,00</td>
+              </tr>
+            </tbody>
+            <tfoot class="bg-[#F8F9FA] border-t-2 border-[#E5E7EB]">
+              <tr>
+                <td colspan="5" class="px-3 py-3 text-right caption text-dms-tecnologia">Total estimado</td>
+                <td class="px-3 py-3 text-right mono font-bold text-base text-dms-sabedoria">R$ 18.620,00</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- Tab: Histórico -->
+        <div data-tab-content="historico" class="p-6 hidden">
+          <ol class="relative border-l-2 border-[#E5E7EB] ml-2 space-y-6 pl-6">
+
+            <li class="relative">
+              <span class="timeline-dot bg-amber-500"></span>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-semibold text-dms-mar">Aguardando aprovação</span>
+                <span class="text-xs text-dms-tecnologia mono">agora</span>
+              </div>
+              <p class="text-sm text-gray-700">Atribuída a <span class="font-medium">Mariana Silva</span> (Gestor direto)</p>
+              <div class="mt-2 text-xs text-dms-tecnologia">Próximo aprovador: João Vieira (Diretor de Compras)</div>
+            </li>
+
+            <li class="relative">
+              <span class="timeline-dot bg-emerald-500"></span>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-semibold text-dms-mar">Enviada para aprovação</span>
+                <span class="text-xs text-dms-tecnologia mono">24/05/2026 · 14:32</span>
+              </div>
+              <p class="text-sm text-gray-700"><span class="font-medium">Bruno Lima</span> submeteu a requisição</p>
+              <div class="mt-2 p-3 bg-emerald-50 border border-emerald-100 rounded text-xs text-emerald-900 italic">
+                "Urgência média — atendimento até 10/06."
+              </div>
+            </li>
+
+            <li class="relative">
+              <span class="timeline-dot bg-gray-400"></span>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-semibold text-dms-mar">Rascunho criado</span>
+                <span class="text-xs text-dms-tecnologia mono">24/05/2026 · 14:18</span>
+              </div>
+              <p class="text-sm text-gray-700"><span class="font-medium">Bruno Lima</span> criou a requisição</p>
+            </li>
+          </ol>
+        </div>
+
+        <!-- Tab: Anexos -->
+        <div data-tab-content="anexos" class="p-6 hidden">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC] border border-[#E5E7EB] rounded-md">
+              <svg class="w-8 h-8 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-dms-mar truncate">orcamento-fornecedor-a.pdf</div>
+                <div class="text-xs text-dms-tecnologia">248 KB · Bruno Lima · 24/05</div>
+              </div>
+              <button class="text-dms-tecnologia hover:text-dms-mar" title="Baixar">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              </button>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC] border border-[#E5E7EB] rounded-md">
+              <svg class="w-8 h-8 text-emerald-600 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-medium text-dms-mar truncate">cotacao-comparativa.xlsx</div>
+                <div class="text-xs text-dms-tecnologia">62 KB · Bruno Lima · 24/05</div>
+              </div>
+              <button class="text-dms-tecnologia hover:text-dms-mar" title="Baixar">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Auditoria -->
+        <div data-tab-content="auditoria" class="p-6 hidden">
+          <table class="w-full text-sm">
+            <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+              <tr>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Quando</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Quem</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Ação</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Campo</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">De → Para</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Justificativa</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#E5E7EB] text-xs">
+              <tr>
+                <td class="px-3 py-3 mono text-dms-tecnologia">24/05 14:32</td>
+                <td class="px-3 py-3 text-gray-800">Bruno Lima</td>
+                <td class="px-3 py-3"><span class="inline-flex px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-semibold">SUBMIT</span></td>
+                <td class="px-3 py-3 mono text-dms-tecnologia">status</td>
+                <td class="px-3 py-3 mono">rascunho → aguardando</td>
+                <td class="px-3 py-3 italic text-gray-600">Pronto para aprovação</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-3 mono text-dms-tecnologia">24/05 14:30</td>
+                <td class="px-3 py-3 text-gray-800">Bruno Lima</td>
+                <td class="px-3 py-3"><span class="inline-flex px-2 py-0.5 rounded bg-amber-50 text-amber-700 font-semibold">UPDATE</span></td>
+                <td class="px-3 py-3 mono text-dms-tecnologia">itens[0].vl_unit</td>
+                <td class="px-3 py-3 mono">3.200,00 → 3.450,00</td>
+                <td class="px-3 py-3 italic text-gray-600">Reajuste do fornecedor</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-3 mono text-dms-tecnologia">24/05 14:25</td>
+                <td class="px-3 py-3 text-gray-800">Bruno Lima</td>
+                <td class="px-3 py-3"><span class="inline-flex px-2 py-0.5 rounded bg-amber-50 text-amber-700 font-semibold">UPDATE</span></td>
+                <td class="px-3 py-3 mono text-dms-tecnologia">justificativa</td>
+                <td class="px-3 py-3 mono text-dms-tecnologia">— → texto (142 ch.)</td>
+                <td class="px-3 py-3 italic text-gray-600">Preenchimento inicial</td>
+              </tr>
+              <tr>
+                <td class="px-3 py-3 mono text-dms-tecnologia">24/05 14:18</td>
+                <td class="px-3 py-3 text-gray-800">Bruno Lima</td>
+                <td class="px-3 py-3"><span class="inline-flex px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold">CREATE</span></td>
+                <td class="px-3 py-3 mono text-dms-tecnologia">—</td>
+                <td class="px-3 py-3 mono text-dms-tecnologia">novo registro</td>
+                <td class="px-3 py-3 italic text-gray-600">Criação manual</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('[data-tab-content]').forEach(c => c.classList.add('hidden'));
+    document.querySelector(`[data-tab-content="${tab.dataset.tab}"]`).classList.remove('hidden');
+  });
+});
+</script>
+
+<!-- ===== DMS COLLAPSIBLE SIDEBAR (idêntico tela01-20) ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.disabled { cursor: not-allowed; opacity: 0.5; }
+  #dms-sidebar a.disabled:hover { background: transparent; }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label,
+  #dms-sidebar.collapsed .sb-section-title,
+  #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label,
+    #dms-sidebar.collapsed .sb-section-title,
+    #dms-sidebar.collapsed .sb-brand-text,
+    #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS Compras</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" title="Cockpit" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🎯</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" title="E-mail" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">E-mail</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" title="Tarefas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" title="Follow-up" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" title="Updates" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" title="Requisições" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela01-catalogo-tags.html" title="Tags" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" title="Procedures" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" title="Workflows" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔄</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" title="SOPs" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📚</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" title="Triggers (em breve)" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚡</span><span class="sb-label">Triggers <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
+        <li><a href="#" onclick="return false" class="disabled" title="Alertas (em breve)" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🚨</span><span class="sb-label">Alertas <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
+        <li><a href="tela12-execution-visibility.html" title="Execuções" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👁️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" title="Auditoria" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">Auditoria</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" title="Match Engine" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" title="Setup" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup &amp; Integrações</span></a></li>
+        <li><a href="tela15-mailia-admin.html" title="MAILIA" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🤖</span><span class="sb-label">MAILIA Admin</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+<script>
+(function(){
+  var sb = document.getElementById('dms-sidebar');
+  var toggle = document.getElementById('sidebar-toggle');
+  var mobBtn = document.getElementById('dms-sidebar-mobile-btn');
+  var overlay = document.getElementById('dms-sidebar-overlay');
+  if (!sb || !toggle) return;
+  var STORAGE_KEY = 'mockup-sidebar-collapsed-v2';
+  var collapsed = false;
+  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
+  try { localStorage.removeItem('mockup-sidebar-collapsed'); } catch(e) {}
+  function isMobile(){ return window.matchMedia('(max-width: 767px)').matches; }
+  function render(){
+    if (collapsed && !isMobile()) {
+      sb.classList.add('collapsed');
+      sb.style.width = '64px';
+      document.documentElement.style.setProperty('--dms-sb-w', '64px');
+    } else {
+      sb.classList.remove('collapsed');
+      sb.style.width = isMobile() ? '280px' : '240px';
+      document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px');
+    }
+  }
+  toggle.addEventListener('click', function(){
+    collapsed = !collapsed;
+    try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {}
+    render();
+  });
+  function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
+  function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
+  if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
+  if (overlay) overlay.addEventListener('click', closeMobile);
+  sb.querySelectorAll('nav a[href]:not(.disabled)').forEach(function(a){
+    a.addEventListener('click', function(){ if (isMobile()) closeMobile(); });
+  });
+  var current = (location.pathname.split('/').pop() || '').toLowerCase();
+  if (current) {
+    sb.querySelectorAll('nav a[href]').forEach(function(a){
+      var href = (a.getAttribute('href') || '').toLowerCase();
+      if (href && href === current) a.classList.add('sb-active');
+    });
+  }
+  window.addEventListener('resize', render);
+  render();
+})();
+</script>
+</body>
+</html>
