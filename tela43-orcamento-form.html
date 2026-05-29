@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Editar Verba</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; padding-bottom: 96px; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .req::after { content: ' *'; color: #DC2626; }
+  .seg { display:inline-flex; background:#F1F3F5; border-radius:6px; padding:2px; }
+  .seg button { padding:4px 10px; font-size:12px; border-radius:4px; color:#656464; }
+  .seg button.active { background:#fff; color:#00386C; font-weight:600; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="tela42-orcamento-overview.html" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Orçamento</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Editar verba 2026</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1280px] w-full mx-auto">
+
+      <div class="mb-6">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h1 class="text-[32px] leading-[40px] font-bold text-dms-mar">Editar verba 2026</h1>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-amber-50 text-amber-700 border-amber-200">Rascunho</span>
+        </div>
+        <p class="text-sm text-dms-tecnologia max-w-3xl">Defina valores anuais por centro de custo e plano de contas. A distribuição mensal pode ser uniforme ou sazonal.</p>
+      </div>
+
+      <!-- Seção 1: Identificação -->
+      <section class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md mb-6">
+        <div class="px-6 py-4 border-b border-[#E5E7EB]">
+          <h2 class="text-sm font-bold text-dms-mar uppercase tracking-wider">1. Identificação</h2>
+        </div>
+        <div class="p-6 grid grid-cols-4 gap-5">
+          <div>
+            <label class="block text-xs font-semibold text-dms-mar mb-1.5 req">Ano fiscal</label>
+            <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+              <option>2026</option><option>2027</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-dms-mar mb-1.5 req">Empresa</label>
+            <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+              <option>DMS Logística</option><option>DMS Distribuição</option><option>DMS Sul</option><option>DMS Nordeste</option><option>Consolidado</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-dms-mar mb-1.5">Versão</label>
+            <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+              <option>Inicial</option><option selected>Revisão 1</option><option>Revisão 2</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-dms-mar mb-1.5">Período</label>
+            <div class="seg w-full justify-stretch">
+              <button class="flex-1 active">Anual</button>
+              <button class="flex-1">Mensal</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Seção 2: Distribuição por CC -->
+      <section class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md mb-6">
+        <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-bold text-dms-mar uppercase tracking-wider">2. Distribuição por Centro de Custo</h2>
+            <p class="text-xs text-dms-tecnologia mt-0.5">Defina o valor anual de cada CC. Expanda para distribuição sazonal.</p>
+          </div>
+          <button class="flex items-center gap-2 text-sm font-medium text-dms-ceu hover:text-dms-mar transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Adicionar CC
+          </button>
+        </div>
+        <table class="w-full text-sm">
+          <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+            <tr>
+              <th class="text-left caption text-dms-tecnologia px-4 py-2.5 w-8"></th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-2.5">Centro de Custo</th>
+              <th class="text-right caption text-dms-tecnologia px-4 py-2.5 w-44">Verba anual (R$)</th>
+              <th class="text-center caption text-dms-tecnologia px-4 py-2.5 w-44">Distribuição</th>
+              <th class="text-right caption text-dms-tecnologia px-4 py-2.5 w-32">Média mês</th>
+              <th class="text-center caption text-dms-tecnologia px-4 py-2.5 w-12"></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#E5E7EB]">
+            <tr><td class="px-4 py-2.5 text-center"><button class="text-dms-tecnologia hover:text-dms-mar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button></td>
+              <td class="px-4 py-2.5"><div class="text-sm font-medium text-gray-800">CC Logística</div><div class="text-xs mono text-dms-tecnologia">CC-0001</div></td>
+              <td class="px-4 py-2.5"><input type="text" value="4.200.000,00" class="input-dms w-full px-3 py-1.5 text-sm mono text-right border border-[#E5E7EB] rounded-md"></td>
+              <td class="px-4 py-2.5 text-center"><div class="seg inline-flex"><button class="active">Igual</button><button>Sazonal</button></div></td>
+              <td class="px-4 py-2.5 text-right mono text-sm text-dms-tecnologia">R$ 350.000</td>
+              <td class="px-4 py-2.5 text-center"><button class="text-dms-tecnologia hover:text-red-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg></button></td>
+            </tr>
+            <tr class="bg-[#F8FBFE]"><td class="px-4 py-2.5 text-center"><button class="text-dms-ceu"><svg class="w-4 h-4 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button></td>
+              <td class="px-4 py-2.5"><div class="text-sm font-medium text-gray-800">CC Frota</div><div class="text-xs mono text-dms-tecnologia">CC-0002</div></td>
+              <td class="px-4 py-2.5"><input type="text" value="3.800.000,00" class="input-dms w-full px-3 py-1.5 text-sm mono text-right border border-[#E5E7EB] rounded-md"></td>
+              <td class="px-4 py-2.5 text-center"><div class="seg inline-flex"><button>Igual</button><button class="active">Sazonal</button></div></td>
+              <td class="px-4 py-2.5 text-right mono text-sm text-dms-tecnologia">R$ 316.667</td>
+              <td class="px-4 py-2.5 text-center"><button class="text-dms-tecnologia hover:text-red-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg></button></td>
+            </tr>
+            <tr class="bg-[#FAFBFC]"><td colspan="6" class="px-6 py-4">
+              <div class="text-xs font-semibold text-dms-mar mb-2">Distribuição mensal — CC Frota (sazonal)</div>
+              <div class="grid grid-cols-12 gap-2">
+                <div><label class="block text-[10px] text-dms-tecnologia mb-1">Jan</label><input type="text" value="280.000" class="input-dms w-full px-2 py-1 text-xs mono text-right border border-[#E5E7EB] rounded"></div>
+                <div><label class="block text-[10px] text-dms-tecnologia mb-1">Fev</label><input type="text" value="280.000" class="input-dms w-full px-2 py-1 text-xs mono text-right border border-[#E5E7EB] rounded"></div>
+                <div><label class="block text-[10px] text-dms-tecnologia mb-1">Mar</label><input type="text" value="320.000" class="input-dms w-full px-2 py-1 text-xs mono text-right border border-[#E5E7EB] rounded"></div>
+                <div><label class="block text-[10px] text-dms-tecnologia mb-1">Abr</label><input type="text" value="320.000" class="input-dms w-full px-2 py-1 text-xs mono text-right border border-[#E5E7EB] rounded"></div>
+                <div><label class="block text-[10px] text-dms-tecnologia mb-1">Mai</label><input type="text" value="320.000" class="input-dms w-full px-2 py-1 text-xs mono text-right border border-[#E5E7EB] rounded"></div>
+                <div><label class="block text-[10px] text-dms-tecnologia mb-1">Jun</label><input type="text" value="350.000" class="input-dms w-full px-2 py-1 text-xs mono text-right border border-[#E5E7EB] rounded"></div>
+                <div><label class="block text-[10px] text-dms-tecnologia mb-1">Jul</label><input type="text" value="350.000" class="input-dms w-full px-2 py-1 text-xs mono text-right border border-[#E5E7EB] rounded"></div>
+                <div><label class="block text-[10px] text-dms-tecnologia mb-1">Ago</label><input type="text" value="320.000" class="input-dms w-full px-2 py-1 text-xs mono text-right border border-[#E5E7EB] rounded"></div>
+                <div><label class="block text-[10px] text-dms-tecnologia mb-1">Set</label><input type="text" value="320.000" class="input-dms w-full px-2 py-1 text-xs mono text-right border border-[#E5E7EB] rounded"></div>
+                <div><label class="block text-[10px] text-dms-tecnologia mb-1">Out</label><input type="text" value="320.000" class="input-dms w-full px-2 py-1 text-xs mono text-right border border-[#E5E7EB] rounded"></div>
+                <div><label class="block text-[10px] text-dms-tecnologia mb-1">Nov</label><input type="text" value="310.000" class="input-dms w-full px-2 py-1 text-xs mono text-right border border-[#E5E7EB] rounded"></div>
+                <div><label class="block text-[10px] text-dms-tecnologia mb-1">Dez</label><input type="text" value="310.000" class="input-dms w-full px-2 py-1 text-xs mono text-right border border-[#E5E7EB] rounded"></div>
+              </div>
+              <div class="flex items-center justify-between mt-3 pt-3 border-t border-[#E5E7EB]">
+                <span class="text-xs text-dms-tecnologia">Soma dos meses</span>
+                <span class="text-sm mono font-semibold text-emerald-600">R$ 3.800.000,00 ✓</span>
+              </div>
+            </td></tr>
+            <tr><td class="px-4 py-2.5 text-center"><button class="text-dms-tecnologia hover:text-dms-mar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button></td>
+              <td class="px-4 py-2.5"><div class="text-sm font-medium text-gray-800">CC Comercial</div><div class="text-xs mono text-dms-tecnologia">CC-0003</div></td>
+              <td class="px-4 py-2.5"><input type="text" value="2.900.000,00" class="input-dms w-full px-3 py-1.5 text-sm mono text-right border border-[#E5E7EB] rounded-md"></td>
+              <td class="px-4 py-2.5 text-center"><div class="seg inline-flex"><button class="active">Igual</button><button>Sazonal</button></div></td>
+              <td class="px-4 py-2.5 text-right mono text-sm text-dms-tecnologia">R$ 241.667</td>
+              <td class="px-4 py-2.5 text-center"><button class="text-dms-tecnologia hover:text-red-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg></button></td>
+            </tr>
+            <tr><td class="px-4 py-2.5 text-center"><button class="text-dms-tecnologia hover:text-dms-mar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button></td>
+              <td class="px-4 py-2.5"><div class="text-sm font-medium text-gray-800">CC Administrativo</div><div class="text-xs mono text-dms-tecnologia">CC-0004</div></td>
+              <td class="px-4 py-2.5"><input type="text" value="2.400.000,00" class="input-dms w-full px-3 py-1.5 text-sm mono text-right border border-[#E5E7EB] rounded-md"></td>
+              <td class="px-4 py-2.5 text-center"><div class="seg inline-flex"><button class="active">Igual</button><button>Sazonal</button></div></td>
+              <td class="px-4 py-2.5 text-right mono text-sm text-dms-tecnologia">R$ 200.000</td>
+              <td class="px-4 py-2.5 text-center"><button class="text-dms-tecnologia hover:text-red-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg></button></td>
+            </tr>
+            <tr><td class="px-4 py-2.5 text-center"><button class="text-dms-tecnologia hover:text-dms-mar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button></td>
+              <td class="px-4 py-2.5"><div class="text-sm font-medium text-gray-800">CC Manutenção</div><div class="text-xs mono text-dms-tecnologia">CC-0005</div></td>
+              <td class="px-4 py-2.5"><input type="text" value="2.100.000,00" class="input-dms w-full px-3 py-1.5 text-sm mono text-right border border-[#E5E7EB] rounded-md"></td>
+              <td class="px-4 py-2.5 text-center"><div class="seg inline-flex"><button class="active">Igual</button><button>Sazonal</button></div></td>
+              <td class="px-4 py-2.5 text-right mono text-sm text-dms-tecnologia">R$ 175.000</td>
+              <td class="px-4 py-2.5 text-center"><button class="text-dms-tecnologia hover:text-red-500"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg></button></td>
+            </tr>
+          </tbody>
+          <tfoot class="bg-[#F8F9FA] border-t-2 border-[#E5E7EB]">
+            <tr>
+              <td colspan="2" class="px-4 py-3 text-sm font-bold text-dms-mar">Total alocado</td>
+              <td class="px-4 py-3 text-right mono text-sm font-bold text-dms-mar">R$ 15.400.000,00</td>
+              <td colspan="3" class="px-4 py-3 text-right text-xs text-dms-tecnologia">de R$ 18.400.000,00 · <span class="text-amber-600 font-semibold">R$ 3M a alocar</span></td>
+            </tr>
+          </tfoot>
+        </table>
+      </section>
+
+      <!-- Seção 3: Plano de Contas -->
+      <section class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md mb-6">
+        <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-bold text-dms-mar uppercase tracking-wider">3. Distribuição por Plano de Contas</h2>
+            <p class="text-xs text-dms-tecnologia mt-0.5">Opcional. Detalhe a verba por conta contábil para controle fino.</p>
+          </div>
+          <label class="flex items-center gap-2 text-sm text-dms-tecnologia cursor-pointer">
+            <input type="checkbox" class="w-4 h-4 accent-dms-ceu" checked>
+            <span>Detalhar por conta</span>
+          </label>
+        </div>
+        <table class="w-full text-sm">
+          <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+            <tr>
+              <th class="text-left caption text-dms-tecnologia px-4 py-2.5">Conta contábil</th>
+              <th class="text-left caption text-dms-tecnologia px-4 py-2.5">Categoria</th>
+              <th class="text-right caption text-dms-tecnologia px-4 py-2.5 w-44">Verba anual (R$)</th>
+              <th class="text-right caption text-dms-tecnologia px-4 py-2.5 w-32">% do total</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#E5E7EB]">
+            <tr>
+              <td class="px-4 py-2.5"><div class="text-sm font-medium text-gray-800">3.1.01 — Combustível</div></td>
+              <td class="px-4 py-2.5"><span class="text-xs text-dms-tecnologia">Operacional</span></td>
+              <td class="px-4 py-2.5"><input type="text" value="2.400.000,00" class="input-dms w-full px-3 py-1.5 text-sm mono text-right border border-[#E5E7EB] rounded-md"></td>
+              <td class="px-4 py-2.5 text-right mono text-xs text-dms-tecnologia">13,0%</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2.5"><div class="text-sm font-medium text-gray-800">3.1.04 — Manutenção frota</div></td>
+              <td class="px-4 py-2.5"><span class="text-xs text-dms-tecnologia">Operacional</span></td>
+              <td class="px-4 py-2.5"><input type="text" value="1.800.000,00" class="input-dms w-full px-3 py-1.5 text-sm mono text-right border border-[#E5E7EB] rounded-md"></td>
+              <td class="px-4 py-2.5 text-right mono text-xs text-dms-tecnologia">9,8%</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2.5"><div class="text-sm font-medium text-gray-800">3.2.07 — Folha administrativa</div></td>
+              <td class="px-4 py-2.5"><span class="text-xs text-dms-tecnologia">Administrativa</span></td>
+              <td class="px-4 py-2.5"><input type="text" value="2.200.000,00" class="input-dms w-full px-3 py-1.5 text-sm mono text-right border border-[#E5E7EB] rounded-md"></td>
+              <td class="px-4 py-2.5 text-right mono text-xs text-dms-tecnologia">12,0%</td>
+            </tr>
+            <tr>
+              <td class="px-4 py-2.5"><div class="text-sm font-medium text-gray-800">3.1.12 — Pedágio e fretes</div></td>
+              <td class="px-4 py-2.5"><span class="text-xs text-dms-tecnologia">Operacional</span></td>
+              <td class="px-4 py-2.5"><input type="text" value="1.500.000,00" class="input-dms w-full px-3 py-1.5 text-sm mono text-right border border-[#E5E7EB] rounded-md"></td>
+              <td class="px-4 py-2.5 text-right mono text-xs text-dms-tecnologia">8,2%</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Seção 4: Aprovadores -->
+      <section class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md mb-6">
+        <div class="px-6 py-4 border-b border-[#E5E7EB]">
+          <h2 class="text-sm font-bold text-dms-mar uppercase tracking-wider">4. Aprovadores</h2>
+          <p class="text-xs text-dms-tecnologia mt-0.5">Responsáveis pela aprovação desta versão do orçamento.</p>
+        </div>
+        <div class="p-6">
+          <div class="flex items-center gap-2 flex-wrap mb-3">
+            <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-sky-50 border border-sky-200 rounded-full text-sm text-sky-800">
+              <span class="w-6 h-6 bg-dms-ceu text-white rounded-full flex items-center justify-center text-xs font-bold">MC</span>
+              Marina Costa <span class="text-xs text-sky-600">· CFO</span>
+              <button class="text-sky-400 hover:text-sky-700 ml-1">×</button>
+            </span>
+            <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-violet-50 border border-violet-200 rounded-full text-sm text-violet-800">
+              <span class="w-6 h-6 bg-dms-sabedoria text-white rounded-full flex items-center justify-center text-xs font-bold">RA</span>
+              Rafael Alves <span class="text-xs text-violet-600">· Controladoria</span>
+              <button class="text-violet-400 hover:text-violet-700 ml-1">×</button>
+            </span>
+            <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-full text-sm text-emerald-800">
+              <span class="w-6 h-6 bg-emerald-600 text-white rounded-full flex items-center justify-center text-xs font-bold">JS</span>
+              Júlia Santos <span class="text-xs text-emerald-600">· Diretoria</span>
+              <button class="text-emerald-400 hover:text-emerald-700 ml-1">×</button>
+            </span>
+            <button class="inline-flex items-center gap-1 px-3 py-1.5 border border-dashed border-[#E5E7EB] rounded-full text-sm text-dms-tecnologia hover:border-dms-ceu hover:text-dms-ceu transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              Adicionar aprovador
+            </button>
+          </div>
+          <div class="text-xs text-dms-tecnologia mt-2">Regra: aprovação em sequência. Primeiro Controladoria, depois CFO, por fim Diretoria.</div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- Footer fixo -->
+<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E5E7EB] py-3 px-8 flex items-center justify-between shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-30" style="margin-left: var(--dms-sb-w, 240px);">
+  <div class="text-xs text-dms-tecnologia">
+    <span class="inline-flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Auto-salvo há 1 min</span>
+  </div>
+  <div class="flex items-center gap-2">
+    <a href="tela42-orcamento-overview.html" class="px-4 py-2 text-sm font-medium text-dms-tecnologia hover:text-dms-mar transition-colors">Cancelar</a>
+    <button class="px-4 py-2 text-sm font-medium text-dms-mar border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">Salvar rascunho</button>
+    <button class="px-5 py-2 text-sm font-semibold text-white bg-dms-sabedoria rounded-md hover:opacity-90 transition-colors">Submeter para aprovação</button>
+  </div>
+</div>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label,
+  #dms-sidebar.collapsed .sb-section-title,
+  #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label,
+    #dms-sidebar.collapsed .sb-section-title,
+    #dms-sidebar.collapsed .sb-brand-text,
+    #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+        <li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+<script>
+(function(){
+  var sb = document.getElementById('dms-sidebar');
+  var toggle = document.getElementById('sidebar-toggle');
+  var mobBtn = document.getElementById('dms-sidebar-mobile-btn');
+  var overlay = document.getElementById('dms-sidebar-overlay');
+  if (!sb || !toggle) return;
+  var STORAGE_KEY = 'mockup-sidebar-collapsed-v2';
+  var collapsed = false;
+  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
+  function isMobile(){ return window.matchMedia('(max-width: 767px)').matches; }
+  function render(){
+    if (collapsed && !isMobile()) { sb.classList.add('collapsed'); sb.style.width = '64px'; document.documentElement.style.setProperty('--dms-sb-w', '64px'); }
+    else { sb.classList.remove('collapsed'); sb.style.width = isMobile() ? '280px' : '240px'; document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px'); }
+  }
+  toggle.addEventListener('click', function(){ collapsed = !collapsed; try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {} render(); });
+  function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
+  function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
+  if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
+  if (overlay) overlay.addEventListener('click', closeMobile);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){ a.addEventListener('click', function(){ if (isMobile()) closeMobile(); }); });
+  var current = (location.pathname.split('/').pop() || '').toLowerCase();
+  if (current === 'tela43-orcamento-form.html') current = 'tela42-orcamento-overview.html';
+  if (current) { sb.querySelectorAll('nav a[href]').forEach(function(a){ var href = (a.getAttribute('href') || '').toLowerCase(); if (href && href === current) a.classList.add('sb-active'); }); }
+  window.addEventListener('resize', render);
+  render();
+})();
+</script>
+</body>
+</html>

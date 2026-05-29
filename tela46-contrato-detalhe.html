@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Contrato CONT-2026-0008</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .tab { padding:12px 16px; border-bottom:2px solid transparent; font-size:13px; font-weight:600; color:#656464; cursor:pointer; }
+  .tab.active { color:#00386C; border-bottom-color:#00AEEE; }
+  .tab:hover { color:#00386C; }
+  .tab-pane { display:none; }
+  .tab-pane.active { display:block; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="tela44-contratos-list.html" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Contratos</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold mono">CONT-2026-0008</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1280px] w-full mx-auto">
+
+      <!-- Header -->
+      <div class="mb-6">
+        <div class="flex items-start justify-between gap-4 mb-3">
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+              <span class="mono text-sm font-semibold text-dms-tecnologia">CONT-2026-0008</span>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-emerald-50 text-emerald-700 border-emerald-200">Ativo</span>
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-sky-50 text-sky-700 border-sky-200">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h5M20 20v-5h-5"/></svg>
+                Renovação automática
+              </span>
+            </div>
+            <h1 class="text-[28px] leading-[36px] font-bold text-dms-mar mb-1">Locação de empilhadeiras (10 unidades)</h1>
+            <div class="flex items-center gap-4 text-sm text-dms-tecnologia">
+              <span><span class="text-dms-tecnologia">Fornecedor:</span> <span class="text-gray-800 font-medium">Movitec Equipamentos Ltda.</span></span>
+              <span>·</span>
+              <span><span class="text-dms-tecnologia">Empresa:</span> <span class="text-gray-800 font-medium">DMS Logística</span></span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <button class="px-3 py-2 text-sm font-medium text-dms-tecnologia border border-[#E5E7EB] rounded-md hover:text-dms-mar bg-white transition-colors">
+              <svg class="w-4 h-4 inline -mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01"/></svg>
+            </button>
+            <button class="px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-md hover:bg-red-50 transition-colors">Encerrar</button>
+            <button class="px-4 py-2 text-sm font-medium text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50 transition-colors">Aditivar</button>
+            <button class="px-4 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors">Renovar</button>
+          </div>
+        </div>
+
+        <!-- Stats inline -->
+        <div class="grid grid-cols-4 gap-3">
+          <div class="bg-white border border-[#E5E7EB] rounded-lg p-3.5">
+            <div class="text-[10px] font-semibold text-dms-tecnologia uppercase tracking-wider">Vigência</div>
+            <div class="text-sm mono font-bold text-dms-mar mt-1">01/03/2024 → 28/02/2027</div>
+          </div>
+          <div class="bg-white border border-[#E5E7EB] rounded-lg p-3.5">
+            <div class="text-[10px] font-semibold text-dms-tecnologia uppercase tracking-wider">Valor mensal</div>
+            <div class="text-sm mono font-bold text-dms-mar mt-1">R$ 28.400,00</div>
+          </div>
+          <div class="bg-white border border-[#E5E7EB] rounded-lg p-3.5">
+            <div class="text-[10px] font-semibold text-dms-tecnologia uppercase tracking-wider">Total contrato</div>
+            <div class="text-sm mono font-bold text-dms-mar mt-1">R$ 1.022.400,00</div>
+          </div>
+          <div class="bg-white border border-[#E5E7EB] rounded-lg p-3.5">
+            <div class="text-[10px] font-semibold text-dms-tecnologia uppercase tracking-wider">Dias restantes</div>
+            <div class="text-sm mono font-bold text-emerald-600 mt-1">275d até vencer</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+        <div class="border-b border-[#E5E7EB] flex items-center overflow-x-auto" id="tabs">
+          <div class="tab active" data-tab="detalhes">Detalhes</div>
+          <div class="tab" data-tab="pagamentos">Pagamentos <span class="text-[10px] mono text-dms-tecnologia ml-1">27/36</span></div>
+          <div class="tab" data-tab="aditivos">Aditivos <span class="text-[10px] mono text-dms-tecnologia ml-1">2</span></div>
+          <div class="tab" data-tab="docs">Documentos <span class="text-[10px] mono text-dms-tecnologia ml-1">7</span></div>
+          <div class="tab" data-tab="historico">Histórico</div>
+          <div class="tab" data-tab="auditoria">Auditoria</div>
+        </div>
+
+        <!-- Pane: Detalhes -->
+        <div class="tab-pane active p-6" data-pane="detalhes">
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <h3 class="text-xs font-bold text-dms-mar uppercase tracking-wider mb-3">Identificação</h3>
+              <dl class="text-sm space-y-2.5">
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Nº</dt><dd class="mono font-semibold text-dms-mar">CONT-2026-0008</dd></div>
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Objeto</dt><dd class="text-gray-800">Locação de empilhadeiras elétricas (10 un.)</dd></div>
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Tipo</dt><dd><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border bg-teal-50 text-teal-700 border-teal-200">Locação</span></dd></div>
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Empresa</dt><dd class="text-gray-800">DMS Logística</dd></div>
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Fornecedor</dt><dd class="text-gray-800">Movitec Equipamentos Ltda.</dd></div>
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">CNPJ</dt><dd class="mono text-gray-800">12.345.678/0001-99</dd></div>
+              </dl>
+            </div>
+            <div>
+              <h3 class="text-xs font-bold text-dms-mar uppercase tracking-wider mb-3">Vigência e renovação</h3>
+              <dl class="text-sm space-y-2.5">
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Início</dt><dd class="mono text-gray-800">01/03/2024</dd></div>
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Fim</dt><dd class="mono text-gray-800">28/02/2027</dd></div>
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Prazo</dt><dd class="text-gray-800">36 meses</dd></div>
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Renovação</dt><dd class="text-emerald-700 font-medium">Automática (12 meses)</dd></div>
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Aviso prévio</dt><dd class="text-gray-800">60 dias</dd></div>
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Reajuste</dt><dd class="text-gray-800">IPCA — aniversário</dd></div>
+              </dl>
+            </div>
+            <div>
+              <h3 class="text-xs font-bold text-dms-mar uppercase tracking-wider mb-3">Valores e pagamento</h3>
+              <dl class="text-sm space-y-2.5">
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Valor mensal</dt><dd class="mono font-semibold text-dms-mar">R$ 28.400,00</dd></div>
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Valor total</dt><dd class="mono font-semibold text-dms-mar">R$ 1.022.400,00</dd></div>
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Periodicidade</dt><dd class="text-gray-800">Mensal</dd></div>
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Forma pgto</dt><dd class="text-gray-800">Boleto bancário</dd></div>
+                <div class="flex"><dt class="w-40 text-dms-tecnologia">Plano de contas</dt><dd class="mono text-xs text-gray-800">3.1.08 — Locação equip.</dd></div>
+              </dl>
+            </div>
+            <div>
+              <h3 class="text-xs font-bold text-dms-mar uppercase tracking-wider mb-3">Responsáveis</h3>
+              <div class="space-y-3">
+                <div class="flex items-center gap-3">
+                  <span class="w-9 h-9 bg-dms-ceu text-white rounded-full flex items-center justify-center text-xs font-bold">MC</span>
+                  <div><div class="text-sm font-semibold text-dms-mar">Marina Costa</div><div class="text-xs text-dms-tecnologia">Gestor do contrato · Suprimentos</div></div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="w-9 h-9 bg-dms-sabedoria text-white rounded-full flex items-center justify-center text-xs font-bold">CP</span>
+                  <div><div class="text-sm font-semibold text-dms-mar">Carlos Pinheiro</div><div class="text-xs text-dms-tecnologia">Fiscal técnico · Logística</div></div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="w-9 h-9 bg-emerald-600 text-white rounded-full flex items-center justify-center text-xs font-bold">JS</span>
+                  <div><div class="text-sm font-semibold text-dms-mar">Júlia Santos</div><div class="text-xs text-dms-tecnologia">Aprovador · Diretoria</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-span-2 mt-2 pt-6 border-t border-[#E5E7EB]">
+              <h3 class="text-xs font-bold text-dms-mar uppercase tracking-wider mb-3">Cláusulas relevantes</h3>
+              <p class="text-sm text-gray-700 leading-relaxed">Multa rescisória de 2x mensalidade vigente em caso de rescisão sem motivo justificado. Manutenção preventiva por conta do locador, com SLA de atendimento de até 4h em horário comercial. Substituição imediata em caso de pane que impeça o uso por mais de 24h.</p>
+              <div class="flex items-center gap-2 mt-3 flex-wrap">
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 border border-emerald-200 rounded-full text-xs text-emerald-700"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Multa rescisória</span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 border border-emerald-200 rounded-full text-xs text-emerald-700"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>SLA penalizado</span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 border border-emerald-200 rounded-full text-xs text-emerald-700"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>Confidencialidade</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pane: Pagamentos -->
+        <div class="tab-pane p-0" data-pane="pagamentos">
+          <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+            <div>
+              <div class="text-sm font-bold text-dms-mar">Cronograma de pagamentos</div>
+              <div class="text-xs text-dms-tecnologia mt-0.5">Previstos e realizados, com vínculo à nota fiscal correspondente.</div>
+            </div>
+            <div class="flex items-center gap-4 text-xs">
+              <div><span class="text-dms-tecnologia">Pagos:</span> <span class="font-semibold text-emerald-600">27 · R$ 766.800,00</span></div>
+              <div><span class="text-dms-tecnologia">Pendentes:</span> <span class="font-semibold text-amber-600">9 · R$ 255.600,00</span></div>
+            </div>
+          </div>
+          <table class="w-full text-sm">
+            <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+              <tr>
+                <th class="text-left caption text-dms-tecnologia px-4 py-2.5">Competência</th>
+                <th class="text-right caption text-dms-tecnologia px-4 py-2.5">Previsto</th>
+                <th class="text-right caption text-dms-tecnologia px-4 py-2.5">Pago</th>
+                <th class="text-left caption text-dms-tecnologia px-4 py-2.5">Data pgto</th>
+                <th class="text-left caption text-dms-tecnologia px-4 py-2.5">NF vinculada</th>
+                <th class="text-left caption text-dms-tecnologia px-4 py-2.5">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#E5E7EB]">
+              <tr class="hover:bg-[#FAFBFC]"><td class="px-4 py-2.5 mono text-gray-800">Mai/2026</td><td class="px-4 py-2.5 text-right mono">R$ 28.400,00</td><td class="px-4 py-2.5 text-right mono text-dms-mar font-semibold">R$ 28.400,00</td><td class="px-4 py-2.5 mono text-gray-700">15/05/2026</td><td class="px-4 py-2.5"><a href="tela39-nota-fiscal-detalhe.html" class="mono text-sm text-dms-ceu hover:underline">NF-8421</a></td><td class="px-4 py-2.5"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border bg-emerald-50 text-emerald-700 border-emerald-200">Pago</span></td></tr>
+              <tr class="hover:bg-[#FAFBFC]"><td class="px-4 py-2.5 mono text-gray-800">Abr/2026</td><td class="px-4 py-2.5 text-right mono">R$ 28.400,00</td><td class="px-4 py-2.5 text-right mono text-dms-mar font-semibold">R$ 28.400,00</td><td class="px-4 py-2.5 mono text-gray-700">15/04/2026</td><td class="px-4 py-2.5"><a href="tela39-nota-fiscal-detalhe.html" class="mono text-sm text-dms-ceu hover:underline">NF-8290</a></td><td class="px-4 py-2.5"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border bg-emerald-50 text-emerald-700 border-emerald-200">Pago</span></td></tr>
+              <tr class="hover:bg-[#FAFBFC]"><td class="px-4 py-2.5 mono text-gray-800">Mar/2026</td><td class="px-4 py-2.5 text-right mono">R$ 28.400,00</td><td class="px-4 py-2.5 text-right mono text-dms-mar font-semibold">R$ 28.400,00</td><td class="px-4 py-2.5 mono text-gray-700">14/03/2026</td><td class="px-4 py-2.5"><a href="tela39-nota-fiscal-detalhe.html" class="mono text-sm text-dms-ceu hover:underline">NF-8154</a></td><td class="px-4 py-2.5"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border bg-emerald-50 text-emerald-700 border-emerald-200">Pago</span></td></tr>
+              <tr class="hover:bg-[#FAFBFC] bg-amber-50/30"><td class="px-4 py-2.5 mono text-gray-800">Jun/2026</td><td class="px-4 py-2.5 text-right mono">R$ 28.400,00</td><td class="px-4 py-2.5 text-right text-gray-400">—</td><td class="px-4 py-2.5 mono text-amber-700">vence 15/06</td><td class="px-4 py-2.5 text-xs text-dms-tecnologia">aguardando</td><td class="px-4 py-2.5"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border bg-amber-50 text-amber-700 border-amber-200">Previsto</span></td></tr>
+              <tr class="hover:bg-[#FAFBFC]"><td class="px-4 py-2.5 mono text-gray-800">Jul/2026</td><td class="px-4 py-2.5 text-right mono">R$ 28.400,00</td><td class="px-4 py-2.5 text-right text-gray-400">—</td><td class="px-4 py-2.5 text-xs text-dms-tecnologia">—</td><td class="px-4 py-2.5 text-xs text-dms-tecnologia">—</td><td class="px-4 py-2.5"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border bg-gray-100 text-gray-700 border-gray-200">Previsto</span></td></tr>
+              <tr class="hover:bg-[#FAFBFC]"><td class="px-4 py-2.5 mono text-gray-800">Ago/2026</td><td class="px-4 py-2.5 text-right mono">R$ 28.400,00</td><td class="px-4 py-2.5 text-right text-gray-400">—</td><td class="px-4 py-2.5 text-xs text-dms-tecnologia">—</td><td class="px-4 py-2.5 text-xs text-dms-tecnologia">—</td><td class="px-4 py-2.5"><span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border bg-gray-100 text-gray-700 border-gray-200">Previsto</span></td></tr>
+            </tbody>
+          </table>
+          <div class="px-6 py-3 border-t border-[#E5E7EB] text-xs text-dms-tecnologia">Mostrando 6 de 36 competências · <a href="#" class="text-dms-ceu hover:underline">ver todas</a></div>
+        </div>
+
+        <!-- Pane: Aditivos -->
+        <div class="tab-pane p-6" data-pane="aditivos">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <div class="text-sm font-bold text-dms-mar">Aditivos contratuais</div>
+              <div class="text-xs text-dms-tecnologia mt-0.5">Alterações de prazo, valor ou escopo desde a assinatura.</div>
+            </div>
+            <button class="flex items-center gap-2 text-sm font-semibold text-white px-4 py-2 bg-dms-sabedoria rounded-md hover:opacity-90">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              Novo aditivo
+            </button>
+          </div>
+          <div class="space-y-3">
+            <div class="border border-[#E5E7EB] rounded-lg p-4 hover:shadow-dms-md transition-shadow">
+              <div class="flex items-start justify-between mb-2">
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="mono text-sm font-semibold text-dms-mar">AD-2025-002</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border bg-sky-50 text-sky-700 border-sky-200">Reajuste de valor</span>
+                  </div>
+                  <div class="text-sm text-gray-800">Aplicação do reajuste anual de IPCA (4,8%) — valor mensal passou de R$ 27.100 para R$ 28.400.</div>
+                </div>
+                <span class="mono text-xs text-dms-tecnologia">01/03/2025</span>
+              </div>
+              <div class="flex items-center gap-2 mt-2"><a href="#" class="text-xs text-dms-ceu hover:underline">📎 aditivo-002.pdf</a></div>
+            </div>
+            <div class="border border-[#E5E7EB] rounded-lg p-4 hover:shadow-dms-md transition-shadow">
+              <div class="flex items-start justify-between mb-2">
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="mono text-sm font-semibold text-dms-mar">AD-2024-001</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border bg-violet-50 text-violet-700 border-violet-200">Inclusão de escopo</span>
+                  </div>
+                  <div class="text-sm text-gray-800">Inclusão de 2 empilhadeiras adicionais (modelo elétrico 2,5 ton.) ao escopo original de 8 unidades.</div>
+                </div>
+                <span class="mono text-xs text-dms-tecnologia">15/10/2024</span>
+              </div>
+              <div class="flex items-center gap-2 mt-2"><a href="#" class="text-xs text-dms-ceu hover:underline">📎 aditivo-001.pdf</a></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pane: Documentos -->
+        <div class="tab-pane p-6" data-pane="docs">
+          <div class="grid grid-cols-3 gap-3">
+            <div class="border border-[#E5E7EB] rounded-lg p-4 hover:shadow-dms-md cursor-pointer transition-shadow">
+              <div class="flex items-start gap-3"><svg class="w-8 h-8 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" opacity=".2"/><path d="M14 2v6h6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><div class="min-w-0 flex-1"><div class="text-sm font-semibold text-dms-mar truncate">contrato-original.pdf</div><div class="text-xs text-dms-tecnologia mt-0.5">2,4 MB · 28/02/2024</div></div></div>
+            </div>
+            <div class="border border-[#E5E7EB] rounded-lg p-4 hover:shadow-dms-md cursor-pointer transition-shadow">
+              <div class="flex items-start gap-3"><svg class="w-8 h-8 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" opacity=".2"/></svg><div class="min-w-0 flex-1"><div class="text-sm font-semibold text-dms-mar truncate">aditivo-001.pdf</div><div class="text-xs text-dms-tecnologia mt-0.5">980 KB · 15/10/2024</div></div></div>
+            </div>
+            <div class="border border-[#E5E7EB] rounded-lg p-4 hover:shadow-dms-md cursor-pointer transition-shadow">
+              <div class="flex items-start gap-3"><svg class="w-8 h-8 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" opacity=".2"/></svg><div class="min-w-0 flex-1"><div class="text-sm font-semibold text-dms-mar truncate">aditivo-002.pdf</div><div class="text-xs text-dms-tecnologia mt-0.5">1,1 MB · 01/03/2025</div></div></div>
+            </div>
+            <div class="border border-[#E5E7EB] rounded-lg p-4 hover:shadow-dms-md cursor-pointer transition-shadow">
+              <div class="flex items-start gap-3"><svg class="w-8 h-8 text-emerald-600 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" opacity=".2"/></svg><div class="min-w-0 flex-1"><div class="text-sm font-semibold text-dms-mar truncate">garantia-fianca.pdf</div><div class="text-xs text-dms-tecnologia mt-0.5">620 KB · 28/02/2024</div></div></div>
+            </div>
+            <div class="border border-[#E5E7EB] rounded-lg p-4 hover:shadow-dms-md cursor-pointer transition-shadow">
+              <div class="flex items-start gap-3"><svg class="w-8 h-8 text-sky-600 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" opacity=".2"/></svg><div class="min-w-0 flex-1"><div class="text-sm font-semibold text-dms-mar truncate">CNDs-fornecedor.zip</div><div class="text-xs text-dms-tecnologia mt-0.5">4,3 MB · 05/05/2026</div></div></div>
+            </div>
+            <div class="border border-[#E5E7EB] rounded-lg p-4 hover:shadow-dms-md cursor-pointer transition-shadow">
+              <div class="flex items-start gap-3"><svg class="w-8 h-8 text-violet-600 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" opacity=".2"/></svg><div class="min-w-0 flex-1"><div class="text-sm font-semibold text-dms-mar truncate">termo-vistoria-2026.docx</div><div class="text-xs text-dms-tecnologia mt-0.5">240 KB · 01/03/2026</div></div></div>
+            </div>
+            <div class="border border-dashed border-[#E5E7EB] rounded-lg p-4 hover:border-dms-ceu cursor-pointer transition-colors flex items-center justify-center text-dms-tecnologia hover:text-dms-ceu">
+              <div class="text-center"><svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg><div class="text-xs font-medium">Anexar documento</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pane: Histórico -->
+        <div class="tab-pane p-6" data-pane="historico">
+          <ol class="relative border-l-2 border-[#E5E7EB] ml-3 space-y-6">
+            <li class="ml-6">
+              <span class="absolute -left-2 w-4 h-4 bg-emerald-500 rounded-full ring-4 ring-white"></span>
+              <div class="text-sm font-semibold text-dms-mar">Pagamento Mai/2026 quitado</div>
+              <div class="text-xs text-dms-tecnologia">NF-8421 · R$ 28.400,00 · 15/05/2026 14:32</div>
+            </li>
+            <li class="ml-6">
+              <span class="absolute -left-2 w-4 h-4 bg-sky-500 rounded-full ring-4 ring-white"></span>
+              <div class="text-sm font-semibold text-dms-mar">Aditivo AD-2025-002 registrado</div>
+              <div class="text-xs text-dms-tecnologia">Reajuste IPCA aplicado · 01/03/2025 09:15 · por Marina Costa</div>
+            </li>
+            <li class="ml-6">
+              <span class="absolute -left-2 w-4 h-4 bg-violet-500 rounded-full ring-4 ring-white"></span>
+              <div class="text-sm font-semibold text-dms-mar">Aditivo AD-2024-001 registrado</div>
+              <div class="text-xs text-dms-tecnologia">Inclusão de 2 unidades · 15/10/2024 16:48 · por Marina Costa</div>
+            </li>
+            <li class="ml-6">
+              <span class="absolute -left-2 w-4 h-4 bg-dms-ceu rounded-full ring-4 ring-white"></span>
+              <div class="text-sm font-semibold text-dms-mar">Vigência iniciada</div>
+              <div class="text-xs text-dms-tecnologia">Contrato ativo · 01/03/2024 00:00</div>
+            </li>
+            <li class="ml-6">
+              <span class="absolute -left-2 w-4 h-4 bg-dms-sabedoria rounded-full ring-4 ring-white"></span>
+              <div class="text-sm font-semibold text-dms-mar">Aprovado pela Diretoria</div>
+              <div class="text-xs text-dms-tecnologia">Júlia Santos · 27/02/2024 11:20</div>
+            </li>
+            <li class="ml-6">
+              <span class="absolute -left-2 w-4 h-4 bg-dms-mar rounded-full ring-4 ring-white"></span>
+              <div class="text-sm font-semibold text-dms-mar">Contrato criado</div>
+              <div class="text-xs text-dms-tecnologia">Rascunho gerado · 20/02/2024 10:05 · por Marina Costa</div>
+            </li>
+          </ol>
+        </div>
+
+        <!-- Pane: Auditoria -->
+        <div class="tab-pane p-0" data-pane="auditoria">
+          <table class="w-full text-sm">
+            <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+              <tr>
+                <th class="text-left caption text-dms-tecnologia px-4 py-2.5">Timestamp</th>
+                <th class="text-left caption text-dms-tecnologia px-4 py-2.5">Ação</th>
+                <th class="text-left caption text-dms-tecnologia px-4 py-2.5">Usuário</th>
+                <th class="text-left caption text-dms-tecnologia px-4 py-2.5">Detalhe</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#E5E7EB]">
+              <tr><td class="px-4 py-2.5 mono text-xs text-gray-700">2026-05-15 14:32:18</td><td class="px-4 py-2.5"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-semibold bg-emerald-50 text-emerald-700">PAY</span></td><td class="px-4 py-2.5 text-gray-800">marina.costa</td><td class="px-4 py-2.5 text-xs text-dms-tecnologia">Vínculo NF-8421 → competência Mai/2026</td></tr>
+              <tr><td class="px-4 py-2.5 mono text-xs text-gray-700">2026-04-15 09:11:04</td><td class="px-4 py-2.5"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-semibold bg-emerald-50 text-emerald-700">PAY</span></td><td class="px-4 py-2.5 text-gray-800">marina.costa</td><td class="px-4 py-2.5 text-xs text-dms-tecnologia">Vínculo NF-8290 → competência Abr/2026</td></tr>
+              <tr><td class="px-4 py-2.5 mono text-xs text-gray-700">2025-03-01 09:15:22</td><td class="px-4 py-2.5"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-semibold bg-sky-50 text-sky-700">AMEND</span></td><td class="px-4 py-2.5 text-gray-800">marina.costa</td><td class="px-4 py-2.5 text-xs text-dms-tecnologia">AD-2025-002 criado · valor mensal 27.100 → 28.400</td></tr>
+              <tr><td class="px-4 py-2.5 mono text-xs text-gray-700">2024-10-15 16:48:55</td><td class="px-4 py-2.5"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-semibold bg-sky-50 text-sky-700">AMEND</span></td><td class="px-4 py-2.5 text-gray-800">marina.costa</td><td class="px-4 py-2.5 text-xs text-dms-tecnologia">AD-2024-001 criado · +2 unidades incluídas</td></tr>
+              <tr><td class="px-4 py-2.5 mono text-xs text-gray-700">2024-02-27 11:20:33</td><td class="px-4 py-2.5"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-semibold bg-violet-50 text-violet-700">APPROVE</span></td><td class="px-4 py-2.5 text-gray-800">julia.santos</td><td class="px-4 py-2.5 text-xs text-dms-tecnologia">Aprovação final · Diretoria</td></tr>
+              <tr><td class="px-4 py-2.5 mono text-xs text-gray-700">2024-02-26 14:45:12</td><td class="px-4 py-2.5"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-semibold bg-violet-50 text-violet-700">APPROVE</span></td><td class="px-4 py-2.5 text-gray-800">rafael.alves</td><td class="px-4 py-2.5 text-xs text-dms-tecnologia">Aprovação · Controladoria</td></tr>
+              <tr><td class="px-4 py-2.5 mono text-xs text-gray-700">2024-02-20 10:05:48</td><td class="px-4 py-2.5"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-semibold bg-gray-100 text-gray-700">CREATE</span></td><td class="px-4 py-2.5 text-gray-800">marina.costa</td><td class="px-4 py-2.5 text-xs text-dms-tecnologia">Contrato criado em rascunho</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('#tabs .tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('#tabs .tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.querySelector('[data-pane="' + t.dataset.tab + '"]').classList.add('active');
+  });
+});
+</script>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text, #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+        <li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+<script>
+(function(){
+  var sb=document.getElementById('dms-sidebar'),toggle=document.getElementById('sidebar-toggle'),mobBtn=document.getElementById('dms-sidebar-mobile-btn'),overlay=document.getElementById('dms-sidebar-overlay');
+  if(!sb||!toggle)return; var K='mockup-sidebar-collapsed-v2',c=false; try{c=localStorage.getItem(K)==='1';}catch(e){}
+  function m(){return window.matchMedia('(max-width: 767px)').matches}
+  function r(){if(c&&!m()){sb.classList.add('collapsed');sb.style.width='64px';document.documentElement.style.setProperty('--dms-sb-w','64px');}else{sb.classList.remove('collapsed');sb.style.width=m()?'280px':'240px';document.documentElement.style.setProperty('--dms-sb-w',m()?'0px':'240px');}}
+  toggle.addEventListener('click',function(){c=!c;try{localStorage.setItem(K,c?'1':'0');}catch(e){}r();});
+  function cm(){sb.classList.remove('mobile-open');if(overlay)overlay.classList.remove('show');}
+  if(mobBtn)mobBtn.addEventListener('click',function(){if(sb.classList.contains('mobile-open'))cm();else{sb.classList.add('mobile-open');if(overlay)overlay.classList.add('show');}});
+  if(overlay)overlay.addEventListener('click',cm);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){a.addEventListener('click',function(){if(m())cm();});});
+  var cur=(location.pathname.split('/').pop()||'').toLowerCase();
+  if(cur==='tela46-contrato-detalhe.html')cur='tela44-contratos-list.html';
+  if(cur){sb.querySelectorAll('nav a[href]').forEach(function(a){var h=(a.getAttribute('href')||'').toLowerCase();if(h&&h===cur)a.classList.add('sb-active');});}
+  window.addEventListener('resize',r);r();
+})();
+</script>
+</body>
+</html>
