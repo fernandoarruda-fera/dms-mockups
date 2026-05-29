@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Meu Perfil</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .tab { padding:12px 16px; border-bottom:2px solid transparent; font-size:13px; font-weight:600; color:#656464; cursor:pointer; }
+  .tab.active { color:#00386C; border-bottom-color:#00AEEE; }
+  .tab:hover { color:#00386C; }
+  .tab-pane { display:none; }
+  .tab-pane.active { display:block; }
+  .toggle { width: 36px; height: 20px; background: #E5E7EB; border-radius: 999px; position: relative; cursor: pointer; transition: background .2s; flex-shrink:0; }
+  .toggle::after { content:''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: transform .2s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+  .toggle.on { background: #00AEEE; }
+  .toggle.on::after { transform: translateX(16px); }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <span class="text-dms-mar font-semibold">Meu Perfil</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1180px] w-full mx-auto">
+
+      <!-- Header com avatar -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg p-6 mb-6 shadow-dms-md">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex items-center gap-5">
+            <div class="relative">
+              <div class="w-20 h-20 bg-dms-sabedoria text-white rounded-full flex items-center justify-center text-2xl font-bold">MC</div>
+              <button class="absolute -bottom-1 -right-1 w-7 h-7 bg-white border border-[#E5E7EB] rounded-full flex items-center justify-center hover:bg-gray-50 shadow-sm" title="Trocar foto">
+                <svg class="w-3.5 h-3.5 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><circle cx="12" cy="13" r="3" stroke-width="2"/></svg>
+              </button>
+            </div>
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <h1 class="text-[24px] font-bold text-dms-mar">Marina Costa</h1>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-violet-50 text-violet-700 border-violet-200">Comprador sênior</span>
+              </div>
+              <div class="text-sm text-dms-tecnologia">marina.costa@dmslog.com.br · Suprimentos · DMS Logística</div>
+              <div class="text-xs text-dms-tecnologia mt-1 mono">Último acesso: hoje, 09:14 · IP 192.168.10.42</div>
+            </div>
+          </div>
+          <button class="px-4 py-2 text-sm font-medium text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50 transition-colors">
+            <svg class="w-4 h-4 inline -mt-0.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            Editar perfil
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+        <div class="border-b border-[#E5E7EB] flex items-center overflow-x-auto" id="tabs">
+          <div class="tab active" data-tab="dados">Dados pessoais</div>
+          <div class="tab" data-tab="seg">Segurança</div>
+          <div class="tab" data-tab="notif">Notificações</div>
+          <div class="tab" data-tab="pref">Preferências</div>
+        </div>
+
+        <!-- Dados pessoais -->
+        <div class="tab-pane active p-6" data-pane="dados">
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <label class="text-[11px] font-bold text-dms-tecnologia uppercase tracking-wider">Nome completo</label>
+              <div class="flex items-center justify-between mt-1 py-2 border-b border-[#E5E7EB]">
+                <span class="text-sm text-gray-800">Marina Helena Costa</span>
+                <button class="text-xs text-dms-ceu hover:text-dms-mar font-medium">editar</button>
+              </div>
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-dms-tecnologia uppercase tracking-wider">Email</label>
+              <div class="flex items-center justify-between mt-1 py-2 border-b border-[#E5E7EB]">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm text-gray-800 mono">marina.costa@dmslog.com.br</span>
+                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold border bg-emerald-50 text-emerald-700 border-emerald-200">
+                    <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                    verificado
+                  </span>
+                </div>
+                <span class="text-xs text-dms-tecnologia">read-only</span>
+              </div>
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-dms-tecnologia uppercase tracking-wider">Telefone</label>
+              <div class="flex items-center justify-between mt-1 py-2 border-b border-[#E5E7EB]">
+                <span class="text-sm text-gray-800 mono">+55 (11) 98412-7733</span>
+                <button class="text-xs text-dms-ceu hover:text-dms-mar font-medium">editar</button>
+              </div>
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-dms-tecnologia uppercase tracking-wider">Cargo</label>
+              <div class="flex items-center justify-between mt-1 py-2 border-b border-[#E5E7EB]">
+                <span class="text-sm text-gray-800">Comprador sênior</span>
+                <span class="text-xs text-dms-tecnologia">RH</span>
+              </div>
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-dms-tecnologia uppercase tracking-wider">Departamento</label>
+              <div class="flex items-center justify-between mt-1 py-2 border-b border-[#E5E7EB]">
+                <span class="text-sm text-gray-800">Suprimentos</span>
+                <span class="text-xs text-dms-tecnologia">RH</span>
+              </div>
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-dms-tecnologia uppercase tracking-wider">Empresa vinculada</label>
+              <div class="flex items-center justify-between mt-1 py-2 border-b border-[#E5E7EB]">
+                <span class="text-sm text-gray-800">DMS Logística <span class="text-dms-tecnologia text-xs mono ml-2">CNPJ 12.345.678/0001-99</span></span>
+              </div>
+            </div>
+            <div class="col-span-2 mt-2 pt-4 border-t border-[#E5E7EB]">
+              <h3 class="text-xs font-bold text-dms-mar uppercase tracking-wider mb-3">Perfil de acesso</h3>
+              <div class="flex flex-wrap gap-2">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border bg-sky-50 text-sky-700 border-sky-200">Compras · operação</span>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border bg-emerald-50 text-emerald-700 border-emerald-200">Aprovador · até R$ 50k</span>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border bg-violet-50 text-violet-700 border-violet-200">Gestor de contratos</span>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border bg-amber-50 text-amber-700 border-amber-200">Centro de custo CC-2014</span>
+              </div>
+              <p class="text-xs text-dms-tecnologia mt-2.5">Alterações de perfil só podem ser feitas por um administrador. Solicite via TI.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Segurança -->
+        <div class="tab-pane p-6" data-pane="seg">
+          <div class="space-y-4">
+            <div class="border border-[#E5E7EB] rounded-lg p-4 flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-sky-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg class="w-5 h-5 text-dms-ceu" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-1-7a4 4 0 014 4v3H7V8a4 4 0 014-4z"/></svg>
+                </div>
+                <div>
+                  <div class="text-sm font-semibold text-dms-mar">Senha</div>
+                  <div class="text-xs text-dms-tecnologia">Alterada há 32 dias · vencimento sugerido a cada 90 dias</div>
+                </div>
+              </div>
+              <a href="tela51-trocar-senha.html" class="px-4 py-2 text-sm font-medium text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50 transition-colors">Trocar senha</a>
+            </div>
+
+            <div class="border border-[#E5E7EB] rounded-lg p-4 flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-semibold text-dms-mar">Autenticação em 2 fatores</span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border bg-amber-50 text-amber-700 border-amber-200">desativada</span>
+                  </div>
+                  <div class="text-xs text-dms-tecnologia">Adicione uma camada extra exigindo código do app autenticador.</div>
+                </div>
+              </div>
+              <a href="tela52-2fa-setup.html" class="px-4 py-2 text-sm font-semibold text-white bg-dms-sabedoria rounded-md hover:opacity-90 transition-opacity">Configurar 2FA</a>
+            </div>
+
+            <div class="border border-[#E5E7EB] rounded-lg p-4">
+              <div class="flex items-center gap-4 mb-3">
+                <div class="w-10 h-10 bg-violet-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 014-4h0a4 4 0 014 4v2M5 21h14M7 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <div>
+                  <div class="text-sm font-semibold text-dms-mar">Sessões ativas</div>
+                  <div class="text-xs text-dms-tecnologia">Dispositivos com login válido nesta conta agora.</div>
+                </div>
+              </div>
+              <ul class="text-xs divide-y divide-[#E5E7EB] border-t border-[#E5E7EB]">
+                <li class="flex items-center justify-between py-2.5"><span class="text-gray-800">Chrome · macOS · São Paulo, BR <span class="text-emerald-600 font-semibold ml-2">atual</span></span><span class="mono text-dms-tecnologia">192.168.10.42 · 09:14</span></li>
+                <li class="flex items-center justify-between py-2.5"><span class="text-gray-800">Safari · iPhone · São Paulo, BR</span><span class="mono text-dms-tecnologia">200.123.45.67 · ontem 18:22</span></li>
+              </ul>
+              <button class="text-xs text-red-600 hover:text-red-800 font-medium mt-3">Encerrar todas as outras sessões</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notificações -->
+        <div class="tab-pane p-6" data-pane="notif">
+          <div class="space-y-4 max-w-2xl">
+            <div class="flex items-start justify-between gap-4 p-3 border border-[#E5E7EB] rounded-lg">
+              <div>
+                <div class="text-sm font-semibold text-dms-mar">Email · aprovações pendentes</div>
+                <div class="text-xs text-dms-tecnologia mt-0.5">Receber email sempre que houver requisição/cotação aguardando minha aprovação.</div>
+              </div>
+              <div class="toggle on" role="switch" aria-checked="true"></div>
+            </div>
+            <div class="flex items-start justify-between gap-4 p-3 border border-[#E5E7EB] rounded-lg">
+              <div>
+                <div class="text-sm font-semibold text-dms-mar">Email · prazos próximos</div>
+                <div class="text-xs text-dms-tecnologia mt-0.5">Lembrete diário 8h sobre contratos a vencer e SLAs em risco.</div>
+              </div>
+              <div class="toggle on" role="switch" aria-checked="true"></div>
+            </div>
+            <div class="flex items-start justify-between gap-4 p-3 border border-[#E5E7EB] rounded-lg">
+              <div>
+                <div class="text-sm font-semibold text-dms-mar">Notificação no navegador</div>
+                <div class="text-xs text-dms-tecnologia mt-0.5">Mostrar push notifications quando o DMS estiver aberto em outra aba.</div>
+              </div>
+              <div class="toggle" role="switch" aria-checked="false"></div>
+            </div>
+            <div class="flex items-start justify-between gap-4 p-3 border border-[#E5E7EB] rounded-lg">
+              <div>
+                <div class="text-sm font-semibold text-dms-mar">Resumo semanal</div>
+                <div class="text-xs text-dms-tecnologia mt-0.5">Email toda segunda às 8h com KPIs da semana anterior.</div>
+              </div>
+              <div class="toggle on" role="switch" aria-checked="true"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preferências -->
+        <div class="tab-pane p-6" data-pane="pref">
+          <div class="grid grid-cols-2 gap-4 max-w-2xl">
+            <div>
+              <label class="block text-xs font-bold text-dms-tecnologia uppercase tracking-wider mb-1.5">Idioma</label>
+              <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+                <option>Português (Brasil)</option>
+                <option>English (US)</option>
+                <option>Español</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-dms-tecnologia uppercase tracking-wider mb-1.5">Fuso horário</label>
+              <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+                <option>(GMT-3) São Paulo</option>
+                <option>(GMT-3) Buenos Aires</option>
+                <option>(GMT-5) Lima</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-dms-tecnologia uppercase tracking-wider mb-1.5">Formato de data</label>
+              <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+                <option>DD/MM/AAAA</option>
+                <option>AAAA-MM-DD</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-dms-tecnologia uppercase tracking-wider mb-1.5">Moeda padrão</label>
+              <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+                <option>BRL (R$)</option>
+                <option>USD ($)</option>
+              </select>
+            </div>
+            <div class="col-span-2 mt-3 pt-4 border-t border-[#E5E7EB]">
+              <label class="block text-xs font-bold text-dms-tecnologia uppercase tracking-wider mb-3">Tema</label>
+              <div class="grid grid-cols-3 gap-3">
+                <label class="border-2 border-dms-ceu rounded-lg p-3 cursor-pointer bg-sky-50/40">
+                  <div class="h-14 bg-white border border-[#E5E7EB] rounded mb-2"></div>
+                  <div class="text-xs font-semibold text-dms-mar flex items-center gap-1.5"><input type="radio" name="theme" checked class="accent-dms-ceu">Claro</div>
+                </label>
+                <label class="border border-[#E5E7EB] rounded-lg p-3 cursor-pointer hover:border-dms-ceu">
+                  <div class="h-14 bg-gray-800 border border-gray-700 rounded mb-2"></div>
+                  <div class="text-xs font-semibold text-dms-mar flex items-center gap-1.5"><input type="radio" name="theme" class="accent-dms-ceu">Escuro</div>
+                </label>
+                <label class="border border-[#E5E7EB] rounded-lg p-3 cursor-pointer hover:border-dms-ceu">
+                  <div class="h-14 bg-gradient-to-br from-white to-gray-800 border border-[#E5E7EB] rounded mb-2"></div>
+                  <div class="text-xs font-semibold text-dms-mar flex items-center gap-1.5"><input type="radio" name="theme" class="accent-dms-ceu">Sistema</div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('#tabs .tab').forEach(t => {
+  t.addEventListener('click', () => {
+    document.querySelectorAll('#tabs .tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.querySelector('[data-pane="' + t.dataset.tab + '"]').classList.add('active');
+  });
+});
+document.querySelectorAll('.toggle').forEach(t => t.addEventListener('click', () => t.classList.toggle('on')));
+</script>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text, #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+        <li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Conta</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela50-profile.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👤</span><span class="sb-label">Meu Perfil</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+<script>
+(function(){
+  var sb=document.getElementById('dms-sidebar'),toggle=document.getElementById('sidebar-toggle'),mobBtn=document.getElementById('dms-sidebar-mobile-btn'),overlay=document.getElementById('dms-sidebar-overlay');
+  if(!sb||!toggle)return; var K='mockup-sidebar-collapsed-v2',c=false; try{c=localStorage.getItem(K)==='1';}catch(e){}
+  function m(){return window.matchMedia('(max-width: 767px)').matches}
+  function r(){if(c&&!m()){sb.classList.add('collapsed');sb.style.width='64px';document.documentElement.style.setProperty('--dms-sb-w','64px');}else{sb.classList.remove('collapsed');sb.style.width=m()?'280px':'240px';document.documentElement.style.setProperty('--dms-sb-w',m()?'0px':'240px');}}
+  toggle.addEventListener('click',function(){c=!c;try{localStorage.setItem(K,c?'1':'0');}catch(e){}r();});
+  function cm(){sb.classList.remove('mobile-open');if(overlay)overlay.classList.remove('show');}
+  if(mobBtn)mobBtn.addEventListener('click',function(){if(sb.classList.contains('mobile-open'))cm();else{sb.classList.add('mobile-open');if(overlay)overlay.classList.add('show');}});
+  if(overlay)overlay.addEventListener('click',cm);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){a.addEventListener('click',function(){if(m())cm();});});
+  var cur=(location.pathname.split('/').pop()||'').toLowerCase();
+  if(cur==='tela51-trocar-senha.html'||cur==='tela52-2fa-setup.html')cur='tela50-profile.html';
+  if(cur){sb.querySelectorAll('nav a[href]').forEach(function(a){var h=(a.getAttribute('href')||'').toLowerCase();if(h&&h===cur)a.classList.add('sb-active');});}
+  window.addEventListener('resize',r);r();
+})();
+</script>
+</body>
+</html>

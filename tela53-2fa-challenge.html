@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Verificação 2FA</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)', 'dms-lg': '0 20px 25px -5px rgba(0,56,108,.10), 0 10px 10px -5px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: linear-gradient(135deg, #F8F9FA 0%, #EFF3F8 100%); color: #1A1A1A; min-height: 100vh; }
+  .tilt-accent { transform: skewX(-16.5deg); display: inline-block; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .otp-box { width: 48px; height: 56px; border: 1.5px solid #E5E7EB; border-radius: 8px; font-family: 'JetBrains Mono', Consolas, monospace; font-size: 22px; font-weight: 700; text-align: center; color: #00386C; background: #fff; transition: all .15s; }
+  .otp-box:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,.15); }
+  .otp-box.filled { border-color: #00386C; background: #F8F9FA; }
+</style>
+</head>
+<body class="flex items-center justify-center px-4 py-10">
+
+<div class="w-full max-w-[480px]">
+
+  <div class="flex items-center justify-center gap-3 mb-8">
+    <div class="w-12 h-12 bg-dms-mar rounded-lg flex items-center justify-center shadow-dms-md">
+      <span class="tilt-accent text-white font-black text-2xl leading-none">D</span>
+    </div>
+    <div class="leading-tight">
+      <div class="text-dms-mar font-bold text-xl">DMS Compras</div>
+      <div class="text-[11px] text-dms-tecnologia mono uppercase tracking-wider">Plataforma corporativa</div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-dms-lg border border-[#E5E7EB] p-8">
+
+    <!-- Icon -->
+    <div class="flex justify-center mb-4">
+      <div class="w-14 h-14 bg-sky-50 rounded-full flex items-center justify-center">
+        <svg class="w-7 h-7 text-dms-ceu" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4M12 3l8.485 4.243a1 1 0 01.515.872V12c0 5-3.5 8-9 9-5.5-1-9-4-9-9V8.115a1 1 0 01.515-.872L12 3z"/></svg>
+      </div>
+    </div>
+
+    <h1 class="text-[22px] font-bold text-dms-mar text-center mb-1">Verificação em 2 fatores</h1>
+    <p class="text-sm text-dms-tecnologia text-center mb-6">Digite o código de 6 dígitos do seu app autenticador.</p>
+
+    <form>
+      <!-- OTP boxes -->
+      <div class="flex items-center justify-center gap-2 mb-6">
+        <input type="text" maxlength="1" class="otp-box filled" value="4">
+        <input type="text" maxlength="1" class="otp-box filled" value="9">
+        <input type="text" maxlength="1" class="otp-box filled" value="2">
+        <span class="text-dms-tecnologia mx-1">–</span>
+        <input type="text" maxlength="1" class="otp-box filled" value="7">
+        <input type="text" maxlength="1" class="otp-box" value="">
+        <input type="text" maxlength="1" class="otp-box" value="">
+      </div>
+
+      <!-- Trust device -->
+      <label class="flex items-start gap-2.5 cursor-pointer mb-5 text-sm text-gray-700">
+        <input type="checkbox" class="w-4 h-4 accent-dms-ceu rounded mt-0.5">
+        <span>Confiar neste dispositivo por <span class="font-semibold">30 dias</span> — não pedir 2FA novamente neste navegador.</span>
+      </label>
+
+      <button type="submit" class="w-full py-2.5 bg-dms-sabedoria text-white text-sm font-semibold rounded-md hover:opacity-90 transition-opacity shadow-dms-md">
+        Verificar
+      </button>
+    </form>
+
+    <!-- Help links -->
+    <div class="mt-6 pt-5 border-t border-[#E5E7EB] space-y-2">
+      <a href="#" class="block text-sm text-dms-ceu hover:text-dms-mar text-center font-medium">Usar código de backup</a>
+      <a href="#" class="block text-xs text-dms-tecnologia hover:text-dms-mar text-center">Não consigo acessar meu autenticador</a>
+    </div>
+
+  </div>
+
+  <div class="text-center mt-5">
+    <a href="tela47-login.html" class="text-sm text-dms-tecnologia hover:text-dms-mar inline-flex items-center gap-1.5">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+      Voltar ao login
+    </a>
+  </div>
+
+  <p class="text-center text-[11px] text-dms-tecnologia mt-4 mono">© 2026 DMS Logística · v2.4.1</p>
+
+</div>
+
+</body>
+</html>

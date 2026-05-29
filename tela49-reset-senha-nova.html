@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Definir nova senha</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)', 'dms-lg': '0 20px 25px -5px rgba(0,56,108,.10), 0 10px 10px -5px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: linear-gradient(135deg, #F8F9FA 0%, #EFF3F8 100%); color: #1A1A1A; min-height: 100vh; }
+  .tilt-accent { transform: skewX(-16.5deg); display: inline-block; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .req::after { content: '*'; color: #DC2626; margin-left: 2px; }
+  input:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,.15); }
+</style>
+</head>
+<body class="flex items-center justify-center px-4 py-10">
+
+<div class="w-full max-w-[480px]">
+
+  <!-- Logo -->
+  <div class="flex items-center justify-center gap-3 mb-8">
+    <div class="w-12 h-12 bg-dms-mar rounded-lg flex items-center justify-center shadow-dms-md">
+      <span class="tilt-accent text-white font-black text-2xl leading-none">D</span>
+    </div>
+    <div class="leading-tight">
+      <div class="text-dms-mar font-bold text-xl">DMS Compras</div>
+      <div class="text-[11px] text-dms-tecnologia mono uppercase tracking-wider">Plataforma corporativa</div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-dms-lg border border-[#E5E7EB] p-8">
+
+    <h1 class="text-[22px] font-bold text-dms-mar mb-1">Crie uma nova senha</h1>
+    <p class="text-sm text-dms-tecnologia mb-6">Use uma senha forte que você ainda não usou nesta conta.</p>
+
+    <form class="space-y-4">
+
+      <!-- Nova senha -->
+      <div>
+        <label class="block text-xs font-semibold text-dms-mar uppercase tracking-wider mb-1.5 req">Nova senha</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-1-7a4 4 0 014 4v3H7V8a4 4 0 014-4z"/></svg>
+          </span>
+          <input type="password" id="pwd1" placeholder="••••••••" class="w-full pl-10 pr-10 py-2.5 text-sm border border-[#E5E7EB] rounded-md transition-colors" value="Acme2026">
+          <button type="button" onclick="togglePwd('pwd1')" class="absolute right-3 top-1/2 -translate-y-1/2 text-dms-tecnologia hover:text-dms-mar">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.46 12C3.73 7.94 7.52 5 12 5c4.48 0 8.27 2.94 9.54 7-1.27 4.06-5.06 7-9.54 7-4.48 0-8.27-2.94-9.54-7z"/></svg>
+          </button>
+        </div>
+
+        <!-- Força da senha -->
+        <div class="mt-3">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[11px] uppercase tracking-wider text-dms-tecnologia font-semibold">Força da senha</span>
+            <span class="text-xs font-bold text-amber-600">Média</span>
+          </div>
+          <div class="grid grid-cols-4 gap-1.5">
+            <div class="h-1.5 rounded-full bg-amber-500"></div>
+            <div class="h-1.5 rounded-full bg-amber-500"></div>
+            <div class="h-1.5 rounded-full bg-amber-500"></div>
+            <div class="h-1.5 rounded-full bg-gray-200"></div>
+          </div>
+
+          <!-- Checklist -->
+          <ul class="mt-3 space-y-1 text-xs">
+            <li class="flex items-center gap-2 text-emerald-700">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+              Mínimo 8 caracteres
+            </li>
+            <li class="flex items-center gap-2 text-emerald-700">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+              Pelo menos 1 letra maiúscula
+            </li>
+            <li class="flex items-center gap-2 text-emerald-700">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+              Pelo menos 1 número
+            </li>
+            <li class="flex items-center gap-2 text-dms-tecnologia">
+              <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="2"/></svg>
+              Pelo menos 1 caractere especial (! @ # $ ...)
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Confirmar -->
+      <div>
+        <label class="block text-xs font-semibold text-dms-mar uppercase tracking-wider mb-1.5 req">Confirmar nova senha</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </span>
+          <input type="password" id="pwd2" placeholder="repita a nova senha" class="w-full pl-10 pr-10 py-2.5 text-sm border border-[#E5E7EB] rounded-md transition-colors">
+          <button type="button" onclick="togglePwd('pwd2')" class="absolute right-3 top-1/2 -translate-y-1/2 text-dms-tecnologia hover:text-dms-mar">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.46 12C3.73 7.94 7.52 5 12 5c4.48 0 8.27 2.94 9.54 7-1.27 4.06-5.06 7-9.54 7-4.48 0-8.27-2.94-9.54-7z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="w-full py-2.5 bg-dms-sabedoria text-white text-sm font-semibold rounded-md hover:opacity-90 transition-opacity shadow-dms-md mt-2">
+        Definir nova senha
+      </button>
+    </form>
+
+    <div class="text-center mt-5">
+      <a href="tela47-login.html" class="text-sm text-dms-ceu hover:text-dms-mar font-medium">Voltar ao login</a>
+    </div>
+  </div>
+
+  <p class="text-center text-[11px] text-dms-tecnologia mt-6 mono">© 2026 DMS Logística · v2.4.1</p>
+
+</div>
+
+<script>
+function togglePwd(id){
+  var i = document.getElementById(id);
+  i.type = i.type === 'password' ? 'text' : 'password';
+}
+</script>
+
+</body>
+</html>
