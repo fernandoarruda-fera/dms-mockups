@@ -530,11 +530,9 @@ function runTest() {
 renderCriteria();
 </script>
 
-<!-- ===== DMS COLLAPSIBLE SIDEBAR (injected) ===== -->
+<!-- ===== DMS CONSOLIDATED SIDEBAR (M4) ===== -->
 <style id="dms-cs-style">
-  /* Hide legacy sidebar */
   aside.w-\[260px\].bg-dms-mar { display: none !important; }
-  /* Track new sidebar width on legacy main */
   .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
   #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   #dms-sidebar nav { scrollbar-width: thin; }
@@ -542,8 +540,6 @@ renderCriteria();
   #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
   #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
   #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
-  #dms-sidebar a.disabled { cursor: not-allowed; opacity: 0.5; }
-  #dms-sidebar a.disabled:hover { background: transparent; }
   #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
   #dms-sidebar.collapsed .sb-label,
   #dms-sidebar.collapsed .sb-section-title,
@@ -558,7 +554,6 @@ renderCriteria();
   #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
   #dms-sidebar-overlay.show { display: block; }
   @media (max-width: 767px) {
-    /* Mobile: always overlay, always full-width when open, ignore collapsed state */
     #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
     #dms-sidebar.mobile-open { transform: translateX(0); }
     #dms-sidebar.collapsed .sb-label,
@@ -582,7 +577,7 @@ renderCriteria();
 <aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
   <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
     <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
-    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS Compras</span>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
     <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
       <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
     </button>
@@ -592,11 +587,30 @@ renderCriteria();
     <div style="padding:14px 14px 6px;">
       <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela16-cockpit-overview.html" title="Cockpit" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🎯</span><span class="sb-label">Cockpit</span></a></li>
-        <li><a href="tela17-cockpit-email.html" title="E-mail" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">E-mail</span></a></li>
+        <li><a href="tela16-cockpit-overview.html" title="Cockpit" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" title="Email" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
         <li><a href="tela18-cockpit-todo.html" title="Tarefas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
         <li><a href="tela19-cockpit-followup.html" title="Follow-up" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
         <li><a href="tela20-cockpit-update.html" title="Updates" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" title="Requisições" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" title="Cotações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" title="Pedidos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela30-empresas-list.html" title="Empresas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" title="Centros de Custo" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" title="Plano de Contas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+        <li><a href="tela36-pre-lancamentos-list.html" title="Pré-lançamentos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
       </ul>
     </div>
 
@@ -605,21 +619,19 @@ renderCriteria();
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
         <li><a href="tela01-catalogo-tags.html" title="Tags" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
         <li><a href="tela03-procedures-list.html" title="Procedures" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
-        <li><a href="tela04-catalogo-workflows.html" title="Workflows" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔄</span><span class="sb-label">Workflows</span></a></li>
-        <li><a href="tela06-biblioteca-sop.html" title="SOPs" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📚</span><span class="sb-label">SOPs</span></a></li>
-        <li><a href="#" onclick="return false" class="disabled" title="Triggers (em breve)" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚡</span><span class="sb-label">Triggers <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
-        <li><a href="#" onclick="return false" class="disabled" title="Alertas (em breve)" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🚨</span><span class="sb-label">Alertas <span style="font-size:9px; background:rgba(255,255,255,.2); padding:1px 4px; border-radius:3px; margin-left:4px;">em breve</span></span></a></li>
-        <li><a href="tela12-execution-visibility.html" title="Execuções" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👁️</span><span class="sb-label">Execuções</span></a></li>
-        <li><a href="tela13-audit-trail.html" title="Auditoria" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">Auditoria</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" title="Workflows" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" title="SOPs" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" title="Execuções" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" title="Auditoria" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
       </ul>
     </div>
 
     <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
       <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela11-match-engine.html" title="Match Engine" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Match Engine</span></a></li>
-        <li><a href="tela14-setup-integracoes.html" title="Setup" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup &amp; Integrações</span></a></li>
-        <li><a href="tela15-mailia-admin.html" title="MAILIA" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🤖</span><span class="sb-label">MAILIA Admin</span></a></li>
+        <li><a href="tela11-match-engine.html" title="Match Engine" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" title="Setup" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" title="MAILIA Admin" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
       </ul>
     </div>
   </nav>
@@ -632,16 +644,10 @@ renderCriteria();
   var mobBtn = document.getElementById('dms-sidebar-mobile-btn');
   var overlay = document.getElementById('dms-sidebar-overlay');
   if (!sb || !toggle) return;
-
-  // v2 key: ignores legacy collapsed state that trapped users
   var STORAGE_KEY = 'mockup-sidebar-collapsed-v2';
   var collapsed = false;
   try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
-  // Cleanup legacy key
-  try { localStorage.removeItem('mockup-sidebar-collapsed'); } catch(e) {}
-
   function isMobile(){ return window.matchMedia('(max-width: 767px)').matches; }
-
   function render(){
     if (collapsed && !isMobile()) {
       sb.classList.add('collapsed');
@@ -653,36 +659,16 @@ renderCriteria();
       document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px');
     }
   }
-
   toggle.addEventListener('click', function(){
     collapsed = !collapsed;
     try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {}
     render();
   });
-
-  function closeMobile(){
-    sb.classList.remove('mobile-open');
-    if (overlay) overlay.classList.remove('show');
-  }
-  function openMobile(){
-    sb.classList.add('mobile-open');
-    if (overlay) overlay.classList.add('show');
-  }
-
-  if (mobBtn) {
-    mobBtn.addEventListener('click', function(){
-      if (sb.classList.contains('mobile-open')) closeMobile();
-      else openMobile();
-    });
-  }
+  function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
+  function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
+  if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
   if (overlay) overlay.addEventListener('click', closeMobile);
-
-  // Close mobile sidebar after tapping a link
-  sb.querySelectorAll('nav a[href]:not(.disabled)').forEach(function(a){
-    a.addEventListener('click', function(){ if (isMobile()) closeMobile(); });
-  });
-
-  // Mark active link
+  sb.querySelectorAll('nav a[href]').forEach(function(a){ a.addEventListener('click', function(){ if (isMobile()) closeMobile(); }); });
   var current = (location.pathname.split('/').pop() || '').toLowerCase();
   if (current) {
     sb.querySelectorAll('nav a[href]').forEach(function(a){
@@ -690,11 +676,9 @@ renderCriteria();
       if (href && href === current) a.classList.add('sb-active');
     });
   }
-
   window.addEventListener('resize', render);
   render();
 })();
 </script>
-<!-- ===== END DMS COLLAPSIBLE SIDEBAR ===== -->
 </body>
 </html>
