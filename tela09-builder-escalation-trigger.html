@@ -282,7 +282,7 @@ tailwind.config = {
                 <!-- 3 modos como radio cards -->
                 <div>
                   <label class="caption text-dms-tecnologia mb-2 block">Modo de Escalation <span class="text-red-500">*</span></label>
-                  <div class="grid grid-cols-3 gap-3">
+                  <div class="grid grid-cols-3 gap-3 [&>div]:min-w-0 [&_span]:break-words [&_span]:leading-tight">
                     <div onclick="selectMode('redirecionar')" id="mode-redirecionar" class="mode-card selected bg-white border border-[#E5E7EB] rounded-lg p-3">
                       <div class="flex items-center gap-2 mb-1">
                         <svg class="mode-icon w-4 h-4 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>

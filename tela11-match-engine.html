@@ -169,20 +169,24 @@ tailwind.config = {
               </p>
 
               <!-- Tabela de critérios -->
-              <div class="border border-[#E5E7EB] rounded-lg overflow-hidden">
-                <table class="w-full text-sm">
-                  <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
-                    <tr>
-                      <th class="text-left caption text-dms-tecnologia px-4 py-3">Critério</th>
-                      <th class="text-left caption text-dms-tecnologia px-4 py-3 w-40">Operador</th>
-                      <th class="text-left caption text-dms-tecnologia px-4 py-3">Valor(es)</th>
-                      <th class="text-right caption text-dms-tecnologia px-4 py-3 w-12"></th>
-                    </tr>
-                  </thead>
-                  <tbody id="criteria-tbody" class="divide-y divide-[#E5E7EB]">
-                    <!-- gerados via JS -->
-                  </tbody>
-                </table>
+              <div class="border border-[#E5E7EB] rounded-lg relative">
+                <div class="overflow-x-auto rounded-lg" style="scrollbar-width: thin;">
+                  <table class="w-full text-sm" style="min-width: 720px;">
+                    <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+                      <tr>
+                        <th class="text-left caption text-dms-tecnologia px-4 py-3 whitespace-nowrap">Critério</th>
+                        <th class="text-left caption text-dms-tecnologia px-4 py-3 w-40 whitespace-nowrap">Operador</th>
+                        <th class="text-left caption text-dms-tecnologia px-4 py-3 whitespace-nowrap">Valor(es)</th>
+                        <th class="text-right caption text-dms-tecnologia px-4 py-3 w-12"></th>
+                      </tr>
+                    </thead>
+                    <tbody id="criteria-tbody" class="divide-y divide-[#E5E7EB]">
+                      <!-- gerados via JS -->
+                    </tbody>
+                  </table>
+                </div>
+                <!-- Fade hint pra indicar scroll horizontal -->
+                <div class="pointer-events-none absolute top-0 right-0 bottom-0 w-8 rounded-r-lg" style="background: linear-gradient(to left, rgba(255,255,255,0.95), rgba(255,255,255,0));"></div>
               </div>
 
               <!-- Adicionar critério -->

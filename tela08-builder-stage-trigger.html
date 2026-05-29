@@ -116,7 +116,7 @@ tailwind.config = {
     </header>
 
     <!-- CONTENT -->
-    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+    <main class="flex-1 p-8 pb-24 max-w-[1440px] w-full mx-auto">
 
       <!-- PAGE HEADER + ações -->
       <div class="flex items-start justify-between mb-6 gap-6">
@@ -139,11 +139,6 @@ tailwind.config = {
             <span>·</span>
             <span><strong class="text-dms-mar">30 execuções</strong> últimos 7 dias</span>
           </div>
-        </div>
-        <div class="flex items-center gap-3 flex-shrink-0">
-          <a href="#" class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 transition-colors">Cancelar</a>
-          <button class="text-sm font-semibold text-dms-tecnologia px-4 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">Salvar rascunho</button>
-          <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Publicar</button>
         </div>
       </div>
 
@@ -424,6 +419,13 @@ tailwind.config = {
           </div>
         </aside>
 
+      </div>
+
+      <!-- FOOTER FIXO -->
+      <div class="sticky bottom-0 -mx-8 mt-8 px-8 py-4 bg-white border-t border-[#E5E7EB] flex items-center justify-end gap-3 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.04)]">
+        <a href="tela03-procedures-list.html" class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 transition-colors border border-[#E5E7EB] rounded-md">Cancelar</a>
+        <button class="text-sm font-semibold text-dms-mar px-4 py-2 bg-white border border-dms-mar rounded-md hover:bg-dms-mar/5 transition-colors">Salvar rascunho</button>
+        <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Publicar</button>
       </div>
 
     </main>

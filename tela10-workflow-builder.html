@@ -73,6 +73,12 @@ tailwind.config = {
 
   /* Placeholder de aba inativa */
   .tab-placeholder { background: linear-gradient(135deg, rgba(0,174,238,0.03), rgba(0,56,108,0.03)); border: 2px dashed rgba(0,174,238,0.2); }
+  /* Mobile: hide old inline sidebar + add space pra hamburger button */
+  @media (max-width: 767px) {
+    body > div.flex > aside.fixed.z-30 { display: none !important; }
+    .flex-1.ml-\[260px\] header { padding-left: 64px !important; }
+    .flex-1.ml-\[260px\] main { padding-left: 16px !important; padding-right: 16px !important; }
+  }
 </style>
 </head>
 <body class="min-h-screen">

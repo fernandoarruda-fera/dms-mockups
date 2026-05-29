@@ -124,35 +124,35 @@ tailwind.config = {
 
       <!-- KPI CARDS -->
       <div class="grid grid-cols-5 gap-4 mb-6" id="kpi-row">
-        <button data-filter="todas" class="kpi-card active text-left bg-dms-mar text-white p-5 rounded-lg">
-          <div class="text-[36px] leading-none font-black">42</div>
+        <button data-filter="todas" class="kpi-card active text-left bg-dms-mar text-white p-3 rounded-lg">
+          <div class="text-[22px] leading-none font-black">42</div>
           <div class="caption text-white/80 mt-2">Todas</div>
         </button>
-        <button data-filter="ativas" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+        <button data-filter="ativas" class="kpi-card text-left bg-white border border-[#E5E7EB] p-3 rounded-lg">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-dms-tropicalidade"></span>
-            <div class="text-[36px] leading-none font-black text-dms-mar">28</div>
+            <div class="text-[22px] leading-none font-black text-dms-mar">28</div>
           </div>
           <div class="caption text-dms-tecnologia mt-2">Ativas</div>
         </button>
-        <button data-filter="rascunho" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+        <button data-filter="rascunho" class="kpi-card text-left bg-white border border-[#E5E7EB] p-3 rounded-lg">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-dms-ceu"></span>
-            <div class="text-[36px] leading-none font-black text-dms-mar">9</div>
+            <div class="text-[22px] leading-none font-black text-dms-mar">9</div>
           </div>
           <div class="caption text-dms-tecnologia mt-2">Rascunho</div>
         </button>
-        <button data-filter="invalidadas" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+        <button data-filter="invalidadas" class="kpi-card text-left bg-white border border-[#E5E7EB] p-3 rounded-lg">
           <div class="flex items-center gap-2">
             <span class="w-2 h-2 rounded-full bg-gray-400"></span>
-            <div class="text-[36px] leading-none font-black text-dms-mar">5</div>
+            <div class="text-[22px] leading-none font-black text-dms-mar">5</div>
           </div>
           <div class="caption text-dms-tecnologia mt-2">Invalidadas</div>
         </button>
-        <button data-filter="sem_sop" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
+        <button data-filter="sem_sop" class="kpi-card text-left bg-white border border-[#E5E7EB] p-3 rounded-lg">
           <div class="flex items-center gap-2">
             <svg class="w-3 h-3 text-[#EAB308]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495z" clip-rule="evenodd"/></svg>
-            <div class="text-[36px] leading-none font-black text-dms-mar">14</div>
+            <div class="text-[22px] leading-none font-black text-dms-mar">14</div>
           </div>
           <div class="caption text-dms-tecnologia mt-2">Sem SOP associada</div>
         </button>
@@ -322,7 +322,7 @@ function renderRows() {
       <td class="px-4 py-3 mono text-xs text-dms-tecnologia">${p.applies}</td>
       <td class="px-4 py-3 text-center">
         ${p.sops > 0
-          ? `<a href="#" class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-dms-ceu/10 text-dms-confianca font-semibold text-xs hover:bg-dms-ceu/20 transition-colors">${p.sops}</a>`
+          ? `<a href="#" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-dms-ceu/10 text-dms-confianca font-semibold text-[10px] hover:bg-dms-ceu/20 transition-colors">${p.sops}</a>`
           : `<span class="text-dms-tecnologia text-xs">0</span>`
         }
       </td>

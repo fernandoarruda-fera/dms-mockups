@@ -166,7 +166,7 @@ tailwind.config = {
       <div class="grid grid-cols-12 gap-6">
 
         <!-- ========== COLUNA PRINCIPAL ========== -->
-        <div class="col-span-8 space-y-6">
+        <div class="col-span-7 min-w-0 space-y-6 [&_.bg-white]:overflow-hidden [&_input]:min-w-0 [&_textarea]:break-words">
 
           <!-- CARD: Identidade -->
           <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
@@ -339,7 +339,7 @@ Se houver pendência, **devolver ao solicitante** com explicação textual.
         </div>
 
         <!-- ========== SIDEBAR DIREITA ========== -->
-        <aside class="col-span-4 space-y-5 sticky-sidebar self-start">
+        <aside class="col-span-5 min-w-0 space-y-5 sticky-sidebar self-start">
 
           <!-- Versionamento -->
           <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
@@ -372,10 +372,10 @@ Se houver pendência, **devolver ao solicitante** com explicação textual.
                   <span class="text-xs text-dms-tecnologia">há 3 meses</span>
                 </div>
               </div>
-              <button class="w-full text-xs font-semibold text-dms-confianca hover:text-dms-mar transition-colors text-left flex items-center gap-1 pt-2 border-t border-[#E5E7EB]">
+              <a href="tela13-audit-trail.html" class="w-full text-xs font-semibold text-dms-confianca hover:text-dms-mar transition-colors text-left flex items-center gap-1 pt-2 border-t border-[#E5E7EB]">
                 Ver histórico completo
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-              </button>
+              </a>
             </div>
           </div>
 
@@ -401,9 +401,9 @@ Se houver pendência, **devolver ao solicitante** com explicação textual.
                 </div>
               </div>
 
-              <button class="w-full text-sm font-semibold text-dms-confianca px-3 py-2 bg-white border border-dms-confianca rounded-md hover:bg-dms-confianca hover:text-white transition-colors">
+              <a href="tela04-catalogo-workflows.html" class="block w-full text-sm font-semibold text-dms-confianca px-3 py-2 bg-white border border-dms-confianca rounded-md hover:bg-dms-confianca hover:text-white transition-colors text-center">
                 Ver dependências →
-              </button>
+              </a>
 
               <div class="pt-2 border-t border-[#E5E7EB] text-xs text-dms-tecnologia">
                 Últimos 30 dias: <span class="font-semibold text-dms-mar">847 execuções</span>

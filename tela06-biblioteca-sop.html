@@ -125,24 +125,24 @@ tailwind.config = {
       <!-- KPI CARDS (5 categorias agrupadas + total) -->
       <!-- Nota: CONCEPT-sop-v2 §1.3.1 define 8 categorias enum FECHADO. Aqui agrupei nos 4 grupos principais pra caber em 5 KPIs (igual padrão das outras telas). Filtro completo de 8 está no select. -->
       <div class="grid grid-cols-5 gap-4 mb-6" id="kpi-row">
-        <button data-filter="todas" class="kpi-card active text-left bg-dms-mar text-white p-5 rounded-lg">
-          <div class="text-[36px] leading-none font-black">38</div>
+        <button data-filter="todas" class="kpi-card active text-left bg-dms-mar text-white p-3 rounded-lg">
+          <div class="text-[22px] leading-none font-black">38</div>
           <div class="caption text-white/80 mt-2">Todas</div>
         </button>
-        <button data-filter="aprovacao" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
-          <div class="text-[36px] leading-none font-black text-dms-mar">12</div>
+        <button data-filter="aprovacao" class="kpi-card text-left bg-white border border-[#E5E7EB] p-3 rounded-lg">
+          <div class="text-[22px] leading-none font-black text-dms-mar">12</div>
           <div class="caption text-dms-tecnologia mt-2">Aprovação</div>
         </button>
-        <button data-filter="operacao" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
-          <div class="text-[36px] leading-none font-black text-dms-mar">9</div>
+        <button data-filter="operacao" class="kpi-card text-left bg-white border border-[#E5E7EB] p-3 rounded-lg">
+          <div class="text-[22px] leading-none font-black text-dms-mar">9</div>
           <div class="caption text-dms-tecnologia mt-2">Operação</div>
         </button>
-        <button data-filter="financeiro" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
-          <div class="text-[36px] leading-none font-black text-dms-mar">8</div>
+        <button data-filter="financeiro" class="kpi-card text-left bg-white border border-[#E5E7EB] p-3 rounded-lg">
+          <div class="text-[22px] leading-none font-black text-dms-mar">8</div>
           <div class="caption text-dms-tecnologia mt-2">Financeiro/Fiscal</div>
         </button>
-        <button data-filter="governanca" class="kpi-card text-left bg-white border border-[#E5E7EB] p-5 rounded-lg">
-          <div class="text-[36px] leading-none font-black text-dms-mar">9</div>
+        <button data-filter="governanca" class="kpi-card text-left bg-white border border-[#E5E7EB] p-3 rounded-lg">
+          <div class="text-[22px] leading-none font-black text-dms-mar">9</div>
           <div class="caption text-dms-tecnologia mt-2">Governança/Compliance</div>
         </button>
       </div>
@@ -326,7 +326,7 @@ function renderRows() {
       <td class="px-4 py-3 text-xs text-dms-tecnologia">${s.lastEdit}</td>
       <td class="px-4 py-3 text-center">
         ${s.stages > 0
-          ? `<a href="#" class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-dms-ceu/10 text-dms-confianca font-semibold text-xs hover:bg-dms-ceu/20 transition-colors" title="Ver stages que usam">${s.stages}</a>`
+          ? `<a href="#" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-dms-ceu/10 text-dms-confianca font-semibold text-[10px] hover:bg-dms-ceu/20 transition-colors" title="Ver stages que usam">${s.stages}</a>`
           : `<span class="text-dms-tecnologia text-xs">0</span>`
         }
       </td>
