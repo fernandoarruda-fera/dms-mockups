@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Nota Fiscal NF-8471</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = { corePlugins: { preflight: true }, theme: { extend: { colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } }, fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] }, boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)' } } } };
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .field-label { font-size: 11px; font-weight: 600; color: #656464; letter-spacing: 0.04em; text-transform: uppercase; }
+  .tab-btn { padding: 12px 18px; font-size: 13px; font-weight: 600; color: #656464; border-bottom: 2px solid transparent; cursor: pointer; transition: all 150ms ease; background:transparent; border-left:0; border-right:0; border-top:0; }
+  .tab-btn:hover { color: #00386C; }
+  .tab-btn.active { color: #00386C; border-bottom-color: #00AEEE; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .match-row { display:grid; grid-template-columns: 180px 1fr 1fr 1fr; gap:0; border-top:1px solid #E5E7EB; }
+  .match-row:first-child { border-top:0; }
+  .match-cell { padding:12px 16px; border-left:1px solid #E5E7EB; }
+  .match-cell:first-child { border-left:0; background:#F8F9FA; font-size:11px; font-weight:600; color:#656464; text-transform:uppercase; letter-spacing:0.04em; display:flex; align-items:center; }
+  .cell-ok { background: rgba(16,185,129,0.06); }
+  .cell-bad { background: rgba(239,68,68,0.06); color:#991B1B; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Compras</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <a href="tela38-notas-fiscais-list.html" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Notas Fiscais</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold mono">NF-8471</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1280px] w-full mx-auto">
+
+      <!-- Header da NF -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg p-6 mb-6 shadow-dms-md">
+        <div class="flex items-start justify-between gap-6">
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-3 flex-wrap">
+              <span class="mono text-[22px] font-bold text-dms-mar">NF-8471</span>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border bg-sky-50 text-sky-700 border-sky-200">Material</span>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border bg-red-50 text-red-700 border-red-200">Divergência preço</span>
+              <span class="text-xs text-dms-tecnologia">Recebida via MAILIA em 26/05/2026 às 11:48</span>
+            </div>
+            <div class="grid grid-cols-4 gap-6">
+              <div>
+                <div class="field-label mb-1">Valor total</div>
+                <div class="text-[24px] leading-none font-black mono text-dms-mar">R$ 18.650,00</div>
+              </div>
+              <div>
+                <div class="field-label mb-1">Emitente</div>
+                <div class="text-base font-semibold text-gray-800">Almax Componentes S.A.</div>
+                <div class="text-xs text-dms-tecnologia mono">34.567.890/0001-33</div>
+              </div>
+              <div>
+                <div class="field-label mb-1">Empresa destinatária</div>
+                <div class="text-base font-semibold text-gray-800">DMS Distribuição</div>
+                <div class="text-xs text-dms-tecnologia mono">12.345.678/0002-71</div>
+              </div>
+              <div>
+                <div class="field-label mb-1">Pedido vinculado</div>
+                <a href="tela29-pedido-detalhe.html" class="text-base font-semibold mono text-dms-ceu hover:underline">PO-2026-0181</a>
+                <div class="text-xs text-dms-tecnologia">Almax Componentes S.A.</div>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2 flex-shrink-0 min-w-[210px]">
+            <button class="flex items-center justify-center gap-2 text-sm font-semibold text-white px-4 py-2.5 bg-emerald-600 rounded-md opacity-50 cursor-not-allowed" disabled title="Habilitado só se match OK">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Aprovar match
+            </button>
+            <button class="flex items-center justify-center gap-2 text-sm font-semibold text-white px-4 py-2.5 bg-orange-500 rounded-md hover:bg-orange-600 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              Resolver divergência
+            </button>
+            <button class="flex items-center justify-center gap-2 text-sm font-semibold text-white px-4 py-2 bg-dms-sabedoria rounded-md hover:opacity-90 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+              Vincular pedido
+            </button>
+            <button class="flex items-center justify-center gap-2 text-sm font-medium text-red-600 hover:bg-red-50 px-4 py-2 border border-red-200 rounded-md transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              Cancelar NF
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md mb-6">
+        <div class="border-b border-[#E5E7EB] flex items-center px-2 overflow-x-auto">
+          <button class="tab-btn active" data-tab="detalhes">Detalhes</button>
+          <button class="tab-btn" data-tab="match">Match 3-way <span class="ml-1 text-[10px] bg-red-100 text-red-700 px-1.5 rounded">!</span></button>
+          <button class="tab-btn" data-tab="itens">Itens <span class="ml-1 text-[10px] bg-dms-ceu/15 text-dms-confianca px-1.5 rounded">4</span></button>
+          <button class="tab-btn" data-tab="tributos">Tributos</button>
+          <button class="tab-btn" data-tab="historico">Histórico</button>
+          <button class="tab-btn" data-tab="auditoria">Auditoria</button>
+        </div>
+
+        <!-- DETALHES -->
+        <div class="tab-panel active p-6" data-panel="detalhes">
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded-md p-4">
+              <div class="field-label mb-3">Emitente</div>
+              <div class="space-y-2 text-sm">
+                <div><span class="text-dms-tecnologia text-xs">Razão social: </span><span class="font-semibold text-gray-800">Almax Componentes S.A.</span></div>
+                <div><span class="text-dms-tecnologia text-xs">CNPJ: </span><span class="mono">34.567.890/0001-33</span></div>
+                <div><span class="text-dms-tecnologia text-xs">Inscrição estadual: </span><span class="mono">123.456.789.012</span></div>
+                <div><span class="text-dms-tecnologia text-xs">Endereço: </span><span>Rua Industrial, 1240 — Diadema/SP — 09940-200</span></div>
+              </div>
+            </div>
+            <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded-md p-4">
+              <div class="field-label mb-3">Dados fiscais</div>
+              <div class="space-y-2 text-sm">
+                <div><span class="text-dms-tecnologia text-xs">Data emissão: </span><span class="font-medium">26/05/2026</span></div>
+                <div><span class="text-dms-tecnologia text-xs">Data entrada: </span><span class="font-medium">26/05/2026 11:48</span></div>
+                <div><span class="text-dms-tecnologia text-xs">Natureza op.: </span><span>Venda de mercadoria</span></div>
+                <div><span class="text-dms-tecnologia text-xs">Chave acesso: </span><span class="mono text-xs">35260534…0033550010000084711…0234</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-4">
+            <div class="bg-white border border-[#E5E7EB] rounded-md p-4">
+              <div class="field-label mb-1">Valor total NF</div>
+              <div class="text-xl font-bold mono text-dms-mar">R$ 18.650,00</div>
+              <div class="text-xs text-dms-tecnologia mt-1">Produtos + impostos + frete</div>
+            </div>
+            <div class="bg-white border border-[#E5E7EB] rounded-md p-4">
+              <div class="field-label mb-1">Total impostos</div>
+              <div class="text-xl font-bold mono text-gray-700">R$ 2.480,30</div>
+              <div class="text-xs text-dms-tecnologia mt-1">ICMS + IPI + PIS + COFINS</div>
+            </div>
+            <div class="bg-white border border-[#E5E7EB] rounded-md p-4">
+              <div class="field-label mb-1">Classificação MAILIA</div>
+              <div class="flex items-center gap-2 mt-1">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-sky-50 text-sky-700 border-sky-200">Material</span>
+                <span class="text-xs text-dms-tecnologia">confiança 97%</span>
+              </div>
+              <div class="text-xs text-dms-tecnologia mt-2">Subcategoria sugerida: Componentes mecânicos</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MATCH 3-WAY -->
+        <div class="tab-panel p-6" data-panel="match">
+          <div class="flex items-start justify-between gap-4 mb-4">
+            <div>
+              <h3 class="text-lg font-bold text-dms-mar mb-1">Match 3-way</h3>
+              <p class="text-sm text-dms-tecnologia">Comparação NF × Pedido × Recebimento físico. Linhas em verde batem; vermelho indica divergência que bloqueia aprovação.</p>
+            </div>
+            <button class="flex items-center gap-2 text-sm font-medium text-orange-700 px-3 py-2 bg-orange-50 border border-orange-200 rounded-md hover:bg-orange-100 transition-colors flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+              Aceitar divergência com justificativa
+            </button>
+          </div>
+
+          <div class="border border-[#E5E7EB] rounded-md overflow-hidden">
+            <div class="match-row" style="background:#F0F2F5;">
+              <div class="match-cell" style="background:#F0F2F5; font-weight:700;">Campo</div>
+              <div class="match-cell font-semibold text-dms-mar text-sm">NF-8471</div>
+              <div class="match-cell font-semibold text-dms-mar text-sm">Pedido PO-2026-0181</div>
+              <div class="match-cell font-semibold text-dms-mar text-sm">Recebimento RC-0931</div>
+            </div>
+            <div class="match-row">
+              <div class="match-cell">Fornecedor</div>
+              <div class="match-cell cell-ok text-sm">Almax Componentes S.A.</div>
+              <div class="match-cell cell-ok text-sm">Almax Componentes S.A.</div>
+              <div class="match-cell cell-ok text-sm">Almax Componentes S.A.</div>
+            </div>
+            <div class="match-row">
+              <div class="match-cell">CNPJ</div>
+              <div class="match-cell cell-ok text-sm mono">34.567.890/0001-33</div>
+              <div class="match-cell cell-ok text-sm mono">34.567.890/0001-33</div>
+              <div class="match-cell cell-ok text-sm mono">34.567.890/0001-33</div>
+            </div>
+            <div class="match-row">
+              <div class="match-cell">Valor total</div>
+              <div class="match-cell cell-bad text-sm mono font-semibold">R$ 18.650,00</div>
+              <div class="match-cell cell-bad text-sm mono font-semibold">R$ 17.420,00</div>
+              <div class="match-cell text-sm mono text-dms-tecnologia">— (não aplicável)</div>
+            </div>
+            <div class="match-row">
+              <div class="match-cell">Itens (qtd total)</div>
+              <div class="match-cell cell-ok text-sm mono">4 itens · 86 un</div>
+              <div class="match-cell cell-ok text-sm mono">4 itens · 86 un</div>
+              <div class="match-cell cell-ok text-sm mono">4 itens · 86 un recebidos</div>
+            </div>
+            <div class="match-row">
+              <div class="match-cell">Item 001 — Rolamento 6204</div>
+              <div class="match-cell cell-bad text-sm mono">30 un × R$ 78,00 = R$ 2.340,00</div>
+              <div class="match-cell cell-bad text-sm mono">30 un × R$ 72,00 = R$ 2.160,00</div>
+              <div class="match-cell cell-ok text-sm mono">30 un OK</div>
+            </div>
+            <div class="match-row">
+              <div class="match-cell">Item 002 — Correia V120</div>
+              <div class="match-cell cell-ok text-sm mono">20 un × R$ 145,00</div>
+              <div class="match-cell cell-ok text-sm mono">20 un × R$ 145,00</div>
+              <div class="match-cell cell-ok text-sm mono">20 un OK</div>
+            </div>
+            <div class="match-row">
+              <div class="match-cell">Item 003 — Junta vedação</div>
+              <div class="match-cell cell-ok text-sm mono">30 un × R$ 24,50</div>
+              <div class="match-cell cell-ok text-sm mono">30 un × R$ 24,50</div>
+              <div class="match-cell cell-ok text-sm mono">30 un OK</div>
+            </div>
+            <div class="match-row">
+              <div class="match-cell">Item 004 — Parafuso M8</div>
+              <div class="match-cell cell-ok text-sm mono">6 un × R$ 12,00</div>
+              <div class="match-cell cell-ok text-sm mono">6 un × R$ 12,00</div>
+              <div class="match-cell cell-ok text-sm mono">6 un OK</div>
+            </div>
+          </div>
+
+          <div class="mt-5 bg-red-50 border border-red-200 rounded-md p-4 flex items-start gap-3">
+            <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <div class="text-sm">
+              <div class="font-semibold text-red-800 mb-1">1 divergência impede aprovação automática</div>
+              <div class="text-red-700">Item 001 (Rolamento 6204): preço unitário R$ 78,00 na NF × R$ 72,00 no pedido. Diferença de R$ 6,00/un (8,3%) acima da tolerância de 3%.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ITENS -->
+        <div class="tab-panel p-6" data-panel="itens">
+          <table class="w-full text-sm">
+            <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+              <tr>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">#</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Descrição</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">NCM</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">CFOP</th>
+                <th class="text-right caption text-dms-tecnologia px-3 py-2">Qtd</th>
+                <th class="text-right caption text-dms-tecnologia px-3 py-2">V. unit.</th>
+                <th class="text-right caption text-dms-tecnologia px-3 py-2">Total</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Item PO</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#E5E7EB]">
+              <tr><td class="px-3 py-2 mono">001</td><td class="px-3 py-2">Rolamento esfera 6204-2RS</td><td class="px-3 py-2 mono">8482.10.10</td><td class="px-3 py-2 mono">5102</td><td class="px-3 py-2 text-right mono">30</td><td class="px-3 py-2 text-right mono text-red-700 font-semibold">R$ 78,00</td><td class="px-3 py-2 text-right mono font-semibold">R$ 2.340,00</td><td class="px-3 py-2"><a href="tela29-pedido-detalhe.html" class="text-dms-ceu hover:underline mono">PO#001</a></td></tr>
+              <tr><td class="px-3 py-2 mono">002</td><td class="px-3 py-2">Correia em V tipo V120</td><td class="px-3 py-2 mono">4010.32.00</td><td class="px-3 py-2 mono">5102</td><td class="px-3 py-2 text-right mono">20</td><td class="px-3 py-2 text-right mono">R$ 145,00</td><td class="px-3 py-2 text-right mono font-semibold">R$ 2.900,00</td><td class="px-3 py-2"><a href="tela29-pedido-detalhe.html" class="text-dms-ceu hover:underline mono">PO#002</a></td></tr>
+              <tr><td class="px-3 py-2 mono">003</td><td class="px-3 py-2">Junta de vedação Ø 40mm</td><td class="px-3 py-2 mono">4016.93.00</td><td class="px-3 py-2 mono">5102</td><td class="px-3 py-2 text-right mono">30</td><td class="px-3 py-2 text-right mono">R$ 24,50</td><td class="px-3 py-2 text-right mono font-semibold">R$ 735,00</td><td class="px-3 py-2"><a href="tela29-pedido-detalhe.html" class="text-dms-ceu hover:underline mono">PO#003</a></td></tr>
+              <tr><td class="px-3 py-2 mono">004</td><td class="px-3 py-2">Parafuso M8 × 30 inox</td><td class="px-3 py-2 mono">7318.15.00</td><td class="px-3 py-2 mono">5102</td><td class="px-3 py-2 text-right mono">6</td><td class="px-3 py-2 text-right mono">R$ 12,00</td><td class="px-3 py-2 text-right mono font-semibold">R$ 72,00</td><td class="px-3 py-2"><a href="tela29-pedido-detalhe.html" class="text-dms-ceu hover:underline mono">PO#004</a></td></tr>
+            </tbody>
+            <tfoot class="bg-[#F8F9FA] border-t-2 border-[#E5E7EB]">
+              <tr>
+                <td colspan="6" class="px-3 py-3 text-right text-xs font-semibold text-dms-tecnologia uppercase">Total produtos</td>
+                <td class="px-3 py-3 text-right mono font-bold text-dms-mar">R$ 6.047,00</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- TRIBUTOS -->
+        <div class="tab-panel p-6" data-panel="tributos">
+          <table class="w-full text-sm">
+            <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+              <tr>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Tributo</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">CST/CSOSN</th>
+                <th class="text-right caption text-dms-tecnologia px-3 py-2">Base cálculo</th>
+                <th class="text-right caption text-dms-tecnologia px-3 py-2">Alíquota</th>
+                <th class="text-right caption text-dms-tecnologia px-3 py-2">Valor</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#E5E7EB]">
+              <tr><td class="px-3 py-2 font-semibold">ICMS</td><td class="px-3 py-2 mono">00</td><td class="px-3 py-2 text-right mono">R$ 16.169,70</td><td class="px-3 py-2 text-right mono">12,00%</td><td class="px-3 py-2 text-right mono font-semibold">R$ 1.940,36</td></tr>
+              <tr><td class="px-3 py-2 font-semibold">IPI</td><td class="px-3 py-2 mono">50</td><td class="px-3 py-2 text-right mono">R$ 6.047,00</td><td class="px-3 py-2 text-right mono">5,00%</td><td class="px-3 py-2 text-right mono font-semibold">R$ 302,35</td></tr>
+              <tr><td class="px-3 py-2 font-semibold">PIS</td><td class="px-3 py-2 mono">01</td><td class="px-3 py-2 text-right mono">R$ 6.047,00</td><td class="px-3 py-2 text-right mono">1,65%</td><td class="px-3 py-2 text-right mono font-semibold">R$ 99,77</td></tr>
+              <tr><td class="px-3 py-2 font-semibold">COFINS</td><td class="px-3 py-2 mono">01</td><td class="px-3 py-2 text-right mono">R$ 6.047,00</td><td class="px-3 py-2 text-right mono">7,60%</td><td class="px-3 py-2 text-right mono font-semibold">R$ 459,57</td></tr>
+            </tbody>
+            <tfoot class="bg-[#F8F9FA] border-t-2 border-[#E5E7EB]">
+              <tr>
+                <td colspan="4" class="px-3 py-3 text-right text-xs font-semibold text-dms-tecnologia uppercase">Total impostos</td>
+                <td class="px-3 py-3 text-right mono font-bold text-dms-mar">R$ 2.802,05</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <!-- HISTÓRICO -->
+        <div class="tab-panel p-6" data-panel="historico">
+          <ol class="relative border-l-2 border-dms-ceu/30 ml-3 space-y-5">
+            <li class="pl-5 relative">
+              <span class="absolute -left-[9px] top-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white"></span>
+              <div class="text-sm font-semibold text-dms-mar">NF recebida via MAILIA</div>
+              <div class="text-xs text-dms-tecnologia">26/05/2026 11:48 — origem: noreply@almax.com.br</div>
+            </li>
+            <li class="pl-5 relative">
+              <span class="absolute -left-[9px] top-1 w-4 h-4 bg-sky-500 rounded-full border-2 border-white"></span>
+              <div class="text-sm font-semibold text-dms-mar">XML parseado e classificado</div>
+              <div class="text-xs text-dms-tecnologia">26/05/2026 11:49 — MAILIA: Material (97% conf.)</div>
+            </li>
+            <li class="pl-5 relative">
+              <span class="absolute -left-[9px] top-1 w-4 h-4 bg-sky-500 rounded-full border-2 border-white"></span>
+              <div class="text-sm font-semibold text-dms-mar">Pedido vinculado automaticamente</div>
+              <div class="text-xs text-dms-tecnologia">26/05/2026 11:49 — PO-2026-0181 por CNPJ + nº pedido no XML</div>
+            </li>
+            <li class="pl-5 relative">
+              <span class="absolute -left-[9px] top-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white"></span>
+              <div class="text-sm font-semibold text-dms-mar">Match 3-way calculado — divergência</div>
+              <div class="text-xs text-dms-tecnologia">26/05/2026 11:49 — preço item 001 fora da tolerância</div>
+            </li>
+            <li class="pl-5 relative">
+              <span class="absolute -left-[9px] top-1 w-4 h-4 bg-amber-500 rounded-full border-2 border-white"></span>
+              <div class="text-sm font-semibold text-dms-mar">Aguardando decisão do comprador</div>
+              <div class="text-xs text-dms-tecnologia">Atribuída a Fernando Arruda</div>
+            </li>
+          </ol>
+        </div>
+
+        <!-- AUDITORIA -->
+        <div class="tab-panel p-6" data-panel="auditoria">
+          <table class="w-full text-sm">
+            <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
+              <tr>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Quando</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Ator</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Ação</th>
+                <th class="text-left caption text-dms-tecnologia px-3 py-2">Detalhe</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#E5E7EB]">
+              <tr><td class="px-3 py-2 mono text-xs">26/05/2026 11:48:02</td><td class="px-3 py-2">MAILIA</td><td class="px-3 py-2"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border bg-sky-50 text-sky-700 border-sky-200">CREATE</span></td><td class="px-3 py-2 text-gray-700">NF importada do email almax@…</td></tr>
+              <tr><td class="px-3 py-2 mono text-xs">26/05/2026 11:48:34</td><td class="px-3 py-2">MAILIA</td><td class="px-3 py-2"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border bg-violet-50 text-violet-700 border-violet-200">CLASSIFY</span></td><td class="px-3 py-2 text-gray-700">cls=material conf=0.97</td></tr>
+              <tr><td class="px-3 py-2 mono text-xs">26/05/2026 11:49:11</td><td class="px-3 py-2">Match Engine</td><td class="px-3 py-2"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border bg-amber-50 text-amber-700 border-amber-200">MATCH</span></td><td class="px-3 py-2 text-gray-700">3-way calculado — divergência preço item 001</td></tr>
+              <tr><td class="px-3 py-2 mono text-xs">26/05/2026 14:02:18</td><td class="px-3 py-2">Fernando Arruda</td><td class="px-3 py-2"><span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border bg-gray-50 text-gray-700 border-gray-200">VIEW</span></td><td class="px-3 py-2 text-gray-700">Abriu NF para análise</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.dataset.panel === tab));
+  });
+});
+</script>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR (M4) ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label,
+  #dms-sidebar.collapsed .sb-section-title,
+  #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label,
+    #dms-sidebar.collapsed .sb-section-title,
+    #dms-sidebar.collapsed .sb-brand-text,
+    #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" title="Cockpit" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" title="Email" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" title="Tarefas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" title="Follow-up" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" title="Updates" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" title="Requisições" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" title="Cotações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" title="Pedidos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela30-empresas-list.html" title="Empresas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" title="Centros de Custo" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" title="Plano de Contas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+        <li><a href="tela36-pre-lancamentos-list.html" title="Pré-lançamentos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela01-catalogo-tags.html" title="Tags" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" title="Procedures" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" title="Workflows" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" title="SOPs" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" title="Execuções" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" title="Auditoria" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" title="Match Engine" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" title="Setup" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" title="MAILIA Admin" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+<script>
+(function(){
+  var sb = document.getElementById('dms-sidebar');
+  var toggle = document.getElementById('sidebar-toggle');
+  var mobBtn = document.getElementById('dms-sidebar-mobile-btn');
+  var overlay = document.getElementById('dms-sidebar-overlay');
+  if (!sb || !toggle) return;
+  var STORAGE_KEY = 'mockup-sidebar-collapsed-v2';
+  var collapsed = false;
+  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
+  function isMobile(){ return window.matchMedia('(max-width: 767px)').matches; }
+  function render(){
+    if (collapsed && !isMobile()) {
+      sb.classList.add('collapsed');
+      sb.style.width = '64px';
+      document.documentElement.style.setProperty('--dms-sb-w', '64px');
+    } else {
+      sb.classList.remove('collapsed');
+      sb.style.width = isMobile() ? '280px' : '240px';
+      document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px');
+    }
+  }
+  toggle.addEventListener('click', function(){
+    collapsed = !collapsed;
+    try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {}
+    render();
+  });
+  function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
+  function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
+  if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
+  if (overlay) overlay.addEventListener('click', closeMobile);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){ a.addEventListener('click', function(){ if (isMobile()) closeMobile(); }); });
+  var current = (location.pathname.split('/').pop() || '').toLowerCase();
+  if (current) {
+    sb.querySelectorAll('nav a[href]').forEach(function(a){
+      var href = (a.getAttribute('href') || '').toLowerCase();
+      if (href && href === current) a.classList.add('sb-active');
+    });
+  }
+  window.addEventListener('resize', render);
+  render();
+})();
+</script>
+</body>
+</html>
