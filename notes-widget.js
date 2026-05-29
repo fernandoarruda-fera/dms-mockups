@@ -63,28 +63,25 @@
 
   function injectStyles() {
     var css = '' +
-      '.dms-notes-btn{position:fixed;right:24px;bottom:24px;z-index:2147483600;display:inline-flex;align-items:center;gap:8px;background:' + PRIMARY + ';color:#fff;border:0;border-radius:999px;padding:12px 18px;font:600 14px/1 Montserrat,Verdana,sans-serif;box-shadow:0 8px 20px -4px rgba(100,53,133,.45),0 4px 8px -2px rgba(0,0,0,.1);cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,background .15s ease;}' +
+      '.dms-notes-btn{position:fixed;right:24px;bottom:max(24px,env(safe-area-inset-bottom));z-index:2147483600;display:inline-flex;align-items:center;gap:8px;background:' + PRIMARY + ';color:#fff;border:0;border-radius:999px;padding:12px 18px;font:600 14px/1 Montserrat,Verdana,sans-serif;box-shadow:0 8px 20px -4px rgba(100,53,133,.45),0 4px 8px -2px rgba(0,0,0,.1);cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,background .15s ease;box-sizing:border-box;}' +
       '.dms-notes-btn:hover{transform:translateY(-2px);background:' + PRIMARY_DARK + ';box-shadow:0 12px 24px -4px rgba(100,53,133,.55),0 6px 12px -2px rgba(0,0,0,.12);}' +
       '.dms-notes-btn svg{width:18px;height:18px;flex-shrink:0;}' +
       '.dms-notes-badge{background:#fff;color:' + PRIMARY + ';border-radius:999px;min-width:20px;height:20px;padding:0 6px;font:700 11px/20px Montserrat,Verdana,sans-serif;text-align:center;display:inline-block;}' +
       '.dms-notes-backdrop{position:fixed;inset:0;background:rgba(15,15,25,.35);z-index:2147483640;opacity:0;transition:opacity .2s ease;pointer-events:none;}' +
       '.dms-notes-backdrop.open{opacity:1;pointer-events:auto;}' +
-      '.dms-notes-drawer{position:fixed;top:0;right:0;bottom:0;width:380px;max-width:92vw;background:#fff;z-index:2147483641;box-shadow:-8px 0 32px -8px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column;font:400 14px/1.45 Montserrat,Verdana,sans-serif;color:#1A1A1A;}' +
+      '.dms-notes-drawer{position:fixed;top:0;right:0;bottom:0;height:100vh;height:100dvh;width:380px;max-width:92vw;background:#fff;z-index:2147483641;box-shadow:-8px 0 32px -8px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column;font:400 14px/1.45 Montserrat,Verdana,sans-serif;color:#1A1A1A;box-sizing:border-box;overflow:hidden;}' +
+      '.dms-notes-drawer *,.dms-notes-drawer *::before,.dms-notes-drawer *::after{box-sizing:border-box;}' +
       '.dms-notes-drawer.open{transform:translateX(0);}' +
-      '.dms-notes-head{padding:18px 20px 14px;border-bottom:1px solid #E5E7EB;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}' +
+      '.dms-notes-head{flex:0 0 auto;padding:18px 20px 14px;border-bottom:1px solid #E5E7EB;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;background:#fff;}' +
       '.dms-notes-head h3{margin:0 0 4px;font:700 15px/1.3 Montserrat,Verdana,sans-serif;color:' + PRIMARY + ';}' +
       '.dms-notes-head p{margin:0;font:500 11px/1.4 JetBrains Mono,Consolas,monospace;color:#656464;word-break:break-all;}' +
-      '.dms-notes-close{background:transparent;border:0;cursor:pointer;color:#656464;padding:4px;border-radius:6px;line-height:0;}' +
+      '.dms-notes-close{background:transparent;border:0;cursor:pointer;color:#656464;padding:4px;border-radius:6px;line-height:0;flex-shrink:0;}' +
       '.dms-notes-close:hover{background:#F3F4F6;color:#1A1A1A;}' +
-      '.dms-notes-form{padding:14px 20px;border-bottom:1px solid #E5E7EB;background:' + BG + ';}' +
-      '.dms-notes-form textarea{width:100%;min-height:90px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;padding:10px 12px;font:400 13px/1.5 Montserrat,Verdana,sans-serif;color:#1A1A1A;resize:vertical;box-sizing:border-box;}' +
+      '.dms-notes-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;display:flex;flex-direction:column;}' +
+      '.dms-notes-form{padding:14px 20px;border-bottom:1px solid #E5E7EB;background:' + BG + ';flex:0 0 auto;}' +
+      '.dms-notes-form textarea{width:100%;min-height:100px;max-height:200px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;padding:10px 12px;font:400 13px/1.5 Montserrat,Verdana,sans-serif;color:#1A1A1A;resize:vertical;display:block;}' +
       '.dms-notes-form textarea:focus{outline:none;border-color:' + PRIMARY + ';box-shadow:0 0 0 3px rgba(100,53,133,.18);}' +
-      '.dms-notes-form-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px;}' +
-      '.dms-notes-hint{font:500 11px/1.3 Montserrat,Verdana,sans-serif;color:#656464;}' +
-      '.dms-notes-save{background:' + PRIMARY + ';color:#fff;border:0;border-radius:8px;padding:8px 16px;font:600 13px/1 Montserrat,Verdana,sans-serif;cursor:pointer;transition:background .15s ease;}' +
-      '.dms-notes-save:hover:not(:disabled){background:' + PRIMARY_DARK + ';}' +
-      '.dms-notes-save:disabled{opacity:.5;cursor:not-allowed;}' +
-      '.dms-notes-list{flex:1;overflow-y:auto;padding:8px 20px 24px;}' +
+      '.dms-notes-list{padding:8px 20px 24px;flex:1 1 auto;}' +
       '.dms-notes-empty{padding:40px 12px;text-align:center;color:#656464;font:500 13px/1.5 Montserrat,Verdana,sans-serif;}' +
       '.dms-notes-empty svg{width:36px;height:36px;margin:0 auto 12px;display:block;opacity:.4;}' +
       '.dms-notes-item{padding:12px 0;border-bottom:1px solid #F3F4F6;}' +
@@ -93,7 +90,22 @@
       '.dms-notes-item-meta{margin-top:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;font:500 11px/1 JetBrains Mono,Consolas,monospace;color:#656464;}' +
       '.dms-notes-del{background:transparent;border:0;color:#B91C1C;cursor:pointer;font:600 11px/1 Montserrat,Verdana,sans-serif;padding:4px 8px;border-radius:6px;}' +
       '.dms-notes-del:hover{background:#FEE2E2;}' +
-      '@media (max-width:480px){.dms-notes-btn{right:16px;bottom:16px;padding:10px 14px;font-size:13px;}}';
+      '.dms-notes-foot{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 20px;padding-bottom:max(12px,env(safe-area-inset-bottom));border-top:1px solid #E5E7EB;background:#fff;}' +
+      '.dms-notes-hint{font:500 11px/1.3 Montserrat,Verdana,sans-serif;color:#656464;flex:1 1 auto;min-width:0;}' +
+      '.dms-notes-save{background:' + PRIMARY + ';color:#fff;border:0;border-radius:8px;padding:10px 18px;font:600 13px/1 Montserrat,Verdana,sans-serif;cursor:pointer;transition:background .15s ease;flex:0 0 auto;}' +
+      '.dms-notes-save:hover:not(:disabled){background:' + PRIMARY_DARK + ';}' +
+      '.dms-notes-save:disabled{opacity:.5;cursor:not-allowed;}' +
+      '@media (max-width:768px){' +
+        '.dms-notes-head{padding:14px 16px 12px;}' +
+        '.dms-notes-form{padding:12px 16px;}' +
+        '.dms-notes-list{padding:6px 16px 20px;}' +
+        '.dms-notes-foot{padding-left:16px;padding-right:16px;}' +
+        '.dms-notes-form textarea{resize:none;min-height:90px;}' +
+      '}' +
+      '@media (max-width:480px){' +
+        '.dms-notes-drawer{width:100%;max-width:100vw;}' +
+        '.dms-notes-btn{right:16px;padding:10px 14px;font-size:13px;}' +
+      '}';
     var s = document.createElement('style');
     s.id = 'dms-notes-style';
     s.textContent = css;
@@ -170,14 +182,16 @@
           '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>' +
         '</button>' +
       '</div>' +
-      '<div class="dms-notes-form">' +
-        '<textarea placeholder="O que você quer registrar sobre esta tela?"></textarea>' +
-        '<div class="dms-notes-form-row">' +
-          '<span class="dms-notes-hint">Salvo localmente · veja todas em tela76</span>' +
-          '<button class="dms-notes-save" disabled>Salvar anotação</button>' +
+      '<div class="dms-notes-body">' +
+        '<div class="dms-notes-form">' +
+          '<textarea placeholder="O que você quer registrar sobre esta tela?"></textarea>' +
         '</div>' +
+        '<div class="dms-notes-list"></div>' +
       '</div>' +
-      '<div class="dms-notes-list"></div>';
+      '<div class="dms-notes-foot">' +
+        '<span class="dms-notes-hint">Salvo localmente · veja todas em tela76</span>' +
+        '<button class="dms-notes-save" disabled>Salvar anotação</button>' +
+      '</div>';
     document.body.appendChild(drawer);
 
     var listEl = drawer.querySelector('.dms-notes-list');
