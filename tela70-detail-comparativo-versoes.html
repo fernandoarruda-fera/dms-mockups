@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Comparativo de Versões (Diff)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = { corePlugins: { preflight: true }, theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+} } };
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .field-input, .field-select { padding:7px 10px; font-size:13px; border:1px solid #D1D5DB; border-radius:6px; background:#fff; }
+  .badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:600; border:1px solid; }
+  .diff-col { background:#fff; border:1px solid #E5E7EB; border-radius:8px; overflow:hidden; }
+  .diff-head { padding:12px 16px; border-bottom:1px solid #E5E7EB; background:#FAFBFC; position:sticky; top:0; z-index:5; }
+  .diff-body { padding:0; font-size:13px; line-height:1.65; max-height:680px; overflow-y:auto; }
+  .diff-section { padding:14px 16px; border-bottom:1px dashed #E5E7EB; }
+  .diff-section h4 { font-size:13px; font-weight:700; color:#00386C; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .diff-section h4 .anc { font-family:'JetBrains Mono',monospace; font-size:10px; color:#656464; font-weight:500; background:#F1F3F5; padding:1px 5px; border-radius:3px; }
+  .line { padding:1px 0; }
+  .l-add { background:#DCFCE7; color:#14532D; padding:2px 8px; border-radius:3px; display:inline-block; }
+  .l-rem { background:#FEE2E2; color:#7F1D1D; text-decoration:line-through; padding:2px 8px; border-radius:3px; display:inline-block; }
+  .l-mod { background:#FEF3C7; color:#78350F; padding:2px 8px; border-radius:3px; display:inline-block; }
+  .ctx { color:#374151; font-size:12.5px; }
+  .change-row { padding:9px 12px; border-bottom:1px solid #F1F3F5; font-size:12px; cursor:pointer; }
+  .change-row:hover { background:#F8FBFF; }
+  .change-row:last-child { border-bottom:0; }
+  .change-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+  .cd-add { background:#10B981; } .cd-rem { background:#EF4444; } .cd-mod { background:#F59E0B; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="tela06-biblioteca-sop.html" class="text-dms-tecnologia hover:text-dms-mar">Bibliotecas</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <a href="tela06-biblioteca-sop.html" class="text-dms-tecnologia hover:text-dms-mar">SOPs</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-tecnologia">SOP Aprovação NF</span>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Histórico de versões</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1500px] w-full mx-auto">
+
+      <div class="mb-5 flex items-start justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <span class="text-xs font-semibold text-dms-tecnologia uppercase tracking-wider">Histórico · Diff visualizer</span>
+          </div>
+          <h1 class="text-[26px] leading-[32px] font-bold text-dms-mar mb-1">Comparar versões — SOP-2026-001</h1>
+          <p class="text-sm text-dms-tecnologia">Aprovação NF Material · diferenças entre v2.3 e v2.5</p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button class="px-4 py-2 text-sm font-semibold text-dms-mar bg-white border border-gray-300 rounded-md">Exportar diff (.html)</button>
+          <button class="px-4 py-2 text-sm font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-md">↺ Reverter para v2.3</button>
+          <button class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md">Aprovar v2.5 como definitiva</button>
+        </div>
+      </div>
+
+      <!-- Seletores de versão -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 mb-5 flex items-center gap-4">
+        <div class="flex-1 flex items-center gap-3">
+          <span class="text-[11px] text-dms-tecnologia uppercase font-bold tracking-wider">De</span>
+          <select class="field-select flex-1"><option>v2.3 · 15/04/2026 · Mariana Lopes</option><option>v2.2 · 02/03/2026 · Carlos Mendes</option><option>v2.1 · 18/01/2026 · Mariana Lopes</option></select>
+        </div>
+        <svg class="w-5 h-5 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        <div class="flex-1 flex items-center gap-3">
+          <span class="text-[11px] text-dms-tecnologia uppercase font-bold tracking-wider">Para</span>
+          <select class="field-select flex-1"><option>v2.5 · 22/05/2026 · Mariana Lopes (atual)</option><option>v2.4 · 30/04/2026 · Carlos Mendes</option></select>
+        </div>
+        <div class="flex items-center gap-3 text-[11px] text-dms-tecnologia border-l border-gray-200 pl-4">
+          <span class="flex items-center gap-1.5"><span class="change-dot cd-add"></span><strong class="text-emerald-700">+12</strong> adições</span>
+          <span class="flex items-center gap-1.5"><span class="change-dot cd-rem"></span><strong class="text-red-700">−7</strong> remoções</span>
+          <span class="flex items-center gap-1.5"><span class="change-dot cd-mod"></span><strong class="text-amber-700">~5</strong> modificações</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-[1fr_1fr_300px] gap-5">
+
+        <!-- Coluna esquerda: v2.3 -->
+        <div class="diff-col">
+          <div class="diff-head">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="badge bg-gray-50 text-gray-700 border-gray-200 mono">v2.3</span>
+                <span class="text-[12px] font-semibold text-dms-mar ml-2">15/04/2026</span>
+              </div>
+              <div class="text-[11px] text-dms-tecnologia">por Mariana Lopes</div>
+            </div>
+            <div class="text-[11px] text-dms-tecnologia mt-1.5 italic">"Ajustes pós-feedback do fiscal — tolerância revisada"</div>
+          </div>
+          <div class="diff-body">
+
+            <div class="diff-section">
+              <h4>1. Objetivo <span class="anc">#obj</span></h4>
+              <div class="ctx">Padronizar o processo de aprovação de Notas Fiscais de material, garantindo conformidade fiscal e bloqueando lançamentos divergentes <span class="l-rem">acima de 5% sobre o pedido</span>.</div>
+            </div>
+
+            <div class="diff-section">
+              <h4>2. Escopo <span class="anc">#esc</span></h4>
+              <div class="ctx">Aplicável a todas as NFs de material com valor superior a R$ 5.000,00. Inclui validação 3-way: PO, recebimento físico, NF.</div>
+            </div>
+
+            <div class="diff-section">
+              <h4>3. Tolerâncias <span class="anc">#tol</span></h4>
+              <div class="ctx">
+                <div class="line">Valor: <span class="l-mod">tolerância 5%</span> entre PO e NF.</div>
+                <div class="line">Quantidade: tolerância 2% entre recebido e nota fiscal.</div>
+                <div class="line">Prazo de pagamento: aceitar até 5 dias além do contratado.</div>
+              </div>
+            </div>
+
+            <div class="diff-section">
+              <h4>4. Aprovadores <span class="anc">#apr</span></h4>
+              <div class="ctx">
+                <div class="line">• NF até R$ 20k: Analista Financeiro Pleno+</div>
+                <div class="line">• NF R$ 20k–100k: Gerente Financeiro</div>
+                <div class="line"><span class="l-rem">• NF acima R$ 100k: Diretor Financeiro</span></div>
+              </div>
+            </div>
+
+            <div class="diff-section">
+              <h4>5. Prazo SLA <span class="anc">#sla</span></h4>
+              <div class="ctx">Resolução em até <span class="l-mod">48 horas úteis</span>. Escalonamento automático após 16h.</div>
+            </div>
+
+            <div class="diff-section">
+              <h4>6. Auditoria <span class="anc">#aud</span></h4>
+              <div class="ctx">Toda aprovação registra usuário, IP e timestamp. Retenção de 5 anos.</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Coluna direita: v2.5 -->
+        <div class="diff-col">
+          <div class="diff-head">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="badge bg-emerald-50 text-emerald-700 border-emerald-200 mono">v2.5</span>
+                <span class="text-[12px] font-semibold text-dms-mar ml-2">22/05/2026</span>
+                <span class="text-[10px] text-emerald-700 font-semibold ml-1">(atual)</span>
+              </div>
+              <div class="text-[11px] text-dms-tecnologia">por Mariana Lopes</div>
+            </div>
+            <div class="text-[11px] text-dms-tecnologia mt-1.5 italic">"Tolerância apertada após incidente NF-9852 · novo nível de aprovação · SLA revisado"</div>
+          </div>
+          <div class="diff-body">
+
+            <div class="diff-section">
+              <h4>1. Objetivo <span class="anc">#obj</span></h4>
+              <div class="ctx">Padronizar o processo de aprovação de Notas Fiscais de material, garantindo conformidade fiscal e bloqueando lançamentos divergentes <span class="l-add">acima de 2% sobre o pedido, com revisão obrigatória entre 1% e 2%</span>.</div>
+            </div>
+
+            <div class="diff-section">
+              <h4>2. Escopo <span class="anc">#esc</span></h4>
+              <div class="ctx">Aplicável a todas as NFs de material com valor superior a R$ 5.000,00. Inclui validação 3-way: PO, recebimento físico, NF. <span class="l-add">Extensão para NFs de importação a partir de v2.5.</span></div>
+            </div>
+
+            <div class="diff-section">
+              <h4>3. Tolerâncias <span class="anc">#tol</span></h4>
+              <div class="ctx">
+                <div class="line">Valor: <span class="l-mod">tolerância 2%</span> entre PO e NF.</div>
+                <div class="line">Quantidade: tolerância 2% entre recebido e nota fiscal.</div>
+                <div class="line">Prazo de pagamento: aceitar até 5 dias além do contratado.</div>
+                <div class="line"><span class="l-add">Câmbio (importação): tolerância 0,5% sobre PTAX D-1.</span></div>
+              </div>
+            </div>
+
+            <div class="diff-section">
+              <h4>4. Aprovadores <span class="anc">#apr</span></h4>
+              <div class="ctx">
+                <div class="line">• NF até R$ 20k: Analista Financeiro Pleno+</div>
+                <div class="line">• NF R$ 20k–100k: Gerente Financeiro</div>
+                <div class="line"><span class="l-add">• NF R$ 100k–200k: Diretor Financeiro</span></div>
+                <div class="line"><span class="l-add">• NF acima R$ 200k: Diretor Financeiro + CFO (dupla aprovação)</span></div>
+              </div>
+            </div>
+
+            <div class="diff-section">
+              <h4>5. Prazo SLA <span class="anc">#sla</span></h4>
+              <div class="ctx">Resolução em até <span class="l-mod">24 horas úteis</span>. Escalonamento automático após 8h. <span class="l-add">P1 (acima R$ 200k) em até 4h.</span></div>
+            </div>
+
+            <div class="diff-section">
+              <h4>6. Auditoria <span class="anc">#aud</span></h4>
+              <div class="ctx">Toda aprovação registra usuário, IP e timestamp. <span class="l-mod">Retenção de 7 anos</span> (LGPD + fiscal). <span class="l-add">Diff completo a cada edição é gravado no log.</span></div>
+            </div>
+
+            <div class="diff-section">
+              <h4 class="text-emerald-700">7. Exceções (nova seção) <span class="anc">#exc</span></h4>
+              <div class="ctx l-add" style="display:block; padding:8px 10px;">
+                Permite aceitar divergências acima da tolerância mediante justificativa textual + aprovação extra do gestor responsável pelo PO original. Ação é registrada como audit-critical e notifica o Controller automaticamente.
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Sidebar direita: lista de mudanças -->
+        <aside class="bg-white border border-[#E5E7EB] rounded-lg h-fit sticky top-24 overflow-hidden">
+          <div class="px-4 py-3 border-b bg-FAFBFC">
+            <div class="text-[13px] font-bold text-dms-mar">Mudanças (24)</div>
+            <div class="text-[11px] text-dms-tecnologia">Clique para ancorar ao trecho</div>
+          </div>
+          <div class="max-h-[680px] overflow-y-auto">
+            <a class="change-row block"><span class="change-dot cd-mod"></span><strong>#obj</strong> · Objetivo<br><span class="text-gray-600">Tolerância revisada: 5% → 2%</span></a>
+            <a class="change-row block"><span class="change-dot cd-add"></span><strong>#esc</strong> · Escopo<br><span class="text-gray-600">+ Extensão para NFs de importação</span></a>
+            <a class="change-row block"><span class="change-dot cd-mod"></span><strong>#tol</strong> · Tolerâncias<br><span class="text-gray-600">Valor PO ↔ NF: 5% → 2%</span></a>
+            <a class="change-row block"><span class="change-dot cd-add"></span><strong>#tol</strong> · Tolerâncias<br><span class="text-gray-600">+ Câmbio importação (0,5% PTAX)</span></a>
+            <a class="change-row block"><span class="change-dot cd-rem"></span><strong>#apr</strong> · Aprovadores<br><span class="text-gray-600">− NF &gt; R$ 100k: Diretor (genérico)</span></a>
+            <a class="change-row block"><span class="change-dot cd-add"></span><strong>#apr</strong> · Aprovadores<br><span class="text-gray-600">+ Faixa R$ 100k–200k: Diretor</span></a>
+            <a class="change-row block"><span class="change-dot cd-add"></span><strong>#apr</strong> · Aprovadores<br><span class="text-gray-600">+ Faixa &gt; R$ 200k: Diretor + CFO</span></a>
+            <a class="change-row block"><span class="change-dot cd-mod"></span><strong>#sla</strong> · Prazo SLA<br><span class="text-gray-600">48h → 24h · escalonamento 16h → 8h</span></a>
+            <a class="change-row block"><span class="change-dot cd-add"></span><strong>#sla</strong> · Prazo SLA<br><span class="text-gray-600">+ P1 acima R$ 200k em 4h</span></a>
+            <a class="change-row block"><span class="change-dot cd-mod"></span><strong>#aud</strong> · Auditoria<br><span class="text-gray-600">Retenção 5 → 7 anos</span></a>
+            <a class="change-row block"><span class="change-dot cd-add"></span><strong>#aud</strong> · Auditoria<br><span class="text-gray-600">+ Diff completo por edição</span></a>
+            <a class="change-row block"><span class="change-dot cd-add"></span><strong>#exc</strong> · Exceções<br><span class="text-gray-600">+ Seção inteira nova</span></a>
+            <div class="px-4 py-3 text-[11px] text-gray-500 italic text-center border-t">+ 12 mudanças menores (formatação)</div>
+          </div>
+        </aside>
+
+      </div>
+
+      <!-- Resumo abaixo -->
+      <div class="mt-6 grid grid-cols-3 gap-4">
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="text-[10px] uppercase font-bold text-dms-tecnologia tracking-wider mb-1">Aprovações na cadeia</div>
+          <div class="text-[20px] font-bold text-dms-mar">3 → 4</div>
+          <div class="text-[11px] text-emerald-700 mt-1">+ nível CFO para NFs &gt; R$ 200k</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="text-[10px] uppercase font-bold text-dms-tecnologia tracking-wider mb-1">SLA médio (P3)</div>
+          <div class="text-[20px] font-bold text-dms-mar">48h → 24h</div>
+          <div class="text-[11px] text-amber-700 mt-1">−50% · risco de pressão operacional</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="text-[10px] uppercase font-bold text-dms-tecnologia tracking-wider mb-1">Cobertura estimada</div>
+          <div class="text-[20px] font-bold text-dms-mar">+18%</div>
+          <div class="text-[11px] text-emerald-700 mt-1">Inclui importação (antes excluída)</div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; } #dms-sidebar nav::-webkit-scrollbar { width: 4px; } #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; } #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; } #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; } #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; } #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) { #dms-sidebar { width: 280px !important; transform: translateX(-100%); } #dms-sidebar.mobile-open { transform: translateX(0); } .flex-1.ml-\[260px\] { margin-left: 0 !important; } #dms-sidebar-mobile-btn { display: flex !important; } #sidebar-toggle { display: none; } }
+</style>
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+<div id="dms-sidebar-overlay"></div>
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li><li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li><li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li><li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li><li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li></ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li><li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li><li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li><li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li><li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li><li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li></ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li><li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li></ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li><li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li><li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li></ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li><li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li><li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li><li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li><li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li><li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li></ul></div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li><li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li><li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li></ul></div>
+  </nav>
+</aside>
+<script>
+(function(){
+  var sb=document.getElementById('dms-sidebar'),toggle=document.getElementById('sidebar-toggle'),mobBtn=document.getElementById('dms-sidebar-mobile-btn'),overlay=document.getElementById('dms-sidebar-overlay');
+  if(!sb||!toggle)return; var K='mockup-sidebar-collapsed-v2',c=false; try{c=localStorage.getItem(K)==='1';}catch(e){}
+  function m(){return window.matchMedia('(max-width: 767px)').matches}
+  function r(){if(c&&!m()){sb.classList.add('collapsed');sb.style.width='64px';document.documentElement.style.setProperty('--dms-sb-w','64px');}else{sb.classList.remove('collapsed');sb.style.width=m()?'280px':'240px';document.documentElement.style.setProperty('--dms-sb-w',m()?'0px':'240px');}}
+  toggle.addEventListener('click',function(){c=!c;try{localStorage.setItem(K,c?'1':'0');}catch(e){}r();});
+  function cm(){sb.classList.remove('mobile-open');if(overlay)overlay.classList.remove('show');}
+  if(mobBtn)mobBtn.addEventListener('click',function(){if(sb.classList.contains('mobile-open'))cm();else{sb.classList.add('mobile-open');if(overlay)overlay.classList.add('show');}});
+  if(overlay)overlay.addEventListener('click',cm);
+  window.addEventListener('resize',r);r();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Supplier Detail (Wizard)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = { corePlugins: { preflight: true }, theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+} } };
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .sup-tab { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:6px; font-size:13px; color:#374151; cursor:pointer; }
+  .sup-tab:hover { background:#F1F5F9; }
+  .sup-tab.active { background:#E6F4FB; color:#00386C; font-weight:600; border-left:3px solid #00AEEE; padding-left:9px; }
+  .sup-tab .ic { font-size:14px; width:18px; text-align:center; }
+  .field-lbl { font-size:11px; font-weight:600; color:#374151; margin-bottom:4px; display:block; }
+  .field-input, .field-select, .field-textarea { width:100%; padding:8px 10px; font-size:13px; border:1px solid #D1D5DB; border-radius:6px; background:#fff; }
+  .badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:600; border:1px solid; }
+  .card { background:#fff; border:1px solid #E5E7EB; border-radius:8px; padding:18px; }
+  .score-ring { width:54px; height:54px; border-radius:50%; background:conic-gradient(#10B981 0 78%, #E5E7EB 78% 100%); display:flex; align-items:center; justify-content:center; }
+  .score-ring-inner { width:42px; height:42px; border-radius:50%; background:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:700; color:#10B981; font-size:13px; line-height:1; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="tela30-empresas-list.html" class="text-dms-tecnologia hover:text-dms-mar">Cadastros</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-tecnologia">Fornecedores</span>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Razão Social Exemplo SA</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1400px] w-full mx-auto">
+
+      <div class="mb-6 flex items-start justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-lg bg-gradient-to-br from-dms-mar to-dms-confianca text-white flex items-center justify-center font-bold text-lg">RE</div>
+          <div>
+            <div class="flex items-center gap-3 mb-1">
+              <div class="w-8 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+              <span class="text-xs font-semibold text-dms-tecnologia uppercase tracking-wider">Fornecedor</span>
+            </div>
+            <h1 class="text-[24px] leading-[30px] font-bold text-dms-mar">Razão Social Exemplo SA</h1>
+            <div class="flex items-center gap-3 mt-1 text-[12px] text-dms-tecnologia">
+              <span class="mono">CNPJ 12.345.678/0001-90</span>
+              <span>·</span>
+              <span>Inscr. Est. 110.042.249.117</span>
+              <span>·</span>
+              <span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">Ativo</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 flex-shrink-0">
+          <div class="flex items-center gap-3">
+            <div class="score-ring"><div class="score-ring-inner"><div>78</div><div style="font-size:8px; color:#656464; font-weight:500;">SCORE</div></div></div>
+            <div class="text-[12px] text-dms-tecnologia"><div class="font-semibold text-dms-mar">Qualidade</div><div>78 / 100</div></div>
+          </div>
+          <button class="px-4 py-2 text-sm font-semibold text-dms-mar bg-white border border-gray-300 rounded-md">Bloquear</button>
+          <button class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md">Salvar alterações</button>
+        </div>
+      </div>
+
+      <div class="mb-5 bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center justify-between gap-3">
+        <div class="text-[12px] text-blue-900"><strong>Demo:</strong> selecione qualquer aba para visualizar o conteúdo. Em produção, a navegação acontece pelo menu lateral.</div>
+        <select id="abaSelect" class="field-select w-auto text-[12px] bg-white">
+          <option value="supplier">Ad. Supplier</option>
+          <option value="tax">Tax</option>
+          <option value="pagamento">Inf. Pagamento</option>
+          <option value="categoria">Categoria</option>
+          <option value="contratos">Contratos</option>
+          <option value="historico">Histórico</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-[240px_1fr] gap-6">
+
+        <aside class="bg-white border border-[#E5E7EB] rounded-lg p-3 h-fit sticky top-24">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-dms-tecnologia px-2 mb-2">Detalhe do fornecedor</div>
+          <ul class="flex flex-col gap-1">
+            <li class="sup-tab active" data-aba="supplier"><span class="ic">👤</span>Ad. Supplier</li>
+            <li class="sup-tab" data-aba="tax"><span class="ic">💼</span>Tax</li>
+            <li class="sup-tab" data-aba="pagamento"><span class="ic">💳</span>Inf. Pagamento</li>
+            <li class="sup-tab" data-aba="categoria"><span class="ic">🏷️</span>Categoria</li>
+            <li class="sup-tab" data-aba="contratos"><span class="ic">📝</span>Contratos</li>
+            <li class="sup-tab" data-aba="historico"><span class="ic">🕒</span>Histórico</li>
+          </ul>
+          <div class="mt-3 pt-3 border-t border-gray-200 px-2 text-[11px] text-dms-tecnologia space-y-1">
+            <div class="flex justify-between"><span>Cadastrado em</span><span class="mono">2022-03-14</span></div>
+            <div class="flex justify-between"><span>Última atualização</span><span class="mono">há 4 dias</span></div>
+            <div class="flex justify-between"><span>Contratos ativos</span><span class="mono font-semibold text-dms-mar">3</span></div>
+          </div>
+        </aside>
+
+        <div class="space-y-5">
+
+          <!-- AD. SUPPLIER -->
+          <section data-pane="supplier" class="space-y-5">
+            <div class="card">
+              <div class="text-[14px] font-bold text-dms-mar mb-1">Dados cadastrais</div>
+              <div class="text-[12px] text-dms-tecnologia mb-4">Informações principais do fornecedor.</div>
+              <div class="grid grid-cols-2 gap-4">
+                <div><label class="field-lbl">Razão Social <span class="text-red-600">*</span></label><input class="field-input" value="Razão Social Exemplo SA"></div>
+                <div><label class="field-lbl">Nome fantasia</label><input class="field-input" value="Exemplo Distribuidora"></div>
+                <div><label class="field-lbl">CNPJ <span class="text-red-600">*</span></label><input class="field-input mono" value="12.345.678/0001-90"></div>
+                <div><label class="field-lbl">Inscrição estadual</label><input class="field-input mono" value="110.042.249.117"></div>
+                <div><label class="field-lbl">Porte</label><select class="field-select"><option>Médio</option><option>Pequeno</option><option>Grande</option></select></div>
+                <div><label class="field-lbl">Status</label><select class="field-select"><option>Ativo</option><option>Bloqueado</option><option>Em análise</option></select></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="text-[14px] font-bold text-dms-mar mb-3">Endereço</div>
+              <div class="grid grid-cols-[1fr_120px] gap-4 mb-3"><div><label class="field-lbl">CEP</label><input class="field-input mono" value="04567-010"></div><div><label class="field-lbl">UF</label><input class="field-input" value="SP"></div></div>
+              <div class="grid grid-cols-[2fr_120px] gap-4"><div><label class="field-lbl">Logradouro</label><input class="field-input" value="Av. das Nações Unidas, 12.901"></div><div><label class="field-lbl">Cidade</label><input class="field-input" value="São Paulo"></div></div>
+            </div>
+            <div class="card">
+              <div class="text-[14px] font-bold text-dms-mar mb-3">Contato principal</div>
+              <div class="grid grid-cols-2 gap-4">
+                <div><label class="field-lbl">Nome</label><input class="field-input" value="Roberto Almeida"></div>
+                <div><label class="field-lbl">Cargo</label><input class="field-input" value="Gerente comercial"></div>
+                <div><label class="field-lbl">E-mail</label><input class="field-input" value="roberto.almeida@exemplo.com.br"></div>
+                <div><label class="field-lbl">Telefone</label><input class="field-input mono" value="+55 11 3456-7890"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- TAX -->
+          <section data-pane="tax" class="space-y-5 hidden">
+            <div class="card">
+              <div class="text-[14px] font-bold text-dms-mar mb-3">Regime tributário</div>
+              <div class="grid grid-cols-2 gap-4">
+                <div><label class="field-lbl">Regime</label><select class="field-select"><option>Lucro Real</option><option>Lucro Presumido</option><option>Simples Nacional</option></select></div>
+                <div><label class="field-lbl">Sujeito a ICMS-ST</label><select class="field-select"><option>Sim</option><option>Não</option></select></div>
+                <div><label class="field-lbl">CRT</label><select class="field-select"><option>3 - Regime Normal</option></select></div>
+                <div><label class="field-lbl">Optante MEI</label><select class="field-select"><option>Não</option></select></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="text-[14px] font-bold text-dms-mar mb-3">Certidões & validades</div>
+              <table class="w-full text-[12px]"><thead><tr class="text-[10px] uppercase text-gray-500"><th class="text-left pb-2">Documento</th><th class="text-left pb-2">Emissão</th><th class="text-left pb-2">Validade</th><th class="text-left pb-2">Status</th></tr></thead><tbody class="divide-y">
+                <tr><td class="py-2 font-semibold">CND Federal</td><td class="mono">2026-02-15</td><td class="mono">2026-08-15</td><td><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">Válida</span></td></tr>
+                <tr><td class="py-2 font-semibold">CND Estadual</td><td class="mono">2025-12-01</td><td class="mono">2026-06-01</td><td><span class="badge bg-amber-50 text-amber-700 border-amber-200">Vence em 3 dias</span></td></tr>
+                <tr><td class="py-2 font-semibold">FGTS (CRF)</td><td class="mono">2026-04-10</td><td class="mono">2026-07-10</td><td><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">Válida</span></td></tr>
+                <tr><td class="py-2 font-semibold">Trabalhista (CNDT)</td><td class="mono">2025-11-20</td><td class="mono">2026-05-20</td><td><span class="badge bg-red-50 text-red-700 border-red-200">Vencida</span></td></tr>
+              </tbody></table>
+              <button class="mt-3 text-[12px] text-dms-ceu font-semibold">+ Anexar certidão</button>
+            </div>
+            <div class="card">
+              <div class="text-[14px] font-bold text-dms-mar mb-3">Regras fiscais vinculadas</div>
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded"><span class="text-[12px] mono">RGF-014 · CSRF + ISS retido</span><button class="text-red-500 text-xs">remover</button></div>
+                <div class="flex items-center justify-between p-2.5 bg-gray-50 rounded"><span class="text-[12px] mono">RGF-031 · Importação NCM 8471</span><button class="text-red-500 text-xs">remover</button></div>
+              </div>
+              <button class="mt-3 text-[12px] text-dms-ceu font-semibold">+ Vincular regra</button>
+            </div>
+          </section>
+
+          <!-- INF. PAGAMENTO -->
+          <section data-pane="pagamento" class="space-y-5 hidden">
+            <div class="card">
+              <div class="text-[14px] font-bold text-dms-mar mb-3">Contas bancárias</div>
+              <div class="space-y-2">
+                <div class="grid grid-cols-[1fr_1fr_120px_1fr_60px] gap-3 items-center p-3 bg-gray-50 rounded border"><div><div class="text-[12px] font-semibold">Itaú</div><div class="text-[10px] text-gray-500">237</div></div><div class="mono text-[12px]">Ag 1234</div><div class="mono text-[12px]">CC 56789-0</div><div class="text-[11px]">PIX: 12.345.678/0001-90</div><span class="badge bg-blue-50 text-blue-700 border-blue-200">Principal</span></div>
+                <div class="grid grid-cols-[1fr_1fr_120px_1fr_60px] gap-3 items-center p-3 bg-gray-50 rounded border"><div><div class="text-[12px] font-semibold">Santander</div><div class="text-[10px] text-gray-500">033</div></div><div class="mono text-[12px]">Ag 4501</div><div class="mono text-[12px]">CC 01122-3</div><div class="text-[11px]">PIX: financeiro@…</div><span class="badge bg-gray-50 text-gray-600 border-gray-200">Backup</span></div>
+              </div>
+              <button class="mt-3 text-[12px] text-dms-ceu font-semibold">+ Adicionar conta</button>
+            </div>
+            <div class="card">
+              <div class="text-[14px] font-bold text-dms-mar mb-3">Condições padrão</div>
+              <div class="grid grid-cols-3 gap-4">
+                <div><label class="field-lbl">Prazo padrão</label><select class="field-select"><option>30 dias</option><option>15 dias</option><option>45 dias</option><option>60 dias</option></select></div>
+                <div><label class="field-lbl">Método preferencial</label><select class="field-select"><option>PIX</option><option>Boleto</option><option>TED</option></select></div>
+                <div><label class="field-lbl">Desconto antecipação</label><div class="flex gap-2"><input class="field-input mono" value="1,5"><span class="self-center text-[12px] text-gray-500">% / dia</span></div></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- CATEGORIA -->
+          <section data-pane="categoria" class="space-y-5 hidden">
+            <div class="card">
+              <div class="text-[14px] font-bold text-dms-mar mb-3">Categorias atendidas</div>
+              <div class="flex flex-wrap gap-2 mb-4">
+                <span class="badge bg-blue-50 text-blue-700 border-blue-200">EPI</span>
+                <span class="badge bg-blue-50 text-blue-700 border-blue-200">Ferramentas industriais</span>
+                <span class="badge bg-blue-50 text-blue-700 border-blue-200">Manutenção predial</span>
+                <span class="badge bg-blue-50 text-blue-700 border-blue-200">Locação de equipamentos</span>
+              </div>
+              <button class="text-[12px] text-dms-ceu font-semibold">+ Adicionar categoria</button>
+            </div>
+            <div class="card">
+              <div class="text-[14px] font-bold text-dms-mar mb-3">Qualificação por categoria</div>
+              <table class="w-full text-[12px]"><thead><tr class="text-[10px] uppercase text-gray-500"><th class="text-left pb-2">Categoria</th><th class="text-left pb-2">Pedidos (12m)</th><th class="text-left pb-2">OTIF</th><th class="text-left pb-2">Qualidade</th><th class="text-left pb-2">Status</th></tr></thead><tbody class="divide-y">
+                <tr><td class="py-2">EPI</td><td class="mono">142</td><td class="mono">96%</td><td class="mono">4.7/5</td><td><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">Preferencial</span></td></tr>
+                <tr><td class="py-2">Ferramentas industriais</td><td class="mono">58</td><td class="mono">88%</td><td class="mono">4.2/5</td><td><span class="badge bg-blue-50 text-blue-700 border-blue-200">Homologado</span></td></tr>
+                <tr><td class="py-2">Manutenção predial</td><td class="mono">12</td><td class="mono">82%</td><td class="mono">3.9/5</td><td><span class="badge bg-amber-50 text-amber-700 border-amber-200">Em avaliação</span></td></tr>
+                <tr><td class="py-2">Locação</td><td class="mono">4</td><td class="mono">75%</td><td class="mono">—</td><td><span class="badge bg-gray-50 text-gray-700 border-gray-200">Esporádico</span></td></tr>
+              </tbody></table>
+            </div>
+          </section>
+
+          <!-- CONTRATOS -->
+          <section data-pane="contratos" class="space-y-5 hidden">
+            <div class="card">
+              <div class="flex items-center justify-between mb-3"><div class="text-[14px] font-bold text-dms-mar">Contratos vinculados</div><a href="tela44-contratos-list.html" class="text-[12px] text-dms-ceu font-semibold">Ver todos →</a></div>
+              <div class="space-y-2">
+                <a href="tela46-contrato-detalhe.html" class="block p-3.5 bg-gray-50 rounded border hover:border-dms-ceu hover:bg-blue-50/30 transition"><div class="flex items-center justify-between"><div><div class="text-[13px] font-semibold text-dms-mar">CTR-2026-0042 · Fornecimento EPI</div><div class="text-[11px] text-gray-600 mt-0.5">Vigência: 01/01/2026 → 31/12/2026 · R$ 480.000,00/ano</div></div><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">Ativo</span></div></a>
+                <a href="tela46-contrato-detalhe.html" class="block p-3.5 bg-gray-50 rounded border hover:border-dms-ceu hover:bg-blue-50/30 transition"><div class="flex items-center justify-between"><div><div class="text-[13px] font-semibold text-dms-mar">CTR-2025-0188 · Locação compressores</div><div class="text-[11px] text-gray-600 mt-0.5">Vigência: 15/06/2025 → 14/06/2026 · R$ 32.500,00/mês</div></div><span class="badge bg-amber-50 text-amber-700 border-amber-200">Vence em 18 dias</span></div></a>
+                <a href="tela46-contrato-detalhe.html" class="block p-3.5 bg-gray-50 rounded border hover:border-dms-ceu hover:bg-blue-50/30 transition"><div class="flex items-center justify-between"><div><div class="text-[13px] font-semibold text-dms-mar">CTR-2024-1109 · Manutenção predial</div><div class="text-[11px] text-gray-600 mt-0.5">Vigência: 01/08/2024 → 31/07/2026 · R$ 18.000,00/mês</div></div><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">Ativo</span></div></a>
+              </div>
+            </div>
+          </section>
+
+          <!-- HISTÓRICO -->
+          <section data-pane="historico" class="space-y-5 hidden">
+            <div class="card">
+              <div class="text-[14px] font-bold text-dms-mar mb-3">Timeline de eventos</div>
+              <div class="relative pl-6 space-y-4">
+                <div class="absolute left-1.5 top-2 bottom-0 w-px bg-gray-200"></div>
+                <div class="relative"><div class="absolute -left-[19px] top-1 w-3 h-3 rounded-full bg-emerald-500 ring-4 ring-emerald-100"></div><div class="text-[11px] text-gray-500 mono">2026-05-27 14:22</div><div class="text-[13px] font-semibold">NF aceita · NF-0009871</div><div class="text-[11px] text-gray-600">R$ 12.450,00 · 3-way match OK · sem divergências</div></div>
+                <div class="relative"><div class="absolute -left-[19px] top-1 w-3 h-3 rounded-full bg-amber-500 ring-4 ring-amber-100"></div><div class="text-[11px] text-gray-500 mono">2026-05-22 10:08</div><div class="text-[13px] font-semibold">Divergência detectada · NF-0009852</div><div class="text-[11px] text-gray-600">Valor +4,3% acima do PO · aceita por Mariana Lopes</div></div>
+                <div class="relative"><div class="absolute -left-[19px] top-1 w-3 h-3 rounded-full bg-blue-500 ring-4 ring-blue-100"></div><div class="text-[11px] text-gray-500 mono">2026-05-15 09:30</div><div class="text-[13px] font-semibold">Cotação ganha · COT-2026-0187</div><div class="text-[11px] text-gray-600">Categoria EPI · 2º colocado: Distribuidora ABC</div></div>
+                <div class="relative"><div class="absolute -left-[19px] top-1 w-3 h-3 rounded-full bg-red-500 ring-4 ring-red-100"></div><div class="text-[11px] text-gray-500 mono">2026-04-30 16:45</div><div class="text-[13px] font-semibold">CNDT expirou</div><div class="text-[11px] text-gray-600">Alerta automático · pendente regularização</div></div>
+                <div class="relative"><div class="absolute -left-[19px] top-1 w-3 h-3 rounded-full bg-gray-400 ring-4 ring-gray-100"></div><div class="text-[11px] text-gray-500 mono">2026-03-12 11:00</div><div class="text-[13px] font-semibold">Contrato renovado · CTR-2026-0042</div><div class="text-[11px] text-gray-600">Renovação automática · sem alteração de preço</div></div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+(function(){
+  var sel = document.getElementById('abaSelect');
+  var tabs = document.querySelectorAll('.sup-tab');
+  var panes = document.querySelectorAll('section[data-pane]');
+  function show(name){
+    panes.forEach(function(p){ p.classList.toggle('hidden', p.dataset.pane !== name); });
+    tabs.forEach(function(t){ t.classList.toggle('active', t.dataset.aba === name); });
+    if(sel.value !== name) sel.value = name;
+  }
+  sel.addEventListener('change', function(){ show(sel.value); });
+  tabs.forEach(function(t){ t.addEventListener('click', function(){ show(t.dataset.aba); }); });
+})();
+</script>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; } #dms-sidebar nav::-webkit-scrollbar { width: 4px; } #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; } #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; } #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; } #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; } #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) { #dms-sidebar { width: 280px !important; transform: translateX(-100%); } #dms-sidebar.mobile-open { transform: translateX(0); } .flex-1.ml-\[260px\] { margin-left: 0 !important; } #dms-sidebar-mobile-btn { display: flex !important; } #sidebar-toggle { display: none; } }
+</style>
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+<div id="dms-sidebar-overlay"></div>
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li><li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li><li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li><li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li><li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li></ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li><li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li><li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li><li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li><li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li><li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li></ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li><li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li></ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li><li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li><li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li></ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li><li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li><li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li><li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li><li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li><li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li></ul></div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li><li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li><li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li></ul></div>
+  </nav>
+</aside>
+<script>
+(function(){
+  var sb=document.getElementById('dms-sidebar'),toggle=document.getElementById('sidebar-toggle'),mobBtn=document.getElementById('dms-sidebar-mobile-btn'),overlay=document.getElementById('dms-sidebar-overlay');
+  if(!sb||!toggle)return; var K='mockup-sidebar-collapsed-v2',c=false; try{c=localStorage.getItem(K)==='1';}catch(e){}
+  function m(){return window.matchMedia('(max-width: 767px)').matches}
+  function r(){if(c&&!m()){sb.classList.add('collapsed');sb.style.width='64px';document.documentElement.style.setProperty('--dms-sb-w','64px');}else{sb.classList.remove('collapsed');sb.style.width=m()?'280px':'240px';document.documentElement.style.setProperty('--dms-sb-w',m()?'0px':'240px');}}
+  toggle.addEventListener('click',function(){c=!c;try{localStorage.setItem(K,c?'1':'0');}catch(e){}r();});
+  function cm(){sb.classList.remove('mobile-open');if(overlay)overlay.classList.remove('show');}
+  if(mobBtn)mobBtn.addEventListener('click',function(){if(sb.classList.contains('mobile-open'))cm();else{sb.classList.add('mobile-open');if(overlay)overlay.classList.add('show');}});
+  if(overlay)overlay.addEventListener('click',cm);
+  window.addEventListener('resize',r);r();
+})();
+</script>
+</body>
+</html>

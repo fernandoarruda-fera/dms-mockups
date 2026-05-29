@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Modais de Ações em Massa</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = { corePlugins: { preflight: true }, theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+} } };
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .modal-stage { position: relative; background: linear-gradient(135deg, rgba(15,27,76,0.55), rgba(15,27,76,0.65)); border-radius: 10px; padding: 28px 22px; min-height: 420px; display:flex; align-items:flex-start; justify-content:center; overflow:hidden; }
+  .modal-card-lg { position:relative; width:100%; max-width:520px; background:#fff; border-radius:10px; box-shadow:0 24px 60px rgba(0,0,0,0.32), 0 4px 12px rgba(0,0,0,0.18); overflow:hidden; }
+  .mc-head { padding:16px 20px; border-bottom:1px solid #EEF1F4; display:flex; align-items:flex-start; gap:12px; }
+  .mc-body { padding:18px 20px; font-size:13px; color:#374151; max-height:340px; overflow-y:auto; }
+  .mc-footer { padding:12px 20px; border-top:1px solid #EEF1F4; background:#FAFBFC; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .mc-btn { padding:7px 14px; font-size:12px; font-weight:600; border-radius:6px; }
+  .mc-btn-secondary { background:#fff; color:#374151; border:1px solid #D1D5DB; }
+  .mc-btn-primary { background:#00386C; color:#fff; }
+  .mc-btn-warning { background:#D97706; color:#fff; }
+  .field-lbl { font-size:11px; font-weight:600; color:#374151; margin-bottom:4px; display:block; }
+  .field-input, .field-select, .field-textarea { width:100%; padding:7px 9px; font-size:12px; border:1px solid #D1D5DB; border-radius:5px; background:#fff; }
+  .when-tag { display:inline-block; margin-top:10px; font-size:11px; color:#656464; background:#F1F3F5; padding:5px 10px; border-radius:999px; font-weight:500; }
+  .row-mini { display:flex; align-items:center; gap:8px; padding:7px 9px; font-size:11.5px; border-bottom:1px solid #F1F3F5; }
+  .row-mini:last-child { border-bottom:0; }
+  .row-mini .id { color:#656464; min-width:90px; }
+  .row-mini .val { color:#1A1A1A; }
+  .row-mini .v { margin-left:auto; font-family:'JetBrains Mono',monospace; font-weight:600; color:#00386C; }
+  .mini-list { background:#F8FBFF; border:1px solid #E0EAF5; border-radius:6px; overflow:hidden; }
+  .badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:600; border:1px solid; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <span class="text-dms-tecnologia">Padrões UI</span>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Ações em Massa</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1400px] w-full mx-auto">
+
+      <div class="mb-7">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <span class="text-xs font-semibold text-dms-tecnologia uppercase tracking-wider">Showcase · Bulk actions</span>
+        </div>
+        <h1 class="text-[28px] leading-[36px] font-bold text-dms-mar mb-1">Ações em Massa</h1>
+        <p class="text-sm text-dms-tecnologia">Modais para operações sobre múltiplos registros selecionados. Apresentam contagem, lista de itens afetados e justificativa quando audit-relevant.</p>
+      </div>
+
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+
+        <!-- 1 Bulk aprovar requisições -->
+        <div>
+          <div class="modal-stage">
+            <div class="modal-card-lg">
+              <div class="mc-head">
+                <div style="width:36px; height:36px; border-radius:50%; background:#DCFCE7; color:#15803D; display:flex; align-items:center; justify-content:center;"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                <div class="flex-1">
+                  <div class="text-[15px] font-bold text-dms-mar">Aprovar 12 requisições</div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">Total: R$ 184.560,00 · de R$ 12.300 a R$ 28.700 por REQ</div>
+                </div>
+                <span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">12 itens</span>
+              </div>
+              <div class="mc-body">
+                <div class="text-[12px] text-gray-700 mb-2">Você aprovará todas as REQs listadas. Esta ação é registrada no log de auditoria com seu usuário.</div>
+                <div class="mini-list mb-3">
+                  <div class="row-mini"><span class="id mono">REQ-2026-0418</span><span class="val">Manutenção elétrica · Filial SP</span><span class="v">R$ 18.450</span></div>
+                  <div class="row-mini"><span class="id mono">REQ-2026-0419</span><span class="val">EPI uniformes · Op. Norte</span><span class="v">R$ 22.100</span></div>
+                  <div class="row-mini"><span class="id mono">REQ-2026-0421</span><span class="val">Insumos limpeza · Adm</span><span class="v">R$ 12.300</span></div>
+                  <div class="row-mini"><span class="id mono">REQ-2026-0422</span><span class="val">Locação compressor · Obra MG</span><span class="v">R$ 28.700</span></div>
+                  <div class="row-mini text-gray-500"><span class="id">+ 8 outras</span><span class="val">…</span><span class="v">R$ 103.010</span></div>
+                </div>
+                <label class="field-lbl">Justificativa única (opcional)</label>
+                <textarea rows="2" class="field-textarea" placeholder="Aplica-se a todas: orçamento aprovado conforme planejamento mensal..."></textarea>
+                <label class="flex items-center gap-2 mt-3 text-[12px]"><input type="checkbox" class="rounded"> Aprovar somente as que estão dentro do meu limite</label>
+              </div>
+              <div class="mc-footer">
+                <div class="text-[11px] text-gray-500">12 aprovações serão geradas</div>
+                <div class="flex gap-2"><button class="mc-btn mc-btn-secondary">Cancelar</button><button class="mc-btn mc-btn-primary">Aprovar 12</button></div>
+              </div>
+            </div>
+          </div>
+          <span class="when-tag">Quando aparece: lista de Requisições → checkbox → "Aprovar selecionadas"</span>
+        </div>
+
+        <!-- 2 Bulk reclassificar NFs -->
+        <div>
+          <div class="modal-stage">
+            <div class="modal-card-lg">
+              <div class="mc-head">
+                <div style="width:36px; height:36px; border-radius:50%; background:#E0F2FE; color:#0369A1; display:flex; align-items:center; justify-content:center;"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5a1.99 1.99 0 011.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.99 1.99 0 013 12V7a4 4 0 014-4z"/></svg></div>
+                <div class="flex-1">
+                  <div class="text-[15px] font-bold text-dms-mar">Reclassificar 8 NFs</div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">MAILIA tag · todas as NFs receberão a nova classificação</div>
+                </div>
+                <span class="badge bg-blue-50 text-blue-700 border-blue-200">8 itens</span>
+              </div>
+              <div class="mc-body">
+                <label class="field-lbl">Nova classificação MAILIA <span class="text-red-600">*</span></label>
+                <select class="field-select mb-3"><option>NF · Material indireto</option><option>NF · Material direto</option><option>NF · Serviço PJ</option><option>NF · Frete</option><option>NF · Importação</option></select>
+                <div class="mini-list mb-3">
+                  <div class="row-mini"><span class="id mono">NF-9012</span><span class="val">Construtora Vila SA</span><span class="v">R$ 4.250</span></div>
+                  <div class="row-mini"><span class="id mono">NF-9018</span><span class="val">Distribuidora Norte LTDA</span><span class="v">R$ 8.940</span></div>
+                  <div class="row-mini"><span class="id mono">NF-9024</span><span class="val">Ferramentas BR ME</span><span class="v">R$ 2.180</span></div>
+                  <div class="row-mini text-gray-500"><span class="id">+ 5 outras</span><span class="val">…</span><span class="v">R$ 15.620</span></div>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 rounded p-2.5 text-[11px] text-amber-900"><strong>Atenção:</strong> a reclassificação dispara novamente as regras de matching e pode alterar o stage atual de cada NF.</div>
+                <label class="field-lbl mt-3">Motivo da reclassificação</label>
+                <textarea rows="2" class="field-textarea" placeholder="Ex: classificação anterior errada pela IA, revisado pelo fiscal..."></textarea>
+              </div>
+              <div class="mc-footer">
+                <div class="text-[11px] text-gray-500">Reprocessamento estimado: ~30s</div>
+                <div class="flex gap-2"><button class="mc-btn mc-btn-secondary">Cancelar</button><button class="mc-btn mc-btn-primary">Reclassificar 8</button></div>
+              </div>
+            </div>
+          </div>
+          <span class="when-tag">Quando aparece: lista de NFs → checkbox → "Reclassificar"</span>
+        </div>
+
+        <!-- 3 Bulk exportar Excel -->
+        <div>
+          <div class="modal-stage">
+            <div class="modal-card-lg">
+              <div class="mc-head">
+                <div style="width:36px; height:36px; border-radius:50%; background:#F3E8FF; color:#7E22CE; display:flex; align-items:center; justify-content:center;"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+                <div class="flex-1">
+                  <div class="text-[15px] font-bold text-dms-mar">Exportar 142 pedidos</div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">Filtros atuais: status=Em andamento, período=últimos 90d</div>
+                </div>
+                <span class="badge bg-purple-50 text-purple-700 border-purple-200">142 itens</span>
+              </div>
+              <div class="mc-body">
+                <label class="field-lbl mb-2">Formato</label>
+                <div class="flex gap-2 mb-4">
+                  <label class="flex-1 flex items-center gap-2 p-2.5 border-2 border-dms-ceu bg-blue-50/40 rounded cursor-pointer"><input type="radio" name="fmt" checked><div><div class="text-[12px] font-semibold">XLSX</div><div class="text-[10px] text-gray-500">Excel com formatação</div></div></label>
+                  <label class="flex-1 flex items-center gap-2 p-2.5 border rounded cursor-pointer"><input type="radio" name="fmt"><div><div class="text-[12px] font-semibold">CSV</div><div class="text-[10px] text-gray-500">UTF-8, sep. vírgula</div></div></label>
+                  <label class="flex-1 flex items-center gap-2 p-2.5 border rounded cursor-pointer"><input type="radio" name="fmt"><div><div class="text-[12px] font-semibold">PDF</div><div class="text-[10px] text-gray-500">Relatório paisagem</div></div></label>
+                </div>
+                <label class="field-lbl mb-2">Colunas a exportar (12 disponíveis · 9 selecionadas)</label>
+                <div class="grid grid-cols-2 gap-1.5 mb-3 text-[12px]">
+                  <label class="flex items-center gap-2"><input type="checkbox" checked class="rounded"> Número do pedido</label>
+                  <label class="flex items-center gap-2"><input type="checkbox" checked class="rounded"> Fornecedor</label>
+                  <label class="flex items-center gap-2"><input type="checkbox" checked class="rounded"> CNPJ</label>
+                  <label class="flex items-center gap-2"><input type="checkbox" checked class="rounded"> Valor total</label>
+                  <label class="flex items-center gap-2"><input type="checkbox" checked class="rounded"> Data emissão</label>
+                  <label class="flex items-center gap-2"><input type="checkbox" checked class="rounded"> Status</label>
+                  <label class="flex items-center gap-2"><input type="checkbox" checked class="rounded"> Centro de custo</label>
+                  <label class="flex items-center gap-2"><input type="checkbox" checked class="rounded"> Comprador</label>
+                  <label class="flex items-center gap-2"><input type="checkbox" checked class="rounded"> Contrato</label>
+                  <label class="flex items-center gap-2"><input type="checkbox" class="rounded"> Observações</label>
+                  <label class="flex items-center gap-2"><input type="checkbox" class="rounded"> Itens detalhados</label>
+                  <label class="flex items-center gap-2"><input type="checkbox" class="rounded"> Histórico de aprovações</label>
+                </div>
+                <label class="flex items-center gap-2 text-[12px]"><input type="checkbox" class="rounded"> Enviar por email quando estiver pronto</label>
+              </div>
+              <div class="mc-footer">
+                <div class="text-[11px] text-gray-500">~2,1 MB estimado</div>
+                <div class="flex gap-2"><button class="mc-btn mc-btn-secondary">Cancelar</button><button class="mc-btn mc-btn-primary">Exportar</button></div>
+              </div>
+            </div>
+          </div>
+          <span class="when-tag">Quando aparece: qualquer listagem → "Exportar selecionados"</span>
+        </div>
+
+        <!-- 4 Bulk arquivar contratos vencidos -->
+        <div>
+          <div class="modal-stage">
+            <div class="modal-card-lg">
+              <div class="mc-head">
+                <div style="width:36px; height:36px; border-radius:50%; background:#FEF3C7; color:#D97706; display:flex; align-items:center; justify-content:center;"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg></div>
+                <div class="flex-1">
+                  <div class="text-[15px] font-bold text-dms-mar">Arquivar 5 contratos vencidos</div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">Contratos não renovados após data de término</div>
+                </div>
+                <span class="badge bg-amber-50 text-amber-700 border-amber-200">5 itens</span>
+              </div>
+              <div class="mc-body">
+                <div class="text-[12px] text-gray-700 mb-3">Os contratos abaixo serão movidos para "Arquivados". Permanecem consultáveis, mas saem das listas operacionais.</div>
+                <div class="mini-list mb-3">
+                  <div class="row-mini"><span class="id mono">CTR-2024-0102</span><span class="val">Empresa Alpha LTDA</span><span class="v">venc. 2026-02-28</span></div>
+                  <div class="row-mini"><span class="id mono">CTR-2024-0118</span><span class="val">Beta Distribuidora</span><span class="v">venc. 2026-03-15</span></div>
+                  <div class="row-mini"><span class="id mono">CTR-2024-0203</span><span class="val">Gamma Soluções</span><span class="v">venc. 2026-04-05</span></div>
+                  <div class="row-mini"><span class="id mono">CTR-2025-0011</span><span class="val">Delta Manutenção SA</span><span class="v">venc. 2026-04-30</span></div>
+                  <div class="row-mini"><span class="id mono">CTR-2025-0044</span><span class="val">Epsilon Locações</span><span class="v">venc. 2026-05-12</span></div>
+                </div>
+                <label class="flex items-center gap-2 mt-3 text-[12px]"><input type="checkbox" checked class="rounded"> Notificar gestores responsáveis por email</label>
+                <label class="flex items-center gap-2 mt-1.5 text-[12px]"><input type="checkbox" class="rounded"> Tentar identificar renovações pendentes e mover para "Negociação"</label>
+                <label class="field-lbl mt-3">Justificativa (audit log) <span class="text-red-600">*</span></label>
+                <textarea rows="2" class="field-textarea" placeholder="Limpeza trimestral de contratos sem renovação..."></textarea>
+              </div>
+              <div class="mc-footer">
+                <div class="text-[11px] text-gray-500">Ação registrada em auditoria</div>
+                <div class="flex gap-2"><button class="mc-btn mc-btn-secondary">Cancelar</button><button class="mc-btn mc-btn-warning">Arquivar 5</button></div>
+              </div>
+            </div>
+          </div>
+          <span class="when-tag">Quando aparece: lista de Contratos → filtro "Vencidos" → "Arquivar"</span>
+        </div>
+
+      </div>
+
+      <div class="mt-8 bg-white border border-[#E5E7EB] rounded-lg p-5">
+        <div class="text-[13px] font-semibold text-dms-mar mb-2">Padrões de bulk actions</div>
+        <ul class="text-[12px] text-gray-700 space-y-1 list-disc pl-5">
+          <li>Sempre mostrar contagem no título e badge à direita ("N itens").</li>
+          <li>Listar os primeiros 3–5 itens + "+ N outras" para preservar contexto sem sobrecarregar.</li>
+          <li>Justificativa única (opcional ou obrigatória) aplica-se a todos os itens — registrar uma vez no audit log.</li>
+          <li>Footer com hint de impacto (tempo de processamento, tamanho do arquivo, aprovações geradas).</li>
+          <li>Ações destrutivas/audit-critical exigem confirmação adicional ou justificativa obrigatória.</li>
+        </ul>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; } #dms-sidebar nav::-webkit-scrollbar { width: 4px; } #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; } #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; } #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; } #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; } #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) { #dms-sidebar { width: 280px !important; transform: translateX(-100%); } #dms-sidebar.mobile-open { transform: translateX(0); } .flex-1.ml-\[260px\] { margin-left: 0 !important; } #dms-sidebar-mobile-btn { display: flex !important; } #sidebar-toggle { display: none; } }
+</style>
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+<div id="dms-sidebar-overlay"></div>
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li><li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li><li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li><li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li><li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li></ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li><li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li><li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li><li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li><li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li><li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li></ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li><li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li></ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li><li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li><li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li></ul></div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li><li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li><li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li><li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li><li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li><li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li></ul></div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p><ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;"><li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li><li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li><li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li></ul></div>
+  </nav>
+</aside>
+<script>
+(function(){
+  var sb=document.getElementById('dms-sidebar'),toggle=document.getElementById('sidebar-toggle'),mobBtn=document.getElementById('dms-sidebar-mobile-btn'),overlay=document.getElementById('dms-sidebar-overlay');
+  if(!sb||!toggle)return; var K='mockup-sidebar-collapsed-v2',c=false; try{c=localStorage.getItem(K)==='1';}catch(e){}
+  function m(){return window.matchMedia('(max-width: 767px)').matches}
+  function r(){if(c&&!m()){sb.classList.add('collapsed');sb.style.width='64px';document.documentElement.style.setProperty('--dms-sb-w','64px');}else{sb.classList.remove('collapsed');sb.style.width=m()?'280px':'240px';document.documentElement.style.setProperty('--dms-sb-w',m()?'0px':'240px');}}
+  toggle.addEventListener('click',function(){c=!c;try{localStorage.setItem(K,c?'1':'0');}catch(e){}r();});
+  function cm(){sb.classList.remove('mobile-open');if(overlay)overlay.classList.remove('show');}
+  if(mobBtn)mobBtn.addEventListener('click',function(){if(sb.classList.contains('mobile-open'))cm();else{sb.classList.add('mobile-open');if(overlay)overlay.classList.add('show');}});
+  if(overlay)overlay.addEventListener('click',cm);
+  window.addEventListener('resize',r);r();
+})();
+</script>
+</body>
+</html>
