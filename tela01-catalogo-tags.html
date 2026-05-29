@@ -108,7 +108,7 @@ tailwind.config = {
       <div class="caption text-white/40 px-6 mt-6 mb-2">Operação</div>
       <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
-        Cockpit
+        <span data-i18n="nav.cockpit">Cockpit</span>
       </a>
       <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
@@ -289,7 +289,7 @@ Connection timeout after 30s</pre>
               <th class="text-left caption text-dms-tecnologia px-4 py-3">Tipo</th>
               <th class="text-left caption text-dms-tecnologia px-4 py-3">Filtro</th>
               <th class="text-center caption text-dms-tecnologia px-4 py-3 w-20">Visível</th>
-              <th class="text-right caption text-dms-tecnologia px-4 py-3 w-24">Ações</th>
+              <th class="text-right caption text-dms-tecnologia px-4 py-3 w-24"><span data-i18n="label.actions">Ações</span></th>
             </tr>
           </thead>
           <tbody id="tags-tbody" class="divide-y divide-[#E5E7EB]">
@@ -637,5 +637,6 @@ renderRows();
 </script>
 <script src="notes-widget.js" defer></script>
 <script src="list-customizer.js" defer></script>
+<script src="i18n-toggle.js" defer></script>
 </body>
 </html>

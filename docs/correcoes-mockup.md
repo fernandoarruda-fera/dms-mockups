@@ -50,12 +50,27 @@
 - **Tela13**: layout principal mantido (log de auditoria). Só adicionado o botão IA + modal + filtros avançados.
 - **Filtros avançados em tela12 e tela13** (colapsável): Time (multi-select), Setor (select), Cliente (autocomplete), Fornecedor (autocomplete), Procedure (autocomplete).
 
-## Lote B parte 3 — pendente
+## Lote B parte 3 — entregue (2026-05-29)
 
 ### C14 — Internacionalização (i18n)
-- Opção **C escolhida**: toggle de idioma no topbar.
-- **5 idiomas:** PT-BR (default), EN, ES, PT-PT, DE.
-- Mockup funcional do toggle (não obrigatório traduzir tudo agora — mostrar como ficaria).
+- **`i18n-toggle.js`**: widget global de troca de idioma. Injetado em todas as **76 telas + index** (77 arquivos). Botão fixo top-right (z-9999) com flag + código do idioma atual.
+- **5 idiomas suportados** (dicionário interno self-contained, sem dependência externa):
+  - 🇧🇷 PT-BR (default) — Português (Brasil)
+  - 🇺🇸 EN — English
+  - 🇪🇸 ES — Español
+  - 🇵🇹 PT-PT — Português (Portugal) — distingue de PT-BR ("Eliminar", "Encomendas", "Procurar", "Registos", "Utilizador", "A carregar...")
+  - 🇩🇪 DE — Deutsch
+- **Persistência:** `localStorage.dms-locale`. Qualquer página lê e aplica no load.
+- **Mecanismo:** elementos com atributo `data-i18n="chave"` têm `textContent` substituído pela tradução. **~80 pontos-chave** já marcados em todas as telas (nav lateral, botões "Novo X" das bibliotecas, headers "Status"/"Ações" de tabelas).
+- **30 chaves universais** traduzidas nos 5 idiomas:
+  - **nav** (12): cockpit, email, tasks, followup, updates, purchases, requisitions, quotes, orders, registrations, libraries, admin
+  - **btn** (9): save, cancel, create, delete, edit, export, search, filter, new
+  - **label** (5): status, actions, created, updated, user
+  - **msg** (4): loading, empty, saved, error
+- **UX do toggle:** click no botão abre dropdown com 5 opções (flag + nome completo + código + check ✓ no idioma ativo). Header "Idioma · Language". Footer com nota "Mockup conceitual — tradução parcial". Toast top-right confirmando troca: "Idioma alterado para [X]".
+- **API pública:** `window.dmsI18n.set('en')`, `.get()`, `.t('key')`, `.apply()` — útil pra debug e futuras integrações.
+
+> **Observação:** mockup conceitual demonstra o efeito do toggle. Tradução completa de todas as strings das 76 telas será feita após validação do conceito (Cat 3 / sprint dedicado).
 
 ---
 
