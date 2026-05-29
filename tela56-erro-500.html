@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — 500 · Erro interno</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)', 'dms-lg': '0 20px 25px -5px rgba(0,56,108,.10), 0 10px 10px -5px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: linear-gradient(135deg, #F8F9FA 0%, #EFF3F8 100%); color: #1A1A1A; min-height: 100vh; }
+  .tilt-accent { transform: skewX(-16.5deg); display: inline-block; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+</style>
+</head>
+<body class="flex flex-col items-center justify-center px-4 py-10">
+
+<!-- Logo top -->
+<div class="absolute top-6 left-6 flex items-center gap-2">
+  <div class="w-9 h-9 bg-dms-mar rounded-md flex items-center justify-center shadow-dms-md">
+    <span class="tilt-accent text-white font-black text-lg leading-none">D</span>
+  </div>
+  <div class="leading-tight">
+    <div class="text-dms-mar font-bold text-sm">DMS Compras</div>
+    <div class="text-[10px] text-dms-tecnologia mono uppercase tracking-wider">Plataforma corporativa</div>
+  </div>
+</div>
+
+<div class="w-full max-w-[560px] text-center">
+
+  <!-- Alert icon -->
+  <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-red-50 mb-6 ring-8 ring-red-50/40">
+    <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+    </svg>
+  </div>
+
+  <h1 class="text-[28px] md:text-[34px] leading-tight font-bold text-dms-mar">Algo deu errado</h1>
+  <p class="text-sm md:text-base text-dms-tecnologia mt-3 max-w-md mx-auto">
+    Encontramos um problema ao processar sua solicitação. Nossa equipe foi notificada automaticamente e já está investigando.
+  </p>
+
+  <!-- Error ID -->
+  <div class="inline-flex items-center gap-2 mt-5 px-3.5 py-2 bg-white border border-[#E5E7EB] rounded-md">
+    <svg class="w-3.5 h-3.5 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+    <span class="text-xs text-dms-tecnologia">Error ID:</span>
+    <span class="mono text-xs font-semibold text-dms-mar">7f3a9b2c-e4d1-481e</span>
+    <button onclick="navigator.clipboard && navigator.clipboard.writeText('7f3a9b2c-e4d1-481e')" class="ml-1 text-dms-ceu hover:text-dms-mar" title="Copiar">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+    </button>
+  </div>
+  <p class="text-[11px] text-dms-tecnologia mt-2">Inclua este código ao reportar o problema.</p>
+
+  <!-- Actions -->
+  <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7">
+    <button onclick="location.reload()" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-[#E5E7EB] text-sm font-semibold text-dms-mar rounded-md hover:bg-gray-50 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      Tentar novamente
+    </button>
+    <a href="tela16-cockpit-overview.html" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-dms-sabedoria text-white text-sm font-semibold rounded-md hover:opacity-90 transition-opacity shadow-dms-md">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      Voltar ao Cockpit
+    </a>
+  </div>
+
+  <p class="mt-6">
+    <a href="mailto:suporte@dms.com.br?subject=Erro%207f3a9b2c-e4d1-481e&body=Estou%20com%20problemas%20no%20DMS.%20Error%20ID%3A%207f3a9b2c-e4d1-481e" class="text-sm text-dms-ceu hover:text-dms-mar font-medium">
+      Reportar este problema →
+    </a>
+  </p>
+
+  <p class="text-[11px] text-dms-tecnologia mt-10 mono">Error code: 500 · Internal Server Error</p>
+</div>
+
+</body>
+</html>

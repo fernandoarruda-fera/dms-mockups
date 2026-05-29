@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Empty States</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)', 'dms-lg': '0 10px 15px -3px rgba(0,56,108,.10), 0 4px 6px -2px rgba(0,56,108,.05)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .es-card { background:#fff; border:1px solid #E5E7EB; border-radius:10px; padding:28px 20px; min-height:350px; display:flex; flex-direction:column; }
+  .es-icon { width:64px; height:64px; border-radius:9999px; display:inline-flex; align-items:center; justify-content:center; margin: 0 auto 16px; }
+  .es-snippet { margin-top: 16px; background:#0F1B2D; color:#D1D8E0; border-radius:6px; padding:10px 12px; font-family:'JetBrains Mono',Consolas,monospace; font-size:11px; overflow-x:auto; white-space:pre; max-height: 0; opacity:0; transition: all .2s ease; }
+  details[open] .es-snippet { max-height: 280px; opacity: 1; }
+  details > summary { list-style:none; cursor:pointer; }
+  details > summary::-webkit-details-marker { display:none; }
+  .es-snippet .k { color:#7DD3FC; }
+  .es-snippet .c { color:#94A3B8; }
+  .es-snippet .s { color:#FDE68A; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Sistema</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Componentes</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Empty States</span>
+      </nav>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-dms-tecnologia mono">v2.4.1 · design system</span>
+      </div>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <!-- Header -->
+      <div class="mb-6">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Empty States</h1>
+        </div>
+        <p class="text-sm text-dms-tecnologia max-w-3xl">Componente padronizado para estados vazios. Use sempre que uma lista, busca ou tela não tiver conteúdo a exibir — evita silêncio visual e orienta o usuário sobre o próximo passo.</p>
+      </div>
+
+      <!-- Princípios -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg p-5 mb-8">
+        <h2 class="text-sm font-bold text-dms-mar uppercase tracking-wider mb-3">Anatomia</h2>
+        <div class="grid grid-cols-4 gap-4 text-xs text-dms-tecnologia">
+          <div><span class="block font-semibold text-dms-mar mb-1">1. Ícone</span>Visual amigável, 48–64px, cor temática.</div>
+          <div><span class="block font-semibold text-dms-mar mb-1">2. Heading</span>Curto, direto. 16–18px semibold.</div>
+          <div><span class="block font-semibold text-dms-mar mb-1">3. Descrição</span>Uma frase. Explica o estado e sugere ação.</div>
+          <div><span class="block font-semibold text-dms-mar mb-1">4. Ação (opcional)</span>CTA primária ou link. Omita se não houver próximo passo.</div>
+        </div>
+      </div>
+
+      <!-- Grid de variants -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+        <!-- Variant 1 — Nenhum item ainda -->
+        <div class="es-card">
+          <div class="text-center flex-1 flex flex-col justify-center">
+            <div class="es-icon bg-dms-ceu/10">
+              <svg class="w-8 h-8 text-dms-ceu" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+            </div>
+            <h3 class="text-base font-semibold text-dms-mar mb-1.5">Nenhum item ainda</h3>
+            <p class="text-xs text-dms-tecnologia max-w-[260px] mx-auto mb-4">Você ainda não criou nenhuma requisição. Comece agora para acompanhar seus pedidos por aqui.</p>
+            <div>
+              <button class="inline-flex items-center gap-2 px-4 py-2 bg-dms-sabedoria text-white text-xs font-semibold rounded-md hover:opacity-90 transition-opacity shadow-dms-md">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                Criar primeiro item
+              </button>
+            </div>
+          </div>
+          <details class="mt-auto">
+            <summary class="text-[11px] mono text-dms-ceu hover:text-dms-mar mt-3">&lt;/&gt; Ver código</summary>
+            <pre class="es-snippet"><span class="k">&lt;EmptyState</span>
+  <span class="k">variant=</span><span class="s">"empty"</span>
+  <span class="k">icon=</span><span class="s">"inbox"</span>
+  <span class="k">title=</span><span class="s">"Nenhum item ainda"</span>
+  <span class="k">action=</span><span class="s">"Criar primeiro item"</span> <span class="k">/&gt;</span></pre>
+          </details>
+        </div>
+
+        <!-- Variant 2 — Tudo concluído -->
+        <div class="es-card">
+          <div class="text-center flex-1 flex flex-col justify-center">
+            <div class="es-icon bg-emerald-50">
+              <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h3 class="text-base font-semibold text-dms-mar mb-1.5">Tudo concluído!</h3>
+            <p class="text-xs text-dms-tecnologia max-w-[260px] mx-auto">Você está em dia com todas as aprovações. Quando algo novo chegar, aparecerá aqui.</p>
+            <div class="mt-4 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-semibold mx-auto">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              0 pendências
+            </div>
+          </div>
+          <details class="mt-auto">
+            <summary class="text-[11px] mono text-dms-ceu hover:text-dms-mar mt-3">&lt;/&gt; Ver código</summary>
+            <pre class="es-snippet"><span class="k">&lt;EmptyState</span>
+  <span class="k">variant=</span><span class="s">"done"</span>
+  <span class="k">icon=</span><span class="s">"check-circle"</span>
+  <span class="k">title=</span><span class="s">"Tudo concluído!"</span>
+  <span class="c">{/* sem CTA */}</span>
+<span class="k">/&gt;</span></pre>
+          </details>
+        </div>
+
+        <!-- Variant 3 — Sem resultados -->
+        <div class="es-card">
+          <div class="text-center flex-1 flex flex-col justify-center">
+            <div class="es-icon bg-dms-tecnologia/10">
+              <svg class="w-8 h-8 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+            <h3 class="text-base font-semibold text-dms-mar mb-1.5">Sem resultados</h3>
+            <p class="text-xs text-dms-tecnologia max-w-[260px] mx-auto mb-3">Nenhum registro corresponde aos filtros aplicados. Tente ajustar a busca ou limpar os filtros.</p>
+            <div class="inline-flex items-center gap-2 justify-center text-[11px] text-dms-tecnologia mb-3">
+              <span class="px-2 py-0.5 rounded-full bg-gray-100 mono">status:rejeitada</span>
+              <span class="px-2 py-0.5 rounded-full bg-gray-100 mono">2025</span>
+            </div>
+            <div>
+              <button class="text-xs text-dms-ceu hover:text-dms-mar font-medium">
+                ✕ Limpar filtros
+              </button>
+            </div>
+          </div>
+          <details class="mt-auto">
+            <summary class="text-[11px] mono text-dms-ceu hover:text-dms-mar mt-3">&lt;/&gt; Ver código</summary>
+            <pre class="es-snippet"><span class="k">&lt;EmptyState</span>
+  <span class="k">variant=</span><span class="s">"no-results"</span>
+  <span class="k">icon=</span><span class="s">"search"</span>
+  <span class="k">title=</span><span class="s">"Sem resultados"</span>
+  <span class="k">link=</span><span class="s">"Limpar filtros"</span> <span class="k">/&gt;</span></pre>
+          </details>
+        </div>
+
+        <!-- Variant 4 — Sem permissão -->
+        <div class="es-card">
+          <div class="text-center flex-1 flex flex-col justify-center">
+            <div class="es-icon bg-dms-sabedoria/10">
+              <svg class="w-8 h-8 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+            <h3 class="text-base font-semibold text-dms-mar mb-1.5">Sem permissão</h3>
+            <p class="text-xs text-dms-tecnologia max-w-[260px] mx-auto mb-4">Você não tem acesso a este conteúdo. Solicite ao administrador se precisar visualizar.</p>
+            <div>
+              <a href="mailto:admin@dms.com.br" class="text-xs text-dms-ceu hover:text-dms-mar font-medium">Solicitar acesso →</a>
+            </div>
+          </div>
+          <details class="mt-auto">
+            <summary class="text-[11px] mono text-dms-ceu hover:text-dms-mar mt-3">&lt;/&gt; Ver código</summary>
+            <pre class="es-snippet"><span class="k">&lt;EmptyState</span>
+  <span class="k">variant=</span><span class="s">"forbidden"</span>
+  <span class="k">icon=</span><span class="s">"lock"</span>
+  <span class="k">title=</span><span class="s">"Sem permissão"</span>
+  <span class="k">link=</span><span class="s">"Solicitar acesso"</span> <span class="k">/&gt;</span></pre>
+          </details>
+        </div>
+
+        <!-- Variant 5 — Erro ao carregar -->
+        <div class="es-card">
+          <div class="text-center flex-1 flex flex-col justify-center">
+            <div class="es-icon bg-red-50">
+              <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg>
+            </div>
+            <h3 class="text-base font-semibold text-dms-mar mb-1.5">Erro ao carregar</h3>
+            <p class="text-xs text-dms-tecnologia max-w-[260px] mx-auto mb-3">Não conseguimos buscar os dados. Verifique sua conexão e tente novamente.</p>
+            <p class="text-[10px] mono text-red-600 mb-3">err: timeout · 504 gateway</p>
+            <div>
+              <button class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-[#E5E7EB] text-xs font-semibold text-dms-mar rounded-md hover:bg-gray-50 transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                Tentar novamente
+              </button>
+            </div>
+          </div>
+          <details class="mt-auto">
+            <summary class="text-[11px] mono text-dms-ceu hover:text-dms-mar mt-3">&lt;/&gt; Ver código</summary>
+            <pre class="es-snippet"><span class="k">&lt;EmptyState</span>
+  <span class="k">variant=</span><span class="s">"error"</span>
+  <span class="k">icon=</span><span class="s">"alert"</span>
+  <span class="k">title=</span><span class="s">"Erro ao carregar"</span>
+  <span class="k">action=</span><span class="s">"Tentar novamente"</span>
+  <span class="k">onRetry=</span><span class="k">{</span>refetch<span class="k">}</span> <span class="k">/&gt;</span></pre>
+          </details>
+        </div>
+
+        <!-- Variant 6 — Em breve -->
+        <div class="es-card">
+          <div class="text-center flex-1 flex flex-col justify-center">
+            <div class="es-icon bg-amber-50">
+              <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z"/></svg>
+            </div>
+            <h3 class="text-base font-semibold text-dms-mar mb-1.5">Em breve</h3>
+            <p class="text-xs text-dms-tecnologia max-w-[260px] mx-auto mb-4">Esta funcionalidade está em desenvolvimento e ficará disponível em breve.</p>
+            <div>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-semibold">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                Em breve · Q3 2026
+              </span>
+            </div>
+          </div>
+          <details class="mt-auto">
+            <summary class="text-[11px] mono text-dms-ceu hover:text-dms-mar mt-3">&lt;/&gt; Ver código</summary>
+            <pre class="es-snippet"><span class="k">&lt;EmptyState</span>
+  <span class="k">variant=</span><span class="s">"coming-soon"</span>
+  <span class="k">icon=</span><span class="s">"wrench"</span>
+  <span class="k">title=</span><span class="s">"Em breve"</span>
+  <span class="k">badge=</span><span class="s">"Q3 2026"</span> <span class="k">/&gt;</span></pre>
+          </details>
+        </div>
+
+      </div>
+
+      <!-- Rodapé orientações -->
+      <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-5">
+          <h3 class="text-sm font-bold text-dms-mar uppercase tracking-wider mb-2.5">Faça</h3>
+          <ul class="text-xs text-dms-tecnologia space-y-1.5">
+            <li>✓ Use uma única ação primária quando houver próximo passo claro</li>
+            <li>✓ Mantenha textos curtos e na voz ativa</li>
+            <li>✓ Diferencie "vazio inicial" de "sem resultados" — eles pedem ações diferentes</li>
+            <li>✓ Para erros, mostre código discreto que ajude o suporte</li>
+          </ul>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-5">
+          <h3 class="text-sm font-bold text-dms-mar uppercase tracking-wider mb-2.5">Não faça</h3>
+          <ul class="text-xs text-dms-tecnologia space-y-1.5">
+            <li>✗ Não use ilustrações genéricas de stock — prefira ícones do sistema</li>
+            <li>✗ Não escreva "ops!" ou frases auto-irônicas em contextos de erro</li>
+            <li>✗ Não empilhe múltiplos CTAs concorrentes na mesma tela vazia</li>
+            <li>✗ Não esconda o ícone — ele orienta a leitura visual</li>
+          </ul>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label,
+  #dms-sidebar.collapsed .sb-section-title,
+  #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label,
+    #dms-sidebar.collapsed .sb-section-title,
+    #dms-sidebar.collapsed .sb-brand-text,
+    #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+        <li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+<script>
+(function(){
+  var sb = document.getElementById('dms-sidebar');
+  var toggle = document.getElementById('sidebar-toggle');
+  var mobBtn = document.getElementById('dms-sidebar-mobile-btn');
+  var overlay = document.getElementById('dms-sidebar-overlay');
+  if (!sb || !toggle) return;
+  var STORAGE_KEY = 'mockup-sidebar-collapsed-v2';
+  var collapsed = false;
+  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
+  function isMobile(){ return window.matchMedia('(max-width: 767px)').matches; }
+  function render(){
+    if (collapsed && !isMobile()) { sb.classList.add('collapsed'); sb.style.width = '64px'; document.documentElement.style.setProperty('--dms-sb-w', '64px'); }
+    else { sb.classList.remove('collapsed'); sb.style.width = isMobile() ? '280px' : '240px'; document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px'); }
+  }
+  toggle.addEventListener('click', function(){ collapsed = !collapsed; try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {} render(); });
+  function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
+  function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
+  if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
+  if (overlay) overlay.addEventListener('click', closeMobile);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){ a.addEventListener('click', function(){ if (isMobile()) closeMobile(); }); });
+  var current = (location.pathname.split('/').pop() || '').toLowerCase();
+  if (current) { sb.querySelectorAll('nav a[href]').forEach(function(a){ var href = (a.getAttribute('href') || '').toLowerCase(); if (href && href === current) a.classList.add('sb-active'); }); }
+  window.addEventListener('resize', render);
+  render();
+})();
+</script>
+</body>
+</html>

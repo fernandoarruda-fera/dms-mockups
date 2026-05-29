@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — 403 · Acesso negado</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)', 'dms-lg': '0 20px 25px -5px rgba(0,56,108,.10), 0 10px 10px -5px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: linear-gradient(135deg, #F8F9FA 0%, #EFF3F8 100%); color: #1A1A1A; min-height: 100vh; }
+  .tilt-accent { transform: skewX(-16.5deg); display: inline-block; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+</style>
+</head>
+<body class="flex flex-col items-center justify-center px-4 py-10">
+
+<!-- Logo top -->
+<div class="absolute top-6 left-6 flex items-center gap-2">
+  <div class="w-9 h-9 bg-dms-mar rounded-md flex items-center justify-center shadow-dms-md">
+    <span class="tilt-accent text-white font-black text-lg leading-none">D</span>
+  </div>
+  <div class="leading-tight">
+    <div class="text-dms-mar font-bold text-sm">DMS Compras</div>
+    <div class="text-[10px] text-dms-tecnologia mono uppercase tracking-wider">Plataforma corporativa</div>
+  </div>
+</div>
+
+<div class="w-full max-w-[560px] text-center">
+
+  <!-- Lock icon -->
+  <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-dms-sabedoria/10 mb-6">
+    <svg class="w-12 h-12 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 11c-1.1 0-2 .9-2 2 0 .74.4 1.39 1 1.73V17h2v-2.27c.6-.34 1-.99 1-1.73 0-1.1-.9-2-2-2z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M18 8h-1V6a5 5 0 00-10 0v2H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V10a2 2 0 00-2-2zM9 6a3 3 0 016 0v2H9V6z"/>
+    </svg>
+  </div>
+
+  <h1 class="text-[28px] md:text-[34px] leading-tight font-bold text-dms-mar">Acesso negado</h1>
+  <p class="text-sm md:text-base text-dms-tecnologia mt-3 max-w-md mx-auto">
+    Você não tem permissão para acessar esta página. Se acredita que isso é um erro, entre em contato com o administrador do sistema.
+  </p>
+
+  <!-- Context info -->
+  <div class="bg-white border border-[#E5E7EB] rounded-lg mt-6 p-4 text-left max-w-md mx-auto">
+    <div class="flex items-start gap-3 mb-2.5">
+      <svg class="w-4 h-4 text-dms-tecnologia mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <div class="text-xs">
+        <div class="font-semibold text-dms-mar mb-0.5">Recurso solicitado</div>
+        <div class="mono text-dms-tecnologia">/admin/empresas/grupos-fiscais</div>
+      </div>
+    </div>
+    <div class="flex items-start gap-3 pt-2.5 border-t border-[#E5E7EB]">
+      <svg class="w-4 h-4 text-dms-tecnologia mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      <div class="text-xs">
+        <div class="font-semibold text-dms-mar mb-0.5">Contato do administrador</div>
+        <div class="text-dms-tecnologia">admin@dms.com.br</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7">
+    <a href="tela16-cockpit-overview.html" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-dms-sabedoria text-white text-sm font-semibold rounded-md hover:opacity-90 transition-opacity shadow-dms-md">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      Voltar ao Cockpit
+    </a>
+    <a href="mailto:admin@dms.com.br?subject=Solicita%C3%A7%C3%A3o%20de%20acesso%20%E2%80%94%20DMS" class="text-sm text-dms-ceu hover:text-dms-mar font-medium">
+      Solicitar acesso →
+    </a>
+  </div>
+
+  <p class="text-[11px] text-dms-tecnologia mt-10 mono">Error code: 403 · Forbidden</p>
+</div>
+
+</body>
+</html>

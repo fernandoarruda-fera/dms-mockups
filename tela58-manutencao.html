@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Em manutenção</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)', 'dms-lg': '0 20px 25px -5px rgba(0,56,108,.10), 0 10px 10px -5px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: linear-gradient(135deg, #F8F9FA 0%, #EFF3F8 100%); color: #1A1A1A; min-height: 100vh; }
+  .tilt-accent { transform: skewX(-16.5deg); display: inline-block; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  @keyframes gear-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .gear-anim { animation: gear-spin 12s linear infinite; transform-origin: 50% 50%; }
+</style>
+</head>
+<body class="flex flex-col items-center justify-center px-4 py-10">
+
+<!-- Logo top -->
+<div class="absolute top-6 left-6 flex items-center gap-2">
+  <div class="w-9 h-9 bg-dms-mar rounded-md flex items-center justify-center shadow-dms-md">
+    <span class="tilt-accent text-white font-black text-lg leading-none">D</span>
+  </div>
+  <div class="leading-tight">
+    <div class="text-dms-mar font-bold text-sm">DMS Compras</div>
+    <div class="text-[10px] text-dms-tecnologia mono uppercase tracking-wider">Plataforma corporativa</div>
+  </div>
+</div>
+
+<div class="w-full max-w-[580px] text-center">
+
+  <!-- Gears icon -->
+  <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-dms-ceu/10 mb-6">
+    <svg class="w-14 h-14 text-dms-confianca gear-anim" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+    </svg>
+  </div>
+
+  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-dms-tropicalidade/15 text-dms-mar text-[11px] font-bold uppercase tracking-wider">
+    <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade animate-pulse"></span>
+    Manutenção programada
+  </span>
+
+  <h1 class="text-[28px] md:text-[34px] leading-tight font-bold text-dms-mar mt-3">Sistema em manutenção</h1>
+  <p class="text-sm md:text-base text-dms-tecnologia mt-3 max-w-md mx-auto">
+    Estamos realizando melhorias no sistema. Voltaremos em breve com tudo funcionando ainda melhor.
+  </p>
+
+  <!-- Window -->
+  <div class="bg-white border border-[#E5E7EB] rounded-lg mt-6 p-5 max-w-md mx-auto text-left">
+    <div class="flex items-start gap-3">
+      <svg class="w-5 h-5 text-dms-ceu mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      <div class="text-xs flex-1">
+        <div class="font-semibold text-dms-mar mb-1">Janela de manutenção</div>
+        <div class="text-dms-tecnologia mono">28/05/2026 · 02h00 → 05h00 (BRT)</div>
+        <div class="text-dms-tecnologia mt-2">Previsão de retorno em <span class="font-semibold text-dms-mar">~ 1h 47min</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7">
+    <button onclick="location.reload()" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-[#E5E7EB] text-sm font-semibold text-dms-mar rounded-md hover:bg-gray-50 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      Verificar status
+    </button>
+    <a href="https://status.dms.com.br" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-dms-sabedoria text-white text-sm font-semibold rounded-md hover:opacity-90 transition-opacity shadow-dms-md">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      Página de status
+    </a>
+  </div>
+
+  <p class="text-xs text-dms-tecnologia mt-8">
+    Em caso de urgência, contato: <a href="mailto:suporte@dms.com.br" class="text-dms-ceu hover:text-dms-mar font-medium">suporte@dms.com.br</a>
+  </p>
+  <p class="text-[11px] text-dms-tecnologia mt-4 mono">Status: <span class="text-amber-600">degraded</span> · v2.4.1 → v2.5.0</p>
+</div>
+
+</body>
+</html>
