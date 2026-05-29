@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Central de Anotações</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: {
+    extend: {
+      colors: {
+        dms: {
+          mar: '#00386C',
+          ceu: '#00AEEE',
+          confianca: '#005290',
+          sabedoria: '#643585',
+          tropicalidade: '#B0C934',
+          tecnologia: '#656464',
+        },
+      },
+      fontFamily: {
+        sans: ['Montserrat', 'Verdana', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+      },
+      boxShadow: {
+        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+        'dms-lg': '0 10px 15px -3px rgba(0, 56, 108, 0.10), 0 4px 6px -2px rgba(0, 56, 108, 0.05)',
+      },
+    },
+  },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .kpi-card { background:#fff; border:1px solid #E5E7EB; border-radius:10px; padding:16px 18px; }
+  .kpi-label { font-size:11px; font-weight:600; color:#656464; text-transform:uppercase; letter-spacing:.05em; }
+  .kpi-value { font-size:28px; font-weight:700; color:#00386C; line-height:1.1; margin-top:6px; }
+  .kpi-sub { font-size:11px; color:#656464; margin-top:4px; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .page-card { background:#fff; border:1px solid #E5E7EB; border-radius:12px; overflow:hidden; }
+  .page-card-head { padding:14px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px; cursor:pointer; transition:background .15s ease; }
+  .page-card-head:hover { background:#FAFBFC; }
+  .page-card-body { border-top:1px solid #F3F4F6; padding:8px 18px 14px; display:none; }
+  .page-card.open .page-card-body { display:block; }
+  .page-card.open .chevron { transform: rotate(90deg); }
+  .chevron { transition: transform .2s ease; }
+  .note-row { padding:10px 0; border-bottom:1px solid #F3F4F6; display:flex; gap:12px; align-items:flex-start; }
+  .note-row:last-child { border-bottom:0; }
+  .note-text { white-space:pre-wrap; word-wrap:break-word; font-size:13px; line-height:1.5; color:#1A1A1A; flex:1; }
+  .note-meta { font-family:'JetBrains Mono',Consolas,monospace; font-size:11px; color:#656464; }
+  .btn-del-mini { background:transparent; border:0; color:#B91C1C; cursor:pointer; font-size:11px; font-weight:600; padding:4px 8px; border-radius:6px; }
+  .btn-del-mini:hover { background:#FEE2E2; }
+  .badge-count { background:#F3E8FF; color:#643585; border-radius:999px; padding:2px 10px; font-size:11px; font-weight:700; }
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1A1A1A; color:#fff; padding:12px 18px; border-radius:8px; font-size:13px; box-shadow:0 8px 24px -4px rgba(0,0,0,.3); z-index:9999; opacity:0; transition:opacity .2s ease; pointer-events:none; }
+  .toast.show { opacity:1; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <span class="text-dms-tecnologia">Sistema</span>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Anotações</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1200px] w-full mx-auto">
+
+      <!-- Header -->
+      <div class="mb-6 flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-[3px] bg-dms-sabedoria tilt-accent rounded-sm"></div>
+            <h1 class="text-[32px] leading-[40px] font-bold text-dms-mar">Central de Anotações</h1>
+          </div>
+          <p class="text-sm text-dms-tecnologia max-w-2xl">Todas as anotações que você registrou nos mockups, agrupadas por tela. Use o botão 📝 em qualquer tela pra criar novas.</p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0 flex-wrap">
+          <button id="btn-copy-md" class="px-3 py-2 text-sm font-semibold text-white bg-dms-sabedoria rounded-md hover:bg-[#4f2a6a] transition-colors inline-flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+            Copiar como Markdown
+          </button>
+          <button id="btn-export-json" class="px-3 py-2 text-sm font-medium text-dms-tecnologia border border-[#E5E7EB] rounded-md hover:text-dms-mar bg-white transition-colors inline-flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Exportar JSON
+          </button>
+          <button id="btn-clear" class="px-3 py-2 text-sm font-medium text-[#B91C1C] border border-[#FCA5A5] rounded-md hover:bg-[#FEE2E2] transition-colors inline-flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Limpar tudo
+          </button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="grid grid-cols-3 gap-3 mb-6">
+        <div class="kpi-card">
+          <div class="kpi-label">Total de anotações</div>
+          <div class="kpi-value" id="kpi-total">0</div>
+          <div class="kpi-sub" id="kpi-total-sub">em 0 telas</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Telas com anotações</div>
+          <div class="kpi-value" id="kpi-pages">0</div>
+          <div class="kpi-sub">de 75 telas no MVP v2</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Última anotação</div>
+          <div class="kpi-value text-[20px] leading-[24px] mt-2" id="kpi-last">—</div>
+          <div class="kpi-sub" id="kpi-last-sub">sem registros ainda</div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 mb-6 flex items-center gap-3 flex-wrap">
+        <span class="text-xs font-semibold text-dms-tecnologia uppercase tracking-wider">Filtros</span>
+        <div class="relative flex-1 min-w-[260px]">
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input id="search" type="text" placeholder="Buscar no texto das anotações ou nome da tela..." class="input-dms w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA]">
+        </div>
+        <select id="sort" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+          <option value="date-desc">Data: mais recente primeiro</option>
+          <option value="date-asc">Data: mais antiga primeiro</option>
+          <option value="count-desc">Mais anotações primeiro</option>
+          <option value="name-asc">Nome da tela (A→Z)</option>
+        </select>
+      </div>
+
+      <!-- Lista -->
+      <div id="list"></div>
+
+      <!-- Empty -->
+      <div id="empty" class="hidden bg-white border border-dashed border-[#E5E7EB] rounded-lg p-12 text-center">
+        <svg class="w-16 h-16 mx-auto mb-4 text-dms-tecnologia opacity-40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <h3 class="text-base font-semibold text-dms-mar mb-1">Você ainda não criou anotações</h3>
+        <p class="text-sm text-dms-tecnologia">Clique no botão 📝 <strong>Anotar</strong> em qualquer tela pra começar.</p>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+(function () {
+  var KEY_PREFIX = 'mockup-notes-';
+
+  function readAll() {
+    var out = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (!k || k.indexOf(KEY_PREFIX) !== 0) continue;
+      if (k === 'mockup-notes-hidden') continue;
+      try {
+        var notes = JSON.parse(localStorage.getItem(k) || '[]');
+        if (Array.isArray(notes) && notes.length) {
+          out.push({ page: k.replace(KEY_PREFIX, ''), notes: notes });
+        }
+      } catch (e) {}
+    }
+    return out;
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function fmtAbs(ts) {
+    var d = new Date(ts);
+    return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() +
+      ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+  function fmtAbsISO(ts) {
+    var d = new Date(ts);
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+      ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+  function fmtRelative(ts) {
+    var s = Math.floor((Date.now() - ts) / 1000);
+    if (s < 60) return 'agora';
+    var m = Math.floor(s / 60); if (m < 60) return 'há ' + m + 'min';
+    var h = Math.floor(m / 60); if (h < 24) return 'há ' + h + 'h';
+    var d = Math.floor(h / 24); if (d < 7) return 'há ' + d + 'd';
+    return new Date(ts).toLocaleDateString('pt-BR');
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function () { t.classList.remove('show'); }, 2200);
+  }
+
+  function lastTs(group) {
+    return group.notes.reduce(function (m, n) { return Math.max(m, n.timestamp || 0); }, 0);
+  }
+
+  function applyFilters(data) {
+    var q = (document.getElementById('search').value || '').trim().toLowerCase();
+    var sort = document.getElementById('sort').value;
+    var rows = data.map(function (g) {
+      var matched = g.notes.filter(function (n) {
+        if (!q) return true;
+        return n.text.toLowerCase().indexOf(q) !== -1 || g.page.toLowerCase().indexOf(q) !== -1;
+      });
+      return { page: g.page, notes: matched };
+    }).filter(function (g) { return g.notes.length > 0; });
+
+    rows.sort(function (a, b) {
+      if (sort === 'date-desc') return lastTs(b) - lastTs(a);
+      if (sort === 'date-asc') return lastTs(a) - lastTs(b);
+      if (sort === 'count-desc') return b.notes.length - a.notes.length;
+      if (sort === 'name-asc') return a.page.localeCompare(b.page);
+      return 0;
+    });
+    return rows;
+  }
+
+  function render() {
+    var data = readAll();
+    var totalNotes = data.reduce(function (s, g) { return s + g.notes.length; }, 0);
+    var totalPages = data.length;
+    document.getElementById('kpi-total').textContent = totalNotes;
+    document.getElementById('kpi-total-sub').textContent = 'em ' + totalPages + (totalPages === 1 ? ' tela' : ' telas');
+    document.getElementById('kpi-pages').textContent = totalPages;
+
+    var allTs = data.reduce(function (acc, g) { return acc.concat(g.notes.map(function (n) { return { ts: n.timestamp, page: g.page }; })); }, []);
+    if (allTs.length) {
+      allTs.sort(function (a, b) { return b.ts - a.ts; });
+      document.getElementById('kpi-last').textContent = fmtRelative(allTs[0].ts);
+      document.getElementById('kpi-last-sub').textContent = allTs[0].page + ' · ' + fmtAbs(allTs[0].ts);
+    } else {
+      document.getElementById('kpi-last').textContent = '—';
+      document.getElementById('kpi-last-sub').textContent = 'sem registros ainda';
+    }
+
+    var listEl = document.getElementById('list');
+    var emptyEl = document.getElementById('empty');
+    var rows = applyFilters(data);
+
+    if (!rows.length) {
+      listEl.innerHTML = '';
+      emptyEl.classList.remove('hidden');
+      if (totalNotes > 0) {
+        emptyEl.querySelector('h3').textContent = 'Nenhuma anotação corresponde aos filtros';
+        emptyEl.querySelector('p').textContent = 'Tente ajustar a busca ou limpá-la.';
+      } else {
+        emptyEl.querySelector('h3').textContent = 'Você ainda não criou anotações';
+        emptyEl.querySelector('p').innerHTML = 'Clique no botão 📝 <strong>Anotar</strong> em qualquer tela pra começar.';
+      }
+      return;
+    }
+    emptyEl.classList.add('hidden');
+
+    var html = '';
+    rows.forEach(function (g, idx) {
+      var sortedNotes = g.notes.slice().sort(function (a, b) { return b.timestamp - a.timestamp; });
+      var last = sortedNotes[0];
+      html +=
+        '<div class="page-card mb-3" data-page="' + escapeHtml(g.page) + '" ' + (idx === 0 ? 'data-default-open="1"' : '') + '>' +
+          '<div class="page-card-head">' +
+            '<div class="flex items-center gap-3 min-w-0">' +
+              '<svg class="w-4 h-4 text-dms-tecnologia chevron flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>' +
+              '<div class="min-w-0">' +
+                '<div class="font-semibold text-dms-mar truncate">' + escapeHtml(g.page) + '</div>' +
+                '<div class="text-xs text-dms-tecnologia mono">última: ' + fmtAbs(last.timestamp) + ' · ' + fmtRelative(last.timestamp) + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="flex items-center gap-3 flex-shrink-0">' +
+              '<span class="badge-count">' + g.notes.length + (g.notes.length === 1 ? ' anotação' : ' anotações') + '</span>' +
+              '<a href="' + escapeHtml(g.page) + '.html" target="_top" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar">Abrir tela →</a>' +
+            '</div>' +
+          '</div>' +
+          '<div class="page-card-body">';
+      sortedNotes.forEach(function (n) {
+        html +=
+          '<div class="note-row">' +
+            '<div class="note-text">' + escapeHtml(n.text) + '</div>' +
+            '<div class="flex flex-col items-end gap-1 flex-shrink-0">' +
+              '<span class="note-meta" title="' + fmtAbs(n.timestamp) + '">' + fmtRelative(n.timestamp) + '</span>' +
+              '<button class="btn-del-mini" data-del="' + n.id + '" data-page="' + escapeHtml(g.page) + '">Excluir</button>' +
+            '</div>' +
+          '</div>';
+      });
+      html += '</div></div>';
+    });
+    listEl.innerHTML = html;
+
+    var cards = listEl.querySelectorAll('.page-card');
+    cards.forEach(function (card) {
+      if (card.getAttribute('data-default-open') === '1') card.classList.add('open');
+      card.querySelector('.page-card-head').addEventListener('click', function (e) {
+        if (e.target.closest('a')) return;
+        card.classList.toggle('open');
+      });
+    });
+  }
+
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-del]');
+    if (!t) return;
+    var page = t.getAttribute('data-page');
+    var id = Number(t.getAttribute('data-del'));
+    var key = KEY_PREFIX + page;
+    var notes = [];
+    try { notes = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) {}
+    notes = notes.filter(function (n) { return n.id !== id; });
+    if (notes.length) localStorage.setItem(key, JSON.stringify(notes));
+    else localStorage.removeItem(key);
+    render();
+    showToast('Anotação excluída');
+  });
+
+  document.getElementById('search').addEventListener('input', render);
+  document.getElementById('sort').addEventListener('change', render);
+
+  document.getElementById('btn-copy-md').addEventListener('click', function () {
+    var data = readAll();
+    if (!data.length) { showToast('Nada para copiar'); return; }
+    data.sort(function (a, b) { return a.page.localeCompare(b.page); });
+    var today = new Date();
+    var dateStr = pad(today.getDate()) + '/' + pad(today.getMonth() + 1) + '/' + today.getFullYear();
+    var md = '# Anotações Mockups DMS — ' + dateStr + '\n\n';
+    md += '_' + data.reduce(function (s, g) { return s + g.notes.length; }, 0) + ' anotações em ' + data.length + ' telas._\n\n';
+    data.forEach(function (g) {
+      var sorted = g.notes.slice().sort(function (a, b) { return a.timestamp - b.timestamp; });
+      md += '## ' + g.page + ' (' + sorted.length + (sorted.length === 1 ? ' anotação' : ' anotações') + ')\n\n';
+      sorted.forEach(function (n) {
+        md += '- **' + fmtAbsISO(n.timestamp) + '** — ' + n.text.replace(/\n/g, ' ') + '\n';
+      });
+      md += '\n';
+    });
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(md).then(function () { showToast('Markdown copiado pra área de transferência'); },
+        function () { fallbackCopy(md); });
+    } else {
+      fallbackCopy(md);
+    }
+  });
+
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); showToast('Markdown copiado'); }
+    catch (e) { showToast('Não foi possível copiar — use Exportar JSON'); }
+    document.body.removeChild(ta);
+  }
+
+  document.getElementById('btn-export-json').addEventListener('click', function () {
+    var data = readAll();
+    if (!data.length) { showToast('Nada para exportar'); return; }
+    var payload = { exportedAt: new Date().toISOString(), totalNotes: data.reduce(function (s, g) { return s + g.notes.length; }, 0), pages: data };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var today = new Date();
+    a.href = url;
+    a.download = 'dms-mockups-anotacoes-' + today.getFullYear() + pad(today.getMonth() + 1) + pad(today.getDate()) + '.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    showToast('Backup JSON baixado');
+  });
+
+  document.getElementById('btn-clear').addEventListener('click', function () {
+    var data = readAll();
+    if (!data.length) { showToast('Nada para limpar'); return; }
+    var total = data.reduce(function (s, g) { return s + g.notes.length; }, 0);
+    if (!confirm('Tem certeza? Isso vai apagar ' + total + ' anotações em ' + data.length + ' telas. Considere exportar JSON antes.')) return;
+    if (!confirm('Confirmação final: apagar TUDO definitivamente?')) return;
+    data.forEach(function (g) { localStorage.removeItem(KEY_PREFIX + g.page); });
+    render();
+    showToast('Todas as anotações foram apagadas');
+  });
+
+  render();
+})();
+</script>
+
+<script src="notes-widget.js" defer></script>
+</body>
+</html>
