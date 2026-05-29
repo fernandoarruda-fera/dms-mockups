@@ -1,7 +1,8 @@
 /* DMS Mockups — Notes Widget
  * Self-contained. Inject via <script src="notes-widget.js" defer></script>
  * Renders a floating button + side drawer for per-page annotations.
- * Storage: localStorage key `mockup-notes-{pageKey}` = JSON array of {id, text, timestamp}.
+ * Storage: localStorage key `mockup-notes-{pageKey}` = JSON array of
+ *   { id, text, timestamp, validationStatus, validationComment, validatedAt }.
  * Hide via ?hide-notes=1 in URL, or localStorage `mockup-notes-hidden = '1'`.
  */
 (function () {
@@ -11,6 +12,10 @@
   var PRIMARY = '#643585';
   var PRIMARY_DARK = '#4f2a6a';
   var BG = '#F8F9FA';
+  var OK_COLOR = '#16A34A';
+  var OK_BG = '#DCFCE7';
+  var NOK_COLOR = '#B91C1C';
+  var NOK_BG = '#FEE2E2';
 
   function pageKey() {
     var p = (location.pathname || '').split('/').pop() || '';
@@ -29,8 +34,18 @@
     return false;
   }
 
+  function migrateNote(n) {
+    if (!n.validationStatus) n.validationStatus = 'pending';
+    if (typeof n.validationComment !== 'string') n.validationComment = '';
+    if (typeof n.validatedAt === 'undefined') n.validatedAt = null;
+    return n;
+  }
+
   function readNotes() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+    try {
+      var raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      return raw.map(migrateNote);
+    }
     catch (e) { return []; }
   }
   function writeNotes(arr) {
@@ -84,10 +99,32 @@
       '.dms-notes-list{padding:8px 20px 24px;flex:1 1 auto;}' +
       '.dms-notes-empty{padding:40px 12px;text-align:center;color:#656464;font:500 13px/1.5 Montserrat,Verdana,sans-serif;}' +
       '.dms-notes-empty svg{width:36px;height:36px;margin:0 auto 12px;display:block;opacity:.4;}' +
-      '.dms-notes-item{padding:12px 0;border-bottom:1px solid #F3F4F6;}' +
+      '.dms-notes-item{padding:10px 0 12px;border-bottom:1px solid #F3F4F6;border-left:3px solid transparent;padding-left:10px;margin-left:-10px;transition:border-color .15s ease,background .15s ease;border-radius:0 6px 6px 0;}' +
       '.dms-notes-item:last-child{border-bottom:0;}' +
+      '.dms-notes-item.is-ok{border-left-color:' + OK_COLOR + ';background:rgba(220,252,231,.35);}' +
+      '.dms-notes-item.is-nok{border-left-color:' + NOK_COLOR + ';background:rgba(254,226,226,.35);}' +
       '.dms-notes-item-text{white-space:pre-wrap;word-wrap:break-word;font:400 13px/1.5 Montserrat,Verdana,sans-serif;color:#1A1A1A;}' +
-      '.dms-notes-item-meta{margin-top:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;font:500 11px/1 JetBrains Mono,Consolas,monospace;color:#656464;}' +
+      '.dms-notes-status-row{margin-top:8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}' +
+      '.dms-notes-status-label{font:600 11px/1 Montserrat,Verdana,sans-serif;padding:3px 8px;border-radius:999px;display:inline-flex;align-items:center;gap:4px;}' +
+      '.dms-notes-status-label.pending{background:#F3F4F6;color:#656464;}' +
+      '.dms-notes-status-label.ok{background:' + OK_BG + ';color:' + OK_COLOR + ';}' +
+      '.dms-notes-status-label.nok{background:' + NOK_BG + ';color:' + NOK_COLOR + ';}' +
+      '.dms-notes-validate{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}' +
+      '.dms-notes-vbtn{font:600 11px/1 Montserrat,Verdana,sans-serif;padding:6px 10px;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:background .12s ease,color .12s ease,border-color .12s ease;}' +
+      '.dms-notes-vbtn.ok-out{background:#fff;border:1px solid ' + OK_COLOR + ';color:' + OK_COLOR + ';}' +
+      '.dms-notes-vbtn.ok-out:hover{background:' + OK_BG + ';}' +
+      '.dms-notes-vbtn.ok-solid{background:' + OK_COLOR + ';border:1px solid ' + OK_COLOR + ';color:#fff;}' +
+      '.dms-notes-vbtn.nok-out{background:#fff;border:1px solid ' + NOK_COLOR + ';color:' + NOK_COLOR + ';}' +
+      '.dms-notes-vbtn.nok-out:hover{background:' + NOK_BG + ';}' +
+      '.dms-notes-vbtn.nok-solid{background:' + NOK_COLOR + ';border:1px solid ' + NOK_COLOR + ';color:#fff;}' +
+      '.dms-notes-undo{background:transparent;border:0;color:#656464;cursor:pointer;font:500 11px/1 Montserrat,Verdana,sans-serif;padding:6px 8px;border-radius:6px;text-decoration:underline;}' +
+      '.dms-notes-undo:hover{color:#1A1A1A;}' +
+      '.dms-notes-fb{margin-top:8px;}' +
+      '.dms-notes-fb textarea{width:100%;min-height:60px;max-height:140px;border:1px solid #FCA5A5;border-radius:6px;background:#fff;padding:8px 10px;font:400 12px/1.4 Montserrat,Verdana,sans-serif;color:#1A1A1A;resize:vertical;display:block;}' +
+      '.dms-notes-fb textarea:focus{outline:none;border-color:' + NOK_COLOR + ';box-shadow:0 0 0 3px rgba(185,28,28,.15);}' +
+      '.dms-notes-fb-save{margin-top:6px;background:' + NOK_COLOR + ';color:#fff;border:0;border-radius:6px;padding:6px 12px;font:600 11px/1 Montserrat,Verdana,sans-serif;cursor:pointer;}' +
+      '.dms-notes-fb-save:hover{background:#991B1B;}' +
+      '.dms-notes-item-meta{margin-top:8px;display:flex;justify-content:space-between;align-items:center;gap:8px;font:500 11px/1 JetBrains Mono,Consolas,monospace;color:#656464;}' +
       '.dms-notes-del{background:transparent;border:0;color:#B91C1C;cursor:pointer;font:600 11px/1 Montserrat,Verdana,sans-serif;padding:4px 8px;border-radius:6px;}' +
       '.dms-notes-del:hover{background:#FEE2E2;}' +
       '.dms-notes-foot{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 20px;padding-bottom:max(12px,env(safe-area-inset-bottom));border-top:1px solid #E5E7EB;background:#fff;}' +
@@ -112,6 +149,53 @@
     document.head.appendChild(s);
   }
 
+  function statusLabel(status) {
+    if (status === 'ok') {
+      return '<span class="dms-notes-status-label ok">✓ Aprovado</span>';
+    }
+    if (status === 'not-ok') {
+      return '<span class="dms-notes-status-label nok">✗ Precisa ajustar</span>';
+    }
+    return '<span class="dms-notes-status-label pending">⏳ Aguardando validação</span>';
+  }
+
+  function noteItemHtml(n) {
+    var cls = 'dms-notes-item';
+    if (n.validationStatus === 'ok') cls += ' is-ok';
+    else if (n.validationStatus === 'not-ok') cls += ' is-nok';
+
+    var okClass = n.validationStatus === 'ok' ? 'ok-solid' : 'ok-out';
+    var nokClass = n.validationStatus === 'not-ok' ? 'nok-solid' : 'nok-out';
+    var showUndo = n.validationStatus === 'ok' || n.validationStatus === 'not-ok';
+
+    var validateRow =
+      '<div class="dms-notes-validate">' +
+        '<button class="dms-notes-vbtn ' + okClass + '" data-validate="ok" data-id="' + n.id + '">✓ OK</button>' +
+        '<button class="dms-notes-vbtn ' + nokClass + '" data-validate="not-ok" data-id="' + n.id + '">✗ Não OK</button>' +
+        (showUndo ? '<button class="dms-notes-undo" data-validate="pending" data-id="' + n.id + '">desfazer</button>' : '') +
+      '</div>';
+
+    var feedback = '';
+    if (n.validationStatus === 'not-ok') {
+      feedback =
+        '<div class="dms-notes-fb" data-fb-wrap="' + n.id + '">' +
+          '<textarea data-fb-text="' + n.id + '" placeholder="Descreva o que não ficou bom...">' + escapeHtml(n.validationComment || '') + '</textarea>' +
+          '<button class="dms-notes-fb-save" data-fb-save="' + n.id + '">' + (n.validationComment ? 'Atualizar feedback' : 'Salvar feedback') + '</button>' +
+        '</div>';
+    }
+
+    return '<div class="' + cls + '" data-id="' + n.id + '">' +
+      '<div class="dms-notes-item-text">' + escapeHtml(n.text) + '</div>' +
+      '<div class="dms-notes-status-row">' + statusLabel(n.validationStatus) + '</div>' +
+      validateRow +
+      feedback +
+      '<div class="dms-notes-item-meta">' +
+        '<span title="' + fmtAbs(n.timestamp) + '">' + fmtRelative(n.timestamp) + ' · ' + fmtAbs(n.timestamp) + '</span>' +
+        '<button class="dms-notes-del" data-del="' + n.id + '">Excluir</button>' +
+      '</div>' +
+      '</div>';
+  }
+
   function renderList(container) {
     var notes = readNotes().sort(function (a, b) { return b.timestamp - a.timestamp; });
     if (!notes.length) {
@@ -122,18 +206,7 @@
         '</div>';
       return;
     }
-    var html = '';
-    notes.forEach(function (n) {
-      html +=
-        '<div class="dms-notes-item" data-id="' + n.id + '">' +
-        '<div class="dms-notes-item-text">' + escapeHtml(n.text) + '</div>' +
-        '<div class="dms-notes-item-meta">' +
-        '<span title="' + fmtAbs(n.timestamp) + '">' + fmtRelative(n.timestamp) + ' · ' + fmtAbs(n.timestamp) + '</span>' +
-        '<button class="dms-notes-del" data-del="' + n.id + '">Excluir</button>' +
-        '</div>' +
-        '</div>';
-    });
-    container.innerHTML = html;
+    container.innerHTML = notes.map(noteItemHtml).join('');
   }
 
   function updateBadge(btn) {
@@ -149,6 +222,40 @@
     } else if (badge) {
       badge.remove();
     }
+  }
+
+  function setStatus(id, newStatus) {
+    var notes = readNotes();
+    var changed = false;
+    notes.forEach(function (n) {
+      if (n.id === id) {
+        n.validationStatus = newStatus;
+        if (newStatus === 'pending') {
+          n.validationComment = '';
+          n.validatedAt = null;
+        } else if (newStatus === 'ok') {
+          n.validationComment = '';
+          n.validatedAt = Date.now();
+        } else if (newStatus === 'not-ok') {
+          n.validatedAt = Date.now();
+        }
+        changed = true;
+      }
+    });
+    if (changed) writeNotes(notes);
+  }
+
+  function setComment(id, comment) {
+    var notes = readNotes();
+    var changed = false;
+    notes.forEach(function (n) {
+      if (n.id === id) {
+        n.validationComment = comment;
+        n.validatedAt = Date.now();
+        changed = true;
+      }
+    });
+    if (changed) writeNotes(notes);
   }
 
   function build() {
@@ -195,7 +302,7 @@
     document.body.appendChild(drawer);
 
     var listEl = drawer.querySelector('.dms-notes-list');
-    var textarea = drawer.querySelector('textarea');
+    var textarea = drawer.querySelector('.dms-notes-form textarea');
     var saveBtn = drawer.querySelector('.dms-notes-save');
     var closeBtn = drawer.querySelector('.dms-notes-close');
 
@@ -231,7 +338,14 @@
       var text = textarea.value.trim();
       if (!text) return;
       var notes = readNotes();
-      notes.push({ id: Date.now(), text: text, timestamp: Date.now() });
+      notes.push({
+        id: Date.now(),
+        text: text,
+        timestamp: Date.now(),
+        validationStatus: 'pending',
+        validationComment: '',
+        validatedAt: null
+      });
       writeNotes(notes);
       textarea.value = '';
       saveBtn.disabled = true;
@@ -240,13 +354,32 @@
     });
 
     listEl.addEventListener('click', function (e) {
-      var t = e.target.closest('[data-del]');
-      if (!t) return;
-      var id = Number(t.getAttribute('data-del'));
-      var notes = readNotes().filter(function (n) { return n.id !== id; });
-      writeNotes(notes);
-      renderList(listEl);
-      updateBadge(btn);
+      var delT = e.target.closest('[data-del]');
+      if (delT) {
+        var did = Number(delT.getAttribute('data-del'));
+        var notes = readNotes().filter(function (n) { return n.id !== did; });
+        writeNotes(notes);
+        renderList(listEl);
+        updateBadge(btn);
+        return;
+      }
+      var vT = e.target.closest('[data-validate]');
+      if (vT) {
+        var vid = Number(vT.getAttribute('data-id'));
+        var newStatus = vT.getAttribute('data-validate');
+        setStatus(vid, newStatus);
+        renderList(listEl);
+        return;
+      }
+      var fbT = e.target.closest('[data-fb-save]');
+      if (fbT) {
+        var fbid = Number(fbT.getAttribute('data-fb-save'));
+        var ta = listEl.querySelector('[data-fb-text="' + fbid + '"]');
+        if (ta) {
+          setComment(fbid, ta.value.trim());
+          renderList(listEl);
+        }
+      }
     });
   }
 

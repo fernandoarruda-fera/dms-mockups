@@ -72,6 +72,17 @@
 
 > **Observação:** mockup conceitual demonstra o efeito do toggle. Tradução completa de todas as strings das 76 telas será feita após validação do conceito (Cat 3 / sprint dedicado).
 
+## Validação inline de anotações — 2026-05-29
+
+Sistema adicionado: cada anotação tem botões ✓ OK / ✗ Não OK pra Fernando marcar se a correção ficou boa. Se "Não OK", abre textarea pra descrever o que não ficou bom. Status + feedback persistem em localStorage e aparecem no export Markdown.
+
+- Disponível na tela76 central e no widget de cada tela.
+- 3 estados: pending / ok / not-ok.
+- Visual: borda esquerda verde/vermelha/neutra + ícone + label.
+- Export Markdown agora separa anotações por status.
+- KPIs da tela76 ganharam contadores de aprovadas/precisam ajuste/pendentes + filtros por status (tabs).
+- Migração transparente: anotações antigas viram `pending` automaticamente no load.
+
 ---
 
 ## Documentos a atualizar ao final do ciclo
