@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Verificar email</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-lg': '0 10px 25px -5px rgba(0,56,108,.15), 0 8px 10px -6px rgba(0,56,108,.10)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background:#F8F9FA; color:#1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  @keyframes pulse-ring { 0% { transform: scale(.6); opacity: .8; } 100% { transform: scale(1.4); opacity: 0; } }
+  .float { animation: float 3s ease-in-out infinite; }
+  .pulse-ring::before { content:''; position:absolute; inset:0; border-radius:50%; background:#00AEEE; opacity:.18; animation: pulse-ring 2.4s ease-out infinite; }
+</style>
+</head>
+<body class="min-h-screen flex items-center justify-center px-4 py-10">
+
+<div class="w-full max-w-[480px]">
+
+  <!-- Logo -->
+  <div class="flex flex-col items-center mb-7">
+    <div class="flex items-center gap-2.5 mb-3">
+      <div class="w-10 h-10 bg-dms-mar rounded flex items-center justify-center">
+        <span class="tilt-accent text-white font-black text-2xl leading-none">D</span>
+      </div>
+      <span class="text-2xl font-bold text-dms-mar">DMS</span>
+    </div>
+    <p class="text-xs text-dms-tecnologia uppercase tracking-wider mono">Compras · Suprimentos · Compliance</p>
+  </div>
+
+  <!-- Card (estado padrão: enviado) -->
+  <div class="bg-white rounded-xl shadow-dms-lg border border-[#E5E7EB] p-8 text-center">
+
+    <!-- Ícone envelope animado -->
+    <div class="flex justify-center mb-5">
+      <div class="relative w-20 h-20 rounded-full bg-sky-50 flex items-center justify-center pulse-ring">
+        <svg class="w-10 h-10 text-dms-ceu float" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+      </div>
+    </div>
+
+    <h1 class="text-[24px] leading-[30px] font-bold text-dms-mar mb-2">Verifique seu email</h1>
+    <p class="text-sm text-dms-tecnologia mb-6">
+      Enviamos um link de confirmação para
+      <span class="block mt-2 text-dms-mar font-semibold mono">fernando@dms.com.br</span>
+    </p>
+    <p class="text-sm text-gray-700 mb-6">Clique no link para ativar sua conta. Ele expira em 24h.</p>
+
+    <!-- Aviso amarelo -->
+    <div class="flex items-start gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md text-left mb-6">
+      <svg class="w-4 h-4 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      <p class="text-xs text-yellow-800">
+        <span class="font-semibold">Não recebeu?</span> Verifique a pasta de spam ou aguarde alguns segundos — emails podem demorar até 2min.
+      </p>
+    </div>
+
+    <!-- Ações -->
+    <div class="space-y-3">
+      <button class="w-full py-3 border border-dms-ceu text-dms-mar text-sm font-semibold rounded-md hover:bg-sky-50 transition-colors flex items-center justify-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        Reenviar email
+      </button>
+      <a href="#" class="block text-xs text-dms-confianca font-semibold hover:underline">Trocar email</a>
+    </div>
+  </div>
+
+  <!-- Estado alternativo: link expirado -->
+  <div class="mt-6 bg-white rounded-xl shadow-dms-lg border border-red-200 p-6">
+    <div class="text-[11px] font-bold uppercase tracking-wider text-red-600 mb-2 flex items-center gap-2">
+      <span class="inline-block w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+      Variação · estado de erro
+    </div>
+    <div class="flex items-start gap-4">
+      <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <h2 class="text-base font-bold text-dms-mar">Link expirado</h2>
+        <p class="text-xs text-dms-tecnologia mt-1 mb-3">O link de verificação venceu (válido por 24h). Solicite um novo abaixo para continuar.</p>
+        <button class="px-4 py-2 bg-dms-sabedoria text-white text-xs font-semibold rounded-md hover:opacity-90 transition-opacity">Solicitar novo link</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rodapé -->
+  <div class="text-center mt-6">
+    <p class="text-xs text-dms-tecnologia">Já confirmou? <a href="tela47-login.html" class="text-dms-confianca font-semibold hover:underline">Voltar ao login</a></p>
+    <p class="text-[10px] text-dms-tecnologia mt-3 mono uppercase tracking-wider">DMS · v2.4.0 · suporte@dms.com.br</p>
+  </div>
+</div>
+
+</body>
+</html>

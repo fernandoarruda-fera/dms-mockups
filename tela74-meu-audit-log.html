@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Minha Atividade</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background:#F8F9FA; color:#1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline:none; border-color:#00AEEE; box-shadow:0 0 0 3px rgba(0,174,238,.2); }
+  .kpi-card { background:#fff; border:1px solid #E5E7EB; border-radius:8px; padding:16px 18px; }
+  .kpi-label { font-size:11px; font-weight:600; color:#656464; letter-spacing:0.04em; text-transform:uppercase; }
+  .kpi-value { font-family:'JetBrains Mono',Consolas,monospace; font-size:28px; font-weight:800; color:#00386C; line-height:1.1; margin-top:6px; }
+  .kpi-sub { font-size:11px; color:#656464; margin-top:4px; }
+  .tl-day { display:flex; align-items:center; gap:10px; margin: 24px 0 12px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#656464; }
+  .tl-day::after { content:''; flex:1; height:1px; background:#E5E7EB; }
+  .tl-event { display:flex; gap:14px; padding:14px 16px; background:#fff; border:1px solid #E5E7EB; border-radius:8px; margin-bottom:8px; transition: box-shadow .15s; }
+  .tl-event:hover { box-shadow: 0 2px 6px -1px rgba(0,56,108,.08); }
+  .tl-icon { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .badge-action { display:inline-flex; align-items:center; padding: 2px 8px; border-radius:4px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; font-family:'JetBrains Mono', Consolas, monospace; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <a href="tela50-profile.html" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Meu Perfil</a>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Audit Log</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1100px] w-full mx-auto">
+
+      <!-- Header -->
+      <div class="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[32px] leading-[40px] font-bold text-dms-mar">Minha Atividade</h1>
+          </div>
+          <p class="text-sm text-dms-tecnologia max-w-2xl">Histórico completo de todas as suas ações no sistema. Use para revisar decisões, identificar acessos suspeitos ou exportar para compliance.</p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button class="px-3 py-2 text-sm font-medium text-dms-tecnologia border border-[#E5E7EB] rounded-md hover:text-dms-mar bg-white transition-colors inline-flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Exportar minha trilha
+          </button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="grid grid-cols-4 gap-3 mb-6">
+        <div class="kpi-card">
+          <div class="kpi-label">Logins (mês)</div>
+          <div class="kpi-value">42</div>
+          <div class="kpi-sub">↑ 12% vs mês anterior</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Mutações (mês)</div>
+          <div class="kpi-value">186</div>
+          <div class="kpi-sub">criações, edições, deleções</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Aprovações (mês)</div>
+          <div class="kpi-value">28</div>
+          <div class="kpi-sub">26 aprovadas · 2 rejeitadas</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">IPs únicos</div>
+          <div class="kpi-value">3</div>
+          <div class="kpi-sub">2 corp · 1 home office</div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 mb-6 flex items-center gap-3 flex-wrap">
+        <span class="text-xs font-semibold text-dms-tecnologia uppercase tracking-wider">Filtros</span>
+        <select class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+          <option>Últimos 30 dias</option>
+          <option>Últimos 7 dias</option>
+          <option>Hoje</option>
+          <option>Últimos 90 dias</option>
+          <option>Personalizado</option>
+        </select>
+        <select class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+          <option>Todas as ações</option>
+          <option>Login / Logout</option>
+          <option>Mutação (CRUD)</option>
+          <option>Aprovação</option>
+          <option>Configuração</option>
+        </select>
+        <select class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
+          <option>Todos os recursos</option>
+          <option>Requisições</option>
+          <option>Cotações</option>
+          <option>Pedidos</option>
+          <option>Aprovações</option>
+          <option>Contratos</option>
+          <option>Notas Fiscais</option>
+          <option>Sessão / Conta</option>
+        </select>
+        <div class="ml-auto flex items-center gap-2">
+          <div class="relative">
+            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" placeholder="Buscar por recurso, IP..." class="input-dms w-[260px] pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA]">
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div>
+        <!-- HOJE -->
+        <div class="tl-day">Hoje · 29/05/2026</div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#F3E8FF; color:#643585;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#F3E8FF; color:#643585;">APROVAR</span> Você aprovou <a href="tela41-aprovacao-detalhe.html" class="font-semibold text-dms-mar hover:underline">REQ-2026-0142</a> — R$ 48.500,00</p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 192.168.10.42 · Chrome 124 · macOS · São Paulo, BR</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono" title="29/05/2026 14:32:18">há 8min</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#DBEAFE; color:#1D4ED8;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#DBEAFE; color:#1D4ED8;">LEITURA</span> Você acessou <a href="tela29-pedido-detalhe.html" class="font-semibold text-dms-mar hover:underline">PED-2026-0871</a></p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 192.168.10.42 · Chrome 124 · macOS · São Paulo, BR</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">há 22min</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#FEF3C7; color:#92400E;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#FEF3C7; color:#92400E;">EDIÇÃO</span> Você editou comentário em <a href="tela26-cotacao-detalhe.html" class="font-semibold text-dms-mar hover:underline">COT-2026-0298</a></p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 192.168.10.42 · Chrome 124 · macOS · São Paulo, BR</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">há 1h</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#D1FAE5; color:#047857;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#D1FAE5; color:#047857;">LOGIN</span> Sessão iniciada</p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 192.168.10.42 · Chrome 124 · macOS · São Paulo, BR · 2FA TOTP</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">08:14</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ONTEM -->
+        <div class="tl-day">Ontem · 28/05/2026</div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#FEE2E2; color:#B91C1C;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#FEE2E2; color:#B91C1C;">REJEITAR</span> Você rejeitou <a href="#" class="font-semibold text-dms-mar hover:underline">REQ-2026-0138</a> — motivo: orçamento extrapolado</p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 192.168.10.42 · Chrome 124 · macOS</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">17:52</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#F3E8FF; color:#643585;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#F3E8FF; color:#643585;">APROVAR</span> Você aprovou em massa 4 cotações (lote COT-0291..0294)</p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 192.168.10.42 · Chrome 124 · macOS</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">15:18</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#FEF3C7; color:#92400E;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#FEF3C7; color:#92400E;">EDIÇÃO</span> Você editou <a href="tela50-profile.html" class="font-semibold text-dms-mar hover:underline">seu perfil</a> — telefone alterado</p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 187.45.22.108 · Safari 17 · iOS · home office</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">12:04</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#D1FAE5; color:#047857;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6.364 1.636l-.707.707M20 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#D1FAE5; color:#047857;">CRIAR</span> Você criou <a href="tela23-requisicao-detalhe.html" class="font-semibold text-dms-mar hover:underline">REQ-2026-0140</a> — papelaria escritório</p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 192.168.10.42 · Chrome 124 · macOS</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">10:42</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- QUI 22/05 -->
+        <div class="tl-day">Quinta · 22/05/2026</div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#E0E7FF; color:#3730A3;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.105.895-2 2-2s2 .895 2 2-.895 2-2 2-2-.895-2-2zM12 11V9m0 4v2m-3-7h6a2 2 0 012 2v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6a2 2 0 012-2z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#E0E7FF; color:#3730A3;">CONFIG</span> Você ativou 2FA via aplicativo autenticador</p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 192.168.10.42 · Chrome 124 · macOS</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">16:55</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#FEE2E2; color:#B91C1C;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#FEE2E2; color:#B91C1C;">SENHA</span> Você alterou sua senha</p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 192.168.10.42 · Chrome 124 · macOS</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">16:48</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#FEF3C7; color:#92400E;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#FEF3C7; color:#92400E;">EDIÇÃO</span> Você atualizou contrato <a href="tela46-contrato-detalhe.html" class="font-semibold text-dms-mar hover:underline">CONT-2025-0042</a> — anexo PDF v3</p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 192.168.10.42 · Chrome 124 · macOS</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">11:21</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- QUA 21/05 -->
+        <div class="tl-day">Quarta · 21/05/2026</div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#D1FAE5; color:#047857;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#D1FAE5; color:#047857;">LOGIN</span> Sessão iniciada</p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 192.168.10.42 · Chrome 124 · macOS · 2FA TOTP</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">07:58</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#F3F4F6; color:#374151;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#F3F4F6; color:#374151;">LOGOUT</span> Sessão encerrada (timeout 30min inatividade)</p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 192.168.10.42 · Chrome 124 · macOS</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">18:32</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#FEE2E2; color:#B91C1C;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#FEE2E2; color:#B91C1C;">DELEÇÃO</span> Você removeu rascunho REQ-DRAFT-0019</p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 192.168.10.42 · Chrome 124 · macOS</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">14:09</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TER 20/05 -->
+        <div class="tl-day">Terça · 20/05/2026</div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#DBEAFE; color:#1D4ED8;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#DBEAFE; color:#1D4ED8;">EXPORT</span> Você exportou planilha de aprovações (período abr/2026)</p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 192.168.10.42 · Chrome 124 · macOS · 23 registros</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">15:30</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#F3E8FF; color:#643585;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#F3E8FF; color:#643585;">APROVAR</span> Você aprovou <a href="#" class="font-semibold text-dms-mar hover:underline">PED-2026-0848</a></p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 187.45.22.108 · Safari 17 · iOS · home office</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">09:14</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-event">
+          <div class="tl-icon" style="background:#D1FAE5; color:#047857;">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <p class="text-sm text-gray-900"><span class="badge-action" style="background:#D1FAE5; color:#047857;">LOGIN</span> Sessão iniciada</p>
+                <p class="text-xs text-dms-tecnologia mt-1">IP 187.45.22.108 · Safari 17 · iOS · home office · 2FA TOTP</p>
+              </div>
+              <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">08:42</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex items-center justify-between mt-6 pt-4 border-t border-[#E5E7EB] text-xs text-dms-tecnologia">
+          <span>Mostrando últimos 30 dias · 17 de 256 eventos</span>
+          <a href="#" class="font-semibold text-dms-mar hover:text-dms-confianca transition-colors">Ver completo →</a>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label,
+  #dms-sidebar.collapsed .sb-section-title,
+  #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label,
+    #dms-sidebar.collapsed .sb-section-title,
+    #dms-sidebar.collapsed .sb-brand-text,
+    #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" title="Cockpit" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" title="Email" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" title="Tarefas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" title="Follow-up" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" title="Updates" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" title="Requisições" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" title="Cotações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" title="Pedidos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela44-contratos-list.html" title="Contratos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" title="Notas Fiscais" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" title="Aprovações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela36-pre-lancamentos-list.html" title="Pré-lançamentos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+        <li><a href="tela42-orcamento-overview.html" title="Orçamento" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela30-empresas-list.html" title="Empresas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" title="Centros de Custo" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" title="Plano de Contas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela01-catalogo-tags.html" title="Tags" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" title="Procedures" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" title="Workflows" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" title="SOPs" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" title="Execuções" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" title="Auditoria" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" title="Match Engine" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" title="Setup" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" title="MAILIA Admin" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+<script>
+(function(){
+  var sb = document.getElementById('dms-sidebar');
+  var toggle = document.getElementById('sidebar-toggle');
+  var mobBtn = document.getElementById('dms-sidebar-mobile-btn');
+  var overlay = document.getElementById('dms-sidebar-overlay');
+  if (!sb || !toggle) return;
+  var STORAGE_KEY = 'mockup-sidebar-collapsed-v2';
+  var collapsed = false;
+  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
+  function isMobile(){ return window.matchMedia('(max-width: 767px)').matches; }
+  function render(){
+    if (collapsed && !isMobile()) {
+      sb.classList.add('collapsed');
+      sb.style.width = '64px';
+      document.documentElement.style.setProperty('--dms-sb-w', '64px');
+    } else {
+      sb.classList.remove('collapsed');
+      sb.style.width = isMobile() ? '280px' : '240px';
+      document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px');
+    }
+  }
+  toggle.addEventListener('click', function(){ collapsed = !collapsed; try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {} render(); });
+  function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
+  function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
+  if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
+  if (overlay) overlay.addEventListener('click', closeMobile);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){ a.addEventListener('click', function(){ if (isMobile()) closeMobile(); }); });
+  var current = (location.pathname.split('/').pop() || '').toLowerCase();
+  if (current) {
+    sb.querySelectorAll('nav a[href]').forEach(function(a){
+      var href = (a.getAttribute('href') || '').toLowerCase();
+      if (href && href === current) a.classList.add('sb-active');
+    });
+  }
+  window.addEventListener('resize', render);
+  render();
+})();
+</script>
+</body>
+</html>

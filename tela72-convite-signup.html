@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Aceitar convite</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)', 'dms-lg': '0 10px 25px -5px rgba(0,56,108,.15), 0 8px 10px -6px rgba(0,56,108,.10)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background:#F8F9FA; color:#1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms { width:100%; padding:10px 12px; font-size:14px; border:1px solid #E5E7EB; border-radius:6px; background:#fff; transition: all .15s; }
+  .input-dms:focus { outline:none; border-color:#00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,.2); }
+  .input-dms:disabled { background:#F1F3F5; color:#656464; cursor:not-allowed; }
+  .label { display:block; font-size:12px; font-weight:600; color:#374151; margin-bottom:6px; }
+  .req::after { content: ' *'; color: #DC2626; }
+  .strength-bar { height:4px; border-radius:2px; background:#E5E7EB; overflow:hidden; }
+  .strength-fill { height:100%; transition: all .2s; }
+</style>
+</head>
+<body class="min-h-screen flex items-center justify-center px-4 py-10">
+
+<div class="w-full max-w-[520px]">
+
+  <!-- Logo -->
+  <div class="flex flex-col items-center mb-7">
+    <div class="flex items-center gap-2.5 mb-3">
+      <div class="w-10 h-10 bg-dms-mar rounded flex items-center justify-center">
+        <span class="tilt-accent text-white font-black text-2xl leading-none">D</span>
+      </div>
+      <span class="text-2xl font-bold text-dms-mar">DMS</span>
+    </div>
+    <p class="text-xs text-dms-tecnologia uppercase tracking-wider mono">Compras · Suprimentos · Compliance</p>
+  </div>
+
+  <!-- Card principal -->
+  <div class="bg-white rounded-xl shadow-dms-lg border border-[#E5E7EB] p-8">
+    <div class="flex items-center gap-2 mb-2">
+      <div class="w-10 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+      <span class="text-[11px] font-bold uppercase tracking-wider text-dms-tecnologia">Convite</span>
+    </div>
+    <h1 class="text-[24px] leading-[30px] font-bold text-dms-mar mb-2">Você foi convidado para o DMS Compras</h1>
+    <p class="text-sm text-dms-tecnologia mb-6">Complete seu cadastro abaixo para entrar na equipe.</p>
+
+    <!-- Convite info -->
+    <div class="bg-[#F8FAFC] border border-[#E5E7EB] rounded-lg p-4 mb-6 flex items-start gap-3">
+      <div class="w-11 h-11 rounded-full bg-dms-sabedoria text-white flex items-center justify-center font-bold text-sm flex-shrink-0">FA</div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm text-gray-800">
+          <span class="font-semibold">Fernando Arruda</span> convidou você para se juntar à equipe
+          <span class="font-semibold text-dms-mar">Logística</span> como
+          <span class="font-semibold text-dms-sabedoria">Aprovador</span>.
+        </p>
+        <div class="mt-2 grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <div class="text-dms-tecnologia uppercase tracking-wider text-[10px] font-semibold">Empresa</div>
+            <div class="text-gray-800 font-medium mt-0.5">DMS Logística SA</div>
+          </div>
+          <div>
+            <div class="text-dms-tecnologia uppercase tracking-wider text-[10px] font-semibold">Função sugerida</div>
+            <div class="text-gray-800 font-medium mt-0.5">Aprovador Operacional</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form class="space-y-4">
+      <div>
+        <label class="label req">Nome completo</label>
+        <input type="text" class="input-dms" placeholder="Como você prefere ser chamado">
+      </div>
+      <div>
+        <label class="label">Email</label>
+        <input type="email" class="input-dms" value="laura.batista@dmslog.com" disabled>
+        <p class="text-[11px] text-dms-tecnologia mt-1">Email vinculado ao convite (não pode ser alterado).</p>
+      </div>
+      <div>
+        <label class="label req">Senha</label>
+        <input type="password" class="input-dms" placeholder="Mínimo 12 caracteres">
+        <div class="grid grid-cols-4 gap-1.5 mt-2">
+          <div class="strength-bar"><div class="strength-fill" style="background:#10B981; width:100%;"></div></div>
+          <div class="strength-bar"><div class="strength-fill" style="background:#10B981; width:100%;"></div></div>
+          <div class="strength-bar"><div class="strength-fill" style="background:#10B981; width:100%;"></div></div>
+          <div class="strength-bar"><div class="strength-fill" style="background:#E5E7EB; width:0%;"></div></div>
+        </div>
+        <ul class="mt-2 space-y-1 text-[11px]">
+          <li class="flex items-center gap-1.5 text-emerald-600"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> 12+ caracteres</li>
+          <li class="flex items-center gap-1.5 text-emerald-600"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Maiúscula e minúscula</li>
+          <li class="flex items-center gap-1.5 text-emerald-600"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Número</li>
+          <li class="flex items-center gap-1.5 text-dms-tecnologia"><svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="3"/></svg> Caractere especial (!@#$...)</li>
+        </ul>
+      </div>
+      <div>
+        <label class="label req">Confirmar senha</label>
+        <input type="password" class="input-dms" placeholder="Repita a senha">
+      </div>
+
+      <label class="flex items-start gap-2 cursor-pointer pt-2">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded border-[#E5E7EB] text-dms-ceu focus:ring-dms-ceu">
+        <span class="text-xs text-gray-700">Li e aceito os <a href="#" class="text-dms-confianca font-semibold hover:underline">Termos de Uso</a> e a <a href="#" class="text-dms-confianca font-semibold hover:underline">Política de Privacidade</a>.</span>
+      </label>
+
+      <button type="button" class="w-full mt-2 py-3 bg-dms-sabedoria text-white text-sm font-semibold rounded-md hover:opacity-90 transition-opacity">Criar conta e entrar</button>
+    </form>
+  </div>
+
+  <!-- Rodapé -->
+  <div class="text-center mt-6">
+    <p class="text-xs text-dms-tecnologia">Não foi você? <a href="#" class="text-dms-confianca font-semibold hover:underline">Ignorar este convite</a></p>
+    <p class="text-[10px] text-dms-tecnologia mt-3 mono uppercase tracking-wider">DMS · v2.4.0 · suporte@dms.com.br</p>
+  </div>
+</div>
+
+</body>
+</html>

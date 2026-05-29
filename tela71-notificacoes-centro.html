@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Centro de Notificações</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .tab { padding:10px 16px; border-bottom:2px solid transparent; font-size:13px; font-weight:600; color:#656464; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+  .tab.active { color:#00386C; border-bottom-color:#00AEEE; }
+  .tab:hover { color:#00386C; }
+  .notif-item { display:flex; gap:14px; padding:16px 18px; border-bottom:1px solid #E5E7EB; background:#fff; transition: background .15s; position:relative; }
+  .notif-item:hover { background:#FAFBFC; }
+  .notif-item.unread { background:#F0F9FF; }
+  .notif-item.unread:hover { background:#E0F2FE; }
+  .unread-dot { position:absolute; left:6px; top:50%; transform:translateY(-50%); width:6px; height:6px; background:#00AEEE; border-radius:50%; }
+  .badge-circle { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <span class="text-dms-mar font-semibold">Notificações</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1100px] w-full mx-auto">
+
+      <!-- Header -->
+      <div class="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[32px] leading-[40px] font-bold text-dms-mar">Centro de Notificações</h1>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">7 não lidas</span>
+          </div>
+          <p class="text-sm text-dms-tecnologia">Tudo que precisa da sua atenção em um só lugar.</p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button class="px-3 py-2 text-sm font-medium text-dms-tecnologia border border-[#E5E7EB] rounded-md hover:text-dms-mar bg-white transition-colors">Marcar todas como lidas</button>
+          <a href="tela50-profile.html" class="px-3 py-2 text-sm font-medium text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50 transition-colors inline-flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Configurar
+          </a>
+        </div>
+      </div>
+
+      <!-- Tabs filtro -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+        <div class="border-b border-[#E5E7EB] px-4 flex items-center gap-1 flex-wrap">
+          <button class="tab active">Todas <span class="text-xs font-normal text-dms-tecnologia">(28)</span></button>
+          <button class="tab">Não lidas <span class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full text-[10px] font-bold bg-red-500 text-white">7</span></button>
+          <button class="tab">Aprovações <span class="text-xs font-normal text-dms-tecnologia">(4)</span></button>
+          <button class="tab">Sistema <span class="text-xs font-normal text-dms-tecnologia">(9)</span></button>
+          <button class="tab">Mencionei <span class="text-xs font-normal text-dms-tecnologia">(3)</span></button>
+          <button class="tab">Arquivadas <span class="text-xs font-normal text-dms-tecnologia">(58)</span></button>
+        </div>
+
+        <!-- Lista -->
+        <div>
+          <!-- 1 — aprovação (unread) -->
+          <div class="notif-item unread">
+            <div class="unread-dot"></div>
+            <div class="badge-circle" style="background:#F3E8FF; color:#643585;">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-gray-900"><span class="font-semibold">Aprovação aguardando você</span> · REQ-2026-0142</p>
+                  <p class="text-xs text-dms-tecnologia mt-0.5">Lucia Pereira solicitou aprovação de R$ 48.500,00 — compra de empilhadeiras (CC Operações).</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <button class="px-3 py-1 text-xs font-semibold text-white bg-emerald-600 rounded hover:bg-emerald-700 transition-colors">Aprovar</button>
+                    <a href="tela41-aprovacao-detalhe.html" class="px-3 py-1 text-xs font-medium text-dms-mar border border-[#E5E7EB] rounded hover:border-dms-ceu transition-colors">Ver detalhe</a>
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Marcar como lida</button>
+                  </div>
+                </div>
+                <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">há 12min</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2 — SLA crítico (unread) -->
+          <div class="notif-item unread">
+            <div class="unread-dot"></div>
+            <div class="badge-circle" style="background:#FEE2E2; color:#B91C1C;">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-gray-900"><span class="font-semibold">SLA crítico</span> · COT-2026-0312 estourou em 4h</p>
+                  <p class="text-xs text-dms-tecnologia mt-0.5">Cotação para Movitec aguarda retorno há 26h (SLA máx 24h). Escalação automática enviada ao gestor.</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <a href="tela26-cotacao-detalhe.html" class="px-3 py-1 text-xs font-medium text-dms-mar border border-[#E5E7EB] rounded hover:border-dms-ceu transition-colors">Ver detalhe</a>
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Marcar como lida</button>
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Arquivar</button>
+                  </div>
+                </div>
+                <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">há 1h</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3 — NF divergente (unread) -->
+          <div class="notif-item unread">
+            <div class="unread-dot"></div>
+            <div class="badge-circle" style="background:#FEE2E2; color:#B91C1C;">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-gray-900"><span class="font-semibold">NF com divergência</span> · NFE-2026-008912</p>
+                  <p class="text-xs text-dms-tecnologia mt-0.5">3-way match falhou: valor da NF (R$ 12.350,00) acima do pedido PED-0871 em 4,2%. Requer conciliação.</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <a href="tela39-nota-fiscal-detalhe.html" class="px-3 py-1 text-xs font-medium text-dms-mar border border-[#E5E7EB] rounded hover:border-dms-ceu transition-colors">Ver detalhe</a>
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Marcar como lida</button>
+                  </div>
+                </div>
+                <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">há 2h</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 — mention (unread) -->
+          <div class="notif-item unread">
+            <div class="unread-dot"></div>
+            <div class="badge-circle" style="background:#DBEAFE; color:#1D4ED8;">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-gray-900"><span class="font-semibold">Carlos mencionou você</span> em PED-2026-0871</p>
+                  <p class="text-xs text-dms-tecnologia mt-0.5">"@fernando consegue confirmar com a Movitec se o prazo de entrega bate com o contrato vigente?"</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <a href="tela29-pedido-detalhe.html" class="px-3 py-1 text-xs font-medium text-dms-mar border border-[#E5E7EB] rounded hover:border-dms-ceu transition-colors">Ver comentário</a>
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Responder</button>
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Marcar como lida</button>
+                  </div>
+                </div>
+                <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">há 3h</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5 — contrato vencendo (unread) -->
+          <div class="notif-item unread">
+            <div class="unread-dot"></div>
+            <div class="badge-circle" style="background:#FEF3C7; color:#92400E;">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-gray-900"><span class="font-semibold">Contrato vence em 30 dias</span> · CONT-2025-0042</p>
+                  <p class="text-xs text-dms-tecnologia mt-0.5">Locação de empilhadeiras (Movitec). Renovação automática desativada — ação manual necessária.</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <a href="tela46-contrato-detalhe.html" class="px-3 py-1 text-xs font-medium text-dms-mar border border-[#E5E7EB] rounded hover:border-dms-ceu transition-colors">Ver contrato</a>
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Marcar como lida</button>
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Arquivar</button>
+                  </div>
+                </div>
+                <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">há 5h</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6 — aprovação (unread) -->
+          <div class="notif-item unread">
+            <div class="unread-dot"></div>
+            <div class="badge-circle" style="background:#F3E8FF; color:#643585;">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-gray-900"><span class="font-semibold">Aprovação aguardando você</span> · COT-2026-0298</p>
+                  <p class="text-xs text-dms-tecnologia mt-0.5">Mariana enviou cotação consolidada para revisão (3 fornecedores, melhor preço: TecParts).</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <button class="px-3 py-1 text-xs font-semibold text-white bg-emerald-600 rounded hover:bg-emerald-700 transition-colors">Aprovar</button>
+                    <a href="tela26-cotacao-detalhe.html" class="px-3 py-1 text-xs font-medium text-dms-mar border border-[#E5E7EB] rounded hover:border-dms-ceu transition-colors">Ver detalhe</a>
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Marcar como lida</button>
+                  </div>
+                </div>
+                <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">há 6h</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7 — workflow publicado (unread) -->
+          <div class="notif-item unread">
+            <div class="unread-dot"></div>
+            <div class="badge-circle" style="background:#E5E7EB; color:#656464;">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-gray-900"><span class="font-semibold">Novo workflow publicado</span> · "Aprovação Multi-nível CAPEX"</p>
+                  <p class="text-xs text-dms-tecnologia mt-0.5">v3.2 — alterações no critério de escalação a partir de R$ 100k. Em vigor desde hoje.</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <a href="tela04-catalogo-workflows.html" class="px-3 py-1 text-xs font-medium text-dms-mar border border-[#E5E7EB] rounded hover:border-dms-ceu transition-colors">Ver workflow</a>
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Marcar como lida</button>
+                  </div>
+                </div>
+                <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">há 8h</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8 — manutenção (lida) -->
+          <div class="notif-item">
+            <div class="badge-circle" style="background:#E5E7EB; color:#656464;">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-gray-700"><span class="font-semibold">Manutenção programada</span> · Domingo 02/06 das 03h às 05h</p>
+                  <p class="text-xs text-dms-tecnologia mt-0.5">Atualização do módulo Match Engine. Sistema indisponível por aproximadamente 2 horas.</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Ver detalhe</button>
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Arquivar</button>
+                  </div>
+                </div>
+                <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">ontem</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 9 — orçamento alerta (lida) -->
+          <div class="notif-item">
+            <div class="badge-circle" style="background:#FEF3C7; color:#92400E;">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-gray-700"><span class="font-semibold">Orçamento em alerta</span> · CC Operações atingiu 85% do mês</p>
+                  <p class="text-xs text-dms-tecnologia mt-0.5">Categoria "Manutenção" ultrapassou limite. R$ 142.300 de R$ 168.000 consumidos.</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <a href="tela42-orcamento-overview.html" class="px-3 py-1 text-xs font-medium text-dms-mar border border-[#E5E7EB] rounded hover:border-dms-ceu transition-colors">Ver orçamento</a>
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Arquivar</button>
+                  </div>
+                </div>
+                <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">ontem</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 10 — mention (lida) -->
+          <div class="notif-item">
+            <div class="badge-circle" style="background:#DBEAFE; color:#1D4ED8;">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-gray-700"><span class="font-semibold">Patricia mencionou você</span> em SOP-2026-014</p>
+                  <p class="text-xs text-dms-tecnologia mt-0.5">"@fernando obrigada pelas revisões! Apliquei tudo, dá um look final?"</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <a href="tela07-editor-sop.html" class="px-3 py-1 text-xs font-medium text-dms-mar border border-[#E5E7EB] rounded hover:border-dms-ceu transition-colors">Ver SOP</a>
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Arquivar</button>
+                  </div>
+                </div>
+                <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">22/05 · 16:42</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 11 — fornecedor cadastrado (lida) -->
+          <div class="notif-item">
+            <div class="badge-circle" style="background:#E5E7EB; color:#656464;">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-gray-700"><span class="font-semibold">Novo fornecedor cadastrado</span> · TecParts Indústria</p>
+                  <p class="text-xs text-dms-tecnologia mt-0.5">Cadastro completado e aprovado pelo time de compliance. Disponível para cotações.</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <a href="tela67-wizard-supplier-detail.html" class="px-3 py-1 text-xs font-medium text-dms-mar border border-[#E5E7EB] rounded hover:border-dms-ceu transition-colors">Ver fornecedor</a>
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Arquivar</button>
+                  </div>
+                </div>
+                <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">21/05 · 10:08</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 12 — webhook falha (lida) -->
+          <div class="notif-item">
+            <div class="badge-circle" style="background:#FEE2E2; color:#B91C1C;">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm text-gray-700"><span class="font-semibold">Falha em webhook</span> · "ERP-Sienge sync" retornou 503</p>
+                  <p class="text-xs text-dms-tecnologia mt-0.5">Retry automático em 5min. 2 tentativas restantes. Se persistir, será desativado.</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <a href="tela61-webhooks-list.html" class="px-3 py-1 text-xs font-medium text-dms-mar border border-[#E5E7EB] rounded hover:border-dms-ceu transition-colors">Ver webhooks</a>
+                    <button class="text-xs text-dms-tecnologia hover:text-dms-mar transition-colors">Arquivar</button>
+                  </div>
+                </div>
+                <span class="text-xs text-dms-tecnologia flex-shrink-0 mono">20/05 · 14:21</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 13 — empty state após fim da lista (oculto, exemplo de markup) -->
+          <div class="hidden" id="empty-state">
+            <div class="flex flex-col items-center justify-center py-16 px-6 text-center">
+              <div class="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-4">
+                <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              </div>
+              <h3 class="text-base font-semibold text-dms-mar mb-1">Você está em dia!</h3>
+              <p class="text-sm text-dms-tecnologia">Sem novas notificações por aqui.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-4 py-3 border-t border-[#E5E7EB] bg-[#FAFBFC] rounded-b-lg flex items-center justify-between text-xs text-dms-tecnologia">
+          <span>Mostrando 12 de 28 notificações dos últimos 30 dias</span>
+          <button class="font-medium text-dms-mar hover:text-dms-confianca transition-colors">Carregar mais →</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label,
+  #dms-sidebar.collapsed .sb-section-title,
+  #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label,
+    #dms-sidebar.collapsed .sb-section-title,
+    #dms-sidebar.collapsed .sb-brand-text,
+    #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" title="Cockpit" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" title="Email" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" title="Tarefas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" title="Follow-up" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" title="Updates" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" title="Requisições" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" title="Cotações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" title="Pedidos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela44-contratos-list.html" title="Contratos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" title="Notas Fiscais" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" title="Aprovações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela36-pre-lancamentos-list.html" title="Pré-lançamentos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+        <li><a href="tela42-orcamento-overview.html" title="Orçamento" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela30-empresas-list.html" title="Empresas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" title="Centros de Custo" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" title="Plano de Contas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela01-catalogo-tags.html" title="Tags" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" title="Procedures" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" title="Workflows" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" title="SOPs" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" title="Execuções" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" title="Auditoria" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" title="Match Engine" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" title="Setup" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" title="MAILIA Admin" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+<script>
+(function(){
+  var sb = document.getElementById('dms-sidebar');
+  var toggle = document.getElementById('sidebar-toggle');
+  var mobBtn = document.getElementById('dms-sidebar-mobile-btn');
+  var overlay = document.getElementById('dms-sidebar-overlay');
+  if (!sb || !toggle) return;
+  var STORAGE_KEY = 'mockup-sidebar-collapsed-v2';
+  var collapsed = false;
+  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
+  function isMobile(){ return window.matchMedia('(max-width: 767px)').matches; }
+  function render(){
+    if (collapsed && !isMobile()) {
+      sb.classList.add('collapsed');
+      sb.style.width = '64px';
+      document.documentElement.style.setProperty('--dms-sb-w', '64px');
+    } else {
+      sb.classList.remove('collapsed');
+      sb.style.width = isMobile() ? '280px' : '240px';
+      document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px');
+    }
+  }
+  toggle.addEventListener('click', function(){ collapsed = !collapsed; try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {} render(); });
+  function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
+  function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
+  if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
+  if (overlay) overlay.addEventListener('click', closeMobile);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){ a.addEventListener('click', function(){ if (isMobile()) closeMobile(); }); });
+  var current = (location.pathname.split('/').pop() || '').toLowerCase();
+  if (current) {
+    sb.querySelectorAll('nav a[href]').forEach(function(a){
+      var href = (a.getAttribute('href') || '').toLowerCase();
+      if (href && href === current) a.classList.add('sb-active');
+    });
+  }
+  window.addEventListener('resize', render);
+  render();
+})();
+</script>
+</body>
+</html>
