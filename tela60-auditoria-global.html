@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Auditoria Global</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .kpi-card { background:#fff; border:1px solid #E5E7EB; border-radius:8px; padding:14px 16px; }
+  .kpi-label { font-size:10px; font-weight:600; color:#656464; letter-spacing:0.05em; text-transform:uppercase; }
+  .kpi-value { font-family:'JetBrains Mono',Consolas,monospace; font-size:24px; font-weight:800; color:#00386C; line-height:1.1; margin-top:4px; }
+  .kpi-sub { font-size:10px; color:#656464; margin-top:3px; }
+  .badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:600; border:1px solid; }
+  table.dms-tbl th { font-size:10px; font-weight:600; color:#656464; text-transform:uppercase; letter-spacing:0.05em; padding:10px 12px; text-align:left; border-bottom:1px solid #E5E7EB; background:#F8F9FA; }
+  table.dms-tbl td { padding:12px; border-bottom:1px solid #F1F3F5; font-size:13px; vertical-align:top; }
+  table.dms-tbl tr:hover td { background:#F8FBFF; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <span class="text-dms-tecnologia">Admin</span>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Auditoria Global</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <!-- Header -->
+      <div class="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <span class="text-xs font-semibold text-dms-tecnologia uppercase tracking-wider">Admin · Auditoria</span>
+          </div>
+          <h1 class="text-[28px] leading-[36px] font-bold text-dms-mar mb-1">Auditoria Global</h1>
+          <p class="text-sm text-dms-tecnologia">Trilha de todas as mutações críticas do sistema</p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button class="px-4 py-2 text-sm font-medium text-dms-tecnologia border border-[#E5E7EB] rounded-md hover:text-dms-mar bg-white transition-colors">Configurar retenção</button>
+          <button class="px-4 py-2 text-sm font-medium text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50 transition-colors">Exportar CSV</button>
+          <button class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Exportar Excel</button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="grid grid-cols-5 gap-3 mb-6">
+        <div class="kpi-card">
+          <div class="kpi-label">Total eventos (mês)</div>
+          <div class="kpi-value">48.231</div>
+          <div class="kpi-sub">+12% vs. mês anterior</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Usuários ativos</div>
+          <div class="kpi-value">87</div>
+          <div class="kpi-sub">de 124 cadastrados</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Mutações críticas</div>
+          <div class="kpi-value" style="color:#B91C1C">142</div>
+          <div class="kpi-sub">DELETE, REVOKE, OVERRIDE</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Login falhas</div>
+          <div class="kpi-value" style="color:#D97706">23</div>
+          <div class="kpi-sub">últimas 24h</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Acessos admin</div>
+          <div class="kpi-value">9</div>
+          <div class="kpi-sub">7 dias</div>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 mb-3">
+        <div class="grid grid-cols-6 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-dms-tecnologia uppercase tracking-wider mb-1">Período</label>
+            <input type="text" value="01/05/2026 → 29/05/2026" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white mono">
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-dms-tecnologia uppercase tracking-wider mb-1">Usuário</label>
+            <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+              <option>Todos</option><option>fernando.arruda@dmslog.com</option><option>maria.silva@dmslog.com</option><option>joao.souza@dmslog.com</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-dms-tecnologia uppercase tracking-wider mb-1">Recurso</label>
+            <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+              <option>Todos</option><option>REQ</option><option>COT</option><option>PO</option><option>NF</option><option>User</option><option>Role</option><option>Tag</option><option>Webhook</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-dms-tecnologia uppercase tracking-wider mb-1">Ação</label>
+            <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+              <option>Todas</option><option>CREATE</option><option>UPDATE</option><option>DELETE</option><option>APPROVE</option><option>REJECT</option><option>LOGIN</option><option>LOGOUT</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-dms-tecnologia uppercase tracking-wider mb-1">Severity</label>
+            <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+              <option>Todas</option><option>info</option><option>warning</option><option>critical</option>
+            </select>
+          </div>
+          <div class="flex items-end gap-2">
+            <button class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca w-full">Aplicar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros aplicados -->
+      <div class="mb-4 text-xs text-dms-tecnologia">
+        <span class="font-semibold">Filtros aplicados:</span>
+        <span class="mono">período=últimos 30d · recurso=PO,NF · ação=DELETE,UPDATE · severity=critical · ordenar por timestamp desc</span>
+        <span class="ml-2 text-dms-ceu cursor-pointer hover:underline">Limpar</span>
+      </div>
+
+      <!-- Tabela -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden">
+        <table class="dms-tbl w-full">
+          <thead>
+            <tr>
+              <th>Timestamp</th><th>Usuário</th><th>Recurso</th><th>Ação</th><th>Diff</th><th>IP</th><th>User Agent</th><th>Justificativa</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono text-xs">2026-05-29 14:23:08</td>
+              <td><div class="text-xs">fernando.arruda@dmslog.com</div><span class="badge bg-purple-50 text-purple-700 border-purple-200">Admin</span></td>
+              <td><span class="badge bg-sky-50 text-sky-700 border-sky-200">PO</span> <a class="mono text-xs text-dms-ceu hover:underline" href="tela29-pedido-detalhe.html">PO-2026-0481</a></td>
+              <td><span class="badge bg-red-50 text-red-700 border-red-200">DELETE</span></td>
+              <td><button class="text-xs text-dms-ceu hover:underline">Ver alteração</button></td>
+              <td class="mono text-xs">192.168.1.45</td>
+              <td class="text-xs text-dms-tecnologia">Mozilla/5.0 (Mac…)</td>
+              <td class="text-xs">Pedido duplicado no ERP</td>
+            </tr>
+            <tr>
+              <td class="mono text-xs">2026-05-29 13:47:21</td>
+              <td><div class="text-xs">maria.silva@dmslog.com</div><span class="badge bg-blue-50 text-blue-700 border-blue-200">Compras</span></td>
+              <td><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">NF</span> <a class="mono text-xs text-dms-ceu hover:underline" href="tela39-nota-fiscal-detalhe.html">NF-9823</a></td>
+              <td><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">APPROVE</span></td>
+              <td><button class="text-xs text-dms-ceu hover:underline">Ver alteração</button></td>
+              <td class="mono text-xs">192.168.1.62</td>
+              <td class="text-xs text-dms-tecnologia">Chrome 124.0…</td>
+              <td class="text-xs text-dms-tecnologia">—</td>
+            </tr>
+            <tr>
+              <td class="mono text-xs">2026-05-29 11:15:44</td>
+              <td><div class="text-xs">joao.souza@dmslog.com</div><span class="badge bg-amber-50 text-amber-700 border-amber-200">Financeiro</span></td>
+              <td><span class="badge bg-violet-50 text-violet-700 border-violet-200">Role</span> <span class="mono text-xs">role:approver_l3</span></td>
+              <td><span class="badge bg-amber-50 text-amber-700 border-amber-200">UPDATE</span></td>
+              <td><button class="text-xs text-dms-ceu hover:underline">Ver alteração</button></td>
+              <td class="mono text-xs">10.0.4.221</td>
+              <td class="text-xs text-dms-tecnologia">Safari 17.4…</td>
+              <td class="text-xs">Inclusão de limite até R$ 50k</td>
+            </tr>
+            <tr>
+              <td class="mono text-xs">2026-05-29 09:02:11</td>
+              <td><div class="text-xs">sistema@dmslog.com</div><span class="badge bg-gray-100 text-gray-700 border-gray-200">Sistema</span></td>
+              <td><span class="badge bg-sky-50 text-sky-700 border-sky-200">Webhook</span> <span class="mono text-xs">WH-007</span></td>
+              <td><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">CREATE</span></td>
+              <td><button class="text-xs text-dms-ceu hover:underline">Ver alteração</button></td>
+              <td class="mono text-xs">127.0.0.1</td>
+              <td class="text-xs text-dms-tecnologia">DMS-Cron/1.0</td>
+              <td class="text-xs text-dms-tecnologia">—</td>
+            </tr>
+            <tr>
+              <td class="mono text-xs">2026-05-28 23:54:07</td>
+              <td><div class="text-xs">desconhecido</div><span class="badge bg-red-50 text-red-700 border-red-200">Falha login</span></td>
+              <td><span class="badge bg-gray-100 text-gray-700 border-gray-200">Auth</span> <span class="mono text-xs">user:carlos@*</span></td>
+              <td><span class="badge bg-red-50 text-red-700 border-red-200">LOGIN_FAIL</span></td>
+              <td><button class="text-xs text-dms-ceu hover:underline">Ver alteração</button></td>
+              <td class="mono text-xs">203.0.113.42</td>
+              <td class="text-xs text-dms-tecnologia">curl/8.4.0</td>
+              <td class="text-xs text-red-600">5ª tentativa em 60s · IP bloqueado</td>
+            </tr>
+            <tr>
+              <td class="mono text-xs">2026-05-28 17:31:55</td>
+              <td><div class="text-xs">fernando.arruda@dmslog.com</div><span class="badge bg-purple-50 text-purple-700 border-purple-200">Admin</span></td>
+              <td><span class="badge bg-violet-50 text-violet-700 border-violet-200">User</span> <span class="mono text-xs">user:148</span></td>
+              <td><span class="badge bg-red-50 text-red-700 border-red-200">REVOKE</span></td>
+              <td><button class="text-xs text-dms-ceu hover:underline">Ver alteração</button></td>
+              <td class="mono text-xs">192.168.1.45</td>
+              <td class="text-xs text-dms-tecnologia">Mozilla/5.0 (Mac…)</td>
+              <td class="text-xs">Desligamento do funcionário</td>
+            </tr>
+            <tr>
+              <td class="mono text-xs">2026-05-28 14:08:33</td>
+              <td><div class="text-xs">maria.silva@dmslog.com</div><span class="badge bg-blue-50 text-blue-700 border-blue-200">Compras</span></td>
+              <td><span class="badge bg-sky-50 text-sky-700 border-sky-200">REQ</span> <a class="mono text-xs text-dms-ceu hover:underline" href="tela23-requisicao-detalhe.html">REQ-2026-1124</a></td>
+              <td><span class="badge bg-amber-50 text-amber-700 border-amber-200">UPDATE</span></td>
+              <td><button class="text-xs text-dms-ceu hover:underline">Ver alteração</button></td>
+              <td class="mono text-xs">192.168.1.62</td>
+              <td class="text-xs text-dms-tecnologia">Chrome 124.0…</td>
+              <td class="text-xs">Correção CNPJ fornecedor</td>
+            </tr>
+            <tr>
+              <td class="mono text-xs">2026-05-28 11:44:02</td>
+              <td><div class="text-xs">ana.lima@dmslog.com</div><span class="badge bg-amber-50 text-amber-700 border-amber-200">Financeiro</span></td>
+              <td><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">NF</span> <a class="mono text-xs text-dms-ceu hover:underline" href="tela39-nota-fiscal-detalhe.html">NF-9810</a></td>
+              <td><span class="badge bg-red-50 text-red-700 border-red-200">REJECT</span></td>
+              <td><button class="text-xs text-dms-ceu hover:underline">Ver alteração</button></td>
+              <td class="mono text-xs">192.168.1.88</td>
+              <td class="text-xs text-dms-tecnologia">Edge 124.0…</td>
+              <td class="text-xs">Divergência valor 3-way match</td>
+            </tr>
+            <tr>
+              <td class="mono text-xs">2026-05-27 16:20:15</td>
+              <td><div class="text-xs">fernando.arruda@dmslog.com</div><span class="badge bg-purple-50 text-purple-700 border-purple-200">Admin</span></td>
+              <td><span class="badge bg-sky-50 text-sky-700 border-sky-200">Webhook</span> <span class="mono text-xs">WH-003</span></td>
+              <td><span class="badge bg-red-50 text-red-700 border-red-200">DELETE</span></td>
+              <td><button class="text-xs text-dms-ceu hover:underline">Ver alteração</button></td>
+              <td class="mono text-xs">192.168.1.45</td>
+              <td class="text-xs text-dms-tecnologia">Mozilla/5.0 (Mac…)</td>
+              <td class="text-xs">Endpoint legado descomissionado</td>
+            </tr>
+            <tr>
+              <td class="mono text-xs">2026-05-27 10:02:48</td>
+              <td><div class="text-xs">joao.souza@dmslog.com</div><span class="badge bg-amber-50 text-amber-700 border-amber-200">Financeiro</span></td>
+              <td><span class="badge bg-pink-50 text-pink-700 border-pink-200">Tag</span> <span class="mono text-xs">tag:#urgente</span></td>
+              <td><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">CREATE</span></td>
+              <td><button class="text-xs text-dms-ceu hover:underline">Ver alteração</button></td>
+              <td class="mono text-xs">10.0.4.221</td>
+              <td class="text-xs text-dms-tecnologia">Safari 17.4…</td>
+              <td class="text-xs text-dms-tecnologia">—</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="px-4 py-3 border-t border-[#E5E7EB] flex items-center justify-between text-xs text-dms-tecnologia">
+          <span>Exibindo <span class="font-semibold text-dms-mar">1–10</span> de <span class="font-semibold text-dms-mar">48.231</span> eventos</span>
+          <div class="flex items-center gap-1">
+            <button class="px-2 py-1 border border-[#E5E7EB] rounded hover:text-dms-mar">‹ Anterior</button>
+            <button class="px-2 py-1 border border-dms-ceu bg-sky-50 text-dms-mar rounded font-semibold">1</button>
+            <button class="px-2 py-1 border border-[#E5E7EB] rounded hover:text-dms-mar">2</button>
+            <button class="px-2 py-1 border border-[#E5E7EB] rounded hover:text-dms-mar">3</button>
+            <span>…</span>
+            <button class="px-2 py-1 border border-[#E5E7EB] rounded hover:text-dms-mar">4823</button>
+            <button class="px-2 py-1 border border-[#E5E7EB] rounded hover:text-dms-mar">Próxima ›</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text, #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+        <li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+        <li><a href="tela60-auditoria-global.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🛡️</span><span class="sb-label">Auditoria Global</span></a></li>
+        <li><a href="tela61-webhooks-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔗</span><span class="sb-label">Webhooks</span></a></li>
+        <li><a href="tela62-templates-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✉️</span><span class="sb-label">Templates Email</span></a></li>
+        <li><a href="tela63-config-smtp-imap.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📬</span><span class="sb-label">SMTP/IMAP</span></a></li>
+        <li><a href="tela64-api-tokens.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔑</span><span class="sb-label">API Tokens</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+<script>
+(function(){
+  var sb=document.getElementById('dms-sidebar'),toggle=document.getElementById('sidebar-toggle'),mobBtn=document.getElementById('dms-sidebar-mobile-btn'),overlay=document.getElementById('dms-sidebar-overlay');
+  if(!sb||!toggle)return; var K='mockup-sidebar-collapsed-v2',c=false; try{c=localStorage.getItem(K)==='1';}catch(e){}
+  function m(){return window.matchMedia('(max-width: 767px)').matches}
+  function r(){if(c&&!m()){sb.classList.add('collapsed');sb.style.width='64px';document.documentElement.style.setProperty('--dms-sb-w','64px');}else{sb.classList.remove('collapsed');sb.style.width=m()?'280px':'240px';document.documentElement.style.setProperty('--dms-sb-w',m()?'0px':'240px');}}
+  toggle.addEventListener('click',function(){c=!c;try{localStorage.setItem(K,c?'1':'0');}catch(e){}r();});
+  function cm(){sb.classList.remove('mobile-open');if(overlay)overlay.classList.remove('show');}
+  if(mobBtn)mobBtn.addEventListener('click',function(){if(sb.classList.contains('mobile-open'))cm();else{sb.classList.add('mobile-open');if(overlay)overlay.classList.add('show');}});
+  if(overlay)overlay.addEventListener('click',cm);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){a.addEventListener('click',function(){if(m())cm();});});
+  var cur=(location.pathname.split('/').pop()||'').toLowerCase();
+  if(cur){sb.querySelectorAll('nav a[href]').forEach(function(a){var h=(a.getAttribute('href')||'').toLowerCase();if(h&&h===cur)a.classList.add('sb-active');});}
+  window.addEventListener('resize',r);r();
+})();
+</script>
+</body>
+</html>

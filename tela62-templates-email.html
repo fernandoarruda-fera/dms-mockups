@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMS — Templates de Email</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:600; border:1px solid; }
+  .tab { padding:10px 14px; border-bottom:2px solid transparent; font-size:13px; font-weight:600; color:#656464; cursor:pointer; }
+  .tab.active { color:#00386C; border-bottom-color:#00AEEE; }
+  .tab:hover { color:#00386C; }
+  .tab-pane { display:none; }
+  .tab-pane.active { display:block; }
+  .tpl-item { padding:8px 12px; border-radius:6px; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .tpl-item:hover { background:#F1F5F9; }
+  .tpl-item.active { background:#E0F2FE; color:#00386C; font-weight:600; }
+  .email-body p { margin: 0 0 12px 0; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <span class="text-dms-tecnologia">Admin</span>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Templates de Email</span>
+      </nav>
+    </header>
+
+    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+
+      <!-- Header -->
+      <div class="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <span class="text-xs font-semibold text-dms-tecnologia uppercase tracking-wider">Admin · Comunicação</span>
+          </div>
+          <h1 class="text-[28px] leading-[36px] font-bold text-dms-mar mb-1">Templates de Email</h1>
+          <p class="text-sm text-dms-tecnologia">Modelos para notificações automáticas do sistema</p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">+ Novo template</button>
+        </div>
+      </div>
+
+      <!-- 2 column layout -->
+      <div class="grid grid-cols-[300px_1fr] gap-5">
+
+        <!-- LEFT: list -->
+        <div class="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden">
+          <div class="px-4 py-3 border-b border-[#E5E7EB]">
+            <input type="text" placeholder="Buscar template..." class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA] focus:outline-none focus:border-dms-ceu">
+          </div>
+          <div class="p-2 max-h-[700px] overflow-y-auto">
+
+            <p class="text-[10px] font-semibold text-dms-tecnologia uppercase tracking-wider px-3 py-2">Aprovações</p>
+            <div class="tpl-item active">
+              <span>REQ aprovada</span>
+              <span class="badge bg-emerald-50 text-emerald-700 border-emerald-200" style="font-size:9px; padding:1px 6px;">Ativo</span>
+            </div>
+            <div class="tpl-item">
+              <span>REQ rejeitada</span>
+              <span class="badge bg-emerald-50 text-emerald-700 border-emerald-200" style="font-size:9px; padding:1px 6px;">Ativo</span>
+            </div>
+            <div class="tpl-item">
+              <span>Aprovação pendente · L2</span>
+              <span class="badge bg-emerald-50 text-emerald-700 border-emerald-200" style="font-size:9px; padding:1px 6px;">Ativo</span>
+            </div>
+
+            <p class="text-[10px] font-semibold text-dms-tecnologia uppercase tracking-wider px-3 py-2 mt-2">Notificações</p>
+            <div class="tpl-item">
+              <span>NF recebida</span>
+              <span class="badge bg-emerald-50 text-emerald-700 border-emerald-200" style="font-size:9px; padding:1px 6px;">Ativo</span>
+            </div>
+            <div class="tpl-item">
+              <span>NF divergente</span>
+              <span class="badge bg-emerald-50 text-emerald-700 border-emerald-200" style="font-size:9px; padding:1px 6px;">Ativo</span>
+            </div>
+            <div class="tpl-item">
+              <span>Contrato vencendo</span>
+              <span class="badge bg-emerald-50 text-emerald-700 border-emerald-200" style="font-size:9px; padding:1px 6px;">Ativo</span>
+            </div>
+
+            <p class="text-[10px] font-semibold text-dms-tecnologia uppercase tracking-wider px-3 py-2 mt-2">Convites</p>
+            <div class="tpl-item">
+              <span>Convite usuário</span>
+              <span class="badge bg-emerald-50 text-emerald-700 border-emerald-200" style="font-size:9px; padding:1px 6px;">Ativo</span>
+            </div>
+            <div class="tpl-item">
+              <span>Convite fornecedor (cotação)</span>
+              <span class="badge bg-emerald-50 text-emerald-700 border-emerald-200" style="font-size:9px; padding:1px 6px;">Ativo</span>
+            </div>
+
+            <p class="text-[10px] font-semibold text-dms-tecnologia uppercase tracking-wider px-3 py-2 mt-2">Alertas</p>
+            <div class="tpl-item">
+              <span>SLA crítico</span>
+              <span class="badge bg-emerald-50 text-emerald-700 border-emerald-200" style="font-size:9px; padding:1px 6px;">Ativo</span>
+            </div>
+            <div class="tpl-item">
+              <span>Senha resetada</span>
+              <span class="badge bg-emerald-50 text-emerald-700 border-emerald-200" style="font-size:9px; padding:1px 6px;">Ativo</span>
+            </div>
+            <div class="tpl-item">
+              <span>2FA ativado</span>
+              <span class="badge bg-emerald-50 text-emerald-700 border-emerald-200" style="font-size:9px; padding:1px 6px;">Ativo</span>
+            </div>
+            <div class="tpl-item">
+              <span>Orçamento estourado</span>
+              <span class="badge bg-gray-100 text-gray-700 border-gray-200" style="font-size:9px; padding:1px 6px;">Rascunho</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- RIGHT: preview -->
+        <div class="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden">
+          <!-- Header preview -->
+          <div class="px-5 py-4 border-b border-[#E5E7EB] flex items-start justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <h2 class="text-lg font-bold text-dms-mar">REQ aprovada</h2>
+                <span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">Ativo</span>
+              </div>
+              <div class="text-xs text-dms-tecnologia">
+                <span class="mono">slug: req_approved</span> · Categoria: Aprovações · Atualizado 22/05/2026
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="px-3 py-1.5 text-xs font-medium text-dms-tecnologia border border-[#E5E7EB] rounded hover:text-dms-mar bg-white">Duplicar</button>
+              <button class="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded hover:bg-red-50">Desativar</button>
+              <button class="px-3 py-1.5 text-xs font-semibold text-white bg-dms-mar rounded hover:bg-dms-confianca">Editar</button>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="px-5 border-b border-[#E5E7EB] flex items-center gap-1">
+            <div class="tab active" data-tab="preview">Preview HTML</div>
+            <div class="tab" data-tab="vars">Variáveis</div>
+            <div class="tab" data-tab="history">Histórico de envios</div>
+          </div>
+
+          <!-- Pane: preview -->
+          <div class="tab-pane active" data-pane="preview">
+            <div class="p-6 bg-[#F1F5F9]">
+              <!-- Email client mock -->
+              <div class="max-w-[640px] mx-auto bg-white rounded-md shadow-sm border border-[#E5E7EB]">
+                <div class="px-5 py-4 border-b border-[#E5E7EB]">
+                  <div class="text-xs text-dms-tecnologia">De: <span class="text-gray-900">DMS Sistema &lt;no-reply@dmslog.com&gt;</span></div>
+                  <div class="text-xs text-dms-tecnologia">Para: <span class="text-gray-900">{{user.name}} &lt;{{user.email}}&gt;</span></div>
+                  <div class="text-sm font-semibold text-dms-mar mt-1">Assunto: Sua requisição {{req.codigo}} foi aprovada</div>
+                </div>
+                <div class="px-5 py-6 email-body text-sm text-gray-800">
+                  <div class="flex items-center gap-3 mb-5 pb-4 border-b border-[#E5E7EB]">
+                    <div class="w-9 h-9 bg-dms-mar rounded flex items-center justify-center text-white font-black text-lg">D</div>
+                    <span class="font-bold text-dms-mar">DMS Logística</span>
+                  </div>
+                  <p>Olá <strong>{{user.name}}</strong>,</p>
+                  <p>Sua requisição <span class="mono font-semibold text-dms-mar">{{req.codigo}}</span> — <em>{{req.descricao}}</em> — foi <strong style="color:#16A34A">aprovada</strong> por <strong>{{approver.name}}</strong> em {{approval.date}}.</p>
+                  <p><strong>Valor total:</strong> R$ {{req.valor_total}}<br/>
+                  <strong>Fornecedor sugerido:</strong> {{req.fornecedor}}<br/>
+                  <strong>Centro de custo:</strong> {{req.cc}}</p>
+                  <p>Você pode acompanhar o andamento e o pedido gerado clicando no botão abaixo.</p>
+                  <p style="text-align:center; margin: 24px 0;">
+                    <a href="#" style="display:inline-block; background:#00386C; color:#fff; padding:10px 20px; border-radius:6px; text-decoration:none; font-weight:600; font-size:14px;">Ver requisição</a>
+                  </p>
+                  <p style="color:#656464; font-size:12px; margin-top:24px; padding-top:12px; border-top:1px solid #E5E7EB;">Este é um email automático. Não responda. Em caso de dúvidas, contate <a style="color:#00AEEE">suporte@dmslog.com</a>.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane: variáveis -->
+          <div class="tab-pane" data-pane="vars">
+            <div class="p-5">
+              <p class="text-xs text-dms-tecnologia mb-3">Placeholders disponíveis para este template. Use a sintaxe <span class="mono text-dms-mar">{{escopo.campo}}</span> no corpo.</p>
+              <div class="border border-[#E5E7EB] rounded-md overflow-hidden">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="bg-[#F8F9FA] text-[10px] font-semibold text-dms-tecnologia uppercase tracking-wider"><th class="text-left p-2.5">Variável</th><th class="text-left p-2.5">Tipo</th><th class="text-left p-2.5">Exemplo</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr class="border-t border-[#F1F3F5]"><td class="p-2.5 mono text-xs">{{user.name}}</td><td class="p-2.5 text-xs">string</td><td class="p-2.5 text-xs text-dms-tecnologia">Fernando Arruda</td></tr>
+                    <tr class="border-t border-[#F1F3F5]"><td class="p-2.5 mono text-xs">{{user.email}}</td><td class="p-2.5 text-xs">email</td><td class="p-2.5 text-xs text-dms-tecnologia">fernando.arruda@dmslog.com</td></tr>
+                    <tr class="border-t border-[#F1F3F5]"><td class="p-2.5 mono text-xs">{{req.codigo}}</td><td class="p-2.5 text-xs">string</td><td class="p-2.5 text-xs text-dms-tecnologia">REQ-2026-1124</td></tr>
+                    <tr class="border-t border-[#F1F3F5]"><td class="p-2.5 mono text-xs">{{req.descricao}}</td><td class="p-2.5 text-xs">string</td><td class="p-2.5 text-xs text-dms-tecnologia">Locação empilhadeiras</td></tr>
+                    <tr class="border-t border-[#F1F3F5]"><td class="p-2.5 mono text-xs">{{req.valor_total}}</td><td class="p-2.5 text-xs">money</td><td class="p-2.5 text-xs text-dms-tecnologia">28.400,00</td></tr>
+                    <tr class="border-t border-[#F1F3F5]"><td class="p-2.5 mono text-xs">{{req.fornecedor}}</td><td class="p-2.5 text-xs">string</td><td class="p-2.5 text-xs text-dms-tecnologia">Movitec Equipamentos</td></tr>
+                    <tr class="border-t border-[#F1F3F5]"><td class="p-2.5 mono text-xs">{{req.cc}}</td><td class="p-2.5 text-xs">string</td><td class="p-2.5 text-xs text-dms-tecnologia">CC-OPS-001</td></tr>
+                    <tr class="border-t border-[#F1F3F5]"><td class="p-2.5 mono text-xs">{{approver.name}}</td><td class="p-2.5 text-xs">string</td><td class="p-2.5 text-xs text-dms-tecnologia">Maria Silva</td></tr>
+                    <tr class="border-t border-[#F1F3F5]"><td class="p-2.5 mono text-xs">{{approval.date}}</td><td class="p-2.5 text-xs">datetime</td><td class="p-2.5 text-xs text-dms-tecnologia">28/05/2026 14:08</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pane: histórico -->
+          <div class="tab-pane" data-pane="history">
+            <div class="p-5">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-xs text-dms-tecnologia">Últimos 20 envios deste template</p>
+                <span class="text-xs text-dms-tecnologia">Total enviado (mês): <span class="font-semibold text-dms-mar mono">187</span></span>
+              </div>
+              <div class="border border-[#E5E7EB] rounded-md overflow-hidden">
+                <table class="w-full text-sm">
+                  <thead><tr class="bg-[#F8F9FA] text-[10px] font-semibold text-dms-tecnologia uppercase tracking-wider"><th class="text-left p-2.5">Data/hora</th><th class="text-left p-2.5">Destinatário</th><th class="text-left p-2.5">Contexto</th><th class="text-left p-2.5">Status</th></tr></thead>
+                  <tbody>
+                    <tr class="border-t border-[#F1F3F5]"><td class="p-2.5 mono text-xs">2026-05-29 14:08</td><td class="p-2.5 text-xs">fernando.arruda@dmslog.com</td><td class="p-2.5 mono text-xs">REQ-2026-1124</td><td class="p-2.5"><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">Entregue</span></td></tr>
+                    <tr class="border-t border-[#F1F3F5]"><td class="p-2.5 mono text-xs">2026-05-29 11:55</td><td class="p-2.5 text-xs">joao.souza@dmslog.com</td><td class="p-2.5 mono text-xs">REQ-2026-1118</td><td class="p-2.5"><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">Aberto</span></td></tr>
+                    <tr class="border-t border-[#F1F3F5]"><td class="p-2.5 mono text-xs">2026-05-28 16:42</td><td class="p-2.5 text-xs">ana.lima@dmslog.com</td><td class="p-2.5 mono text-xs">REQ-2026-1107</td><td class="p-2.5"><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">Entregue</span></td></tr>
+                    <tr class="border-t border-[#F1F3F5]"><td class="p-2.5 mono text-xs">2026-05-28 09:14</td><td class="p-2.5 text-xs">paulo.dias@dmslog.com</td><td class="p-2.5 mono text-xs">REQ-2026-1095</td><td class="p-2.5"><span class="badge bg-red-50 text-red-700 border-red-200">Bounce</span></td></tr>
+                    <tr class="border-t border-[#F1F3F5]"><td class="p-2.5 mono text-xs">2026-05-27 17:23</td><td class="p-2.5 text-xs">maria.silva@dmslog.com</td><td class="p-2.5 mono text-xs">REQ-2026-1082</td><td class="p-2.5"><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">Aberto</span></td></tr>
+                    <tr class="border-t border-[#F1F3F5]"><td class="p-2.5 mono text-xs">2026-05-27 10:09</td><td class="p-2.5 text-xs">carlos.bento@dmslog.com</td><td class="p-2.5 mono text-xs">REQ-2026-1076</td><td class="p-2.5"><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">Entregue</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
+    document.querySelectorAll('.tab-pane').forEach(function(x){x.classList.remove('active');});
+    t.classList.add('active');
+    var p = document.querySelector('[data-pane="' + t.dataset.tab + '"]');
+    if (p) p.classList.add('active');
+  });
+});
+document.querySelectorAll('.tpl-item').forEach(function(i){
+  i.addEventListener('click', function(){
+    document.querySelectorAll('.tpl-item').forEach(function(x){x.classList.remove('active');});
+    i.classList.add('active');
+  });
+});
+</script>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text, #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+        <li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+        <li><a href="tela60-auditoria-global.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🛡️</span><span class="sb-label">Auditoria Global</span></a></li>
+        <li><a href="tela61-webhooks-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔗</span><span class="sb-label">Webhooks</span></a></li>
+        <li><a href="tela62-templates-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✉️</span><span class="sb-label">Templates Email</span></a></li>
+        <li><a href="tela63-config-smtp-imap.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📬</span><span class="sb-label">SMTP/IMAP</span></a></li>
+        <li><a href="tela64-api-tokens.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔑</span><span class="sb-label">API Tokens</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+<script>
+(function(){
+  var sb=document.getElementById('dms-sidebar'),toggle=document.getElementById('sidebar-toggle'),mobBtn=document.getElementById('dms-sidebar-mobile-btn'),overlay=document.getElementById('dms-sidebar-overlay');
+  if(!sb||!toggle)return; var K='mockup-sidebar-collapsed-v2',c=false; try{c=localStorage.getItem(K)==='1';}catch(e){}
+  function m(){return window.matchMedia('(max-width: 767px)').matches}
+  function r(){if(c&&!m()){sb.classList.add('collapsed');sb.style.width='64px';document.documentElement.style.setProperty('--dms-sb-w','64px');}else{sb.classList.remove('collapsed');sb.style.width=m()?'280px':'240px';document.documentElement.style.setProperty('--dms-sb-w',m()?'0px':'240px');}}
+  toggle.addEventListener('click',function(){c=!c;try{localStorage.setItem(K,c?'1':'0');}catch(e){}r();});
+  function cm(){sb.classList.remove('mobile-open');if(overlay)overlay.classList.remove('show');}
+  if(mobBtn)mobBtn.addEventListener('click',function(){if(sb.classList.contains('mobile-open'))cm();else{sb.classList.add('mobile-open');if(overlay)overlay.classList.add('show');}});
+  if(overlay)overlay.addEventListener('click',cm);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){a.addEventListener('click',function(){if(m())cm();});});
+  var cur=(location.pathname.split('/').pop()||'').toLowerCase();
+  if(cur){sb.querySelectorAll('nav a[href]').forEach(function(a){var h=(a.getAttribute('href')||'').toLowerCase();if(h&&h===cur)a.classList.add('sb-active');});}
+  window.addEventListener('resize',r);r();
+})();
+</script>
+</body>
+</html>
