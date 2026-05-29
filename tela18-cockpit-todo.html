@@ -441,7 +441,7 @@ tailwind.config = { corePlugins: { preflight: true }, theme: { extend: { colors:
 function openTask(id) { alert('Abriria a tela operacional do processo: ' + id); }
 </script>
 
-<!-- ===== DMS CONSOLIDATED SIDEBAR (M4) ===== -->
+<!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
 <style id="dms-cs-style">
   aside.w-\[260px\].bg-dms-mar { display: none !important; }
   .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
@@ -512,6 +512,17 @@ function openTask(id) { alert('Abriria a tela operacional do processo: ' + id); 
         <li><a href="tela21-requisicoes-list.html" title="Requisições" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
         <li><a href="tela24-cotacoes-list.html" title="Cotações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
         <li><a href="tela27-pedidos-list.html" title="Pedidos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela44-contratos-list.html" title="Contratos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" title="Notas Fiscais" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" title="Aprovações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+      </ul>
+    </div>
+
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela36-pre-lancamentos-list.html" title="Pré-lançamentos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+        <li><a href="tela42-orcamento-overview.html" title="Orçamento" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
       </ul>
     </div>
 
@@ -521,7 +532,6 @@ function openTask(id) { alert('Abriria a tela operacional do processo: ' + id); 
         <li><a href="tela30-empresas-list.html" title="Empresas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
         <li><a href="tela32-centros-custo-list.html" title="Centros de Custo" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
         <li><a href="tela34-plano-contas-list.html" title="Plano de Contas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
-        <li><a href="tela36-pre-lancamentos-list.html" title="Pré-lançamentos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
       </ul>
     </div>
 
@@ -570,11 +580,7 @@ function openTask(id) { alert('Abriria a tela operacional do processo: ' + id); 
       document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px');
     }
   }
-  toggle.addEventListener('click', function(){
-    collapsed = !collapsed;
-    try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {}
-    render();
-  });
+  toggle.addEventListener('click', function(){ collapsed = !collapsed; try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {} render(); });
   function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
   function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
   if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
