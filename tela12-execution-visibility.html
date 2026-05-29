@@ -119,17 +119,33 @@ tailwind.config = {
     <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
 
       <!-- PageHeader -->
-      <div class="mb-6">
-        <div class="flex items-center gap-3 mb-2">
-          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
-          <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Execution Visibility</h1>
+      <div class="mb-6 flex items-start justify-between gap-3 flex-wrap">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Execution Visibility</h1>
+          </div>
+          <p class="text-sm text-dms-tecnologia max-w-3xl">
+            Cards por workflow ativo · métricas em tempo real · exceções abertas · intervenção manual. Personalize cards individualmente ou crie views com IA.
+          </p>
+          <div class="flex items-center gap-3 mt-3 flex-wrap">
+            <label class="text-xs font-semibold text-dms-tecnologia caption">View:</label>
+            <select id="view-selector" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-1.5 cursor-pointer">
+              <option value="default">Default (Sistema)</option>
+            </select>
+            <span id="view-saved-tag" class="hidden inline-flex items-center gap-1 text-[11px] text-dms-sabedoria font-semibold px-2 py-0.5 rounded-full bg-dms-sabedoria/10">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+              View salvo
+            </span>
+          </div>
         </div>
-        <p class="text-sm text-dms-tecnologia max-w-3xl">
-          Workflows rodando em tempo real · exceções abertas · histórico · intervenção manual (avançar/retroceder com justificativa). Transparência total da automação.
-        </p>
+        <button onclick="openAiDashboardModal()" class="flex-shrink-0 inline-flex items-center gap-2 text-sm font-bold text-white px-4 py-2.5 rounded-md shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5" style="background: linear-gradient(135deg, #643585, #00386C);">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          ✨ Customizar via IA
+        </button>
       </div>
 
-      <!-- KPI CARDS -->
+      <!-- KPI CARDS (resumo global) -->
       <div class="grid grid-cols-5 gap-4 mb-6" id="kpi-row">
         <button data-filter="todos" class="kpi-card active text-left bg-dms-mar text-white p-3 rounded-lg">
           <div class="text-[22px] leading-none font-black">62</div>
@@ -166,11 +182,11 @@ tailwind.config = {
       </div>
 
       <!-- TOOLBAR -->
-      <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
-        <div class="flex items-center gap-3 flex-1">
+      <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
+        <div class="flex items-center gap-3 flex-1 flex-wrap">
           <div class="relative flex-1 max-w-md">
             <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input id="search-input" type="text" placeholder="Buscar por processo, workflow, responsável..." class="input-dms w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+            <input id="search-input" type="text" placeholder="Buscar por workflow, processo, responsável..." class="input-dms w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
           </div>
           <select id="filter-workflow" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
             <option value="">Todos os workflows</option>
@@ -184,35 +200,51 @@ tailwind.config = {
             <option value="7d" selected>Últimos 7 dias</option>
             <option value="30d">Últimos 30 dias</option>
           </select>
+          <button type="button" id="adv-filters-toggle" onclick="toggleAdvFilters()" class="inline-flex items-center gap-1.5 text-xs font-semibold text-dms-sabedoria px-3 py-2 border border-dms-sabedoria/40 rounded-md hover:bg-dms-sabedoria/5 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+            Filtros avançados
+            <span class="caret">▾</span>
+          </button>
         </div>
       </div>
 
-      <!-- TABELA INSTÂNCIAS -->
-      <div class="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden shadow-dms-md">
-        <table class="w-full text-sm">
-          <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
-            <tr>
-              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-40">Processo</th>
-              <th class="text-left caption text-dms-tecnologia px-4 py-3">Workflow</th>
-              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-48">Stage atual</th>
-              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-44">SLA</th>
-              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-32">Responsável</th>
-              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-28">Status</th>
-              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-28">Iniciado</th>
-            </tr>
-          </thead>
-          <tbody id="instances-tbody" class="divide-y divide-[#E5E7EB]"></tbody>
-        </table>
-
-        <div class="px-4 py-3 border-t border-[#E5E7EB] flex items-center justify-between text-sm text-dms-tecnologia">
-          <div>Mostrando <span class="font-semibold text-dms-mar" id="row-count">8</span> de <span class="font-semibold text-dms-mar">62</span> instâncias</div>
-          <div class="flex items-center gap-1">
-            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors disabled:opacity-30" disabled>‹ Anterior</button>
-            <button class="px-3 py-1 text-white bg-dms-mar rounded">1</button>
-            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">2</button>
-            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">Próximo ›</button>
+      <!-- ADVANCED FILTERS ROW (colapsável) -->
+      <div id="adv-filters-row" class="hidden mb-4 bg-dms-sabedoria/5 border border-dms-sabedoria/20 rounded-md p-3">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-2.5">
+          <div>
+            <label class="caption text-dms-tecnologia mb-1 block">Time</label>
+            <select multiple size="1" class="input-dms w-full text-xs border border-[#E5E7EB] rounded-md bg-white px-2 py-1.5">
+              <option>Compras</option><option>Financeiro</option><option>Operações</option><option>Diretoria</option>
+            </select>
+          </div>
+          <div>
+            <label class="caption text-dms-tecnologia mb-1 block">Setor</label>
+            <select class="input-dms w-full text-xs border border-[#E5E7EB] rounded-md bg-white px-2 py-1.5">
+              <option value="">Todos</option><option>Facilities</option><option>TI</option><option>RH</option><option>Marketing</option>
+            </select>
+          </div>
+          <div>
+            <label class="caption text-dms-tecnologia mb-1 block">Cliente</label>
+            <input list="adv-clientes" placeholder="Buscar cliente..." class="input-dms w-full text-xs border border-[#E5E7EB] rounded-md bg-white px-2 py-1.5">
+            <datalist id="adv-clientes"><option value="Cliente Alpha"><option value="Cliente Beta"><option value="Cliente Gamma"></datalist>
+          </div>
+          <div>
+            <label class="caption text-dms-tecnologia mb-1 block">Fornecedor</label>
+            <input list="adv-fornecedores" placeholder="Buscar fornecedor..." class="input-dms w-full text-xs border border-[#E5E7EB] rounded-md bg-white px-2 py-1.5">
+            <datalist id="adv-fornecedores"><option value="Fornecedor X"><option value="Fornecedor Y"><option value="Fornecedor Z"></datalist>
+          </div>
+          <div>
+            <label class="caption text-dms-tecnologia mb-1 block">Procedure</label>
+            <input list="adv-procedures" placeholder="Buscar procedure..." class="input-dms w-full text-xs border border-[#E5E7EB] rounded-md bg-white px-2 py-1.5">
+            <datalist id="adv-procedures"><option value="Auto-aprovar NF"><option value="Escalation Diretor"><option value="Atualizar data pagamento"></datalist>
           </div>
         </div>
+      </div>
+
+      <!-- WORKFLOW CARDS GRID -->
+      <div id="wf-cards-grid" data-customizable="true" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+      <div class="mt-4 text-xs text-dms-tecnologia text-center">
+        <span id="wf-cards-count">5</span> workflows ativos · personalize cards individualmente com ⚙️ ou crie um view inteiro com ✨ IA.
       </div>
 
       <!-- Nota dual-use -->
@@ -462,6 +494,84 @@ tailwind.config = {
   </div>
 </div>
 
+<!-- ============ AI DASHBOARD MODAL ============ -->
+<div id="ai-dashboard-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-4">
+  <div class="drawer-overlay absolute inset-0" onclick="closeAiDashboardModal()"></div>
+  <div class="relative bg-white rounded-lg shadow-2xl max-w-2xl w-full overflow-hidden max-h-[92vh] flex flex-col">
+    <div class="px-6 py-5 border-b border-[#E5E7EB] flex items-center gap-3" style="background: linear-gradient(135deg, rgba(100,53,133,0.08), rgba(0,56,108,0.05));">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #643585, #00386C); color: white;">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+      </div>
+      <div>
+        <h3 class="text-lg font-bold text-dms-mar">Customizar dashboard via IA</h3>
+        <p class="text-xs text-dms-tecnologia mt-0.5">Descreva o dashboard que você precisa. A IA propõe layout + métricas e você ajusta.</p>
+      </div>
+      <button onclick="closeAiDashboardModal()" class="ml-auto p-1 text-dms-tecnologia hover:text-dms-mar transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-6 space-y-4 overflow-y-auto" id="ai-modal-body">
+      <div id="ai-step-prompt">
+        <label class="caption text-dms-tecnologia mb-1.5 block">Descreva o dashboard <span class="text-red-500">*</span></label>
+        <textarea id="ai-prompt-input" rows="5" placeholder="Exemplo: Quero um dashboard focado em transportadoras: mostrar workflows de NF com SLA crítico, agrupar por fornecedor, destacar contratos vencendo em 30 dias..." class="input-dms w-full px-3 py-2.5 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
+        <div class="mt-2 flex items-center gap-2 flex-wrap">
+          <span class="caption text-dms-tecnologia">Sugestões:</span>
+          <button type="button" onclick="fillAiPrompt('Dashboard de transportadoras com SLA crítico e fornecedores em alerta')" class="text-[11px] px-2 py-1 rounded-full bg-dms-sabedoria/10 text-dms-sabedoria hover:bg-dms-sabedoria/20 transition-colors">Transportadoras</button>
+          <button type="button" onclick="fillAiPrompt('Foco em aprovações C-Level pendentes acima de R$50k agrupadas por centro de custo')" class="text-[11px] px-2 py-1 rounded-full bg-dms-sabedoria/10 text-dms-sabedoria hover:bg-dms-sabedoria/20 transition-colors">Aprovações C-Level</button>
+          <button type="button" onclick="fillAiPrompt('Contratos vencendo em 90 dias com responsável e status de renovação')" class="text-[11px] px-2 py-1 rounded-full bg-dms-sabedoria/10 text-dms-sabedoria hover:bg-dms-sabedoria/20 transition-colors">Renovação contratos</button>
+        </div>
+      </div>
+      <div id="ai-step-preview" class="hidden">
+        <div class="bg-dms-sabedoria/5 border border-dms-sabedoria/20 rounded-md p-4 mb-3">
+          <div class="flex items-center gap-2 mb-2">
+            <svg class="w-4 h-4 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span class="text-sm font-bold text-dms-sabedoria">Proposta da IA</span>
+          </div>
+          <div class="text-xs text-dms-tecnologia mb-2">Nome sugerido:</div>
+          <input id="ai-view-name" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white" value="Meu dashboard transportadora">
+        </div>
+        <div class="caption text-dms-tecnologia mb-2">Cards propostos (4)</div>
+        <div class="space-y-2">
+          <div class="border border-[#E5E7EB] rounded-md p-3 bg-white"><div class="text-sm font-semibold text-dms-mar">WF-09 · NF Avulsa — SLA crítico</div><div class="text-[11px] text-dms-tecnologia mt-1">Métricas: ativas, atrasadas, SLA &gt;80%, top fornecedores</div></div>
+          <div class="border border-[#E5E7EB] rounded-md p-3 bg-white"><div class="text-sm font-semibold text-dms-mar">WF-07 · Contratos — vencimento próximo</div><div class="text-[11px] text-dms-tecnologia mt-1">Métricas: vencendo em 30d, em renovação, reajuste pendente</div></div>
+          <div class="border border-[#E5E7EB] rounded-md p-3 bg-white"><div class="text-sm font-semibold text-dms-mar">Fornecedores em alerta</div><div class="text-[11px] text-dms-tecnologia mt-1">Top 5 fornecedores com mais exceções em 7d</div></div>
+          <div class="border border-[#E5E7EB] rounded-md p-3 bg-white"><div class="text-sm font-semibold text-dms-mar">Aprovações pendentes &gt;R$50k</div><div class="text-[11px] text-dms-tecnologia mt-1">Lista compacta, agrupada por C-Level responsável</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="px-6 py-4 bg-[#F8F9FA] border-t border-[#E5E7EB] flex items-center justify-end gap-3">
+      <button onclick="closeAiDashboardModal()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 hover:text-dms-mar transition-colors">Cancelar</button>
+      <div id="ai-actions-prompt"><button onclick="generateAiDashboard()" class="text-sm font-semibold text-white px-5 py-2 rounded-md transition-colors" style="background: linear-gradient(135deg, #643585, #00386C);">Gerar com IA →</button></div>
+      <div id="ai-actions-preview" class="hidden flex items-center gap-2">
+        <button onclick="backToPromptAi()" class="text-sm font-semibold text-dms-sabedoria px-3 py-2 border border-dms-sabedoria/40 rounded-md hover:bg-dms-sabedoria/5 transition-colors">↻ Refazer</button>
+        <button onclick="backToPromptAi()" class="text-sm font-semibold text-dms-sabedoria px-3 py-2 border border-dms-sabedoria/40 rounded-md hover:bg-dms-sabedoria/5 transition-colors">✎ Editar prompt</button>
+        <button onclick="acceptAiDashboard()" class="text-sm font-bold text-white px-5 py-2 rounded-md transition-colors" style="background: linear-gradient(135deg, #643585, #00386C);">✓ Aceitar e salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EDIT CARD PANEL ============ -->
+<div id="edit-card-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-4">
+  <div class="drawer-overlay absolute inset-0" onclick="closeEditCardModal()"></div>
+  <div class="relative bg-white rounded-lg shadow-2xl max-w-md w-full overflow-hidden">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+      <h3 class="text-base font-bold text-dms-mar">Editar card: <span id="edit-card-name" class="text-dms-sabedoria">—</span></h3>
+      <button onclick="closeEditCardModal()" class="p-1 text-dms-tecnologia hover:text-dms-mar transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-5">
+      <p class="text-xs text-dms-tecnologia mb-3">Escolha quais métricas aparecem neste card. Preferências salvas por perfil.</p>
+      <div id="edit-card-metrics" class="space-y-2"></div>
+    </div>
+    <div class="px-6 py-4 bg-[#F8F9FA] border-t border-[#E5E7EB] flex items-center justify-end gap-3">
+      <button onclick="closeEditCardModal()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 hover:text-dms-mar transition-colors">Cancelar</button>
+      <button onclick="saveCardEdits()" class="text-sm font-bold text-white px-5 py-2 rounded-md transition-colors" style="background: #643585;">Salvar card</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const INSTANCES = [
   { id: 'REQ-2026-0142', wfCode: 'WF-09', wfName: 'Fluxo NF Avulsa Padrão', stage: 'Aprovação C-Level', stageNum: 4, totalStages: 6, slaUsed: 75, slaTotal: 100, slaState: 'warning', responsavel: 'C-Level', status: 'warning', started: 'há 3d' },
@@ -487,61 +597,190 @@ let activeFilter = 'todos';
 let searchQuery = '';
 let wfFilter = '';
 
-function renderRows() {
-  const tbody = document.getElementById('instances-tbody');
-  let rows = INSTANCES;
+// ============ WORKFLOW CARDS (B13 - cards por workflow) ============
+const WORKFLOW_CARDS_DEFAULT = [
+  { code: 'WF-09', name: 'Fluxo NF Avulsa Padrão', tags: ['compras', 'nf', 'omie'], color: '#00386C',
+    metrics: { ativas: 18, concluidas: 14, atrasadas: 3, slaCritico: 2, exceções: 1 } },
+  { code: 'WF-01', name: 'Requisição Avulsa Padrão', tags: ['compras', 'requisição'], color: '#005290',
+    metrics: { ativas: 24, concluidas: 32, atrasadas: 1, slaCritico: 4, exceções: 0 } },
+  { code: 'WF-07', name: 'Renovação D-90 (Contratos)', tags: ['contratos', 'renovação'], color: '#643585',
+    metrics: { ativas: 12, concluidas: 6, atrasadas: 0, slaCritico: 2, exceções: 1 } },
+  { code: 'WF-05', name: 'PO Padrão', tags: ['compras', 'recebimento'], color: '#00AEEE',
+    metrics: { ativas: 6, concluidas: 22, atrasadas: 0, slaCritico: 0, exceções: 0 } },
+  { code: 'WF-10', name: 'NF em Quarentena', tags: ['exceção', 'nf'], color: '#B0C934',
+    metrics: { ativas: 2, concluidas: 5, atrasadas: 0, slaCritico: 0, exceções: 1 } },
+];
 
-  if (activeFilter !== 'todos') rows = rows.filter(i => i.status === activeFilter);
+const METRIC_LABELS = {
+  ativas: 'Execuções ativas',
+  concluidas: 'Concluídas hoje',
+  atrasadas: 'Atrasadas',
+  slaCritico: 'SLA crítico',
+  exceções: 'Em exceção',
+};
+
+const PREFS_KEY = 'dms-prefs-default-user-tela12-cards';
+function readCardPrefs() {
+  try { return JSON.parse(localStorage.getItem(PREFS_KEY) || 'null') || {}; }
+  catch (e) { return {}; }
+}
+function writeCardPrefs(prefs) {
+  try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch (e) {}
+}
+
+function getCardConfig(code) {
+  const prefs = readCardPrefs();
+  if (prefs[code] && prefs[code].metrics) return prefs[code];
+  return { metrics: Object.keys(METRIC_LABELS) };
+}
+
+function renderWorkflowCards() {
+  const grid = document.getElementById('wf-cards-grid');
+  let cards = WORKFLOW_CARDS_DEFAULT;
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
-    rows = rows.filter(i => i.id.toLowerCase().includes(q) || i.wfName.toLowerCase().includes(q) || i.responsavel.toLowerCase().includes(q));
+    cards = cards.filter(c => c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q));
   }
-  if (wfFilter) rows = rows.filter(i => i.wfCode === wfFilter);
+  if (wfFilter) cards = cards.filter(c => c.code === wfFilter);
 
-  tbody.innerHTML = rows.map(i => {
-    const dotColor = STATUS_DOT[i.status];
-    const slaSegColor = i.slaState === 'on_time' ? '#B0C934' : i.slaState === 'warning' ? '#EAB308' : i.slaState === 'delay' ? '#DC2626' : '#9CA3AF';
-    const slaPercent = Math.min(i.slaUsed, 100);
-
+  grid.innerHTML = cards.map(c => {
+    const cfg = getCardConfig(c.code);
+    const enabled = cfg.metrics || Object.keys(METRIC_LABELS);
+    const sparkBars = Array.from({length: 14}, (_, i) => {
+      const h = 30 + Math.sin(i * 0.7 + c.code.length) * 18 + Math.random() * 14;
+      return `<div style="flex:1; background:${c.color}; opacity:${0.35 + (i/20)}; height:${Math.max(h, 6)}%; min-height:3px; border-radius:1px;"></div>`;
+    }).join('');
     return `
-    <tr onclick="openDrawer('${i.id}')">
-      <td class="px-4 py-3"><span class="mono text-dms-mar font-semibold text-xs">${i.id}</span></td>
-      <td class="px-4 py-3">
-        <div class="flex items-center gap-2">
-          <span class="mono text-xs text-dms-confianca font-semibold">${i.wfCode}</span>
-          <span class="text-sm text-dms-mar">${i.wfName}</span>
-        </div>
-      </td>
-      <td class="px-4 py-3">
-        <div class="text-sm text-dms-mar">${i.stage}</div>
-        <div class="caption text-dms-tecnologia mt-0.5">${i.stageNum} de ${i.totalStages}</div>
-      </td>
-      <td class="px-4 py-3">
-        ${i.slaTotal === 0 ? `
-          <span class="inline-flex items-center gap-1 text-xs text-dms-sabedoria font-semibold">
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-            SLA pausado
-          </span>
-        ` : `
-          <div class="sla-mini mb-1">
-            <div class="seg" style="width:${slaPercent}%; background:${slaSegColor};"></div>
+      <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 shadow-dms-md hover:shadow-lg transition-shadow group">
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="mono text-xs font-bold" style="color:${c.color}">${c.code}</span>
+              <span class="caption text-dms-tecnologia">Workflow</span>
+            </div>
+            <h3 class="text-base font-bold text-dms-mar leading-tight truncate" title="${c.name}">${c.name}</h3>
+            <div class="flex items-center gap-1 mt-1.5 flex-wrap">
+              ${c.tags.map(t => `<span class="text-[10px] px-1.5 py-0.5 rounded bg-[#F8F9FA] text-dms-tecnologia border border-[#E5E7EB]">#${t}</span>`).join('')}
+            </div>
           </div>
-          <div class="text-[11px] text-dms-tecnologia">${i.slaUsed}% do SLA usado</div>
-        `}
-      </td>
-      <td class="px-4 py-3 text-xs text-dms-tecnologia">${i.responsavel}</td>
-      <td class="px-4 py-3">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_BADGE[i.status].split('" data-dot="')[0]}">
-          <span class="w-1.5 h-1.5 rounded-full" style="background:${dotColor}"></span>
-          ${STATUS_LABEL[i.status]}
-        </span>
-      </td>
-      <td class="px-4 py-3 text-xs text-dms-tecnologia">${i.started}</td>
-    </tr>
+          <button onclick="openEditCardModal('${c.code}')" title="Editar card" class="p-1.5 text-dms-tecnologia hover:text-dms-sabedoria hover:bg-dms-sabedoria/5 rounded transition-colors opacity-60 group-hover:opacity-100">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          ${enabled.includes('ativas') ? `<div class="bg-[#F8F9FA] rounded-md p-2"><div class="text-xl font-black text-dms-mar leading-none">${c.metrics.ativas}</div><div class="caption text-dms-tecnologia mt-1">Ativas</div></div>` : ''}
+          ${enabled.includes('concluidas') ? `<div class="bg-dms-tropicalidade/10 rounded-md p-2"><div class="text-xl font-black text-[#5C7818] leading-none">${c.metrics.concluidas}</div><div class="caption text-[#5C7818] mt-1">Concluídas hoje</div></div>` : ''}
+          ${enabled.includes('atrasadas') ? `<div class="bg-red-50 rounded-md p-2"><div class="text-xl font-black text-red-700 leading-none">${c.metrics.atrasadas}</div><div class="caption text-red-700 mt-1">Atrasadas</div></div>` : ''}
+          ${enabled.includes('slaCritico') ? `<div class="rounded-md p-2" style="background:rgba(234,179,8,0.1);"><div class="text-xl font-black leading-none" style="color:#854D0E;">${c.metrics.slaCritico}</div><div class="caption mt-1" style="color:#854D0E;">SLA crítico</div></div>` : ''}
+          ${enabled.includes('exceções') ? `<div class="bg-dms-sabedoria/10 rounded-md p-2 col-span-2"><div class="text-xl font-black text-dms-sabedoria leading-none">${c.metrics.exceções}</div><div class="caption text-dms-sabedoria mt-1">Em exceção/bloqueio</div></div>` : ''}
+        </div>
+
+        <div class="mb-3">
+          <div class="caption text-dms-tecnologia mb-1.5">Atividade · últimos 14d</div>
+          <div style="display:flex; align-items:flex-end; gap:2px; height:32px; background:#F8F9FA; border-radius:4px; padding:3px;">${sparkBars}</div>
+        </div>
+
+        <button onclick="openDrawer('${c.code}')" class="w-full text-sm font-semibold px-3 py-2 rounded-md transition-colors flex items-center justify-center gap-2 border" style="color:${c.color}; border-color:${c.color}40;" onmouseover="this.style.background='${c.color}10'" onmouseout="this.style.background=''">
+          Ver execuções
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </button>
+      </div>
     `;
   }).join('');
 
-  document.getElementById('row-count').textContent = rows.length;
+  document.getElementById('wf-cards-count').textContent = cards.length;
+}
+
+// Edit Card Modal
+let editingCardCode = null;
+function openEditCardModal(code) {
+  editingCardCode = code;
+  const wf = WORKFLOW_CARDS_DEFAULT.find(w => w.code === code);
+  const cfg = getCardConfig(code);
+  document.getElementById('edit-card-name').textContent = wf ? (wf.code + ' ' + wf.name) : code;
+  const enabled = cfg.metrics || Object.keys(METRIC_LABELS);
+  document.getElementById('edit-card-metrics').innerHTML = Object.keys(METRIC_LABELS).map(k => `
+    <label class="flex items-center gap-3 p-2.5 border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] cursor-pointer">
+      <input type="checkbox" data-metric="${k}" ${enabled.includes(k) ? 'checked' : ''} style="accent-color:#643585; width:14px; height:14px;">
+      <span class="text-sm text-dms-mar">${METRIC_LABELS[k]}</span>
+    </label>
+  `).join('');
+  const m = document.getElementById('edit-card-modal');
+  m.classList.remove('hidden');
+  m.classList.add('flex');
+}
+function closeEditCardModal() {
+  const m = document.getElementById('edit-card-modal');
+  m.classList.add('hidden');
+  m.classList.remove('flex');
+  editingCardCode = null;
+}
+function saveCardEdits() {
+  if (!editingCardCode) return closeEditCardModal();
+  const checks = document.querySelectorAll('#edit-card-metrics input[type=checkbox]');
+  const metrics = Array.from(checks).filter(c => c.checked).map(c => c.dataset.metric);
+  const prefs = readCardPrefs();
+  prefs[editingCardCode] = { metrics };
+  writeCardPrefs(prefs);
+  closeEditCardModal();
+  renderWorkflowCards();
+}
+
+// AI Dashboard Modal
+function openAiDashboardModal() {
+  const m = document.getElementById('ai-dashboard-modal');
+  m.classList.remove('hidden');
+  m.classList.add('flex');
+  document.getElementById('ai-step-prompt').classList.remove('hidden');
+  document.getElementById('ai-step-preview').classList.add('hidden');
+  document.getElementById('ai-actions-prompt').classList.remove('hidden');
+  document.getElementById('ai-actions-preview').classList.add('hidden');
+}
+function closeAiDashboardModal() {
+  const m = document.getElementById('ai-dashboard-modal');
+  m.classList.add('hidden');
+  m.classList.remove('flex');
+}
+function fillAiPrompt(text) { document.getElementById('ai-prompt-input').value = text; }
+function generateAiDashboard() {
+  document.getElementById('ai-step-prompt').classList.add('hidden');
+  document.getElementById('ai-step-preview').classList.remove('hidden');
+  document.getElementById('ai-actions-prompt').classList.add('hidden');
+  document.getElementById('ai-actions-preview').classList.remove('hidden');
+  document.getElementById('ai-actions-preview').classList.add('flex');
+}
+function backToPromptAi() {
+  document.getElementById('ai-step-prompt').classList.remove('hidden');
+  document.getElementById('ai-step-preview').classList.add('hidden');
+  document.getElementById('ai-actions-prompt').classList.remove('hidden');
+  document.getElementById('ai-actions-preview').classList.add('hidden');
+  document.getElementById('ai-actions-preview').classList.remove('flex');
+}
+function acceptAiDashboard() {
+  const name = document.getElementById('ai-view-name').value || 'Meu dashboard';
+  const sel = document.getElementById('view-selector');
+  const key = 'ai-' + Date.now();
+  const opt = document.createElement('option');
+  opt.value = key; opt.textContent = '✨ ' + name;
+  sel.appendChild(opt); sel.value = key;
+  document.getElementById('view-saved-tag').classList.remove('hidden');
+  document.getElementById('view-saved-tag').classList.add('inline-flex');
+  document.getElementById('view-saved-tag').innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg> View salvo: "' + name + '"';
+  closeAiDashboardModal();
+}
+
+// Advanced filters toggle
+function toggleAdvFilters() {
+  const row = document.getElementById('adv-filters-row');
+  const caret = document.querySelector('#adv-filters-toggle .caret');
+  if (row.classList.contains('hidden')) {
+    row.classList.remove('hidden');
+    if (caret) caret.textContent = '▴';
+  } else {
+    row.classList.add('hidden');
+    if (caret) caret.textContent = '▾';
+  }
 }
 
 document.getElementById('kpi-row').addEventListener('click', (e) => {
@@ -550,11 +789,11 @@ document.getElementById('kpi-row').addEventListener('click', (e) => {
   document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active'));
   card.classList.add('active');
   activeFilter = card.dataset.filter;
-  renderRows();
+  renderWorkflowCards();
 });
 
-document.getElementById('search-input').addEventListener('input', (e) => { searchQuery = e.target.value; renderRows(); });
-document.getElementById('filter-workflow').addEventListener('change', (e) => { wfFilter = e.target.value; renderRows(); });
+document.getElementById('search-input').addEventListener('input', (e) => { searchQuery = e.target.value; renderWorkflowCards(); });
+document.getElementById('filter-workflow').addEventListener('change', (e) => { wfFilter = e.target.value; renderWorkflowCards(); });
 
 // Drawer
 function openDrawer(id) {
@@ -585,7 +824,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') { closeDrawer(); closeInterventionModal(); }
 });
 
-renderRows();
+renderWorkflowCards();
 </script>
 
 <!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
@@ -745,5 +984,6 @@ renderRows();
 })();
 </script>
 <script src="notes-widget.js" defer></script>
+<script src="list-customizer.js" defer></script>
 </body>
 </html>

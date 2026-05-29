@@ -42,20 +42,13 @@
   - Se for usado workflow **default** → **alerta visual em todos os cards/views** indicando "Workflow padrão em uso — criar específico recomendado".
 - **Critério de vinculação ainda não tem front no React** → marcar como gap a ser implementado (Cat 3 ou ajuste no Cat 1).
 
-## Lote B parte 2 — pendente
+## Lote B parte 2 — entregue (2026-05-29)
 
-### B11 — Personalização por perfil (decisão Fernando)
-- Cada usuário pode **reordenar/esconder colunas/badges** das listas.
-- Salvo em localStorage por perfil.
-- Aplicar em: tela01, 03, 04, 06, 12, 13 e demais listas.
-
-### B12 — Filtros + Dashboard via IA (default + customizável)
-- Tela12 e 13: filtros adicionais (**time / setor / cliente / fornecedor / procedure**).
-- "Dashboard via IA" salvável por usuário: tela conceitual mostrando como o usuário pediria pra IA criar um dashboard customizado.
-- Default existe, mas usuário pode customizar.
-
-### B13 — Tela12 refactor
-- Refazer como cockpit (cards editáveis por workflow), igual padrão do cockpit existente.
+- **list-customizer.js**: widget global de personalização (colunas/ordem/badges). Injetado em tela01, 03, 04, 06, 12, 13. Salva em localStorage por perfil (chave `dms-prefs-default-user-{pageKey}`). UI funcional do drawer com 3 abas + toast de confirmação. Conceitual — reflexo real na tabela é placeholder.
+- **Tela12 refactor**: layout virou grid de cards por workflow (padrão cockpit), cada card mostra métricas-chave (ativas/concluídas/atrasadas/SLA crítico/exceções) + sparkline + botão "Ver execuções" + botão ⚙️ "Editar card" que abre modal pra escolher métricas exibidas. Salvo em localStorage `dms-prefs-default-user-tela12-cards`.
+- **Botão "✨ Customizar via IA"** topo direito tela12 e tela13: modal com textarea + sugestões de prompt + preview de proposta (com nome editável e widgets sugeridos) + ações Aceitar/Editar/Refazer. Aceitar adiciona view no dropdown "View ativo" com badge "✨ View salvo".
+- **Tela13**: layout principal mantido (log de auditoria). Só adicionado o botão IA + modal + filtros avançados.
+- **Filtros avançados em tela12 e tela13** (colapsável): Time (multi-select), Setor (select), Cliente (autocomplete), Fornecedor (autocomplete), Procedure (autocomplete).
 
 ## Lote B parte 3 — pendente
 

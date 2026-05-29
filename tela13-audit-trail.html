@@ -109,14 +109,30 @@ tailwind.config = {
     <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
 
       <!-- PageHeader -->
-      <div class="mb-6">
-        <div class="flex items-center gap-3 mb-2">
-          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
-          <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Audit Trail</h1>
+      <div class="mb-6 flex items-start justify-between gap-3 flex-wrap">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Audit Trail</h1>
+          </div>
+          <p class="text-sm text-dms-tecnologia max-w-3xl">
+            Histórico cronológico <strong>imutável</strong> de todas as procedures avaliadas pelo motor. Mesmo dataset alimenta Execution Visibility (Seção 12) e Cockpit. Retenção SOX: 7 anos.
+          </p>
+          <div class="flex items-center gap-3 mt-3 flex-wrap">
+            <label class="text-xs font-semibold text-dms-tecnologia caption">View:</label>
+            <select id="audit-view-selector" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-1.5 cursor-pointer">
+              <option value="default">Default (Sistema)</option>
+            </select>
+            <span id="audit-view-saved-tag" class="hidden inline-flex items-center gap-1 text-[11px] text-dms-sabedoria font-semibold px-2 py-0.5 rounded-full bg-dms-sabedoria/10">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+              View salvo
+            </span>
+          </div>
         </div>
-        <p class="text-sm text-dms-tecnologia max-w-3xl">
-          Histórico cronológico <strong>imutável</strong> de todas as procedures avaliadas pelo motor. Mesmo dataset alimenta Execution Visibility (Seção 12) e Cockpit. Retenção SOX: 7 anos.
-        </p>
+        <button onclick="openAiDashboardModal()" class="flex-shrink-0 inline-flex items-center gap-2 text-sm font-bold text-white px-4 py-2.5 rounded-md shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5" style="background: linear-gradient(135deg, #643585, #00386C);">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          ✨ Customizar via IA
+        </button>
       </div>
 
       <!-- KPI CARDS -->
@@ -180,6 +196,11 @@ tailwind.config = {
             <option value="30d">Últimos 30 dias</option>
             <option value="custom">Personalizado...</option>
           </select>
+          <button type="button" id="adv-filters-toggle" onclick="toggleAdvFilters()" class="inline-flex items-center gap-1.5 text-xs font-semibold text-dms-sabedoria px-3 py-2 border border-dms-sabedoria/40 rounded-md hover:bg-dms-sabedoria/5 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+            Filtros avançados
+            <span class="caret">▾</span>
+          </button>
         </div>
 
         <div class="flex items-center gap-3">
@@ -190,9 +211,42 @@ tailwind.config = {
         </div>
       </div>
 
+      <!-- ADVANCED FILTERS ROW (colapsável) -->
+      <div id="adv-filters-row" class="hidden mb-4 bg-dms-sabedoria/5 border border-dms-sabedoria/20 rounded-md p-3">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-2.5">
+          <div>
+            <label class="caption text-dms-tecnologia mb-1 block">Time</label>
+            <select multiple size="1" class="input-dms w-full text-xs border border-[#E5E7EB] rounded-md bg-white px-2 py-1.5">
+              <option>Compras</option><option>Financeiro</option><option>Operações</option><option>Diretoria</option>
+            </select>
+          </div>
+          <div>
+            <label class="caption text-dms-tecnologia mb-1 block">Setor</label>
+            <select class="input-dms w-full text-xs border border-[#E5E7EB] rounded-md bg-white px-2 py-1.5">
+              <option value="">Todos</option><option>Facilities</option><option>TI</option><option>RH</option><option>Marketing</option>
+            </select>
+          </div>
+          <div>
+            <label class="caption text-dms-tecnologia mb-1 block">Cliente</label>
+            <input list="adv-clientes" placeholder="Buscar cliente..." class="input-dms w-full text-xs border border-[#E5E7EB] rounded-md bg-white px-2 py-1.5">
+            <datalist id="adv-clientes"><option value="Cliente Alpha"><option value="Cliente Beta"><option value="Cliente Gamma"></datalist>
+          </div>
+          <div>
+            <label class="caption text-dms-tecnologia mb-1 block">Fornecedor</label>
+            <input list="adv-fornecedores" placeholder="Buscar fornecedor..." class="input-dms w-full text-xs border border-[#E5E7EB] rounded-md bg-white px-2 py-1.5">
+            <datalist id="adv-fornecedores"><option value="Fornecedor X"><option value="Fornecedor Y"><option value="Fornecedor Z"></datalist>
+          </div>
+          <div>
+            <label class="caption text-dms-tecnologia mb-1 block">Procedure</label>
+            <input list="adv-procedures" placeholder="Buscar procedure..." class="input-dms w-full text-xs border border-[#E5E7EB] rounded-md bg-white px-2 py-1.5">
+            <datalist id="adv-procedures"><option value="Auto-aprovar NF"><option value="Escalation Diretor"><option value="Atualizar data pagamento"></datalist>
+          </div>
+        </div>
+      </div>
+
       <!-- TABELA AUDIT -->
       <div class="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden shadow-dms-md">
-        <table class="w-full text-sm">
+        <table data-customizable="true" class="w-full text-sm">
           <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
             <tr>
               <th class="text-left caption text-dms-tecnologia px-4 py-3 w-24">Quando</th>
@@ -604,6 +658,113 @@ renderRows();
   render();
 })();
 </script>
+<!-- ============ AI DASHBOARD MODAL (B12 - Dashboard via IA) ============ -->
+<div id="ai-dashboard-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-4">
+  <div class="drawer-overlay absolute inset-0" onclick="closeAiDashboardModal()"></div>
+  <div class="relative bg-white rounded-lg shadow-2xl max-w-2xl w-full overflow-hidden max-h-[92vh] flex flex-col">
+    <div class="px-6 py-5 border-b border-[#E5E7EB] flex items-center gap-3" style="background: linear-gradient(135deg, rgba(100,53,133,0.08), rgba(0,56,108,0.05));">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #643585, #00386C); color: white;">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+      </div>
+      <div>
+        <h3 class="text-lg font-bold text-dms-mar">Customizar dashboard de auditoria via IA</h3>
+        <p class="text-xs text-dms-tecnologia mt-0.5">Descreva o relatório/dashboard de auditoria que você precisa. A IA propõe layout e métricas.</p>
+      </div>
+      <button onclick="closeAiDashboardModal()" class="ml-auto p-1 text-dms-tecnologia hover:text-dms-mar transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-6 space-y-4 overflow-y-auto" id="ai-modal-body">
+      <div id="ai-step-prompt">
+        <label class="caption text-dms-tecnologia mb-1.5 block">Descreva o dashboard <span class="text-red-500">*</span></label>
+        <textarea id="ai-prompt-input" rows="5" placeholder="Exemplo: Dashboard de compliance SOX com procedures que disparam fora do horário comercial, send errors por SOP, top usuários com mais intervenções manuais nos últimos 30 dias..." class="input-dms w-full px-3 py-2.5 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
+        <div class="mt-2 flex items-center gap-2 flex-wrap">
+          <span class="caption text-dms-tecnologia">Sugestões:</span>
+          <button type="button" onclick="fillAiPrompt('Dashboard SOX: intervenções manuais por usuário + send errors por SOP nos últimos 30 dias')" class="text-[11px] px-2 py-1 rounded-full bg-dms-sabedoria/10 text-dms-sabedoria hover:bg-dms-sabedoria/20 transition-colors">Compliance SOX</button>
+          <button type="button" onclick="fillAiPrompt('Trigger rate por workflow e taxa de falhas técnicas (send errors)')" class="text-[11px] px-2 py-1 rounded-full bg-dms-sabedoria/10 text-dms-sabedoria hover:bg-dms-sabedoria/20 transition-colors">Trigger rate</button>
+          <button type="button" onclick="fillAiPrompt('Procedures avaliadas fora do horário comercial + bypass de aprovações nos últimos 7d')" class="text-[11px] px-2 py-1 rounded-full bg-dms-sabedoria/10 text-dms-sabedoria hover:bg-dms-sabedoria/20 transition-colors">Atividade fora do expediente</button>
+        </div>
+      </div>
+      <div id="ai-step-preview" class="hidden">
+        <div class="bg-dms-sabedoria/5 border border-dms-sabedoria/20 rounded-md p-4 mb-3">
+          <div class="flex items-center gap-2 mb-2">
+            <svg class="w-4 h-4 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <span class="text-sm font-bold text-dms-sabedoria">Proposta da IA</span>
+          </div>
+          <div class="text-xs text-dms-tecnologia mb-2">Nome sugerido:</div>
+          <input id="ai-view-name" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white" value="Auditoria SOX — 30d">
+        </div>
+        <div class="caption text-dms-tecnologia mb-2">Widgets propostos (4)</div>
+        <div class="space-y-2">
+          <div class="border border-[#E5E7EB] rounded-md p-3 bg-white"><div class="text-sm font-semibold text-dms-mar">KPI: intervenções manuais</div><div class="text-[11px] text-dms-tecnologia mt-1">Contagem por usuário · top 10 com mais intervenções em 30d</div></div>
+          <div class="border border-[#E5E7EB] rounded-md p-3 bg-white"><div class="text-sm font-semibold text-dms-mar">Heatmap: send errors por SOP</div><div class="text-[11px] text-dms-tecnologia mt-1">Matriz SOP × dia da semana com cor por taxa de falha</div></div>
+          <div class="border border-[#E5E7EB] rounded-md p-3 bg-white"><div class="text-sm font-semibold text-dms-mar">Lista: bypass de aprovações</div><div class="text-[11px] text-dms-tecnologia mt-1">Tabela compacta com justificativa, usuário e processo</div></div>
+          <div class="border border-[#E5E7EB] rounded-md p-3 bg-white"><div class="text-sm font-semibold text-dms-mar">Gráfico: trigger rate por workflow</div><div class="text-[11px] text-dms-tecnologia mt-1">Bar chart com taxa por SOP e variação semanal</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="px-6 py-4 bg-[#F8F9FA] border-t border-[#E5E7EB] flex items-center justify-end gap-3">
+      <button onclick="closeAiDashboardModal()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 hover:text-dms-mar transition-colors">Cancelar</button>
+      <div id="ai-actions-prompt"><button onclick="generateAiDashboard()" class="text-sm font-semibold text-white px-5 py-2 rounded-md transition-colors" style="background: linear-gradient(135deg, #643585, #00386C);">Gerar com IA →</button></div>
+      <div id="ai-actions-preview" class="hidden flex items-center gap-2">
+        <button onclick="backToPromptAi()" class="text-sm font-semibold text-dms-sabedoria px-3 py-2 border border-dms-sabedoria/40 rounded-md hover:bg-dms-sabedoria/5 transition-colors">↻ Refazer</button>
+        <button onclick="backToPromptAi()" class="text-sm font-semibold text-dms-sabedoria px-3 py-2 border border-dms-sabedoria/40 rounded-md hover:bg-dms-sabedoria/5 transition-colors">✎ Editar prompt</button>
+        <button onclick="acceptAiDashboard()" class="text-sm font-bold text-white px-5 py-2 rounded-md transition-colors" style="background: linear-gradient(135deg, #643585, #00386C);">✓ Aceitar e salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleAdvFilters() {
+  var row = document.getElementById('adv-filters-row');
+  var caret = document.querySelector('#adv-filters-toggle .caret');
+  if (!row) return;
+  if (row.classList.contains('hidden')) { row.classList.remove('hidden'); if (caret) caret.textContent = '▴'; }
+  else { row.classList.add('hidden'); if (caret) caret.textContent = '▾'; }
+}
+function openAiDashboardModal() {
+  var m = document.getElementById('ai-dashboard-modal');
+  m.classList.remove('hidden'); m.classList.add('flex');
+  document.getElementById('ai-step-prompt').classList.remove('hidden');
+  document.getElementById('ai-step-preview').classList.add('hidden');
+  document.getElementById('ai-actions-prompt').classList.remove('hidden');
+  document.getElementById('ai-actions-preview').classList.add('hidden');
+}
+function closeAiDashboardModal() {
+  var m = document.getElementById('ai-dashboard-modal');
+  m.classList.add('hidden'); m.classList.remove('flex');
+}
+function fillAiPrompt(text) { document.getElementById('ai-prompt-input').value = text; }
+function generateAiDashboard() {
+  document.getElementById('ai-step-prompt').classList.add('hidden');
+  document.getElementById('ai-step-preview').classList.remove('hidden');
+  document.getElementById('ai-actions-prompt').classList.add('hidden');
+  document.getElementById('ai-actions-preview').classList.remove('hidden');
+  document.getElementById('ai-actions-preview').classList.add('flex');
+}
+function backToPromptAi() {
+  document.getElementById('ai-step-prompt').classList.remove('hidden');
+  document.getElementById('ai-step-preview').classList.add('hidden');
+  document.getElementById('ai-actions-prompt').classList.remove('hidden');
+  document.getElementById('ai-actions-preview').classList.add('hidden');
+  document.getElementById('ai-actions-preview').classList.remove('flex');
+}
+function acceptAiDashboard() {
+  var name = document.getElementById('ai-view-name').value || 'Meu dashboard';
+  var sel = document.getElementById('audit-view-selector');
+  var key = 'ai-' + Date.now();
+  var opt = document.createElement('option');
+  opt.value = key; opt.textContent = '✨ ' + name;
+  sel.appendChild(opt); sel.value = key;
+  var tag = document.getElementById('audit-view-saved-tag');
+  tag.classList.remove('hidden'); tag.classList.add('inline-flex');
+  tag.innerHTML = '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg> View salvo: "' + name + '"';
+  closeAiDashboardModal();
+}
+</script>
+
 <script src="notes-widget.js" defer></script>
+<script src="list-customizer.js" defer></script>
 </body>
 </html>
