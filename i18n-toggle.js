@@ -859,11 +859,11 @@
     toast.id = 'dms-i18n-toast';
     toast.textContent = message;
     toast.style.cssText = [
-      'position:fixed', 'top:64px', 'right:20px', 'z-index:10001',
+      'position:fixed', 'bottom:80px', 'left:24px', 'z-index:10001',
       'background:' + MAR, 'color:#fff', 'padding:10px 16px',
       'border-radius:8px', 'font-size:13px', 'font-weight:600',
       'box-shadow:0 8px 24px rgba(0,0,0,0.18)',
-      'opacity:0', 'transform:translateY(-8px)',
+      'opacity:0', 'transform:translateY(8px)',
       'transition:opacity .22s ease, transform .22s ease',
       'font-family:Inter,system-ui,sans-serif',
     ].join(';');
@@ -874,7 +874,7 @@
     });
     setTimeout(function () {
       toast.style.opacity = '0';
-      toast.style.transform = 'translateY(-8px)';
+      toast.style.transform = 'translateY(8px)';
       setTimeout(function () { toast.remove(); }, 250);
     }, 2200);
   }
@@ -885,7 +885,7 @@
     var wrap = document.createElement('div');
     wrap.id = 'dms-i18n-toggle';
     wrap.style.cssText = [
-      'position:fixed', 'top:12px', 'right:16px', 'z-index:9999',
+      'position:fixed', 'bottom:24px', 'left:24px', 'z-index:9999',
       'font-family:Inter,system-ui,sans-serif',
     ].join(';');
 
@@ -912,7 +912,7 @@
     var menu = document.createElement('div');
     menu.id = 'dms-i18n-menu';
     menu.style.cssText = [
-      'position:absolute', 'top:calc(100% + 6px)', 'right:0',
+      'position:absolute', 'bottom:calc(100% + 6px)', 'left:0',
       'background:#fff', 'border:1px solid ' + BORDER,
       'border-radius:10px', 'min-width:230px',
       'box-shadow:0 12px 32px rgba(0,0,0,0.14)',

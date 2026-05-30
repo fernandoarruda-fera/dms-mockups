@@ -198,3 +198,31 @@ Cada concept precisa aprovação do Fernando antes de virar PLAN de implementaç
 - Eliminadas 3 duplicações detectadas (DMSYS V2 + PT-BR + redundância de breadcrumb)
 - Detecção via `screen.width <= 768` em JS (viewport meta `width=1280` impede `@media` por viewport width); aplica classe `.mobile-mode` no `<html>` que dispara o CSS compacto
 - Setas mantidas com touch target 44×32px (área horizontal aumentada pra polegar)
+
+## Wrapper — picker searchable + reposicionamento PT-BR — 2026-05-30
+
+**Item 1 — i18n toggle reposicionado:**
+- `i18n-toggle.js`: button flutuante movido de `top:12px/right:16px` pra `bottom:24px/left:24px`
+- Menu de idiomas agora abre pra cima (`bottom:calc(100% + 6px); left:0`)
+- Toast de confirmação também movido pra bottom-left (`bottom:80px/left:24px`), com slide-in vindo de baixo
+- Motivo: PT-BR no canto sup. direito sobrepunha campos "Buscar" do header das telas. Bottom-left fica longe de campos de busca (que ficam no topo)
+
+**Item 2 — Picker searchable de telas (substitui `<select>` nativo):**
+- Novo `#screen-picker-trigger` (pill clicável no wrapper) com formato `NN/79 · Nome da tela ▾`
+- Click abre modal `#screen-picker-modal` com:
+  - Input de busca (filtra por número, nome ou grupo)
+  - Lista de 79 telas agrupadas por categoria (`.sp-group`)
+  - Tela atual destacada (`.sp-item.is-active`)
+  - Navegação por teclado: ↑↓ navega, ↵ abre, Esc fecha
+  - Click no backdrop fecha
+- Funciona desktop E mobile (substitui o antigo `<select>` + `#mobile-breadcrumb`)
+
+**Item 3 — Brand marker "D · DMSYS V2" no lado direito:**
+- Removido bloco original `#app-logo` (esquerda) — agora o picker fica no início
+- Novo `#brand-marker` no lado direito: D-icon branco (24×24) com logo skew + texto "DMSYS V2"
+- Bordas verticais discretas (`border-left/right rgba(255,255,255,.14)`) separam visualmente do nav
+- Escondido no mobile (mobile-mode tem só `[<] [picker] [>]`)
+
+**Layout final:**
+- Desktop: `[picker ▾]  ...  [D · DMSYS V2]  [<] [>]  [GitHub]`
+- Mobile (36px de altura): `[<]  [picker compacto ▾]  [>]` (brand + GitHub escondidos via CSS `order` flexbox)
