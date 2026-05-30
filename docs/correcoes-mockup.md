@@ -160,3 +160,25 @@ Cada concept precisa aprovação do Fernando antes de virar PLAN de implementaç
   - Drawer "Filtros salvos" com 3 abas (Meus/Equipe/Globais), cada item com nome + badge escopo + autor + botão Aplicar; itens "Meus" também têm Editar/Excluir. Reordena por `lastUsed`.
   - Persistência: `localStorage[dms-saved-filters]` (lista compartilhada) + `sessionStorage[dms-active-tag-filters:<pageKey>]` (chips ativos por tela). Seed inicial com 8 filtros exemplares (NFs Transportadora, Pedidos críticos SLA, Cotações > 50k, Material limpeza filial SP, Aprovações pendentes diretoria, Contratos vencendo 30d, Audit trail último mês, Fornecedores tier A APAC) mostrando os 3 escopos e autores variados.
   - Avisos "Mockup conceitual" nos 2 modais relembrando que filtros TAG aparecem como chips mas não filtram a tabela de fato (consistente com o aviso da tela76).
+
+## Fix mobile global + rename ActionIA — 2026-05-30
+
+- `mobile-responsive.css` global criado e injetado em **80 arquivos** (79 telas + index) via `<link>` antes de `</head>`.
+- Eliminação de **topbars duplicados** no mobile via media query `@media (max-width: 768px)`:
+  - `<header class="h-16 ...">` inline (breadcrumb + busca global) escondido — sidebar consolidada já tem header próprio.
+  - Placeholder `<aside class="w-[260px] bg-dms-mar">` vazio escondido + `ml-[260px]` zerado.
+  - `#dms-sidebar` colapsada para 56px no mobile.
+- **KPI cards compactos** no mobile: padding reduzido, `.kpi-value` 28px → 20px, `.kpi-label` 11px → 10px. Grids 5-6 colunas forçados para 3 colunas com gap 0.5rem.
+- **Headers de página reduzidos**: h1 36px → 24px no mobile; subtítulo/descrição longa (`<p class="text-gray-500">` após h1) oculto.
+- **Tipografia grande compactada**: `.text-5xl` / `.text-4xl` → 24px; `.text-3xl` → 22px; `.text-2xl` → 18px.
+- **Tabelas com scroll horizontal forçado**: `font-size: 12px`, `white-space: nowrap`, padding célula 8px/6px.
+- **Filtros empilhados em coluna** no mobile (`.filters-bar`, `.filter-row`) com largura 100%.
+- **Espaçamentos reduzidos**: `main { padding: 0.75rem }`, `.p-8` → 0.75rem, `space-y-6/8` → 0.75rem.
+- Tablet médio (769–1024px): `.text-5xl` → 30px, `.kpi-value` → 26px.
+
+### Rename tela77: Agentes → ActionIA
+- Arquivo `tela77-agentes-biblioteca.html` → `tela77-actionia-biblioteca.html` (`git mv`).
+- Conteúdo de tela77 atualizado: `<title>`, breadcrumb, h1, descrição, botão "Novo Agente" → "Novo ActionIA", drawer header, contador "14 agentes" → "14 ActionIAs", empty state, IDs JS (`btn-novo-agente` → `btn-novo-actionia`).
+- Links + sidebar labels atualizados em **5 arquivos** (`index.html`, `tela10`, `tela77`, `tela78`, `tela79`): `title="Agentes"` e `<span class="sb-label">Agentes</span>` → `ActionIA`.
+- `tela10-workflow-builder.html`: "Biblioteca de Agentes" → "Biblioteca ActionIA"; botão "Criar novo agente" → "Criar novo ActionIA". Mantidos como `Agentes` (per exceção do usuário): tab name "Agentes", coluna "Agentes vinculados ao stage", IDs JS internos.
+- `index.html`: label do tile "77 · Agentes · Biblioteca" → "77 · ActionIA · Biblioteca".
