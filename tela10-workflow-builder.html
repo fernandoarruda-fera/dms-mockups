@@ -47,6 +47,13 @@ tailwind.config = {
   .stage-item .reorder-btn { opacity: 0; transition: opacity 150ms ease; }
   .stage-item:hover .reorder-btn { opacity: 1; }
 
+  /* Overflow safety for grid columns — prevent text spilling */
+  .grid > * { min-width: 0; }
+  .grid input, .grid select, .grid textarea { min-width: 0; max-width: 100%; }
+  .grid .truncate { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+  .escalation-card { overflow: hidden; min-width: 0; }
+  .escalation-card * { min-width: 0; }
+
   /* Tabs */
   .tab-btn { transition: all 150ms ease; cursor: pointer; }
   .tab-btn:hover { color: #00386C; }
@@ -387,14 +394,11 @@ tailwind.config = {
                       <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer"><option>h</option></select>
                     </div>
                   </div>
-                  <div>
-                    <label class="caption text-dms-tecnologia mb-1 block flex items-center gap-1">
-                      <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
-                      Delay após
-                    </label>
-                    <div class="flex items-center gap-1">
-                      <input type="number" value="48" class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded text-center">
-                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer"><option>h</option></select>
+                  <div class="rounded-md border border-red-200 bg-red-50 px-2.5 py-2 flex items-start gap-1.5 min-w-0">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-600 mt-1.5 flex-shrink-0"></span>
+                    <div class="text-[11px] text-red-800 leading-snug">
+                      <strong>Delay automático</strong>
+                      <p class="text-red-700/90 mt-0.5">⏱️ Inicia assim que o warning expira. Não requer configuração de tempo.</p>
                     </div>
                   </div>
                 </div>
@@ -445,11 +449,11 @@ tailwind.config = {
                       <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer"><option>h</option></select>
                     </div>
                   </div>
-                  <div>
-                    <label class="caption text-dms-tecnologia mb-1 block">Delay após</label>
-                    <div class="flex items-center gap-1">
-                      <input type="number" value="24" class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded text-center">
-                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer"><option>h</option></select>
+                  <div class="rounded-md border border-red-200 bg-red-50 px-2.5 py-2 flex items-start gap-1.5 min-w-0">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-600 mt-1.5 flex-shrink-0"></span>
+                    <div class="text-[11px] text-red-800 leading-snug">
+                      <strong>Delay automático</strong>
+                      <p class="text-red-700/90 mt-0.5">⏱️ Inicia assim que o warning expira. Não requer configuração de tempo.</p>
                     </div>
                   </div>
                 </div>
@@ -462,10 +466,13 @@ tailwind.config = {
                     <h4 class="caption text-dms-sabedoria mb-0.5">Escalations deste stage <span class="text-dms-mar">(3)</span></h4>
                     <p class="text-xs text-dms-tecnologia">Múltiplas regras pra situações diferentes. Sistema bloqueia regras duplicadas (D17).</p>
                   </div>
-                  <button class="flex items-center gap-1 text-xs font-semibold text-dms-sabedoria px-2.5 py-1 bg-white border border-dms-sabedoria/30 rounded hover:bg-dms-sabedoria/5 transition-colors">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                    Adicionar
-                  </button>
+                  <div class="flex items-center gap-2">
+                    <input type="text" placeholder="Buscar escalation existente…" class="input-dms text-xs px-2 py-1 border border-[#E5E7EB] rounded-md bg-white w-44" title="Vincular escalation existente da biblioteca">
+                    <a href="tela09-builder-escalation-trigger.html" class="flex items-center gap-1 text-xs font-semibold text-dms-sabedoria px-2.5 py-1 bg-white border border-dms-sabedoria/30 rounded hover:bg-dms-sabedoria/5 transition-colors">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                      Criar nova
+                    </a>
+                  </div>
                 </div>
 
                 <div class="space-y-3">
@@ -559,12 +566,50 @@ tailwind.config = {
               </div>
             </div>
 
-            <div id="content-procedures" class="hidden p-6">
-              <div class="tab-placeholder rounded-lg p-8 text-center">
-                <h3 class="text-base font-semibold text-dms-mar mb-2">Aba Procedures</h3>
-                <p class="text-sm text-dms-tecnologia">Lista de Procedures associadas em ordem de execução (stage_step). Cada item: Procedure name + Trigger Type badge + reorder ↑↓ + remover. Botão "+ Adicionar Procedure" abre seletor da Biblioteca filtrado por Applies To.</p>
-                <p class="text-xs text-dms-tecnologia mt-3 italic">2 procedures associadas neste stage.</p>
+            <div id="content-procedures" class="hidden p-6 space-y-4">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <h3 class="text-sm font-bold text-dms-mar mb-0.5">Procedures vinculadas ao stage</h3>
+                  <p class="text-xs text-dms-tecnologia">2 procedures associadas · puxa da <a href="tela03-procedures-list.html" class="text-dms-confianca font-semibold hover:underline">Biblioteca de Procedures</a></p>
+                </div>
+                <a href="tela03-procedures-list.html" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar">Ver biblioteca completa →</a>
               </div>
+
+              <div class="space-y-2">
+                <div class="flex items-center justify-between border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-dms-confianca/10 text-dms-confianca">stage_open</span>
+                    <div class="min-w-0">
+                      <div class="text-sm font-semibold text-dms-mar truncate">Validar XML da NF</div>
+                      <div class="text-[11px] text-dms-tecnologia truncate">SOP-001 · executa ao abrir o stage</div>
+                    </div>
+                  </div>
+                  <button class="text-xs text-dms-tecnologia hover:text-red-500 whitespace-nowrap">Remover</button>
+                </div>
+                <div class="flex items-center justify-between border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-dms-sabedoria/10 text-dms-sabedoria">stage_close</span>
+                    <div class="min-w-0">
+                      <div class="text-sm font-semibold text-dms-mar truncate">Notificar contábil sobre lançamento</div>
+                      <div class="text-[11px] text-dms-tecnologia truncate">SOP-014 · executa ao fechar o stage</div>
+                    </div>
+                  </div>
+                  <button class="text-xs text-dms-tecnologia hover:text-red-500 whitespace-nowrap">Remover</button>
+                </div>
+              </div>
+
+              <div class="border border-dashed border-[#E5E7EB] rounded-md p-3 bg-[#F8F9FA]">
+                <label class="text-xs font-semibold text-dms-mar block mb-1.5">Adicionar procedure existente</label>
+                <div class="flex gap-2">
+                  <input type="text" placeholder="Buscar na biblioteca…" class="input-dms flex-1 text-sm px-3 py-1.5 border border-[#E5E7EB] rounded-md bg-white">
+                  <button class="px-3 py-1.5 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md bg-white hover:bg-sky-50">Vincular</button>
+                </div>
+              </div>
+
+              <a href="tela03-procedures-list.html" class="flex items-center justify-center gap-2 w-full px-3 py-2.5 text-sm font-semibold text-white bg-dms-sabedoria rounded-md hover:opacity-90">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                Criar nova procedure
+              </a>
             </div>
 
             <div id="content-alertas" class="hidden p-6 space-y-4">

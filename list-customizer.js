@@ -81,8 +81,13 @@
     var st = document.createElement('style');
     st.id = 'dms-lc-style';
     st.textContent = '' +
-      '.dms-lc-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: ' + PRIMARY + '; background: white; border: 1px solid ' + PRIMARY + '; border-radius: 6px; padding: 6px 10px; cursor: pointer; transition: background 150ms; line-height: 1; }' +
+      '.dms-lc-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: ' + PRIMARY + '; background: white; border: 1px solid ' + PRIMARY + '; border-radius: 6px; padding: 6px 10px; cursor: pointer; transition: background 150ms; line-height: 1; position: relative; }' +
       '.dms-lc-btn:hover { background: rgba(100,53,133,0.06); }' +
+      '.dms-lc-btn.dms-lc-pulse { animation: dmsLcPulse 1.2s ease-out 1; box-shadow: 0 0 0 0 rgba(100,53,133,0.5); }' +
+      '@keyframes dmsLcPulse { 0% { box-shadow: 0 0 0 0 rgba(100,53,133,0.55); } 70% { box-shadow: 0 0 0 12px rgba(100,53,133,0); } 100% { box-shadow: 0 0 0 0 rgba(100,53,133,0); } }' +
+      '.dms-lc-hint { position: absolute; top: -38px; left: 50%; transform: translateX(-50%); background: #1A1A1A; color: white; font-size: 11px; padding: 6px 10px; border-radius: 6px; white-space: nowrap; z-index: 90; opacity: 0; transition: opacity 200ms; pointer-events: none; }' +
+      '.dms-lc-hint::after { content: ""; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #1A1A1A; }' +
+      '.dms-lc-hint.show { opacity: 1; }' +
       '.dms-lc-btn-wrap { display: inline-flex; align-items: center; gap: 8px; }' +
       '.dms-lc-saved { font-size: 11px; color: ' + MUTED + '; }' +
       '.dms-lc-overlay { position: fixed; inset: 0; background: rgba(0,56,108,0.45); backdrop-filter: blur(2px); z-index: 70; }' +
@@ -225,7 +230,7 @@
     document.getElementById('dms-lc-save').addEventListener('click', function () {
       writePrefs(workingPrefs);
       updateSavedIndicator();
-      showToast('✓ Preferências salvas');
+      showToast('✓ Preferências atualizadas');
       closeDrawer();
     });
     document.getElementById('dms-lc-reset').addEventListener('click', function () {
@@ -275,11 +280,23 @@
       btnWrap.className = 'dms-lc-btn-wrap';
       btnWrap.style.cssText = 'position:relative; display:inline-flex; align-items:center; gap:8px;';
       btnWrap.innerHTML =
-        '<button type="button" class="dms-lc-btn" data-action="open-lc">' +
+        '<button type="button" class="dms-lc-btn" data-action="open-lc" title="Escolha quais colunas, badges e métricas aparecem na sua visão">' +
           '<svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' +
           'Personalizar' +
+          '<span class="dms-lc-hint">Experimente! ✨</span>' +
         '</button>' +
         '<span class="dms-lc-saved"></span>';
+      // pulse + flutuante hint on first load
+      var btnEl = btnWrap.querySelector('.dms-lc-btn');
+      var hintEl = btnWrap.querySelector('.dms-lc-hint');
+      setTimeout(function(){
+        if(btnEl){ btnEl.classList.add('dms-lc-pulse'); }
+        if(hintEl){ hintEl.classList.add('show'); }
+        setTimeout(function(){
+          if(hintEl){ hintEl.classList.remove('show'); }
+          if(btnEl){ btnEl.classList.remove('dms-lc-pulse'); }
+        }, 3000);
+      }, 800);
 
       btnWrap.querySelector('[data-action=open-lc]').addEventListener('click', function (e) {
         e.preventDefault();

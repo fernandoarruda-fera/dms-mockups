@@ -114,6 +114,15 @@ tailwind.config = {
     <!-- CONTENT -->
     <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
 
+      <!-- URL filter banner (?relatedTo=X) -->
+      <div id="urlFilterBanner" class="mb-4 hidden bg-[#FEF3C7] border border-[#FDE68A] rounded-md px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2 text-sm text-[#854D0E]">
+          <span>🔍</span>
+          <span>Filtrado por <strong id="urlFilterLabel">SOP: SOP-001</strong> · mostrando só workflows relacionados</span>
+        </div>
+        <button onclick="clearUrlFilter()" class="text-xs font-semibold text-[#854D0E] hover:text-dms-mar underline">Limpar filtro</button>
+      </div>
+
       <!-- PAGE HEADER -->
       <div class="mb-6">
         <div class="flex items-center gap-3 mb-2">
@@ -499,6 +508,30 @@ renderCards();
   window.addEventListener('resize', render);
   render();
 })();
+</script>
+<script>
+function applyUrlFilter(){
+  var params = new URLSearchParams(window.location.search);
+  var rel = params.get('relatedTo') || params.get('sop');
+  if(!rel) return;
+  var banner = document.getElementById('urlFilterBanner');
+  var lbl = document.getElementById('urlFilterLabel');
+  if(banner){ banner.classList.remove('hidden'); }
+  if(lbl){ lbl.textContent = 'Relacionado a: ' + rel; }
+  // hide cards / rows that don't mention the ID
+  var cards = document.querySelectorAll('[data-workflow-card], .workflow-card, tbody tr');
+  cards.forEach(function(c){
+    var txt = (c.textContent||'').toUpperCase();
+    if(txt.indexOf(rel.toUpperCase()) === -1){ c.style.display = 'none'; }
+  });
+}
+function clearUrlFilter(){
+  var url = new URL(window.location.href);
+  url.searchParams.delete('relatedTo');
+  url.searchParams.delete('sop');
+  window.location.href = url.toString();
+}
+document.addEventListener('DOMContentLoaded', applyUrlFilter);
 </script>
 <script src="notes-widget.js" defer></script>
 <script src="list-customizer.js" defer></script>

@@ -152,56 +152,11 @@ tailwind.config = {
         <!-- COLUNA PRINCIPAL: CRITÉRIOS -->
         <div class="col-span-8 space-y-6">
 
-          <!-- ========== VINCULAÇÃO A WORKFLOW ========== -->
-          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
-            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-[2px] bg-dms-sabedoria tilt-accent rounded-sm"></div>
-                <h2 class="text-lg font-semibold text-dms-mar">Vinculação a Workflow</h2>
-              </div>
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(100,53,133,0.10)] text-dms-sabedoria">
-                Regra de negócio
-              </span>
-            </div>
-
-            <div class="p-6 space-y-4">
-              <p class="text-sm text-dms-tecnologia">
-                Toda compra deve estar vinculada a um <strong class="text-dms-mar">workflow específico</strong>. Reuso de workflow é permitido apenas para o mesmo <strong class="text-dms-mar">fornecedor</strong> ou <strong class="text-dms-mar">contrato</strong>.
-              </p>
-
-              <div>
-                <label class="caption text-dms-tecnologia mb-1.5 block">Workflow vinculado <span class="text-red-500">*</span></label>
-                <select id="f-vinculacao" onchange="toggleVinculacaoAlert()" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
-                  <option value="esp_transportadora_a" selected>Workflow específico — Compras Transportadora A</option>
-                  <option value="esp_material_limpeza">Workflow específico — Compras Material Limpeza</option>
-                  <option value="esp_ti_facilities">Workflow específico — Compras TI / Facilities</option>
-                  <option value="esp_servicos_recorrentes">Workflow específico — Serviços Recorrentes (contrato)</option>
-                  <option value="default">Workflow Default (não recomendado)</option>
-                </select>
-              </div>
-
-              <!-- Alerta default workflow -->
-              <div id="alert-default-wf" class="hidden border-2 border-red-300 bg-red-50 rounded-md p-3">
-                <div class="flex items-start gap-3">
-                  <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                  <div class="flex-1 text-sm">
-                    <p class="font-semibold text-red-800 mb-1">Atenção: Workflow padrão em uso</p>
-                    <p class="text-red-700/90 leading-relaxed">Recomendamos criar um workflow específico para este fornecedor/contrato. Cards e relatórios que utilizarem esta vinculação serão <strong>marcados visualmente</strong> com badge "Workflow padrão" até que um específico seja criado.</p>
-                    <a href="tela10-workflow-builder.html" class="inline-flex items-center gap-1.5 mt-2 text-xs font-semibold text-red-700 hover:text-red-900 underline">
-                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                      Criar workflow específico
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Critério de vinculação (gap React) -->
-              <div class="p-3 bg-[#F8F9FA] border border-[#E5E7EB] rounded-md flex gap-2 items-start">
-                <svg class="w-4 h-4 text-dms-confianca flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <p class="text-xs text-dms-mar leading-relaxed">
-                  <strong>Critério de vinculação:</strong> reaproveitar o mesmo workflow para outra compra é válido apenas se for o <strong>mesmo fornecedor</strong> ou <strong>mesmo contrato</strong>. <span class="text-dms-tecnologia italic">(Front em React ainda não implementa essa validação — gap mapeado pra Cat 3.)</span>
-                </p>
-              </div>
+          <!-- ========== INFO BANNER ========== -->
+          <div class="bg-[#EFF6FF] border-l-4 border-dms-ceu rounded-r-md p-4 flex gap-3 items-start">
+            <svg class="w-5 h-5 text-dms-confianca flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div class="text-sm text-dms-mar leading-relaxed">
+              <p><strong>Esta tela cria UMA regra.</strong> Toda compra que entrar e casar com os critérios abaixo será automaticamente vinculada ao <strong>workflow que você definir no final do formulário</strong>. Workflow resultante é o único campo obrigatório.</p>
             </div>
           </div>
 
@@ -267,6 +222,85 @@ tailwind.config = {
                 <p class="text-xs text-dms-mar">
                   <strong>Lógica AND:</strong> todos os critérios devem dar true pra esse workflow ser escolhido. Sistema garante <strong>match único</strong> (RN-WF-03): se nenhum workflow casa, processo vai pra triagem manual.
                 </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ========== WORKFLOW RESULTANTE (obrigatório) ========== -->
+          <div class="mt-6 bg-white border-2 border-dms-sabedoria/40 rounded-lg shadow-dms-md">
+            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between bg-[rgba(100,53,133,0.04)]">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-[2px] bg-dms-sabedoria tilt-accent rounded-sm"></div>
+                <h2 class="text-lg font-semibold text-dms-mar">Workflow resultante <span class="text-red-500">*</span></h2>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-dms-sabedoria text-white">obrigatório</span>
+            </div>
+            <div class="p-6 space-y-4">
+              <p class="text-sm text-dms-tecnologia">
+                Toda regra <strong class="text-dms-mar">DEVE</strong> apontar pra um workflow específico. Esta é a <strong class="text-dms-mar">única vinculação obrigatória</strong> — quando uma compra casar com os critérios acima, ela será automaticamente vinculada ao workflow selecionado.
+              </p>
+              <div>
+                <label class="caption text-dms-tecnologia mb-1.5 block">Workflow vinculado <span class="text-red-500">*</span></label>
+                <select id="f-workflow-resultante" onchange="toggleWorkflowResultanteAlert()" class="input-dms w-full px-3 py-2 text-sm border border-dms-sabedoria/40 rounded-md bg-white cursor-pointer">
+                  <option value="">— Selecione um workflow —</option>
+                  <option value="esp_transportadora_a" selected>Workflow específico — Compras Transportadora A</option>
+                  <option value="esp_material_limpeza">Workflow específico — Compras Material Limpeza</option>
+                  <option value="esp_ti_facilities">Workflow específico — Compras TI / Facilities</option>
+                  <option value="esp_servicos_recorrentes">Workflow específico — Serviços Recorrentes (contrato)</option>
+                  <option value="__new__">+ Criar novo workflow específico…</option>
+                </select>
+                <p class="text-[11px] text-dms-tecnologia mt-1 italic">Compras sem workflow vinculado são flagadas como <strong>irregulares</strong> pelo sistema.</p>
+              </div>
+              <div id="alert-novo-wf" class="hidden border border-dms-confianca/40 bg-[#EFF6FF] rounded-md p-3 text-xs text-dms-mar flex items-start gap-2">
+                <svg class="w-4 h-4 text-dms-confianca flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Você será redirecionado pro builder de workflow. <a href="tela04-catalogo-workflows.html" class="font-semibold text-dms-confianca hover:text-dms-mar underline">Abrir Catálogo de Workflows →</a></span>
+              </div>
+            </div>
+          </div>
+          <script>
+          function toggleWorkflowResultanteAlert(){
+            var sel = document.getElementById('f-workflow-resultante');
+            var box = document.getElementById('alert-novo-wf');
+            if(sel && box){ box.classList.toggle('hidden', sel.value !== '__new__'); }
+          }
+          </script>
+
+          <!-- Compras órfãs (badge "Sem workflow") -->
+          <div class="mt-6 bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-[2px] bg-red-500 tilt-accent rounded-sm"></div>
+                <h2 class="text-lg font-semibold text-dms-mar">Compras irregulares (sem workflow vinculado)</h2>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-300">3 compras</span>
+            </div>
+            <div class="p-6">
+              <p class="text-sm text-dms-tecnologia mb-3">Compras que entraram e não casaram com nenhuma regra existente. Crie um workflow específico para regularizá-las.</p>
+              <div class="border border-[#E5E7EB] rounded-md divide-y divide-[#E5E7EB]">
+                <div class="px-4 py-3 flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-red-100 text-red-800 border border-red-300" title="Compra sem workflow vinculado — irregular">⚠ Sem workflow</span>
+                    <span class="text-sm font-semibold text-dms-mar truncate">REQ-2026-0418</span>
+                    <span class="text-xs text-dms-tecnologia truncate">Fornecedor LogiSat · R$ 12.480,00</span>
+                  </div>
+                  <button class="text-xs font-semibold text-dms-confianca hover:text-dms-mar underline whitespace-nowrap" title="Criar workflow específico para esta compra">Criar workflow específico →</button>
+                </div>
+                <div class="px-4 py-3 flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-red-100 text-red-800 border border-red-300" title="Compra sem workflow vinculado — irregular">⚠ Sem workflow</span>
+                    <span class="text-sm font-semibold text-dms-mar truncate">PO-2026-0322</span>
+                    <span class="text-xs text-dms-tecnologia truncate">Material Limpeza Brasil · R$ 3.870,00</span>
+                  </div>
+                  <button class="text-xs font-semibold text-dms-confianca hover:text-dms-mar underline whitespace-nowrap" title="Criar workflow específico para esta compra">Criar workflow específico →</button>
+                </div>
+                <div class="px-4 py-3 flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-red-100 text-red-800 border border-red-300" title="Compra sem workflow vinculado — irregular">⚠ Sem workflow</span>
+                    <span class="text-sm font-semibold text-dms-mar truncate">NF-2026-1187</span>
+                    <span class="text-xs text-dms-tecnologia truncate">Energia Renovável SA · R$ 28.150,00</span>
+                  </div>
+                  <button class="text-xs font-semibold text-dms-confianca hover:text-dms-mar underline whitespace-nowrap" title="Criar workflow específico para esta compra">Criar workflow específico →</button>
+                </div>
               </div>
             </div>
           </div>

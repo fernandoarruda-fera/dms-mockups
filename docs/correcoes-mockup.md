@@ -134,3 +134,13 @@ Cada concept precisa aprovação do Fernando antes de virar PLAN de implementaç
 
 - Task 2 — outras telas/ajustes a definir
 - Task 3 — em aberto
+
+## Lote C Task 3 — entregue (2026-05-30)
+
+- **tela07**: links "Ver histórico" e "Ver dependências" agora carregam query params (`?sop=SOP-001` / `?relatedTo=SOP-001`) para filtrar a tela destino pela SOP atual.
+- **tela13 + tela04**: banner amarelo "🔍 Filtrado por SOP: X · Limpar filtro" no topo + JS que oculta linhas/cards que não casam com o filtro, lido via `URLSearchParams`.
+- **tela09**: novo select dependente "Qual Stage/MAILIA rule?" com opções pré-populadas trocando dinamicamente conforme origem do gatilho · fix overflow agressivo dos cards `.mode-card` (min-width:0, word-break, font-size 13px, flex-wrap).
+- **tela11**: refactor completo — removida seção "Vinculação a Workflow" como critério; adicionado banner no topo explicando que a tela cria UMA regra; adicionada seção destacada **"Workflow resultante *"** no final do form (obrigatório, com opção "+ Criar novo workflow específico"); adicionada seção "Compras irregulares (sem workflow vinculado)" com badge vermelho `⚠ Sem workflow` + botão "Criar workflow específico".
+- **tela12 + tela13 (Customizar via IA)**: tooltips `title=` nos botões "Personalizar" e "Customizar via IA"; barra de progresso 3 passos (Descreva / Gerando / Aplique) sempre visível no modal IA, com estado ativo destacado roxo; toast `"✓ View 'Nome' salvo em Filtros Customizados"` ao aceitar.
+- **list-customizer.js**: tooltip "Escolha quais colunas, badges e métricas aparecem na sua visão"; pulse animation 1.2s + hint flutuante "Experimente! ✨" por 3s após load; toast atualizado para "✓ Preferências atualizadas".
+- **tela10**: removidos inputs "qtde horas no delay" (Delay automático após warning, sem configuração); CSS global `min-width:0` em `.grid > *` e `.escalation-card` pra evitar overflow nas 3 colunas; aba Procedures convertida de placeholder pra UI real (lista de procedures + autocomplete + "Criar nova procedure" → tela03); aba SLA+Escalation ganhou autocomplete "Buscar escalation existente" + botão "Criar nova" → tela09.
