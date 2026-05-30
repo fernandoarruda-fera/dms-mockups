@@ -652,40 +652,133 @@ tailwind.config = {
             <div id="content-agentes" class="hidden p-6 space-y-4">
               <div class="flex items-start justify-between gap-3">
                 <div>
-                  <h3 class="text-sm font-bold text-dms-mar mb-0.5">Agentes vinculados ao stage</h3>
-                  <p class="text-xs text-dms-tecnologia">2 agentes anexados · puxa da <a href="tela77-actionia-biblioteca.html" class="text-dms-confianca font-semibold hover:underline">Biblioteca ActionIA</a></p>
+                  <h3 class="text-sm font-bold text-dms-mar mb-0.5">ActionIAs vinculados ao stage</h3>
+                  <p class="text-xs text-dms-tecnologia">2 ActionIAs anexados · puxa da <a href="tela77-actionia-biblioteca.html" class="text-dms-confianca font-semibold hover:underline">Biblioteca ActionIA</a></p>
                 </div>
                 <a href="tela77-actionia-biblioteca.html" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar">Ver biblioteca completa →</a>
               </div>
 
-              <div class="space-y-2">
-                <div class="flex items-center justify-between border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white">
-                  <div class="flex items-center gap-3">
+              <!-- ActionIA 1 — preview expandido -->
+              <div class="border border-[#E5E7EB] rounded-md bg-white overflow-hidden">
+                <div class="flex items-center justify-between px-3 py-2 bg-[#F8FBFE] border-b border-[#E5E7EB]">
+                  <div class="flex items-center gap-2">
                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-dms-sabedoria/10 text-dms-sabedoria">ActionAI</span>
-                    <div>
-                      <div class="text-sm font-semibold text-dms-mar">ActionAI Aprovação NF</div>
-                      <div class="text-[11px] text-dms-tecnologia">Sugere aprovação/rejeição comparando com pedido + contrato</div>
-                    </div>
+                    <div class="text-sm font-bold text-dms-mar">ActionAI Aprovação NF</div>
                   </div>
-                  <button class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
-                </div>
-                <div class="flex items-center justify-between border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white">
                   <div class="flex items-center gap-3">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">Validação</span>
+                    <a href="tela77-actionia-biblioteca.html" class="text-[11px] font-semibold text-dms-confianca hover:underline">Editar este ActionIA →</a>
+                    <button class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
+                  </div>
+                </div>
+                <div class="p-3 space-y-2">
+                  <div>
+                    <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Descrição</div>
+                    <div class="text-[11px] text-dms-tecnologia leading-snug">Sugere aprovação/rejeição comparando com pedido + contrato…</div>
+                  </div>
+                  <div>
+                    <div class="caption text-dms-confianca text-[10px] mb-0.5">🎯 Objetivo</div>
+                    <div class="text-xs text-dms-mar leading-snug">Reduzir tempo de aprovação fiscal sugerindo decisão automaticamente baseada em regras do contrato vigente do fornecedor.</div>
+                  </div>
+                  <div>
+                    <div class="caption text-dms-confianca text-[10px] mb-0.5">📦 Resultado / Entrega</div>
+                    <div class="text-xs text-dms-mar leading-snug">Decisão estruturada (aprovar / rejeitar / revisar) com motivo, score de confiança e referência ao contrato avaliado.</div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 pt-1 border-t border-[#E5E7EB]">
                     <div>
-                      <div class="text-sm font-semibold text-dms-mar">Detector Divergência Pedido×NF</div>
-                      <div class="text-[11px] text-dms-tecnologia">Compara valores, itens e quantidades</div>
+                      <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Input</div>
+                      <div class="text-[10px] mono text-dms-tecnologia leading-snug">{ nf_id, pedido_id, contrato_id }</div>
+                    </div>
+                    <div>
+                      <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Output</div>
+                      <div class="text-[10px] mono text-dms-tecnologia leading-snug">{ decisao, score, motivo[] }</div>
                     </div>
                   </div>
-                  <button class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
                 </div>
               </div>
 
-              <div class="border border-dashed border-[#E5E7EB] rounded-md p-3 bg-[#F8F9FA]">
-                <label class="text-xs font-semibold text-dms-mar block mb-1.5">Adicionar agente existente</label>
-                <div class="flex gap-2">
-                  <input type="text" placeholder="Buscar na biblioteca…" class="input-dms flex-1 text-sm px-3 py-1.5 border border-[#E5E7EB] rounded-md bg-white">
-                  <button class="px-3 py-1.5 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md bg-white hover:bg-sky-50">Vincular</button>
+              <!-- ActionIA 2 — preview expandido -->
+              <div class="border border-[#E5E7EB] rounded-md bg-white overflow-hidden">
+                <div class="flex items-center justify-between px-3 py-2 bg-[#F8FBFE] border-b border-[#E5E7EB]">
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">Validação</span>
+                    <div class="text-sm font-bold text-dms-mar">Detector Divergência Pedido×NF</div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <a href="tela77-actionia-biblioteca.html" class="text-[11px] font-semibold text-dms-confianca hover:underline">Editar este ActionIA →</a>
+                    <button class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
+                  </div>
+                </div>
+                <div class="p-3 space-y-2">
+                  <div>
+                    <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Descrição</div>
+                    <div class="text-[11px] text-dms-tecnologia leading-snug">Compara valores, itens e quantidades entre pedido e NF…</div>
+                  </div>
+                  <div>
+                    <div class="caption text-dms-confianca text-[10px] mb-0.5">🎯 Objetivo</div>
+                    <div class="text-xs text-dms-mar leading-snug">Identificar divergências fiscais entre pedido e NF antes de aprovar pagamento, evitando passivos contábeis.</div>
+                  </div>
+                  <div>
+                    <div class="caption text-dms-confianca text-[10px] mb-0.5">📦 Resultado / Entrega</div>
+                    <div class="text-xs text-dms-mar leading-snug">Lista de divergências por campo (valor, item, qtd), com severidade (warn / block) e referência ao pedido original.</div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 pt-1 border-t border-[#E5E7EB]">
+                    <div>
+                      <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Input</div>
+                      <div class="text-[10px] mono text-dms-tecnologia leading-snug">{ pedido_id, nf_payload }</div>
+                    </div>
+                    <div>
+                      <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Output</div>
+                      <div class="text-[10px] mono text-dms-tecnologia leading-snug">{ divergencias[], severidade }</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Adicionar / autocomplete com preview -->
+              <div class="border border-dashed border-[#E5E7EB] rounded-md p-3 bg-[#F8F9FA] space-y-2">
+                <div>
+                  <label class="text-xs font-semibold text-dms-mar block mb-1">Adicionar ActionIA ao stage</label>
+                  <p class="text-[11px] text-dms-tecnologia mb-1.5">Selecione o ActionIA que será acionado neste stage. Você verá uma prévia do que ele faz antes de confirmar.</p>
+                  <div class="flex gap-2">
+                    <input type="text" value="Sugestor Plano de Contas" class="input-dms flex-1 text-sm px-3 py-1.5 border border-dms-ceu rounded-md bg-white">
+                    <button class="px-3 py-1.5 text-sm font-semibold text-white bg-dms-confianca rounded-md hover:opacity-90">Vincular</button>
+                  </div>
+                </div>
+
+                <!-- Card de preview do ActionIA selecionado -->
+                <div class="border border-dms-ceu/40 rounded-md bg-white overflow-hidden">
+                  <div class="flex items-center justify-between px-3 py-2 bg-dms-ceu/5 border-b border-dms-ceu/30">
+                    <div class="flex items-center gap-2">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-dms-sabedoria/10 text-dms-sabedoria">ActionAI</span>
+                      <div class="text-sm font-bold text-dms-mar">Sugestor Plano de Contas</div>
+                      <span class="text-[10px] font-semibold text-dms-confianca">prévia</span>
+                    </div>
+                    <a href="tela77-actionia-biblioteca.html" class="text-[11px] font-semibold text-dms-confianca hover:underline">Editar este ActionIA →</a>
+                  </div>
+                  <div class="p-3 space-y-2">
+                    <div>
+                      <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Descrição</div>
+                      <div class="text-[11px] text-dms-tecnologia leading-snug">Sugere conta contábil baseado em descrição da NF e histórico…</div>
+                    </div>
+                    <div>
+                      <div class="caption text-dms-confianca text-[10px] mb-0.5">🎯 Objetivo</div>
+                      <div class="text-xs text-dms-mar leading-snug">Automatizar classificação contábil reduzindo trabalho do time financeiro em lançamentos repetitivos.</div>
+                    </div>
+                    <div>
+                      <div class="caption text-dms-confianca text-[10px] mb-0.5">📦 Resultado / Entrega</div>
+                      <div class="text-xs text-dms-mar leading-snug">Conta contábil sugerida (código + nome) com score de confiança e top-3 alternativas, baseado em histórico do fornecedor.</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 pt-1 border-t border-[#E5E7EB]">
+                      <div>
+                        <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Input</div>
+                        <div class="text-[10px] mono text-dms-tecnologia leading-snug">{ nf_descricao, fornecedor_id }</div>
+                      </div>
+                      <div>
+                        <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Output</div>
+                        <div class="text-[10px] mono text-dms-tecnologia leading-snug">{ conta, score, alternativas[] }</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 

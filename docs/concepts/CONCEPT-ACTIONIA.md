@@ -22,18 +22,27 @@ O objetivo é centralizar a configuração desses "executores" para que workflow
 
 ## 2. Modelo de dados
 
-| Campo            | Tipo         | Obrigatório | Descrição                                                              |
-| ---------------- | ------------ | ----------- | ---------------------------------------------------------------------- |
-| id               | uuid         | sim         | Identificador único                                                    |
-| nome             | string       | sim         | Nome do agente (ex: "Validador NF Fiscal")                             |
-| tipo             | enum         | sim         | `actionai` \| `validacao` \| `roteamento` \| `notificacao`             |
-| descricao        | text         | não         | Descrição livre do propósito                                           |
-| skills           | string[]     | não         | Tags/chips de capacidades (ex: "OCR", "comparação fiscal", "cálculo")  |
-| config           | json         | sim         | Configuração específica do tipo (ver abaixo)                           |
-| status           | enum         | sim         | `rascunho` \| `ativo` \| `em_uso` \| `inativo`                         |
-| owner_id         | uuid         | sim         | Usuário que criou                                                      |
-| created_at       | datetime     | sim         | Data de criação                                                        |
-| updated_at       | datetime     | sim         | Última atualização                                                     |
+| Campo             | Tipo         | Obrigatório | Descrição                                                              |
+| ----------------- | ------------ | ----------- | ---------------------------------------------------------------------- |
+| id                | uuid         | sim         | Identificador único                                                    |
+| nome              | string       | sim         | Nome do ActionIA (ex: "Validador NF Fiscal")                           |
+| tipo              | enum         | sim         | `actionai` \| `validacao` \| `roteamento` \| `notificacao`             |
+| descricao         | text         | não         | Descrição livre / resumo de uma frase                                  |
+| objetivo          | text         | sim         | Para que serve este ActionIA? Que problema resolve no workflow?        |
+| resultado         | text         | sim         | O que entrega ao final / tipo de output gerado                         |
+| input_esperado    | text         | não         | Dado/contexto que recebe pra trabalhar                                 |
+| output_esperado   | text         | não         | Formato/estrutura do retorno (JSON schema, contrato)                   |
+| skills            | string[]     | não         | Tags/chips de capacidades (ex: "OCR", "comparação fiscal", "cálculo")  |
+| config            | json         | sim         | Configuração específica do tipo (ver abaixo)                           |
+| saas_reference    | string       | não         | URL ou ID do agente externo (pendente — ver Seção 9)                   |
+| saas_auth_type    | enum         | não         | `api_key` \| `oauth2` \| `jwt` \| `mtls` (pendente)                    |
+| saas_endpoint     | string       | não         | URL do endpoint de execução (pendente)                                 |
+| custo_estimado    | decimal      | não         | Custo estimado por execução (R$)                                       |
+| cooldown_seconds  | int          | não         | Intervalo mínimo entre execuções                                       |
+| status            | enum         | sim         | `rascunho` \| `ativo` \| `em_uso` \| `inativo`                         |
+| owner_id          | uuid         | sim         | Usuário que criou                                                      |
+| created_at        | datetime     | sim         | Data de criação                                                        |
+| updated_at        | datetime     | sim         | Última atualização                                                     |
 
 ### Config por tipo
 

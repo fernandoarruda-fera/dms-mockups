@@ -148,33 +148,113 @@ tailwind.config = {
     </button>
   </div>
 
-  <div class="flex-1 overflow-y-auto p-6 space-y-4">
+  <div class="flex-1 overflow-y-auto p-6 space-y-5">
+
+    <!-- Seção 1 — Identificação -->
     <div>
-      <label class="text-xs font-semibold text-dms-mar block mb-1">Nome <span class="text-red-500">*</span></label>
-      <input type="text" placeholder="ex: ActionAI Aprovação NF" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
-    </div>
-    <div>
-      <label class="text-xs font-semibold text-dms-mar block mb-1">Tipo <span class="text-red-500">*</span></label>
-      <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
-        <option>ActionAI</option><option>Validação</option><option>Roteamento</option><option>Notificação</option>
-      </select>
-    </div>
-    <div>
-      <label class="text-xs font-semibold text-dms-mar block mb-1" data-i18n="label.description">Descrição</label>
-      <textarea rows="3" placeholder="O que esse ActionIA faz, em uma frase clara." class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
-    </div>
-    <div>
-      <label class="text-xs font-semibold text-dms-mar block mb-1">Skills</label>
-      <div class="border border-[#E5E7EB] rounded-md px-2 py-1.5 bg-white flex flex-wrap gap-1.5">
-        <span class="chip bg-dms-ceu/10 text-dms-confianca">classificar <button class="ml-1 text-dms-tecnologia hover:text-red-500">×</button></span>
-        <span class="chip bg-dms-ceu/10 text-dms-confianca">extrair_campos <button class="ml-1 text-dms-tecnologia hover:text-red-500">×</button></span>
-        <input type="text" placeholder="+ skill" class="text-xs px-1 py-0.5 outline-none flex-1 min-w-[80px]">
+      <div class="caption text-dms-confianca mb-2 pb-1 border-b border-[#E5E7EB]">1 · Identificação</div>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs font-semibold text-dms-mar block mb-1">Nome <span class="text-red-500">*</span></label>
+          <input type="text" placeholder="ex: ActionAI Aprovação NF" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-dms-mar block mb-1">Tipo <span class="text-red-500">*</span></label>
+          <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+            <option>ActionAI</option><option>Validação</option><option>Roteamento</option><option>Notificação</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-dms-mar block mb-1" data-i18n="label.description">Descrição</label>
+          <textarea rows="2" placeholder="Resumo em uma frase do que esse ActionIA faz." class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-dms-mar block mb-1">Objetivo <span class="text-red-500">*</span></label>
+          <textarea rows="2" placeholder="Para que serve este ActionIA? Qual problema ele resolve no workflow?" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-dms-mar block mb-1">Resultado / Entrega <span class="text-red-500">*</span></label>
+          <textarea rows="2" placeholder="O que ele entrega ao final? Que tipo de output gera (decisão, classificação, mensagem, JSON, etc.)?" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
+        </div>
       </div>
     </div>
-    <div class="bg-[#F8F9FA] border border-dashed border-[#E5E7EB] rounded-md p-4">
-      <div class="caption text-dms-confianca mb-1">Configurações específicas</div>
-      <p class="text-xs text-dms-tecnologia">Modelo (GPT-4 / Claude / interno), prompt base, ferramentas externas, limites de retry e timeout. Form completo por tipo de ActionIA.</p>
+
+    <!-- Seção 2 — Especificação técnica -->
+    <div>
+      <div class="caption text-dms-confianca mb-2 pb-1 border-b border-[#E5E7EB]">2 · Especificação técnica</div>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs font-semibold text-dms-mar block mb-1">Input esperado</label>
+          <textarea rows="2" placeholder="Que tipo de dado/contexto ele recebe pra trabalhar? (ex: payload de NF, ID de pedido, threshold…)" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-dms-mar block mb-1">Output esperado</label>
+          <textarea rows="2" placeholder="Formato/estrutura do que ele retorna (ex: { decisao, score, motivo[] })" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none mono"></textarea>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-dms-mar block mb-1">Skills</label>
+          <div class="border border-[#E5E7EB] rounded-md px-2 py-1.5 bg-white flex flex-wrap gap-1.5">
+            <span class="chip bg-dms-ceu/10 text-dms-confianca">classificar <button class="ml-1 text-dms-tecnologia hover:text-red-500">×</button></span>
+            <span class="chip bg-dms-ceu/10 text-dms-confianca">extrair_campos <button class="ml-1 text-dms-tecnologia hover:text-red-500">×</button></span>
+            <input type="text" placeholder="+ skill" class="text-xs px-1 py-0.5 outline-none flex-1 min-w-[80px]">
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Seção 3 — Integração SaaS (pendente) -->
+    <div>
+      <div class="caption text-dms-confianca mb-2 pb-1 border-b border-[#E5E7EB]">3 · Integração SaaS</div>
+      <div class="bg-amber-50 border border-amber-200 rounded-md p-3 mb-3 flex items-start gap-2">
+        <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <div class="text-xs text-amber-800 leading-snug">
+          <strong>Integração com SaaS externo — pendente.</strong> Campos abaixo serão configurados quando o contrato técnico for definido (REST / webhook / SDK / MCP / etc).
+        </div>
+      </div>
+      <div class="space-y-3 opacity-70">
+        <div>
+          <label class="text-xs font-semibold text-dms-mar block mb-1">Referência SaaS</label>
+          <input type="text" disabled placeholder="URL ou ID do agente externo (a definir)" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA] cursor-not-allowed mono">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-dms-mar block mb-1">Tipo de autenticação</label>
+          <select disabled class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA] cursor-not-allowed">
+            <option>— a definir —</option><option>API Key</option><option>OAuth 2.0</option><option>JWT</option><option>mTLS</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-dms-mar block mb-1">Endpoint de execução</label>
+          <input type="text" disabled placeholder="https://… (a definir após contrato técnico)" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA] cursor-not-allowed mono">
+        </div>
+      </div>
+      <div class="mt-3 text-[11px] text-dms-tecnologia leading-relaxed bg-[#F8F9FA] border border-dashed border-[#E5E7EB] rounded-md p-3">
+        Estes campos serão funcionais após decisão do contrato de integração — ver <span class="mono text-dms-confianca">CONCEPT_ACTIONIA.md</span> seção 9 "Integração SaaS".
+      </div>
+    </div>
+
+    <!-- Seção 4 — Configurações operacionais -->
+    <div>
+      <div class="caption text-dms-confianca mb-2 pb-1 border-b border-[#E5E7EB]">4 · Configurações operacionais</div>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs font-semibold text-dms-mar block mb-1">Status</label>
+          <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+            <option>Ativo</option><option>Inativo</option><option>Rascunho</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-semibold text-dms-mar block mb-1">Custo estimado / execução</label>
+            <input type="text" placeholder="R$ 0,05" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white mono">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-dms-mar block mb-1">Cooldown entre execuções</label>
+            <input type="text" placeholder="30 segundos" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white mono">
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2 bg-[#F8F9FA]">
@@ -186,20 +266,20 @@ tailwind.config = {
 
 <script>
 const AGENTS = [
-  { name:'ActionAI Aprovação NF', tipo:'ActionAI', desc:'Sugere aprovação ou rejeição de NFs comparando com pedido + contrato.', skills:['classificar','extrair_campos','decidir'], workflows:4, status:'Ativo', upd:'há 2h' },
-  { name:'Validador CNPJ Brasil', tipo:'Validação', desc:'Consulta Receita Federal e valida situação cadastral do CNPJ.', skills:['consultar_externo','validar'], workflows:6, status:'Ativo', upd:'há 1d' },
-  { name:'Roteador SLA Crítico', tipo:'Roteamento', desc:'Decide próxima fila quando SLA está em zona vermelha.', skills:['priorizar','redirecionar'], workflows:3, status:'Ativo', upd:'há 3d' },
-  { name:'Extrator XML NFe', tipo:'Validação', desc:'Lê XML de NFe e extrai itens, impostos, totais e chave de acesso.', skills:['extrair_campos','parsear_xml'], workflows:5, status:'Ativo', upd:'há 5d' },
-  { name:'Notificador Slack #compras', tipo:'Notificação', desc:'Posta mensagem no canal #compras com mention do aprovador.', skills:['notificar','formatar_msg'], workflows:2, status:'Ativo', upd:'há 1sem' },
-  { name:'Sugestor Plano de Contas', tipo:'ActionAI', desc:'Sugere conta contábil baseado em descrição da NF e histórico.', skills:['classificar','sugerir'], workflows:3, status:'Ativo', upd:'há 1sem' },
-  { name:'Detector Divergência Pedido×NF', tipo:'Validação', desc:'Compara valores, itens e quantidades entre pedido e NF recebida.', skills:['comparar','sinalizar'], workflows:4, status:'Ativo', upd:'há 2sem' },
-  { name:'Roteador Multi-Empresa', tipo:'Roteamento', desc:'Identifica a empresa correta pela CNPJ do destinatário no XML.', skills:['identificar','redirecionar'], workflows:2, status:'Ativo', upd:'há 2sem' },
-  { name:'Resumidor Email Fornecedor', tipo:'ActionAI', desc:'Resume thread de email longa em 3 bullets pro aprovador.', skills:['resumir'], workflows:1, status:'Ativo', upd:'há 3sem' },
-  { name:'Notificador WhatsApp', tipo:'Notificação', desc:'Envia mensagem WhatsApp pelo número cadastrado do aprovador.', skills:['notificar'], workflows:0, status:'Rascunho', upd:'há 1mês' },
-  { name:'ActionAI Conciliação Bancária', tipo:'ActionAI', desc:'Casa lançamentos do extrato com pré-lançamentos abertos.', skills:['comparar','sugerir'], workflows:1, status:'Ativo', upd:'há 1mês' },
-  { name:'Validador Boleto Linha Digitável', tipo:'Validação', desc:'Decodifica linha digitável e valida dígito verificador.', skills:['validar','parsear'], workflows:0, status:'Inativo', upd:'há 2mês' },
-  { name:'Roteador por Centro de Custo', tipo:'Roteamento', desc:'Roteia despesa pro aprovador responsável pelo CC.', skills:['redirecionar'], workflows:3, status:'Ativo', upd:'há 2mês' },
-  { name:'Notificador Email Diário', tipo:'Notificação', desc:'Compila pendências do dia e envia digest matinal por email.', skills:['notificar','agregar'], workflows:0, status:'Inativo', upd:'há 3mês' },
+  { name:'ActionAI Aprovação NF', tipo:'ActionAI', desc:'Sugere aprovação ou rejeição de NFs comparando com pedido + contrato.', obj:'Reduzir tempo de aprovação fiscal sugerindo decisão automaticamente baseada em regras do contrato.', skills:['classificar','extrair_campos','decidir'], workflows:4, status:'Ativo', upd:'há 2h' },
+  { name:'Validador CNPJ Brasil', tipo:'Validação', desc:'Consulta Receita Federal e valida situação cadastral do CNPJ.', obj:'Bloquear cadastro/movimentação com fornecedores em situação fiscal irregular.', skills:['consultar_externo','validar'], workflows:6, status:'Ativo', upd:'há 1d' },
+  { name:'Roteador SLA Crítico', tipo:'Roteamento', desc:'Decide próxima fila quando SLA está em zona vermelha.', obj:'Evitar estouro de SLA escalando demanda pro time correto antes do prazo.', skills:['priorizar','redirecionar'], workflows:3, status:'Ativo', upd:'há 3d' },
+  { name:'Extrator XML NFe', tipo:'Validação', desc:'Lê XML de NFe e extrai itens, impostos, totais e chave de acesso.', obj:'Estruturar dados de NFe sem digitação manual.', skills:['extrair_campos','parsear_xml'], workflows:5, status:'Ativo', upd:'há 5d' },
+  { name:'Notificador Slack #compras', tipo:'Notificação', desc:'Posta mensagem no canal #compras com mention do aprovador.', obj:'Reduzir atraso em aprovações via notificação direta no canal de operações.', skills:['notificar','formatar_msg'], workflows:2, status:'Ativo', upd:'há 1sem' },
+  { name:'Sugestor Plano de Contas', tipo:'ActionAI', desc:'Sugere conta contábil baseado em descrição da NF e histórico.', obj:'Automatizar classificação contábil reduzindo trabalho do time financeiro.', skills:['classificar','sugerir'], workflows:3, status:'Ativo', upd:'há 1sem' },
+  { name:'Detector Divergência Pedido×NF', tipo:'Validação', desc:'Compara valores, itens e quantidades entre pedido e NF recebida.', obj:'Identificar divergências fiscais antes de aprovar pagamento.', skills:['comparar','sinalizar'], workflows:4, status:'Ativo', upd:'há 2sem' },
+  { name:'Roteador Multi-Empresa', tipo:'Roteamento', desc:'Identifica a empresa correta pela CNPJ do destinatário no XML.', obj:'Rotear NF automaticamente pra empresa correta em grupo multi-CNPJ.', skills:['identificar','redirecionar'], workflows:2, status:'Ativo', upd:'há 2sem' },
+  { name:'Resumidor Email Fornecedor', tipo:'ActionAI', desc:'Resume thread de email longa em 3 bullets pro aprovador.', obj:'Reduzir tempo de leitura de threads longas com fornecedor.', skills:['resumir'], workflows:1, status:'Ativo', upd:'há 3sem' },
+  { name:'Notificador WhatsApp', tipo:'Notificação', desc:'Envia mensagem WhatsApp pelo número cadastrado do aprovador.', obj:'Garantir notificação fora do horário comercial via canal pessoal.', skills:['notificar'], workflows:0, status:'Rascunho', upd:'há 1mês' },
+  { name:'ActionAI Conciliação Bancária', tipo:'ActionAI', desc:'Casa lançamentos do extrato com pré-lançamentos abertos.', obj:'Conciliar extrato bancário com pré-lançamentos sem trabalho manual.', skills:['comparar','sugerir'], workflows:1, status:'Ativo', upd:'há 1mês' },
+  { name:'Validador Boleto Linha Digitável', tipo:'Validação', desc:'Decodifica linha digitável e valida dígito verificador.', obj:'Evitar pagamento de boleto com linha digitável corrompida.', skills:['validar','parsear'], workflows:0, status:'Inativo', upd:'há 2mês' },
+  { name:'Roteador por Centro de Custo', tipo:'Roteamento', desc:'Roteia despesa pro aprovador responsável pelo CC.', obj:'Direcionar aprovação pro responsável correto sem configuração manual.', skills:['redirecionar'], workflows:3, status:'Ativo', upd:'há 2mês' },
+  { name:'Notificador Email Diário', tipo:'Notificação', desc:'Compila pendências do dia e envia digest matinal por email.', obj:'Garantir visibilidade de pendências sem dependência de login no sistema.', skills:['notificar','agregar'], workflows:0, status:'Inativo', upd:'há 3mês' },
 ];
 
 const TYPE_STYLES = {
@@ -231,7 +311,10 @@ function render() {
   wrap.classList.remove('hidden'); empty.classList.add('hidden');
   tbody.innerHTML = rows.map(a => `
     <tr class="row-hover">
-      <td class="px-4 py-3 font-semibold text-dms-mar">${a.name}</td>
+      <td class="px-4 py-3">
+        <div class="font-semibold text-dms-mar">${a.name}</div>
+        <div class="text-[11px] text-dms-tecnologia italic mt-0.5 max-w-md truncate" title="${a.obj}">🎯 ${a.obj}</div>
+      </td>
       <td class="px-4 py-3"><span class="chip ${TYPE_STYLES[a.tipo]}">${a.tipo}</span></td>
       <td class="px-4 py-3 text-dms-tecnologia max-w-md">${a.desc}</td>
       <td class="px-4 py-3">
