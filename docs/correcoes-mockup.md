@@ -182,3 +182,10 @@ Cada concept precisa aprovação do Fernando antes de virar PLAN de implementaç
 - Links + sidebar labels atualizados em **5 arquivos** (`index.html`, `tela10`, `tela77`, `tela78`, `tela79`): `title="Agentes"` e `<span class="sb-label">Agentes</span>` → `ActionIA`.
 - `tela10-workflow-builder.html`: "Biblioteca de Agentes" → "Biblioteca ActionIA"; botão "Criar novo agente" → "Criar novo ActionIA". Mantidos como `Agentes` (per exceção do usuário): tab name "Agentes", coluna "Agentes vinculados ao stage", IDs JS internos.
 - `index.html`: label do tile "77 · Agentes · Biblioteca" → "77 · ActionIA · Biblioteca".
+
+## Viewport desktop (zoom-out mobile) — 2026-05-30
+
+- Trocado viewport meta tag das 80 páginas pra `width=1280`
+- Resultado: no celular, mockup renderiza como desktop reduzido (zoom-out automático)
+- mobile-responsive.css mantido vazio (apenas comentário explicativo)
+- Decisão é específica pra **mockup de validação** — produto real terá responsive de verdade
