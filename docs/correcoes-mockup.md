@@ -85,6 +85,20 @@ Sistema adicionado: cada anotação tem botões ✓ OK / ✗ Não OK pra Fernand
 
 ---
 
+## Concepts criados (2026-05-30, em docs/concepts/)
+
+- **AGENTS** — entidade nova, mockup tela77
+- **ALERTS** — entidade nova, mockup tela78
+- **WORKFLOW-OBLIGATORY** — regra de negócio CRÍTICA
+- **MATCH-ENGINE** — 3 modos, mockup tela79
+- **SAVED-FILTERS** — feature nova (escopo privado/equipe/global)
+- **AI-GENERATION** — contrato genérico unificado
+- **USER-PROFILE-PREFERENCES** — personalização por user
+
+Cada concept precisa aprovação do Fernando antes de virar PLAN de implementação no React.
+
+---
+
 ## Documentos a atualizar ao final do ciclo
 
 - `docs/sessions/2026-05-27/PLAN-CAT0-IMPLEMENTACAO.md`
