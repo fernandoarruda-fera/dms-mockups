@@ -41,7 +41,7 @@ tailwind.config = {
 
     <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
       <nav class="flex items-center gap-2 text-sm">
-        <span class="text-dms-tecnologia">Admin</span>
+        <span class="text-dms-tecnologia" data-i18n="nav.admin">Admin</span>
         <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
         <span class="text-dms-mar font-semibold">Auditoria Global</span>
       </nav>
@@ -103,15 +103,15 @@ tailwind.config = {
             <input type="text" value="01/05/2026 → 29/05/2026" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white mono">
           </div>
           <div>
-            <label class="block text-[11px] font-semibold text-dms-tecnologia uppercase tracking-wider mb-1">Usuário</label>
+            <label class="block text-[11px] font-semibold text-dms-tecnologia uppercase tracking-wider mb-1" data-i18n="label.user">Usuário</label>
             <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
-              <option>Todos</option><option>fernando.arruda@dmslog.com</option><option>maria.silva@dmslog.com</option><option>joao.souza@dmslog.com</option>
+              <option data-i18n="filter.all">Todos</option><option>fernando.arruda@dmslog.com</option><option>maria.silva@dmslog.com</option><option>joao.souza@dmslog.com</option>
             </select>
           </div>
           <div>
             <label class="block text-[11px] font-semibold text-dms-tecnologia uppercase tracking-wider mb-1">Recurso</label>
             <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
-              <option>Todos</option><option>REQ</option><option>COT</option><option>PO</option><option>NF</option><option>User</option><option>Role</option><option>Tag</option><option>Webhook</option>
+              <option data-i18n="filter.all">Todos</option><option>REQ</option><option>COT</option><option>PO</option><option>NF</option><option>User</option><option>Role</option><option>Tag</option><option>Webhook</option>
             </select>
           </div>
           <div>
@@ -127,7 +127,7 @@ tailwind.config = {
             </select>
           </div>
           <div class="flex items-end gap-2">
-            <button class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca w-full">Aplicar</button>
+            <button class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca w-full" data-i18n="btn.apply">Aplicar</button>
           </div>
         </div>
       </div>
@@ -136,7 +136,7 @@ tailwind.config = {
       <div class="mb-4 text-xs text-dms-tecnologia">
         <span class="font-semibold">Filtros aplicados:</span>
         <span class="mono">período=últimos 30d · recurso=PO,NF · ação=DELETE,UPDATE · severity=critical · ordenar por timestamp desc</span>
-        <span class="ml-2 text-dms-ceu cursor-pointer hover:underline">Limpar</span>
+        <span class="ml-2 text-dms-ceu cursor-pointer hover:underline" data-i18n="btn.reset">Limpar</span>
       </div>
 
       <!-- Tabela -->
@@ -144,13 +144,13 @@ tailwind.config = {
         <table class="dms-tbl w-full">
           <thead>
             <tr>
-              <th>Timestamp</th><th>Usuário</th><th>Recurso</th><th>Ação</th><th>Diff</th><th>IP</th><th>User Agent</th><th>Justificativa</th>
+              <th>Timestamp</th><th data-i18n="label.user">Usuário</th><th>Recurso</th><th>Ação</th><th>Diff</th><th>IP</th><th>User Agent</th><th>Justificativa</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td class="mono text-xs">2026-05-29 14:23:08</td>
-              <td><div class="text-xs">fernando.arruda@dmslog.com</div><span class="badge bg-purple-50 text-purple-700 border-purple-200">Admin</span></td>
+              <td><div class="text-xs">fernando.arruda@dmslog.com</div><span class="badge bg-purple-50 text-purple-700 border-purple-200" data-i18n="nav.admin">Admin</span></td>
               <td><span class="badge bg-sky-50 text-sky-700 border-sky-200">PO</span> <a class="mono text-xs text-dms-ceu hover:underline" href="tela29-pedido-detalhe.html">PO-2026-0481</a></td>
               <td><span class="badge bg-red-50 text-red-700 border-red-200">DELETE</span></td>
               <td><button class="text-xs text-dms-ceu hover:underline">Ver alteração</button></td>
@@ -160,7 +160,7 @@ tailwind.config = {
             </tr>
             <tr>
               <td class="mono text-xs">2026-05-29 13:47:21</td>
-              <td><div class="text-xs">maria.silva@dmslog.com</div><span class="badge bg-blue-50 text-blue-700 border-blue-200">Compras</span></td>
+              <td><div class="text-xs">maria.silva@dmslog.com</div><span class="badge bg-blue-50 text-blue-700 border-blue-200" data-i18n="nav.purchases">Compras</span></td>
               <td><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">NF</span> <a class="mono text-xs text-dms-ceu hover:underline" href="tela39-nota-fiscal-detalhe.html">NF-9823</a></td>
               <td><span class="badge bg-emerald-50 text-emerald-700 border-emerald-200">APPROVE</span></td>
               <td><button class="text-xs text-dms-ceu hover:underline">Ver alteração</button></td>
@@ -200,7 +200,7 @@ tailwind.config = {
             </tr>
             <tr>
               <td class="mono text-xs">2026-05-28 17:31:55</td>
-              <td><div class="text-xs">fernando.arruda@dmslog.com</div><span class="badge bg-purple-50 text-purple-700 border-purple-200">Admin</span></td>
+              <td><div class="text-xs">fernando.arruda@dmslog.com</div><span class="badge bg-purple-50 text-purple-700 border-purple-200" data-i18n="nav.admin">Admin</span></td>
               <td><span class="badge bg-violet-50 text-violet-700 border-violet-200">User</span> <span class="mono text-xs">user:148</span></td>
               <td><span class="badge bg-red-50 text-red-700 border-red-200">REVOKE</span></td>
               <td><button class="text-xs text-dms-ceu hover:underline">Ver alteração</button></td>
@@ -210,7 +210,7 @@ tailwind.config = {
             </tr>
             <tr>
               <td class="mono text-xs">2026-05-28 14:08:33</td>
-              <td><div class="text-xs">maria.silva@dmslog.com</div><span class="badge bg-blue-50 text-blue-700 border-blue-200">Compras</span></td>
+              <td><div class="text-xs">maria.silva@dmslog.com</div><span class="badge bg-blue-50 text-blue-700 border-blue-200" data-i18n="nav.purchases">Compras</span></td>
               <td><span class="badge bg-sky-50 text-sky-700 border-sky-200">REQ</span> <a class="mono text-xs text-dms-ceu hover:underline" href="tela23-requisicao-detalhe.html">REQ-2026-1124</a></td>
               <td><span class="badge bg-amber-50 text-amber-700 border-amber-200">UPDATE</span></td>
               <td><button class="text-xs text-dms-ceu hover:underline">Ver alteração</button></td>
@@ -230,7 +230,7 @@ tailwind.config = {
             </tr>
             <tr>
               <td class="mono text-xs">2026-05-27 16:20:15</td>
-              <td><div class="text-xs">fernando.arruda@dmslog.com</div><span class="badge bg-purple-50 text-purple-700 border-purple-200">Admin</span></td>
+              <td><div class="text-xs">fernando.arruda@dmslog.com</div><span class="badge bg-purple-50 text-purple-700 border-purple-200" data-i18n="nav.admin">Admin</span></td>
               <td><span class="badge bg-sky-50 text-sky-700 border-sky-200">Webhook</span> <span class="mono text-xs">WH-003</span></td>
               <td><span class="badge bg-red-50 text-red-700 border-red-200">DELETE</span></td>
               <td><button class="text-xs text-dms-ceu hover:underline">Ver alteração</button></td>
@@ -316,18 +316,18 @@ tailwind.config = {
   <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
     <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label" data-i18n="nav.cockpit">Cockpit</span></a></li>
         <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
-        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
-        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label" data-i18n="nav.tasks">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label" data-i18n="nav.followup">Follow-up</span></a></li>
         <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
       </ul>
     </div>
-    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.purchases">Compras</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
-        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
-        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label" data-i18n="nav.requisitions">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label" data-i18n="nav.quotes">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label" data-i18n="nav.orders">Pedidos</span></a></li>
         <li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
         <li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
         <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
@@ -339,21 +339,21 @@ tailwind.config = {
         <li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
       </ul>
     </div>
-    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.registrations">Cadastros</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
         <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
         <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
         <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
       </ul>
     </div>
-    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.libraries">Bibliotecas</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label" data-i18n="label.tags">Tags</span></a></li>
         <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
         <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
         <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
         <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
-        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
+        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label" data-i18n="nav.audit">Auditoria</span></a></li>
       </ul>
     </div>
     <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
@@ -388,5 +388,6 @@ tailwind.config = {
 </script>
 <script src="notes-widget.js" defer></script>
 <script src="i18n-toggle.js" defer></script>
+<script src="tag-filter.js" defer></script>
 </body>
 </html>

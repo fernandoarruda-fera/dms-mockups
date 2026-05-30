@@ -144,3 +144,15 @@ Cada concept precisa aprovação do Fernando antes de virar PLAN de implementaç
 - **tela12 + tela13 (Customizar via IA)**: tooltips `title=` nos botões "Personalizar" e "Customizar via IA"; barra de progresso 3 passos (Descreva / Gerando / Aplique) sempre visível no modal IA, com estado ativo destacado roxo; toast `"✓ View 'Nome' salvo em Filtros Customizados"` ao aceitar.
 - **list-customizer.js**: tooltip "Escolha quais colunas, badges e métricas aparecem na sua visão"; pulse animation 1.2s + hint flutuante "Experimente! ✨" por 3s após load; toast atualizado para "✓ Preferências atualizadas".
 - **tela10**: removidos inputs "qtde horas no delay" (Delay automático após warning, sem configuração); CSS global `min-width:0` em `.grid > *` e `.escalation-card` pra evitar overflow nas 3 colunas; aba Procedures convertida de placeholder pra UI real (lista de procedures + autocomplete + "Criar nova procedure" → tela03); aba SLA+Escalation ganhou autocomplete "Buscar escalation existente" + botão "Criar nova" → tela09.
+
+## Lote C Task 4 — entregue (2026-05-30)
+
+- **i18n expandido**: dicionário 30→150 chaves; `data-i18n` 79→1.072 pontos cobertos via script batch que injeta `data-i18n` em qualquer tag elegível (button/span/a/h*/th/td/label/li/option) cujo texto puro casa exatamente com uma das ~100 strings PT-BR conhecidas; 5 idiomas (PT-BR/EN/ES/PT-PT/DE) atualizados; adicionado suporte a `data-i18n-placeholder` (atributo placeholder de inputs).
+- **TAG filter global** (`tag-filter.js`, injetado em 17 listas: tela01/03/04/06/12/13/21/24/27/30/32/34/36/38/40/44/60):
+  - FAB inferior-direito com 2 botões: 🏷️ "Filtro TAG" (com badge de contagem) + 📑 "Filtros salvos".
+  - Modal "Adicionar filtro por TAG": select TAG → select campo (dependente) → operador (=, contém, regex, >, <, entre) + valor.
+  - Chips removíveis numa barra amarela acima do `<main>` ("🏷️ Filtros TAG aplicados: TAG Categoria · subcategoria · = 'Material limpeza' ✕"). Botões "💾 Salvar este filtro" + "Limpar tudo" alinhados à direita.
+  - Modal "Salvar este filtro": nome obrigatório + radio cards de escopo (🔒 Privado / 👥 Equipe / 🌐 Global) + preview dos filtros incluídos.
+  - Drawer "Filtros salvos" com 3 abas (Meus/Equipe/Globais), cada item com nome + badge escopo + autor + botão Aplicar; itens "Meus" também têm Editar/Excluir. Reordena por `lastUsed`.
+  - Persistência: `localStorage[dms-saved-filters]` (lista compartilhada) + `sessionStorage[dms-active-tag-filters:<pageKey>]` (chips ativos por tela). Seed inicial com 8 filtros exemplares (NFs Transportadora, Pedidos críticos SLA, Cotações > 50k, Material limpeza filial SP, Aprovações pendentes diretoria, Contratos vencendo 30d, Audit trail último mês, Fornecedores tier A APAC) mostrando os 3 escopos e autores variados.
+  - Avisos "Mockup conceitual" nos 2 modais relembrando que filtros TAG aparecem como chips mas não filtram a tabela de fato (consistente com o aviso da tela76).

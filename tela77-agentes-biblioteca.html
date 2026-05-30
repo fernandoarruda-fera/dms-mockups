@@ -73,9 +73,9 @@ tailwind.config = {
 
       <!-- KPIs -->
       <div class="grid grid-cols-4 gap-3 mb-6">
-        <div class="kpi-card"><div class="kpi-label">Total</div><div class="kpi-value">14</div><div class="kpi-sub">na biblioteca</div></div>
-        <div class="kpi-card"><div class="kpi-label">Ativos</div><div class="kpi-value text-emerald-600">11</div><div class="kpi-sub">disponíveis para uso</div></div>
-        <div class="kpi-card"><div class="kpi-label">Inativos</div><div class="kpi-value text-dms-tecnologia">3</div><div class="kpi-sub">rascunhos ou desativados</div></div>
+        <div class="kpi-card"><div class="kpi-label" data-i18n="label.total">Total</div><div class="kpi-value">14</div><div class="kpi-sub">na biblioteca</div></div>
+        <div class="kpi-card"><div class="kpi-label" data-i18n="filter.active">Ativos</div><div class="kpi-value text-emerald-600">11</div><div class="kpi-sub">disponíveis para uso</div></div>
+        <div class="kpi-card"><div class="kpi-label" data-i18n="filter.inactive">Inativos</div><div class="kpi-value text-dms-tecnologia">3</div><div class="kpi-sub">rascunhos ou desativados</div></div>
         <div class="kpi-card"><div class="kpi-label">Em uso</div><div class="kpi-value text-dms-ceu">9</div><div class="kpi-sub">vinculados a workflows</div></div>
       </div>
 
@@ -106,12 +106,12 @@ tailwind.config = {
         <table class="w-full text-sm">
           <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
             <tr class="text-left">
-              <th class="px-4 py-3 caption text-dms-tecnologia font-semibold">Nome</th>
-              <th class="px-4 py-3 caption text-dms-tecnologia font-semibold">Tipo</th>
-              <th class="px-4 py-3 caption text-dms-tecnologia font-semibold">Descrição</th>
+              <th class="px-4 py-3 caption text-dms-tecnologia font-semibold" data-i18n="label.name">Nome</th>
+              <th class="px-4 py-3 caption text-dms-tecnologia font-semibold" data-i18n="label.type">Tipo</th>
+              <th class="px-4 py-3 caption text-dms-tecnologia font-semibold" data-i18n="label.description">Descrição</th>
               <th class="px-4 py-3 caption text-dms-tecnologia font-semibold">Skills</th>
               <th class="px-4 py-3 caption text-dms-tecnologia font-semibold text-center">Workflows</th>
-              <th class="px-4 py-3 caption text-dms-tecnologia font-semibold">Status</th>
+              <th class="px-4 py-3 caption text-dms-tecnologia font-semibold" data-i18n="label.status">Status</th>
               <th class="px-4 py-3 caption text-dms-tecnologia font-semibold">Atualizado</th>
               <th class="px-4 py-3 w-10"></th>
             </tr>
@@ -139,7 +139,7 @@ tailwind.config = {
 <aside id="drawer" class="hidden fixed top-0 right-0 h-screen w-[520px] bg-white shadow-2xl z-50 flex flex-col">
   <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
     <div>
-      <div class="caption text-dms-confianca">Biblioteca</div>
+      <div class="caption text-dms-confianca" data-i18n="page.library">Biblioteca</div>
       <h2 class="text-lg font-bold text-dms-mar">Novo Agente</h2>
     </div>
     <button id="drawer-close" class="text-dms-tecnologia hover:text-dms-mar" aria-label="Fechar">
@@ -159,7 +159,7 @@ tailwind.config = {
       </select>
     </div>
     <div>
-      <label class="text-xs font-semibold text-dms-mar block mb-1">Descrição</label>
+      <label class="text-xs font-semibold text-dms-mar block mb-1" data-i18n="label.description">Descrição</label>
       <textarea rows="3" placeholder="O que esse agente faz, em uma frase clara." class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
     </div>
     <div>
@@ -177,7 +177,7 @@ tailwind.config = {
   </div>
 
   <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2 bg-[#F8F9FA]">
-    <button id="drawer-cancel" class="px-4 py-2 text-sm font-medium text-dms-tecnologia border border-[#E5E7EB] rounded-md bg-white hover:text-dms-mar">Cancelar</button>
+    <button id="drawer-cancel" class="px-4 py-2 text-sm font-medium text-dms-tecnologia border border-[#E5E7EB] rounded-md bg-white hover:text-dms-mar" data-i18n="btn.cancel">Cancelar</button>
     <button class="px-4 py-2 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50">Salvar rascunho</button>
     <button class="px-4 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-md hover:bg-emerald-700">Ativar</button>
   </div>
@@ -321,20 +321,20 @@ render();
     <div style="padding:14px 14px 6px;">
       <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela16-cockpit-overview.html" title="Cockpit" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela16-cockpit-overview.html" title="Cockpit" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label" data-i18n="nav.cockpit">Cockpit</span></a></li>
         <li><a href="tela17-cockpit-email.html" title="Email" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
-        <li><a href="tela18-cockpit-todo.html" title="Tarefas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
-        <li><a href="tela19-cockpit-followup.html" title="Follow-up" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" title="Tarefas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label" data-i18n="nav.tasks">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" title="Follow-up" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label" data-i18n="nav.followup">Follow-up</span></a></li>
         <li><a href="tela20-cockpit-update.html" title="Updates" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
       </ul>
     </div>
 
     <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
-      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.purchases">Compras</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela21-requisicoes-list.html" title="Requisições" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
-        <li><a href="tela24-cotacoes-list.html" title="Cotações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
-        <li><a href="tela27-pedidos-list.html" title="Pedidos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela21-requisicoes-list.html" title="Requisições" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label" data-i18n="nav.requisitions">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" title="Cotações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label" data-i18n="nav.quotes">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" title="Pedidos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label" data-i18n="nav.orders">Pedidos</span></a></li>
         <li><a href="tela44-contratos-list.html" title="Contratos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
         <li><a href="tela38-notas-fiscais-list.html" title="Notas Fiscais" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
         <li><a href="tela40-aprovacoes-list.html" title="Aprovações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
@@ -350,7 +350,7 @@ render();
     </div>
 
     <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
-      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.registrations">Cadastros</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
         <li><a href="tela30-empresas-list.html" title="Empresas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
         <li><a href="tela32-centros-custo-list.html" title="Centros de Custo" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
@@ -359,16 +359,16 @@ render();
     </div>
 
     <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
-      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
+      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.libraries">Bibliotecas</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela01-catalogo-tags.html" title="Tags" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela01-catalogo-tags.html" title="Tags" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label" data-i18n="label.tags">Tags</span></a></li>
         <li><a href="tela03-procedures-list.html" title="Procedures" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
         <li><a href="tela04-catalogo-workflows.html" title="Workflows" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
         <li><a href="tela06-biblioteca-sop.html" title="SOPs" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
         <li><a href="tela77-agentes-biblioteca.html" title="Agentes" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🤖</span><span class="sb-label">Agentes</span></a></li>
         <li><a href="tela78-alertas-biblioteca.html" title="Alertas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🚨</span><span class="sb-label">Alertas</span></a></li>
         <li><a href="tela12-execution-visibility.html" title="Execuções" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
-        <li><a href="tela13-audit-trail.html" title="Auditoria" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
+        <li><a href="tela13-audit-trail.html" title="Auditoria" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label" data-i18n="nav.audit">Auditoria</span></a></li>
       </ul>
     </div>
 
