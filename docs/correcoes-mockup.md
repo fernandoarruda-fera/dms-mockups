@@ -189,3 +189,12 @@ Cada concept precisa aprovação do Fernando antes de virar PLAN de implementaç
 - Resultado: no celular, mockup renderiza como desktop reduzido (zoom-out automático)
 - mobile-responsive.css mantido vazio (apenas comentário explicativo)
 - Decisão é específica pra **mockup de validação** — produto real terá responsive de verdade
+
+## Wrapper showcase compactado no mobile — 2026-05-30
+
+- Wrapper escondeu "DMSYS V2" e "PT-BR" no mobile (já existem na tela)
+- Mantém setas < > + contador NN/79 + breadcrumb compacto
+- Altura wrapper ~36px (vs 56px desktop)
+- Eliminadas 3 duplicações detectadas (DMSYS V2 + PT-BR + redundância de breadcrumb)
+- Detecção via `screen.width <= 768` em JS (viewport meta `width=1280` impede `@media` por viewport width); aplica classe `.mobile-mode` no `<html>` que dispara o CSS compacto
+- Setas mantidas com touch target 44×32px (área horizontal aumentada pra polegar)

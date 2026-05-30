@@ -18,13 +18,27 @@
   .nav-btn { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.2); border-radius: 6px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
   .nav-btn:hover { background: rgba(255,255,255,.18); }
   .nav-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* Mobile compact wrapper — viewport meta força width=1280, então usamos classe via JS (screen.width) */
+  #mobile-breadcrumb { display: none; align-items: center; gap: 8px; min-width: 0; flex: 1; color: #fff; padding: 0 4px; }
+  #mobile-breadcrumb .mb-count { font-family: 'JetBrains Mono', monospace; font-size: 11px; opacity: .7; white-space: nowrap; }
+  #mobile-breadcrumb .mb-name { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  html.mobile-mode #app-header { height: 36px !important; padding-left: 6px !important; padding-right: 6px !important; gap: 6px !important; }
+  html.mobile-mode #app-main { top: 36px !important; }
+  html.mobile-mode #app-logo,
+  html.mobile-mode #app-github,
+  html.mobile-mode #tela-select { display: none !important; }
+  html.mobile-mode #dms-i18n-toggle { display: none !important; }
+  html.mobile-mode #mobile-breadcrumb { display: flex !important; }
+  html.mobile-mode #nav-container { margin-left: 0 !important; flex: 1 1 auto; }
+  html.mobile-mode .nav-btn { width: 44px; height: 32px; flex-shrink: 0; }
 </style>
 <link rel="stylesheet" href="mobile-responsive.css">
 </head>
 <body>
 
-<div class="fixed top-0 left-0 right-0 h-14 bg-[#00386C] text-white flex items-center px-4 z-50 border-b border-white/10 gap-3">
-  <div class="flex items-center gap-2">
+<div id="app-header" class="fixed top-0 left-0 right-0 h-14 bg-[#00386C] text-white flex items-center px-4 z-50 border-b border-white/10 gap-3">
+  <div id="app-logo" class="flex items-center gap-2">
     <div class="w-8 h-8 bg-white rounded flex items-center justify-center">
       <span class="tilt-skew-d text-[#00386C] font-black text-xl leading-none">D</span>
     </div>
@@ -34,22 +48,23 @@
     </div>
   </div>
 
-  <div class="ml-auto flex items-center gap-2">
+  <div id="nav-container" class="ml-auto flex items-center gap-2">
     <button id="prev-btn" class="nav-btn" title="Anterior" aria-label="Anterior">
       <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
     </button>
     <select id="tela-select" class="topbar-select"></select>
+    <span id="mobile-breadcrumb" aria-hidden="true"><span class="mb-count"></span><span class="mb-name"></span></span>
     <button id="next-btn" class="nav-btn" title="Próxima" aria-label="Próxima">
       <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
     </button>
   </div>
 
-  <a href="https://github.com/fernandoarruda-fera/dms-mockups" target="_blank" rel="noopener" class="ml-3 text-white/60 hover:text-white" aria-label="GitHub">
+  <a id="app-github" href="https://github.com/fernandoarruda-fera/dms-mockups" target="_blank" rel="noopener" class="ml-3 text-white/60 hover:text-white" aria-label="GitHub">
     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18.92-.26 1.91-.39 2.9-.39.99 0 1.98.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.24 2.77.12 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.25 5.68.41.35.78 1.05.78 2.12v3.15c0 .31.21.67.8.55C20.21 21.38 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z"/></svg>
   </a>
 </div>
 
-<main class="fixed left-0 right-0 bottom-0 top-14 bg-white">
+<main id="app-main" class="fixed left-0 right-0 bottom-0 top-14 bg-white">
   <iframe id="viewer" src="tela01-catalogo-tags.html" title="Mockup preview"></iframe>
 </main>
 
@@ -141,6 +156,13 @@
   var viewer = document.getElementById('viewer');
   var prev = document.getElementById('prev-btn');
   var next = document.getElementById('next-btn');
+  var mbcCount = document.querySelector('#mobile-breadcrumb .mb-count');
+  var mbcName = document.querySelector('#mobile-breadcrumb .mb-name');
+
+  // Mobile mode: viewport está locked em width=1280, então detectamos screen físico
+  if ((window.screen && window.screen.width <= 768) || window.matchMedia('(max-device-width: 768px)').matches) {
+    document.documentElement.classList.add('mobile-mode');
+  }
 
   // Build optgroups
   var groups = {};
@@ -169,6 +191,10 @@
     var i = indexOf(src);
     prev.disabled = i <= 0;
     next.disabled = i >= telas.length - 1;
+    if (mbcCount && mbcName) {
+      mbcCount.textContent = (i + 1) + '/' + telas.length;
+      mbcName.textContent = telas[i].label.replace(/^\d+\s*·\s*/, '');
+    }
   }
 
   function fromHash() {
