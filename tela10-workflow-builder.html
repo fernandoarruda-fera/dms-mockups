@@ -227,7 +227,7 @@ tailwind.config = {
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                 Critérios de Match (resumo)
               </div>
-              <a href="#" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar transition-colors">Configurar no Match Engine →</a>
+              <a href="tela79-matchengine-workflow.html" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar transition-colors">Configurar no Match Engine →</a>
             </div>
             <div class="flex flex-wrap gap-2">
               <span class="mono text-xs px-2 py-1 bg-white border border-[#E5E7EB] rounded text-dms-mar">tipo_compra IN [avulsa, contrato_recorrente]</span>
@@ -312,7 +312,7 @@ tailwind.config = {
               <button onclick="selectTab('sop')" id="tab-sop" class="tab-btn text-sm text-dms-tecnologia px-4 py-3">SOP texto <span class="ml-1 text-xs text-dms-tecnologia">(SOP-001)</span></button>
               <button onclick="selectTab('procedures')" id="tab-procedures" class="tab-btn text-sm text-dms-tecnologia px-4 py-3">Procedures <span class="ml-1 text-xs text-dms-tecnologia">(2)</span></button>
               <button onclick="selectTab('alertas')" id="tab-alertas" class="tab-btn text-sm text-dms-tecnologia px-4 py-3">Alertas <span class="ml-1 text-xs text-dms-tecnologia">(1)</span></button>
-              <button onclick="selectTab('agentes')" id="tab-agentes" class="tab-btn text-sm text-dms-tecnologia px-4 py-3">Agentes <span class="ml-1 text-xs text-dms-tecnologia">(0)</span></button>
+              <button onclick="selectTab('agentes')" id="tab-agentes" class="tab-btn text-sm text-dms-tecnologia px-4 py-3">Agentes <span class="ml-1 text-xs text-dms-tecnologia">(2)</span></button>
               <button onclick="selectTab('sla')" id="tab-sla" class="tab-btn active text-sm px-4 py-3">SLA + Escalation</button>
             </div>
 
@@ -567,18 +567,86 @@ tailwind.config = {
               </div>
             </div>
 
-            <div id="content-alertas" class="hidden p-6">
-              <div class="tab-placeholder rounded-lg p-8 text-center">
-                <h3 class="text-base font-semibold text-dms-mar mb-2">Aba Alertas</h3>
-                <p class="text-sm text-dms-tecnologia">Lista de Alertas anexados (1) com sua regra, canal, destinatário, cooldown. Botão "+ Adicionar Alerta" abre seletor da Biblioteca de Alertas.</p>
+            <div id="content-alertas" class="hidden p-6 space-y-4">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <h3 class="text-sm font-bold text-dms-mar mb-0.5">Alertas vinculados ao stage</h3>
+                  <p class="text-xs text-dms-tecnologia">1 alerta anexado · puxa da <a href="tela78-alertas-biblioteca.html" class="text-dms-confianca font-semibold hover:underline">Biblioteca de Alertas</a></p>
+                </div>
+                <a href="tela78-alertas-biblioteca.html" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar">Ver biblioteca completa →</a>
               </div>
+
+              <div class="space-y-2">
+                <div class="flex items-center justify-between border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white">
+                  <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">Atenção</span>
+                    <div>
+                      <div class="text-sm font-semibold text-dms-mar">SLA em Risco</div>
+                      <div class="text-[11px] text-dms-tecnologia">Stage chegou em 80% do SLA · canais: Email, In-app</div>
+                    </div>
+                  </div>
+                  <button class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
+                </div>
+              </div>
+
+              <div class="border border-dashed border-[#E5E7EB] rounded-md p-3 bg-[#F8F9FA]">
+                <label class="text-xs font-semibold text-dms-mar block mb-1.5">Adicionar alerta existente</label>
+                <div class="flex gap-2">
+                  <input type="text" placeholder="Buscar na biblioteca…" class="input-dms flex-1 text-sm px-3 py-1.5 border border-[#E5E7EB] rounded-md bg-white">
+                  <button class="px-3 py-1.5 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md bg-white hover:bg-sky-50">Vincular</button>
+                </div>
+              </div>
+
+              <a href="tela78-alertas-biblioteca.html" class="flex items-center justify-center gap-2 w-full px-3 py-2.5 text-sm font-semibold text-white bg-dms-sabedoria rounded-md hover:opacity-90">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                Criar novo alerta
+              </a>
             </div>
 
-            <div id="content-agentes" class="hidden p-6">
-              <div class="tab-placeholder rounded-lg p-8 text-center">
-                <h3 class="text-base font-semibold text-dms-mar mb-2">Aba Agentes</h3>
-                <p class="text-sm text-dms-tecnologia">Lista de IA Agents helpers anexados ao stage (0 no exemplo). Tipo, modelo, role no stage (sugerir/decidir/classificar).</p>
+            <div id="content-agentes" class="hidden p-6 space-y-4">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <h3 class="text-sm font-bold text-dms-mar mb-0.5">Agentes vinculados ao stage</h3>
+                  <p class="text-xs text-dms-tecnologia">2 agentes anexados · puxa da <a href="tela77-agentes-biblioteca.html" class="text-dms-confianca font-semibold hover:underline">Biblioteca de Agentes</a></p>
+                </div>
+                <a href="tela77-agentes-biblioteca.html" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar">Ver biblioteca completa →</a>
               </div>
+
+              <div class="space-y-2">
+                <div class="flex items-center justify-between border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white">
+                  <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-dms-sabedoria/10 text-dms-sabedoria">ActionAI</span>
+                    <div>
+                      <div class="text-sm font-semibold text-dms-mar">ActionAI Aprovação NF</div>
+                      <div class="text-[11px] text-dms-tecnologia">Sugere aprovação/rejeição comparando com pedido + contrato</div>
+                    </div>
+                  </div>
+                  <button class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
+                </div>
+                <div class="flex items-center justify-between border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white">
+                  <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">Validação</span>
+                    <div>
+                      <div class="text-sm font-semibold text-dms-mar">Detector Divergência Pedido×NF</div>
+                      <div class="text-[11px] text-dms-tecnologia">Compara valores, itens e quantidades</div>
+                    </div>
+                  </div>
+                  <button class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
+                </div>
+              </div>
+
+              <div class="border border-dashed border-[#E5E7EB] rounded-md p-3 bg-[#F8F9FA]">
+                <label class="text-xs font-semibold text-dms-mar block mb-1.5">Adicionar agente existente</label>
+                <div class="flex gap-2">
+                  <input type="text" placeholder="Buscar na biblioteca…" class="input-dms flex-1 text-sm px-3 py-1.5 border border-[#E5E7EB] rounded-md bg-white">
+                  <button class="px-3 py-1.5 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md bg-white hover:bg-sky-50">Vincular</button>
+                </div>
+              </div>
+
+              <a href="tela77-agentes-biblioteca.html" class="flex items-center justify-center gap-2 w-full px-3 py-2.5 text-sm font-semibold text-white bg-dms-sabedoria rounded-md hover:opacity-90">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                Criar novo agente
+              </a>
             </div>
 
           </div>
@@ -873,6 +941,8 @@ renderStages();
         <li><a href="tela03-procedures-list.html" title="Procedures" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
         <li><a href="tela04-catalogo-workflows.html" title="Workflows" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
         <li><a href="tela06-biblioteca-sop.html" title="SOPs" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela77-agentes-biblioteca.html" title="Agentes" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🤖</span><span class="sb-label">Agentes</span></a></li>
+        <li><a href="tela78-alertas-biblioteca.html" title="Alertas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🚨</span><span class="sb-label">Alertas</span></a></li>
         <li><a href="tela12-execution-visibility.html" title="Execuções" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
         <li><a href="tela13-audit-trail.html" title="Auditoria" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
       </ul>

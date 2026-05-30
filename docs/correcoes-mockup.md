@@ -107,3 +107,30 @@ Cada concept precisa aprovação do Fernando antes de virar PLAN de implementaç
 - Sprint plan (se houver)
 - README do projeto se rename DMSYS V2 afeta
 - Roadmap (criar item Cat 3 com "Vinculação a Workflow" pra match rules + Dashboard via IA + Personalização por perfil + i18n)
+
+---
+
+## Lote C Task 1 — entregue (2026-05-30)
+
+**3 telas novas criadas:**
+
+- **`tela77-agentes-biblioteca.html`** — Biblioteca de Agentes inteligentes. 4 KPIs (Total/Ativos/Inativos/Em uso), filtros (busca, tipo, status), tabela com 14 agentes plausíveis (ActionAI Aprovação NF, Validador CNPJ Brasil, Roteador SLA Crítico, etc.), badges coloridos por tipo, chips de skills, contador de workflows vinculados, drawer lateral "+ Novo Agente" com form (Nome, Tipo, Descrição, Skills, Config), empty state.
+- **`tela78-alertas-biblioteca.html`** — Biblioteca de Alertas configuráveis. 4 KPIs (Total/Ativos/Disparados 24h/Workflows usando), filtros (busca, severidade, canal, status), tabela com 12 alertas (SLA Crítico, Divergência NF, Stage Atrasado, Workflow Órfão, etc.), drawer "+ Novo Alerta" com form completo (Severidade radio cards, Canais multi-check, Trigger condition mono, Mensagem template com vars, Ativo toggle).
+- **`tela79-matchengine-workflow.html`** — MatchEngine config por workflow com **3 modos de configuração**: 🛠️ Manual (A) = mapeamentos editáveis; ✨ IA Assistida (B, default) = sugestões IA com toggle aprovar/editar + textarea "refinar prompt" + botão "re-gerar"; 🤖 IA + Validação (C) = mapeamentos discriminantes/redundantes + selo "Match único garantido" e estado alternativo "Ambiguidade detectada" (collapsible). Cards "Como vai funcionar" (preview email→workflow) e "Tags que disparam match" compartilhados entre os 3 modos. Footer fixo com Cancelar / Testar / Salvar. Toggle de modo troca todo o conteúdo via JS.
+
+**`tela10-workflow-builder.html` atualizada:**
+
+- Link "Configurar no Match Engine →" agora aponta pra `tela79-matchengine-workflow.html`.
+- Aba **Alertas** ganhou conteúdo real: lista de alertas vinculados (1 chip "SLA em Risco"), autocomplete "Adicionar alerta existente", botão "+ Criar novo alerta" → linka pra tela78.
+- Aba **Agentes** ganhou conteúdo real: lista de agentes vinculados (2 chips: ActionAI Aprovação NF + Detector Divergência), autocomplete + botão "+ Criar novo agente" → linka pra tela77. Contador da aba passou de (0) pra (2).
+- Sidebar consolidada ganhou links Agentes 🤖 e Alertas 🚨 na seção Bibliotecas.
+
+**`index.html` atualizado:**
+
+- 3 entradas adicionadas no novo grupo "Bibliotecas Avançadas".
+- Header bumpado de "75 telas" → "79 telas".
+
+**Próximos itens do Lote C (pendentes):**
+
+- Task 2 — outras telas/ajustes a definir
+- Task 3 — em aberto
