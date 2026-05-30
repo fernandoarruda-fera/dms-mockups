@@ -4,6 +4,17 @@
 > Última atualização: 2026-05-30
 > Origem: ciclo de validação mockups DMSYS V2
 
+## 0. Alinhamento com docs do projeto principal
+
+**MatchEngine** é mencionado em vários docs do projeto principal mas **não tem CONCEPT dedicado** — este documento preenche essa lacuna:
+
+- `~/dms/M-dulo-de-compras-dms-/docs/concepts/CONCEPT_TAG_SCHEME.md` declara explicitamente: "componentes que CHAMAM Tag Scheme (Workflow Engine, Template Engine, Match Engine) têm seus próprios documentos" — referenciando este concept como existente (gap a fechar).
+- CONCEPT_TAG_SCHEME também lista Match Engine como consumidor de tags na **Tela 22** ("critérios e operadores").
+- Mencionado em CHECKPOINT_SPRINT_2_5, sessions/2026-05-27/PLAN-CAT*, ADR-002-soft-delete.
+- A integração formal **MatchEngine ↔ Tag Scheme** (como pesos são definidos, qual a interface) ainda precisa ser detalhada — pendência herdada.
+
+Este concept é a **referência primária** até que seja consolidado no diretório `docs/concepts/` do projeto principal.
+
 ## 1. Objetivo
 
 MatchEngine é o componente responsável por vincular **automaticamente** um input (email recebido, documento, evento) a **exatamente 1 workflow** já existente no sistema. Garante a regra de [[CONCEPT-WORKFLOW-OBLIGATORY]] na entrada de dados externos.

@@ -85,15 +85,19 @@ Sistema adicionado: cada anotação tem botões ✓ OK / ✗ Não OK pra Fernand
 
 ---
 
-## Concepts criados (2026-05-30, em docs/concepts/)
+## Concepts criados (2026-05-30, em `docs/concepts/`)
 
-- **AGENTS** — entidade nova, mockup tela77
-- **ALERTS** — entidade nova, mockup tela78
-- **WORKFLOW-OBLIGATORY** — regra de negócio CRÍTICA
-- **MATCH-ENGINE** — 3 modos, mockup tela79
-- **SAVED-FILTERS** — feature nova (escopo privado/equipe/global)
-- **AI-GENERATION** — contrato genérico unificado
-- **USER-PROFILE-PREFERENCES** — personalização por user
+Consolidação com nomenclatura do projeto principal (`~/dms/M-dulo-de-compras-dms-/docs/concepts/`):
+
+- **ACTIONIA** (era AGENTS) — `CONCEPT-ACTIONIA.md` · mockup tela77 · termo já usado em `VISAO_GERAL_DO_PROJETO.md`/`roadmap-v2.md` do main project (sem concept dedicado lá — este é a referência primária).
+- **ALERT** (era ALERTS) — `CONCEPT-ALERT.md` · mockup tela78 · mencionado em `VISAO_GERAL`/`data-model`/`roadmap-v2` do main project (sem concept dedicado — este é a referência primária).
+- **WORKFLOW-OBLIGATORY** — `CONCEPT-WORKFLOW-OBLIGATORY.md` · regra de negócio CRÍTICA · novo.
+- **MATCH-ENGINE** — `CONCEPT-MATCH-ENGINE.md` · 3 modos, mockup tela79 · `CONCEPT_TAG_SCHEME.md` do main project já o referencia como existente — este preenche o gap.
+- **SAVED-FILTERS** — `CONCEPT-SAVED-FILTERS.md` · feature nova (escopo privado/equipe/global).
+- **AI-GENERATION** — `CONCEPT-AI-GENERATION.md` · contrato genérico unificado.
+- **USER-PROFILE-PREFERENCES** — `CONCEPT-USER-PROFILE-PREFERENCES.md` · personalização por user.
+
+**Status de consolidação com main project:** todos os 3 que tinham equivalente no main project (ActionIA / Alert / MatchEngine) foram alinhados — não existia CONCEPT dedicado em `~/dms/M-dulo-de-compras-dms-/docs/concepts/` pra nenhum dos 3, então estes ficam como referência primária em `dms-mockups/docs/concepts/` com seção `## 0. Alinhamento com docs do projeto principal` no topo de cada um apontando pra onde o conceito é mencionado no main project.
 
 Cada concept precisa aprovação do Fernando antes de virar PLAN de implementação no React.
 
@@ -114,8 +118,8 @@ Cada concept precisa aprovação do Fernando antes de virar PLAN de implementaç
 
 **3 telas novas criadas:**
 
-- **`tela77-agentes-biblioteca.html`** — Biblioteca de Agentes inteligentes. 4 KPIs (Total/Ativos/Inativos/Em uso), filtros (busca, tipo, status), tabela com 14 agentes plausíveis (ActionAI Aprovação NF, Validador CNPJ Brasil, Roteador SLA Crítico, etc.), badges coloridos por tipo, chips de skills, contador de workflows vinculados, drawer lateral "+ Novo Agente" com form (Nome, Tipo, Descrição, Skills, Config), empty state.
-- **`tela78-alertas-biblioteca.html`** — Biblioteca de Alertas configuráveis. 4 KPIs (Total/Ativos/Disparados 24h/Workflows usando), filtros (busca, severidade, canal, status), tabela com 12 alertas (SLA Crítico, Divergência NF, Stage Atrasado, Workflow Órfão, etc.), drawer "+ Novo Alerta" com form completo (Severidade radio cards, Canais multi-check, Trigger condition mono, Mensagem template com vars, Ativo toggle).
+- **`tela77-agentes-biblioteca.html`** — Biblioteca de Agentes inteligentes (entidade = **ActionIA**, ver [[CONCEPT-ACTIONIA]]). 4 KPIs (Total/Ativos/Inativos/Em uso), filtros (busca, tipo, status), tabela com 14 agentes plausíveis (ActionAI Aprovação NF, Validador CNPJ Brasil, Roteador SLA Crítico, etc.), badges coloridos por tipo, chips de skills, contador de workflows vinculados, drawer lateral "+ Novo Agente" com form (Nome, Tipo, Descrição, Skills, Config), empty state.
+- **`tela78-alertas-biblioteca.html`** — Biblioteca de Alertas configuráveis (entidade = **Alert**, ver [[CONCEPT-ALERT]]). 4 KPIs (Total/Ativos/Disparados 24h/Workflows usando), filtros (busca, severidade, canal, status), tabela com 12 alertas (SLA Crítico, Divergência NF, Stage Atrasado, Workflow Órfão, etc.), drawer "+ Novo Alerta" com form completo (Severidade radio cards, Canais multi-check, Trigger condition mono, Mensagem template com vars, Ativo toggle).
 - **`tela79-matchengine-workflow.html`** — MatchEngine config por workflow com **3 modos de configuração**: 🛠️ Manual (A) = mapeamentos editáveis; ✨ IA Assistida (B, default) = sugestões IA com toggle aprovar/editar + textarea "refinar prompt" + botão "re-gerar"; 🤖 IA + Validação (C) = mapeamentos discriminantes/redundantes + selo "Match único garantido" e estado alternativo "Ambiguidade detectada" (collapsible). Cards "Como vai funcionar" (preview email→workflow) e "Tags que disparam match" compartilhados entre os 3 modos. Footer fixo com Cancelar / Testar / Salvar. Toggle de modo troca todo o conteúdo via JS.
 
 **`tela10-workflow-builder.html` atualizada:**

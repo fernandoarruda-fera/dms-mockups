@@ -1,12 +1,22 @@
-# CONCEPT: Agents (Agentes Inteligentes)
+# CONCEPT: ActionIA (Agentes Inteligentes)
 
 > Status: 📝 Proposta
 > Última atualização: 2026-05-30
 > Origem: ciclo de validação mockups DMSYS V2
 
+## 0. Alinhamento com docs do projeto principal
+
+O termo **ActionIA** já existe no projeto principal:
+
+- `~/dms/M-dulo-de-compras-dms-/docs/VISAO_GERAL_DO_PROJETO.md` define ACTIONIA como uma das 4 famílias de Trigger Types (junto com DOCSIA/MAILIA/CONNECTIA), descrita como "Execução em sistemas externos como humano (RPA-like)" — login em portal de fornecedor, navegação, preenchimento, submissão.
+- `~/dms/M-dulo-de-compras-dms-/docs/roadmap-v2.md` posiciona Sprint 2.16 (CONNECTIA/ACTIONIA) como integração + RPA pra sistemas sem API.
+- Não existe `CONCEPT_ACTIONIA.md` dedicado em `~/dms/M-dulo-de-compras-dms-/docs/concepts/` — este documento é a referência primária.
+
+**Tensão de escopo a resolver com PO:** no main project, ACTIONIA é especificamente a categoria RPA. Aqui, propomos ampliar o conceito pra cobrir 4 sub-tipos de agentes (RPA, Validação, Roteamento, Notificação). Decidir antes da implementação se é uma única entidade `agents` com sub-tipos, ou 4 entidades distintas mantendo o nome ActionIA só pro RPA.
+
 ## 1. Objetivo
 
-Agentes Inteligentes são entidades configuráveis do sistema responsáveis por executar tarefas autônomas ou semi-autônomas dentro de workflows. Substituem/complementam regras estáticas com lógica baseada em IA, validações programadas, roteamento dinâmico e notificações contextuais.
+Agentes Inteligentes (ActionIA, na nomenclatura do projeto principal) são entidades configuráveis do sistema responsáveis por executar tarefas autônomas ou semi-autônomas dentro de workflows. Substituem/complementam regras estáticas com lógica baseada em IA, validações programadas, roteamento dinâmico e notificações contextuais.
 
 O objetivo é centralizar a configuração desses "executores" para que workflows possam compô-los sem código, permitindo que o time de operações crie automações complexas de forma declarativa.
 
@@ -27,7 +37,7 @@ O objetivo é centralizar a configuração desses "executores" para que workflow
 
 ### Config por tipo
 
-- **ActionAI:** `{ prompt_template, model, max_tokens, tools[] }`
+- **ActionAI (RPA):** `{ prompt_template, model, max_tokens, tools[] }`
 - **Validação:** `{ rules[], on_fail: 'block' | 'warn', message_template }`
 - **Roteamento:** `{ conditions[], targets[], fallback }`
 - **Notificação:** `{ channels[], template_id, recipients_expr }`
@@ -71,10 +81,11 @@ O objetivo é centralizar a configuração desses "executores" para que workflow
 - Status `em_uso` calculado dinamicamente (não persistido).
 
 **Pendências:**
+- **Resolver tensão de escopo** com main project (ver Seção 0).
 - Catálogo sugerido de skills — quem cura?
 - Versionamento de config (rollback?) — fora do v1.
 - Templates/agentes pré-configurados do sistema — listar os 5-10 mais úteis.
 
 ## 8. Prioridade
 
-**Médio** — entidade já existe como placeholder no front, mas não bloqueia operação. Implementar depois que MATCH-ENGINE e WORKFLOW-OBLIGATORY estiverem prontos (agentes serão consumidos por ambos).
+**Médio** — entidade já existe como placeholder no front, mas não bloqueia operação. Implementar depois que [[CONCEPT-MATCH-ENGINE]] e [[CONCEPT-WORKFLOW-OBLIGATORY]] estiverem prontos (agentes serão consumidos por ambos).

@@ -89,4 +89,4 @@ Backfill: registros legados sem workflow recebem `workflow_id = workflow_orfao_d
 
 ## 8. Prioridade
 
-**🚨 CRÍTICO** — é a regra que mais impacta governança. Bloqueia outras features (SLA, escalation, dashboards de compliance) que assumem workflow vinculado. Implementar **antes** de [[CONCEPT-MATCH-ENGINE]] e [[CONCEPT-AGENTS]].
+**🚨 CRÍTICO** — é a regra que mais impacta governança. Bloqueia outras features (SLA, escalation, dashboards de compliance) que assumem workflow vinculado. Implementar **antes** de [[CONCEPT-MATCH-ENGINE]] e [[CONCEPT-ACTIONIA]].
