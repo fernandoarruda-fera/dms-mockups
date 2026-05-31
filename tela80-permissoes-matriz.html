@@ -41,6 +41,16 @@ tailwind.config = {
   .col-group-head { background: rgba(0,56,108,0.04); color: #00386C; font-weight:700; font-size: 11px; text-align: center; }
   .col-action-head { background: #F8F9FA; color: #656464; font-weight:600; font-size: 10px; text-align:center; }
   .col-hover:hover { background: rgba(0,174,238,0.04); }
+  /* Dirty state */
+  tr.row-dirty td.sticky-col.role-name { box-shadow: inset 3px 0 0 #EAB308; }
+  .perm-check { transition: transform .08s ease; }
+  .perm-check:not(.disabled):hover { transform: scale(1.15); }
+  .perm-check.dirty { outline: 2px solid #EAB308; outline-offset: 1px; }
+  /* Drawer */
+  #drw-delegar { position: fixed; top:0; right:0; height:100vh; width:480px; max-width:96vw; background:#fff; z-index:60; transform: translateX(105%); transition: transform .22s ease; box-shadow: -8px 0 24px rgba(0,0,0,.10); display:flex; flex-direction:column; }
+  #drw-delegar.open { transform: translateX(0); }
+  #drw-back { position: fixed; inset:0; background: rgba(15,27,76,.5); z-index:55; display:none; }
+  #drw-back.open { display:block; }
 </style>
 <link rel="stylesheet" href="mobile-responsive.css">
 </head>
@@ -58,8 +68,9 @@ tailwind.config = {
       </nav>
       <div class="flex items-center gap-3">
         <a href="tela85-permission-delegations.html" class="text-xs font-semibold text-dms-ceu hover:underline flex items-center gap-1">🔗 Ver delegações ativas (23) →</a>
-        <button class="px-3 py-2 text-sm font-medium text-dms-tecnologia border border-[#E5E7EB] rounded-md hover:text-dms-mar bg-white transition-colors">Exportar matriz</button>
-        <button class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">+ Nova Função (Role)</button>
+        <button onclick="abrirDrawerDelegar()" class="px-3 py-2 text-sm font-semibold text-dms-sabedoria border border-dms-sabedoria/30 rounded-md hover:bg-dms-sabedoria/5 bg-white transition-colors">🔗 Delegar permissão específica</button>
+        <button onclick="exportMatriz()" class="px-3 py-2 text-sm font-medium text-dms-tecnologia border border-[#E5E7EB] rounded-md hover:text-dms-mar bg-white transition-colors">Exportar matriz</button>
+        <button onclick="abrirNovaRole()" class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">+ Nova Função (Role)</button>
       </div>
     </header>
 
@@ -229,13 +240,13 @@ tailwind.config = {
 
     <!-- FOOTER FIXO -->
     <div class="sticky bottom-0 ml-[260px] -mx-8 px-8 py-4 bg-white border-t border-[#E5E7EB] flex items-center justify-between gap-3 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.04)]" style="margin-left:0;">
-      <div class="flex items-center gap-3 text-xs">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>3 alterações pendentes</span>
-        <span class="text-dms-tecnologia">Compras Operacional · +cotacoes.excluir · +pedidos.aprovar · Viewer · -auditoria.ver</span>
+      <div class="flex items-center gap-3 text-xs min-w-0">
+        <span id="dirty-pill" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 border border-gray-200 text-dms-tecnologia font-semibold whitespace-nowrap"><span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span><span id="dirty-count">0</span> alterações pendentes</span>
+        <span id="dirty-summary" class="text-dms-tecnologia truncate">Clique nas células da matriz pra ativar/desativar permissões.</span>
       </div>
       <div class="flex items-center gap-3">
-        <button class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 border border-[#E5E7EB] rounded-md bg-white">Cancelar</button>
-        <button class="text-sm font-semibold text-white px-5 py-2 bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors">Salvar mudanças (3)</button>
+        <button id="btn-cancelar" onclick="cancelarMudancas()" class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 border border-[#E5E7EB] rounded-md bg-white disabled:opacity-40 disabled:cursor-not-allowed" disabled>Cancelar</button>
+        <button id="btn-salvar" onclick="abrirModalSalvar()" class="text-sm font-semibold text-white px-5 py-2 bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>Salvar mudanças (<span id="save-count">0</span>)</button>
       </div>
     </div>
 
@@ -323,14 +334,23 @@ const ROLE_MATRIX = {
 
 const ROLE_ORDER = ['admin','cmpAdm','cmpOp','capAdm','capOp','aprDir','aprGer','viewer'];
 
-function cellHtml(state) {
+const ACTIONS = ['V','E','I','X','A'];
+const ROLE_LABEL = { admin:'Admin Geral', cmpAdm:'Compras Adm', cmpOp:'Compras Op', capAdm:'CAP Adm', capOp:'CAP Op', aprDir:'Aprovador Diretor', aprGer:'Aprovador Gerente', viewer:'Viewer' };
+
+// Estado mutável: { telaCode: { role: [V,E,I,X,A] } } — clonado de ROLE_MATRIX/DEFAULTS na primeira render
+const STATE = {};
+const BASELINE = {};
+const CHANGES = []; // [{tela, role, action, from, to}]
+
+function cellHtml(state, telaCode, role, actIdx, dirty) {
+  const dirtyCls = dirty ? ' dirty' : '';
   if (state === -1) {
-    return '<span class="perm-check disabled" title="ação não aplicável">—</span>';
+    return `<span class="perm-check disabled" title="ação não aplicável">—</span>`;
   }
   if (state === 1) {
-    return '<span class="perm-check on" title="permitido"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>';
+    return `<span class="perm-check on${dirtyCls}" title="permitido — clique para negar" data-tela="${telaCode}" data-role="${role}" data-act="${actIdx}" onclick="togglePerm(this)"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>`;
   }
-  return '<span class="perm-check off" title="negado"></span>';
+  return `<span class="perm-check off${dirtyCls}" title="negado — clique para permitir" data-tela="${telaCode}" data-role="${role}" data-act="${actIdx}" onclick="togglePerm(this)"></span>`;
 }
 
 function buildMatrix() {
@@ -340,11 +360,21 @@ function buildMatrix() {
     html += `<tr class="cat-header"><td colspan="${1 + 8*5}" class="sticky-col">${cat.label}</td></tr>`;
     cat.rows.forEach(row => {
       const perms = ROLE_MATRIX[row.code] || {};
-      html += `<tr class="hover:bg-[#FAFBFC]">`;
+      // Hidrata STATE/BASELINE
+      if (!STATE[row.code]) {
+        STATE[row.code] = {};
+        BASELINE[row.code] = {};
+        ROLE_ORDER.forEach(role => {
+          const src = (perms[role] || ROLE_DEFAULTS[role]).slice();
+          STATE[row.code][role] = src.slice();
+          BASELINE[row.code][role] = src.slice();
+        });
+      }
+      html += `<tr id="row-${row.code}" class="hover:bg-[#FAFBFC]">`;
       html += `<td class="sticky-col role-name"><div class="flex items-center gap-2"><span class="mono text-[10px] text-dms-tecnologia">${row.code}</span><span>${row.name}</span></div></td>`;
       ROLE_ORDER.forEach(role => {
-        const states = perms[role] || ROLE_DEFAULTS[role];
-        states.forEach(s => { html += `<td class="action-cell">${cellHtml(s)}</td>`; });
+        const states = STATE[row.code][role];
+        states.forEach((s, idx) => { html += `<td class="action-cell">${cellHtml(s, row.code, role, idx, false)}</td>`; });
       });
       html += `</tr>`;
     });
@@ -352,7 +382,151 @@ function buildMatrix() {
   body.innerHTML = html;
 }
 
+function togglePerm(el) {
+  const tela = el.dataset.tela, role = el.dataset.role, actIdx = parseInt(el.dataset.act, 10);
+  const cur = STATE[tela][role][actIdx];
+  if (cur === -1) return; // n/a
+  const next = cur === 1 ? 0 : 1;
+  STATE[tela][role][actIdx] = next;
+  // Re-renderiza só esta célula
+  const td = el.parentElement;
+  const dirty = next !== BASELINE[tela][role][actIdx];
+  td.innerHTML = cellHtml(next, tela, role, actIdx, dirty);
+  recomputeChanges();
+}
+
+function recomputeChanges() {
+  CHANGES.length = 0;
+  Object.keys(STATE).forEach(tela => {
+    Object.keys(STATE[tela]).forEach(role => {
+      STATE[tela][role].forEach((s, i) => {
+        const base = BASELINE[tela][role][i];
+        if (s !== base && base !== -1) {
+          CHANGES.push({ tela, role, action: ACTIONS[i], from: base, to: s });
+        }
+      });
+    });
+    // Marca linha dirty
+    const row = document.getElementById('row-' + tela);
+    if (row) {
+      const rowDirty = ROLE_ORDER.some(r => STATE[tela][r].some((s,i) => s !== BASELINE[tela][r][i] && BASELINE[tela][r][i] !== -1));
+      row.classList.toggle('row-dirty', rowDirty);
+    }
+  });
+  updateFooter();
+}
+
+function updateFooter() {
+  const n = CHANGES.length;
+  document.getElementById('dirty-count').textContent = n;
+  document.getElementById('save-count').textContent = n;
+  document.getElementById('btn-salvar').disabled = n === 0;
+  document.getElementById('btn-cancelar').disabled = n === 0;
+  const pill = document.getElementById('dirty-pill');
+  pill.classList.toggle('bg-amber-50', n > 0);
+  pill.classList.toggle('border-amber-200', n > 0);
+  pill.classList.toggle('text-amber-700', n > 0);
+  pill.classList.toggle('bg-gray-100', n === 0);
+  pill.classList.toggle('border-gray-200', n === 0);
+  pill.classList.toggle('text-dms-tecnologia', n === 0);
+  pill.querySelector('span:first-child').className = 'w-1.5 h-1.5 rounded-full ' + (n > 0 ? 'bg-amber-500' : 'bg-gray-400');
+  const summary = document.getElementById('dirty-summary');
+  if (n === 0) {
+    summary.textContent = 'Clique nas células da matriz pra ativar/desativar permissões.';
+  } else {
+    summary.textContent = CHANGES.slice(0, 3).map(c => `${ROLE_LABEL[c.role]} · ${c.to===1?'+':'-'}${c.tela}.${c.action}`).join(' · ') + (n > 3 ? ` · +${n-3}` : '');
+  }
+}
+
+function abrirModalSalvar() {
+  if (!CHANGES.length) return;
+  const grants = CHANGES.filter(c => c.to === 1).length;
+  const revokes = CHANGES.filter(c => c.to === 0).length;
+  document.getElementById('save-grants').textContent = grants;
+  document.getElementById('save-revokes').textContent = revokes;
+  document.getElementById('save-total').textContent = CHANGES.length;
+  // Lista detalhada
+  const ul = document.getElementById('save-list');
+  ul.innerHTML = CHANGES.map(c => `<li class="flex items-center gap-2 py-1 border-b border-[#E5E7EB] last:border-0"><span class="mono text-[10px] px-1.5 py-0.5 rounded ${c.to===1?'bg-emerald-50 text-emerald-700':'bg-red-50 text-red-700'}">${c.to===1?'+':'−'}</span><span class="text-xs text-dms-mar font-semibold">${ROLE_LABEL[c.role]}</span><span class="text-xs text-dms-tecnologia">→</span><span class="mono text-[11px] text-dms-mar">${c.tela}.${c.action}</span></li>`).join('');
+  const m = document.getElementById('modal-salvar');
+  m.classList.remove('hidden'); m.classList.add('flex');
+}
+function fecharModalSalvar() {
+  const m = document.getElementById('modal-salvar');
+  m.classList.add('hidden'); m.classList.remove('flex');
+}
+function confirmarSalvar() {
+  const n = CHANGES.length;
+  const grants = CHANGES.filter(c => c.to === 1).length;
+  const revokes = CHANGES.filter(c => c.to === 0).length;
+  // Mock-commit: baseline vira novo estado
+  Object.keys(STATE).forEach(t => {
+    Object.keys(STATE[t]).forEach(r => { BASELINE[t][r] = STATE[t][r].slice(); });
+  });
+  CHANGES.length = 0;
+  document.querySelectorAll('tr.row-dirty').forEach(r => r.classList.remove('row-dirty'));
+  document.querySelectorAll('.perm-check.dirty').forEach(c => c.classList.remove('dirty'));
+  fecharModalSalvar();
+  updateFooter();
+  showToast(`Matriz salva (mockup). ${grants} permissões concedidas, ${revokes} revogadas. Total: ${n} delegações geradas.`);
+}
+
+function cancelarMudancas() {
+  if (!CHANGES.length) return;
+  if (!confirm('Descartar ' + CHANGES.length + ' alteração(ões) não salva(s)?')) return;
+  // Restore from BASELINE
+  Object.keys(STATE).forEach(t => {
+    Object.keys(STATE[t]).forEach(r => { STATE[t][r] = BASELINE[t][r].slice(); });
+  });
+  CHANGES.length = 0;
+  buildMatrix();
+  updateFooter();
+  showToast('Alterações descartadas.');
+}
+
+function abrirNovaRole() { showToast('Nova Função (mockup) — em produção abriria modal com nome + permissions base.'); }
+function exportMatriz() { showToast('Matriz exportada (mockup) — gera CSV com snapshot de roles × telas × ações.'); }
+
+// Drawer delegar
+function abrirDrawerDelegar() {
+  document.getElementById('drw-delegar').classList.add('open');
+  document.getElementById('drw-back').classList.add('open');
+}
+function fecharDrawerDelegar() {
+  document.getElementById('drw-delegar').classList.remove('open');
+  document.getElementById('drw-back').classList.remove('open');
+}
+function submitDelegar() {
+  const user = (document.getElementById('drw-user').value || '').trim();
+  const perm = document.getElementById('drw-perm').value;
+  if (!user) { showToast('Informe um usuário', true); return; }
+  fecharDrawerDelegar();
+  showToast('Delegação criada (mockup): ' + perm + ' → ' + user + '. Veja em tela85.');
+}
+
+// Toast
+function showToast(msg, isErr) {
+  let t = document.getElementById('toast-tela80');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast-tela80';
+    t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;box-shadow:0 8px 24px -4px rgba(0,0,0,.3);z-index:9999;opacity:0;transition:opacity .2s ease;pointer-events:none;max-width:90vw;text-align:center;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.background = isErr ? '#B91C1C' : '#1A1A1A';
+  t.style.opacity = '1';
+  clearTimeout(t._h);
+  t._h = setTimeout(() => { t.style.opacity = '0'; }, 2800);
+}
+
+// Confirm leave se dirty
+window.addEventListener('beforeunload', e => {
+  if (CHANGES.length > 0) { e.preventDefault(); e.returnValue = ''; return ''; }
+});
+
 buildMatrix();
+updateFooter();
 </script>
 
 <!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
@@ -565,6 +739,100 @@ buildMatrix();
 function abrirModalOwner(tipo){ var m = document.getElementById('modal-owner-'+tipo); if(m){ m.classList.remove('hidden'); m.classList.add('flex'); } }
 function fecharModalOwner(tipo){ var m = document.getElementById('modal-owner-'+tipo); if(m){ m.classList.add('hidden'); m.classList.remove('flex'); } }
 </script>
+
+<!-- ===== MODAL: PREVIEW SAVE MATRIZ ===== -->
+<div id="modal-salvar" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,27,76,0.55);">
+  <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
+      <span class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-xl">💾</span>
+      <div>
+        <h3 class="text-base font-bold text-dms-mar">Salvar matriz de permissões</h3>
+        <p class="text-xs text-dms-tecnologia">Confirme as <span id="save-total" class="font-semibold text-dms-mar">0</span> mudanças. Cada concessão vira <strong>delegação rastreável</strong> em <a href="tela85-permission-delegations.html" class="text-dms-ceu hover:underline">tela85</a>.</p>
+      </div>
+    </div>
+    <div class="p-6 space-y-4">
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-emerald-50 border border-emerald-200 rounded p-3">
+          <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-700">Concessões</div>
+          <div class="text-2xl mono font-bold text-emerald-700"><span id="save-grants">0</span></div>
+          <div class="text-[11px] text-emerald-700/80">→ criam delegações em tela85</div>
+        </div>
+        <div class="bg-red-50 border border-red-200 rounded p-3">
+          <div class="text-[10px] uppercase tracking-wider font-bold text-red-700">Revogações</div>
+          <div class="text-2xl mono font-bold text-red-700"><span id="save-revokes">0</span></div>
+          <div class="text-[11px] text-red-700/80">→ revogam delegações existentes</div>
+        </div>
+      </div>
+      <div>
+        <div class="text-[10px] uppercase tracking-wider font-bold text-dms-tecnologia mb-1">Detalhe das mudanças</div>
+        <ul id="save-list" class="max-h-56 overflow-y-auto bg-[#F8F9FA] border border-[#E5E7EB] rounded p-2 list-none"></ul>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded p-2.5 text-[11px] text-amber-800">
+        ⚠️ Mock visual — em produção, salvar dispara: (1) revalidação de ownership (tela82), (2) recálculo de cadeia de delegação (tela85), (3) audit trail (tela13). Users sem scope continuam sem cards mesmo com permissão nova.
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
+      <button onclick="fecharModalSalvar()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Voltar</button>
+      <button onclick="confirmarSalvar()" class="text-sm font-semibold text-white px-4 py-2 bg-emerald-600 rounded hover:bg-emerald-700">Confirmar e salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DRAWER: DELEGAR PERMISSÃO ESPECÍFICA ===== -->
+<div id="drw-back" onclick="fecharDrawerDelegar()"></div>
+<aside id="drw-delegar">
+  <div class="px-5 py-4 border-b border-[#E5E7EB] flex items-start justify-between gap-3">
+    <div>
+      <h3 class="text-base font-bold text-dms-mar flex items-center gap-2">🔗 Delegar permissão específica</h3>
+      <p class="text-[11px] text-dms-tecnologia mt-0.5">Conceda a um usuário 1 permissão pontual sem alterar sua role. Vira entry em <a href="tela85-permission-delegations.html" class="text-dms-ceu hover:underline">permission_delegations</a> com auditoria.</p>
+    </div>
+    <button onclick="fecharDrawerDelegar()" class="text-dms-tecnologia hover:text-dms-mar text-2xl leading-none">×</button>
+  </div>
+  <div class="flex-1 overflow-y-auto p-5 space-y-4">
+    <div>
+      <label class="caption text-dms-tecnologia mb-1.5 block">Usuário <span class="text-red-500">*</span></label>
+      <input id="drw-user" type="text" placeholder="Buscar por nome ou email…" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white" list="drw-users-list">
+      <datalist id="drw-users-list">
+        <option value="Júlia Mendes — julia@dms.com">
+        <option value="Pedro Lima — pedro@dms.com">
+        <option value="Carlos Silva — carlos@dms.com">
+        <option value="Renata Souza — renata@dms.com">
+      </datalist>
+    </div>
+    <div>
+      <label class="caption text-dms-tecnologia mb-1.5 block">Permissão a delegar <span class="text-red-500">*</span></label>
+      <select id="drw-perm" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+        <option>cotacoes.aprovar</option>
+        <option>pedidos.excluir</option>
+        <option>notas_fiscais.aprovar</option>
+        <option>contratos.editar</option>
+        <option>auditoria.ver</option>
+        <option>permissoes.editar</option>
+      </select>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">Válida a partir de</label>
+        <input type="date" value="2026-05-31" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">Expira em (opcional)</label>
+        <input type="date" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+      </div>
+    </div>
+    <div>
+      <label class="caption text-dms-tecnologia mb-1.5 block">Justificativa (audit trail)</label>
+      <textarea rows="3" placeholder="ex: Cobertura de férias do Gerente de Compras de 01/06 a 15/06" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
+    </div>
+    <div class="bg-violet-50 border border-violet-200 rounded p-3 text-[11px] text-violet-800">
+      ℹ️ Delegação respeita scope do usuário em <a href="tela50-profile.html" class="underline font-semibold">Intervenientes</a>. Se o destinatário não tem scope nas entidades onde a permissão se aplica, nada acontece.
+    </div>
+  </div>
+  <div class="px-5 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
+    <button onclick="fecharDrawerDelegar()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Cancelar</button>
+    <button onclick="submitDelegar()" class="text-sm font-semibold text-white px-4 py-2 bg-dms-sabedoria rounded hover:opacity-90">Criar delegação</button>
+  </div>
+</aside>
 
 <script src="notes-widget.js" defer></script>
 <script src="i18n-toggle.js" defer></script>

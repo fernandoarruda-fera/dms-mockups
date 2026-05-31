@@ -355,3 +355,21 @@ Origem: 3 últimas telas pendentes do mapa (concepts ACTIONIA, ALERT, MATCH-ENGI
 - **Sidebar consolidada** mantida 34 âncoras igual tela87 (sem inclusão de tela77/78/79 na sidebar — pendente próximo ciclo se virarem itens de top-level Admin).
 - **index.html** — picker já tinha as 3 entradas (grp "Bibliotecas Avançadas") apontando para os arquivos agora preenchidos. Total mockups continua 87 (skips 09/29/31/33/35/37/39/41/43/45/47…/76 + novos 77/78/79 entregues).
 - **TELAS-PENDENTES.md** ✅ tela77/78/79 marcadas como entregues; cobertura CONCEPT-ACTIONIA / CONCEPT-ALERT / CONCEPT-MATCH-ENGINE sobe de 0% → 100% mockup.
+
+## Passo 5 — tela80 save real + tela10/09 consumindo tela77/78 (2026-05-31)
+
+Origem: §2 Crítico #5 da auditoria E3 (matriz tela80 sem save real) + integração das bibliotecas tela77/78 nos consumidores naturais (workflow stages e escalation).
+
+- **tela80 fix CRÍTICO #5 — save real da matriz**:
+  - Células `perm-check` agora são clicáveis (toggle on/off via JS, n/a permanece bloqueada). Re-render por célula com flag `dirty` (outline amarelo).
+  - Estado `BASELINE` vs `STATE` permite computar lista de `CHANGES` (tela × role × ação · from → to). Linha dirty ganha borda amarela à esquerda.
+  - Footer ganhou contador live "<N> alterações pendentes" + resumo das 3 primeiras + "+N" overflow. Botões Salvar/Cancelar ficam disabled quando N=0.
+  - **Salvar mudanças (N)** abre modal preview: stats (concessões/revogações), lista detalhada (mono ±tela.ação por role), aviso "produção → revalida ownership tela82 + recalcula cadeia tela85 + audit tela13". Confirmar commita o BASELINE in-memory, limpa CHANGES, toast.
+  - **Cancelar** abre confirm e restaura BASELINE.
+  - **+ Delegar permissão específica** (novo header CTA) abre drawer 480px com form (user autocomplete · permission select · validade início/fim · justificativa) → toast cria entry em `permission_delegations` (mock visual).
+  - **+ Nova Função (Role)** e **Exportar matriz** ganharam onclick mock (toast).
+  - `beforeunload` listener bloqueia exit se há CHANGES pendentes.
+- **tela09 (escalation) consume tela78**: novo bloco "📐 Regras de alerta vinculadas" após canais, com 1 regra mock (SLA crítico), input + datalist (5 regras existentes), botão "Vincular" + "Remover" wired (toast + confirm). Aviso "canais aditivos · cooldown por destinatário". Link "+ Configurar nova regra → tela78?from=escalation".
+- **tela10 (workflow builder)** — abas Alertas/Agentes JÁ consumiam tela77/78 desde Passo 4. Adicionados: `tela10Vincular()` + `tela10Remove()` wirando os 3 botões "Vincular" + todos os "Remover" (alertas/agentes/procedures), antes dead-buttons.
+- **Auditoria E3** marca §2 Crítico #5 (matriz save real) como ✅ resolvido — única pendência crítica restante da E3 fechada.
+- **Sidebar** preservada (33 âncoras tela80 = baseline; tela09/10 inalteradas). Total mockups continua **87**.

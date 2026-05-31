@@ -585,7 +585,7 @@ tailwind.config = {
                       <div class="text-[11px] text-dms-tecnologia truncate">SOP-001 · executa ao abrir o stage</div>
                     </div>
                   </div>
-                  <button class="text-xs text-dms-tecnologia hover:text-red-500 whitespace-nowrap">Remover</button>
+                  <button onclick="tela10Remove(this)" class="text-xs text-dms-tecnologia hover:text-red-500 whitespace-nowrap">Remover</button>
                 </div>
                 <div class="flex items-center justify-between border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white">
                   <div class="flex items-center gap-3 min-w-0">
@@ -595,7 +595,7 @@ tailwind.config = {
                       <div class="text-[11px] text-dms-tecnologia truncate">SOP-014 · executa ao fechar o stage</div>
                     </div>
                   </div>
-                  <button class="text-xs text-dms-tecnologia hover:text-red-500 whitespace-nowrap">Remover</button>
+                  <button onclick="tela10Remove(this)" class="text-xs text-dms-tecnologia hover:text-red-500 whitespace-nowrap">Remover</button>
                 </div>
               </div>
 
@@ -603,7 +603,7 @@ tailwind.config = {
                 <label class="text-xs font-semibold text-dms-mar block mb-1.5">Adicionar procedure existente</label>
                 <div class="flex gap-2">
                   <input type="text" placeholder="Buscar na biblioteca…" class="input-dms flex-1 text-sm px-3 py-1.5 border border-[#E5E7EB] rounded-md bg-white">
-                  <button class="px-3 py-1.5 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md bg-white hover:bg-sky-50">Vincular</button>
+                  <button onclick="tela10Vincular(this)" class="px-3 py-1.5 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md bg-white hover:bg-sky-50">Vincular</button>
                 </div>
               </div>
 
@@ -631,7 +631,7 @@ tailwind.config = {
                       <div class="text-[11px] text-dms-tecnologia">Stage chegou em 80% do SLA · canais: Email, In-app</div>
                     </div>
                   </div>
-                  <button class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
+                  <button onclick="tela10Remove(this)" class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
                 </div>
               </div>
 
@@ -639,7 +639,7 @@ tailwind.config = {
                 <label class="text-xs font-semibold text-dms-mar block mb-1.5">Adicionar alerta existente</label>
                 <div class="flex gap-2">
                   <input type="text" placeholder="Buscar na biblioteca…" class="input-dms flex-1 text-sm px-3 py-1.5 border border-[#E5E7EB] rounded-md bg-white">
-                  <button class="px-3 py-1.5 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md bg-white hover:bg-sky-50">Vincular</button>
+                  <button onclick="tela10Vincular(this)" class="px-3 py-1.5 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md bg-white hover:bg-sky-50">Vincular</button>
                 </div>
               </div>
 
@@ -667,7 +667,7 @@ tailwind.config = {
                   </div>
                   <div class="flex items-center gap-3">
                     <a href="tela77-actionia-biblioteca.html" class="text-[11px] font-semibold text-dms-confianca hover:underline">Editar este ActionIA →</a>
-                    <button class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
+                    <button onclick="tela10Remove(this)" class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
                   </div>
                 </div>
                 <div class="p-3 space-y-2">
@@ -705,7 +705,7 @@ tailwind.config = {
                   </div>
                   <div class="flex items-center gap-3">
                     <a href="tela77-actionia-biblioteca.html" class="text-[11px] font-semibold text-dms-confianca hover:underline">Editar este ActionIA →</a>
-                    <button class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
+                    <button onclick="tela10Remove(this)" class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
                   </div>
                 </div>
                 <div class="p-3 space-y-2">
@@ -741,7 +741,7 @@ tailwind.config = {
                   <p class="text-[11px] text-dms-tecnologia mb-1.5">Selecione o ActionIA que será acionado neste stage. Você verá uma prévia do que ele faz antes de confirmar.</p>
                   <div class="flex gap-2">
                     <input type="text" value="Sugestor Plano de Contas" class="input-dms flex-1 text-sm px-3 py-1.5 border border-dms-ceu rounded-md bg-white">
-                    <button class="px-3 py-1.5 text-sm font-semibold text-white bg-dms-confianca rounded-md hover:opacity-90">Vincular</button>
+                    <button onclick="tela10Vincular(this)" class="px-3 py-1.5 text-sm font-semibold text-white bg-dms-confianca rounded-md hover:opacity-90">Vincular</button>
                   </div>
                 </div>
 
@@ -974,6 +974,35 @@ function selectTab(tab) {
     document.getElementById('tab-' + t).classList.toggle('text-dms-tecnologia', t !== tab);
     document.getElementById('content-' + t).classList.toggle('hidden', t !== tab);
   });
+}
+
+// ========== Wiring buttons das tabs Alertas/Agentes/Procedures (consome tela77/78/03) ==========
+function _t10Toast(msg, isErr){
+  let t = document.getElementById('toast-tela10');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast-tela10';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;box-shadow:0 8px 24px -4px rgba(0,0,0,.3);z-index:9999;opacity:0;transition:opacity .2s ease;pointer-events:none;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.background = isErr ? '#B91C1C' : '#1A1A1A';
+  t.style.opacity = '1';
+  clearTimeout(t._h);
+  t._h = setTimeout(() => { t.style.opacity = '0'; }, 2400);
+}
+function tela10Remove(btn) {
+  const card = btn.closest('div.flex.items-center.justify-between, .border');
+  const name = card ? (card.querySelector('.font-semibold, .font-bold') || {}).textContent : 'item';
+  if (!confirm('Remover "' + (name || 'item') + '" deste stage?')) return;
+  if (card) card.remove();
+  _t10Toast('Removido do stage (mockup)');
+}
+function tela10Vincular(btn) {
+  const inp = btn.previousElementSibling;
+  const val = inp && inp.value ? inp.value.trim() : '';
+  if (!val) { _t10Toast('Selecione um item para vincular', true); return; }
+  _t10Toast('"' + val + '" vinculado ao stage (mockup)');
 }
 
 renderStages();

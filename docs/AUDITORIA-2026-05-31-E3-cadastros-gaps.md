@@ -22,7 +22,7 @@ Esta auditoria foi escrita ANTES dos sprints A, B e Seguinte (commits `359ff90`,
 
 **Não houve descobertas novas** nesta reconciliação — apenas fechamento de gaps já mapeados.
 
-Linhas da matriz (§1) e tabelas de severidade (§2-§3) abaixo foram atualizadas. Permanecem abertos: §2 Crítico #5 (matriz de permissões com save real), §2 Alto #6-9 e #11, todo §2 Médio, T3-T5 e T7-T9, F2-F5/F7.
+Linhas da matriz (§1) e tabelas de severidade (§2-§3) abaixo foram atualizadas. Permanecem abertos: ~~§2 Crítico #5 (matriz de permissões com save real)~~ ✅ resolvido Passo 5 2026-05-31, §2 Alto #6-9 e #11, todo §2 Médio, T3-T5 e T7-T9, F2-F5/F7. **0 críticos abertos.**
 
 ## Sumário (pós-reconciliação)
 
@@ -138,7 +138,7 @@ Legenda: ✅ entregue · 🟡 parcial · ❌ ausente · `—` não aplicável (s
 | 2 | ~~Lista de Usuários + criar/bloquear~~| PERMISSIONS §6, STAGE-OWNERSHIP §3.3-3.4 | ✅ ENTREGUE Sprint B 2026-05-31 — `tela84-users-admin.html` (modal bloqueio com análise de impacto). |
 | 3 | ~~CRUD de Fornecedor~~                | USER-SCOPE                | ✅ ENTREGUE Sprint A 2026-05-31 — `tela86-fornecedores-cadastro.html`.                                     |
 | 4 | ~~Cadastro de Time (Team)~~           | TEAMS / SAVED-FILTERS §2  | ✅ ENTREGUE Sprint Seguinte 2026-05-31 — `tela87-times-cadastro.html` (lista + árvore + drawer + criar).   |
-| 5 | **Edição da Matriz de Permissões**    | PERMISSIONS §4.2          | ❌ PENDENTE. tela80 mostra matriz mas o save não dispara fluxo de delegação/cadeia (§5 regras 7-10). tela85 entrega gestão de delegações isolada, mas o hook do save da matriz → cadeia ainda não existe. |
+| 5 | ~~Edição da Matriz de Permissões~~    | PERMISSIONS §4.2          | ✅ ENTREGUE Passo 5 2026-05-31 — `tela80` agora tem células clicáveis, dirty-state, modal preview (concessões/revogações), confirmar dispara mock-commit + toast "N delegações geradas", + drawer "Delegar permissão específica" (cria entry em `permission_delegations` mockada). Hook real para tela85 fica para wave seguinte. |
 
 ### 🟠 Alto — bloqueia features secundárias ou cria buracos de auditoria
 
