@@ -226,3 +226,18 @@ Cada concept precisa aprovação do Fernando antes de virar PLAN de implementaç
 **Layout final:**
 - Desktop: `[picker ▾]  ...  [D · DMSYS V2]  [<] [>]  [GitHub]`
 - Mobile (36px de altura): `[<]  [picker compacto ▾]  [>]` (brand + GitHub escondidos via CSS `order` flexbox)
+
+## Wrapper — remoção das setas + brand na esquerda — 2026-05-31
+
+**Mudança:** picker searchable é agora o único modo de navegar entre as 79 telas. Setas `<`/`>` removidas do wrapper (eram redundantes — picker faz tudo).
+
+- HTML: removidos `#prev-btn` e `#next-btn` do header
+- HTML: `#brand-marker` movido pra **esquerda** (antes do picker) e virou `<a href="#tela01-catalogo-tags.html">` (click leva pra home do showcase)
+- CSS: brand-marker novo visual — D quadrado **roxo `#643585`** 28×28px com letra D branca bold (era branco com D azul + bordas verticais)
+- CSS: picker centralizado via `mx-auto` (brand empurra pra direita, GitHub fica na ponta)
+- JS: removidas refs a `prev`/`next` (vars, `.disabled` e listeners)
+- Mobile: brand visível mas compacto (D 24×24 + texto 12px); GitHub continua escondido; picker ocupa o resto via `flex:1`
+
+**Layout final:**
+- Desktop: `[D · DMSYS V2]    [picker NN/79 · Nome ▾]    [GitHub]`
+- Mobile: `[D · DMSYS V2]  [picker compacto]  [...]` (PT-BR via i18n-toggle flutua bottom-left)
