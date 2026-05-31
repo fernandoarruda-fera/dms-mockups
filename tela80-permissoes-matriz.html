@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>DMS — Permissões (Matriz Role × Tela × Ação)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  /* Matrix table */
+  table.matrix { border-collapse: separate; border-spacing: 0; }
+  table.matrix th, table.matrix td { border-right: 1px solid #E5E7EB; border-bottom: 1px solid #E5E7EB; padding: 6px 8px; font-size: 12px; }
+  table.matrix thead th { background: #F8F9FA; position: sticky; top: 0; z-index: 5; }
+  table.matrix .sticky-col { position: sticky; left: 0; background: #fff; z-index: 4; }
+  table.matrix thead th.sticky-col { z-index: 6; background: #F8F9FA; }
+  table.matrix .role-name { font-weight: 600; color: #00386C; min-width: 180px; }
+  table.matrix .cat-header td { background: #EFF2F5; color: #00386C; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.06em; }
+  table.matrix .action-cell { text-align: center; width: 52px; }
+  table.matrix .action-cell:hover { background: rgba(0,174,238,0.06); }
+  /* Check */
+  .perm-check { display: inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:3px; cursor:pointer; }
+  .perm-check.on { background: #B0C934; color: #fff; }
+  .perm-check.off { background: #fff; border: 1.5px solid #E5E7EB; }
+  .perm-check.disabled { background: #F1F1F1; color: #B8BFC4; border: 1.5px solid #E5E7EB; cursor: not-allowed; }
+  .col-group-head { background: rgba(0,56,108,0.04); color: #00386C; font-weight:700; font-size: 11px; text-align: center; }
+  .col-action-head { background: #F8F9FA; color: #656464; font-weight:600; font-size: 10px; text-align:center; }
+  .col-hover:hover { background: rgba(0,174,238,0.04); }
+</style>
+<link rel="stylesheet" href="mobile-responsive.css">
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <span class="text-dms-tecnologia">Admin</span>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Permissões</span>
+      </nav>
+      <div class="flex items-center gap-3">
+        <button class="px-3 py-2 text-sm font-medium text-dms-tecnologia border border-[#E5E7EB] rounded-md hover:text-dms-mar bg-white transition-colors">Exportar matriz</button>
+        <button class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">+ Nova Função (Role)</button>
+      </div>
+    </header>
+
+    <main class="flex-1 p-8 pb-24 max-w-[1280px] w-full mx-auto">
+
+      <!-- HEADER -->
+      <div class="mb-6">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h1 class="text-[28px] leading-[36px] font-bold text-dms-mar">Permissões</h1>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-violet-50 text-violet-700 border-violet-200">Sprint 2.2 · backend ativo</span>
+        </div>
+        <p class="text-sm text-dms-tecnologia max-w-3xl">Matriz de permissões por <strong class="text-dms-mar">função (Role)</strong> × <strong class="text-dms-mar">Tela/Módulo</strong> × <strong class="text-dms-mar">Ação</strong>. Cada usuário herda permissões da união das funções que possui (multi-role). Permissão fala sobre <em>capacidade</em>, não sobre escopo — para limitar entidades, ver <a href="tela50-profile.html" class="text-dms-ceu hover:underline">Intervenientes (tela50)</a>.</p>
+      </div>
+
+      <!-- KPIs -->
+      <div class="grid grid-cols-4 gap-3 mb-6">
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Funções cadastradas</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">8</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">2 de sistema · 6 customizadas</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Usuários ativos</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">47</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">12 com 2+ funções</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Telas/Módulos cobertos</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">79</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">100% do catálogo</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Pontos de permissão</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">~1.500</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">cells na matriz (telas × ações)</div>
+        </div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 mb-4 shadow-dms-md">
+        <div class="grid grid-cols-12 gap-3 items-end">
+          <div class="col-span-5">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Buscar função/tela</label>
+            <div class="relative">
+              <svg class="w-4 h-4 text-dms-tecnologia absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input type="text" placeholder="ex: Aprovador, Cotações, tela24…" class="w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
+            </div>
+          </div>
+          <div class="col-span-4">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Tipo de tela</label>
+            <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option>Todos</option>
+              <option>Workspace</option>
+              <option>Compras</option>
+              <option>Cadastros</option>
+              <option>Bibliotecas</option>
+              <option>Admin</option>
+              <option>Engine</option>
+              <option>Auxiliares</option>
+            </select>
+          </div>
+          <div class="col-span-3">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Tipo de ação</label>
+            <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option>Todas</option>
+              <option>Ver</option>
+              <option>Editar</option>
+              <option>Incluir</option>
+              <option>Excluir</option>
+              <option>Aprovar</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- MATRIZ -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+        <div class="px-5 py-3 border-b border-[#E5E7EB] flex items-center justify-between">
+          <div>
+            <div class="text-sm font-bold text-dms-mar">Matriz de permissões</div>
+            <div class="text-xs text-dms-tecnologia mt-0.5">Linhas: telas agrupadas por categoria · Colunas: 8 funções × 5 ações · Clique nas células para alternar</div>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-[rgba(176,201,52,0.15)] text-[#7A8F24]"><span class="w-2 h-2 rounded-full bg-dms-tropicalidade"></span>permitido</span>
+            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-gray-100 text-dms-tecnologia"><span class="w-2 h-2 rounded-full bg-gray-300"></span>negado</span>
+            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-gray-50 text-gray-400"><span class="w-2 h-2 rounded-full bg-gray-200"></span>n/a</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto" style="max-height: 620px;">
+          <table class="matrix w-full">
+            <thead>
+              <tr>
+                <th class="sticky-col text-left" rowspan="2">
+                  <div class="text-[10px] font-semibold text-dms-tecnologia uppercase tracking-wider">Tela / Módulo</div>
+                </th>
+                <!-- 8 grupos de role -->
+                <th class="col-group-head" colspan="5">Admin Geral <span class="text-[9px] font-normal text-dms-tecnologia">(sistema)</span></th>
+                <th class="col-group-head" colspan="5">Compras Adm</th>
+                <th class="col-group-head" colspan="5">Compras Operacional</th>
+                <th class="col-group-head" colspan="5">Contas a Pagar Adm</th>
+                <th class="col-group-head" colspan="5">Contas a Pagar Op.</th>
+                <th class="col-group-head" colspan="5">Aprovador Diretor</th>
+                <th class="col-group-head" colspan="5">Aprovador Gerente</th>
+                <th class="col-group-head" colspan="5">Viewer <span class="text-[9px] font-normal text-dms-tecnologia">(sistema)</span></th>
+              </tr>
+              <tr>
+                <!-- 5 ações repetidas 8x -->
+                <!-- Admin Geral -->
+                <th class="col-action-head" title="Ver">V</th><th class="col-action-head" title="Editar">E</th><th class="col-action-head" title="Incluir">I</th><th class="col-action-head" title="Excluir">X</th><th class="col-action-head" title="Aprovar">A</th>
+                <!-- Compras Adm -->
+                <th class="col-action-head">V</th><th class="col-action-head">E</th><th class="col-action-head">I</th><th class="col-action-head">X</th><th class="col-action-head">A</th>
+                <!-- Compras Op -->
+                <th class="col-action-head">V</th><th class="col-action-head">E</th><th class="col-action-head">I</th><th class="col-action-head">X</th><th class="col-action-head">A</th>
+                <!-- CAP Adm -->
+                <th class="col-action-head">V</th><th class="col-action-head">E</th><th class="col-action-head">I</th><th class="col-action-head">X</th><th class="col-action-head">A</th>
+                <!-- CAP Op -->
+                <th class="col-action-head">V</th><th class="col-action-head">E</th><th class="col-action-head">I</th><th class="col-action-head">X</th><th class="col-action-head">A</th>
+                <!-- Aprovador Diretor -->
+                <th class="col-action-head">V</th><th class="col-action-head">E</th><th class="col-action-head">I</th><th class="col-action-head">X</th><th class="col-action-head">A</th>
+                <!-- Aprovador Gerente -->
+                <th class="col-action-head">V</th><th class="col-action-head">E</th><th class="col-action-head">I</th><th class="col-action-head">X</th><th class="col-action-head">A</th>
+                <!-- Viewer -->
+                <th class="col-action-head">V</th><th class="col-action-head">E</th><th class="col-action-head">I</th><th class="col-action-head">X</th><th class="col-action-head">A</th>
+              </tr>
+            </thead>
+            <tbody id="matrix-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- LEGEND DETALHADA -->
+      <div class="mt-4 bg-white border border-[#E5E7EB] rounded-lg p-4">
+        <div class="caption text-dms-tecnologia mb-3">Legenda das ações</div>
+        <div class="grid grid-cols-5 gap-3 text-xs">
+          <div class="flex items-start gap-2"><span class="mono font-bold text-dms-mar w-5">V</span><div><div class="font-semibold text-dms-mar">Ver</div><div class="text-dms-tecnologia">pode visualizar a tela/listagem</div></div></div>
+          <div class="flex items-start gap-2"><span class="mono font-bold text-dms-mar w-5">E</span><div><div class="font-semibold text-dms-mar">Editar</div><div class="text-dms-tecnologia">pode modificar campos existentes</div></div></div>
+          <div class="flex items-start gap-2"><span class="mono font-bold text-dms-mar w-5">I</span><div><div class="font-semibold text-dms-mar">Incluir</div><div class="text-dms-tecnologia">pode criar novos registros</div></div></div>
+          <div class="flex items-start gap-2"><span class="mono font-bold text-dms-mar w-5">X</span><div><div class="font-semibold text-dms-mar">Excluir</div><div class="text-dms-tecnologia">pode excluir/arquivar registros</div></div></div>
+          <div class="flex items-start gap-2"><span class="mono font-bold text-dms-mar w-5">A</span><div><div class="font-semibold text-dms-mar">Aprovar</div><div class="text-dms-tecnologia">pode aprovar/rejeitar (alçada)</div></div></div>
+        </div>
+      </div>
+
+      <!-- Aviso integração -->
+      <div class="mt-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-md p-3 flex items-start gap-2">
+        <svg class="w-4 h-4 text-[#854D0E] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <p class="text-xs text-[#854D0E]">Permissão controla <strong>o que</strong> o usuário pode fazer. Para limitar <strong>em quais entidades</strong> (CCs, vendors, contratos), o usuário precisa também ter scope configurado em <a href="tela50-profile.html" class="underline font-semibold">Profile → Intervenientes</a>. Sem scope, não recebe cards mesmo com permissão correta — exceto Admin Geral e Gestão de Profile, que recebem órfãos.</p>
+      </div>
+
+    </main>
+
+    <!-- FOOTER FIXO -->
+    <div class="sticky bottom-0 ml-[260px] -mx-8 px-8 py-4 bg-white border-t border-[#E5E7EB] flex items-center justify-between gap-3 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.04)]" style="margin-left:0;">
+      <div class="flex items-center gap-3 text-xs">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>3 alterações pendentes</span>
+        <span class="text-dms-tecnologia">Compras Operacional · +cotacoes.excluir · +pedidos.aprovar · Viewer · -auditoria.ver</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 border border-[#E5E7EB] rounded-md bg-white">Cancelar</button>
+        <button class="text-sm font-semibold text-white px-5 py-2 bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors">Salvar mudanças (3)</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ============ Matriz: geração das células ============
+const CATEGORIES = [
+  { label: 'Workspace', rows: [
+    { code: 'tela16', name: 'Cockpit Overview' },
+    { code: 'tela18', name: 'Cockpit · Tarefas' },
+    { code: 'tela40', name: 'Aprovações' },
+  ]},
+  { label: 'Compras', rows: [
+    { code: 'tela21', name: 'Requisições' },
+    { code: 'tela24', name: 'Cotações' },
+    { code: 'tela27', name: 'Pedidos (PO)' },
+    { code: 'tela38', name: 'Notas Fiscais' },
+    { code: 'tela44', name: 'Contratos' },
+  ]},
+  { label: 'Cadastros', rows: [
+    { code: 'tela30', name: 'Empresas' },
+    { code: 'tela32', name: 'Centros de Custo' },
+    { code: 'tela34', name: 'Plano de Contas' },
+  ]},
+  { label: 'Bibliotecas', rows: [
+    { code: 'tela04', name: 'Workflows' },
+    { code: 'tela06', name: 'SOPs' },
+    { code: 'tela03', name: 'Procedures' },
+  ]},
+  { label: 'Admin', rows: [
+    { code: 'tela13', name: 'Auditoria Trail' },
+    { code: 'tela60', name: 'Auditoria Global' },
+    { code: 'tela80', name: 'Permissões (esta)' },
+  ]},
+];
+
+// 8 roles × 5 ações = 40 cells per row
+// Cada role: [V, E, I, X, A] = 1 permitido, 0 negado, -1 n/a
+const ROLE_DEFAULTS = {
+  // Admin Geral: tudo 1
+  admin:    [1,1,1,1,1],
+  // Compras Adm: ver/editar/incluir tudo, aprovar workflows
+  cmpAdm:   [1,1,1,0,0],
+  // Compras Op: ver/editar/incluir, sem excluir/aprovar
+  cmpOp:    [1,1,1,0,0],
+  // CAP Adm
+  capAdm:   [1,1,1,1,0],
+  // CAP Op
+  capOp:    [1,1,1,0,0],
+  // Aprovador Diretor: ver + aprovar
+  aprDir:   [1,0,0,0,1],
+  // Aprovador Gerente: ver + aprovar (alçada menor)
+  aprGer:   [1,0,0,0,1],
+  // Viewer
+  viewer:   [1,0,0,0,0],
+};
+
+// Per-screen overrides — semantically more interesting examples
+const ROLE_MATRIX = {
+  // Compras telas: Compras Adm/Op têm full, CAP só vê NF/Contrato, Aprovador só vê e aprova
+  'tela21': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,1,0], cmpOp:[1,1,1,0,0], capAdm:[1,0,0,0,0], capOp:[0,0,0,0,0], aprDir:[1,0,0,0,1], aprGer:[1,0,0,0,1], viewer:[1,0,0,0,0] },
+  'tela24': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,1,1], cmpOp:[1,1,1,0,0], capAdm:[1,0,0,0,0], capOp:[0,0,0,0,0], aprDir:[1,0,0,0,1], aprGer:[1,0,0,0,1], viewer:[1,0,0,0,0] },
+  'tela27': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,1,1], cmpOp:[1,1,1,0,0], capAdm:[1,0,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,1], aprGer:[1,0,0,0,1], viewer:[1,0,0,0,0] },
+  'tela38': { admin:[1,1,1,1,1], cmpAdm:[1,0,0,0,0], cmpOp:[1,0,0,0,0], capAdm:[1,1,1,1,1], capOp:[1,1,1,0,0], aprDir:[1,0,0,0,1], aprGer:[1,0,0,0,1], viewer:[1,0,0,0,0] },
+  'tela44': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,1,1], cmpOp:[1,0,0,0,0], capAdm:[1,0,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,1], aprGer:[1,0,0,0,1], viewer:[1,0,0,0,0] },
+  // Workspace: ver
+  'tela16': { admin:[1,1,1,1,1], cmpAdm:[1,-1,-1,-1,-1], cmpOp:[1,-1,-1,-1,-1], capAdm:[1,-1,-1,-1,-1], capOp:[1,-1,-1,-1,-1], aprDir:[1,-1,-1,-1,-1], aprGer:[1,-1,-1,-1,-1], viewer:[1,-1,-1,-1,-1] },
+  'tela18': { admin:[1,1,1,1,1], cmpAdm:[1,1,-1,-1,-1], cmpOp:[1,1,-1,-1,-1], capAdm:[1,1,-1,-1,-1], capOp:[1,1,-1,-1,-1], aprDir:[1,1,-1,-1,-1], aprGer:[1,1,-1,-1,-1], viewer:[1,0,-1,-1,-1] },
+  'tela40': { admin:[1,1,1,1,1], cmpAdm:[1,0,0,0,0], cmpOp:[1,0,0,0,0], capAdm:[1,0,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,1,0,0,1], aprGer:[1,1,0,0,1], viewer:[1,0,0,0,0] },
+  // Cadastros: só admin
+  'tela30': { admin:[1,1,1,1,1], cmpAdm:[1,1,0,0,0], cmpOp:[1,0,0,0,0], capAdm:[1,0,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,0], aprGer:[1,0,0,0,0], viewer:[1,0,0,0,0] },
+  'tela32': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,0,0], cmpOp:[1,0,0,0,0], capAdm:[1,1,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,0], aprGer:[1,0,0,0,0], viewer:[1,0,0,0,0] },
+  'tela34': { admin:[1,1,1,1,1], cmpAdm:[1,0,0,0,0], cmpOp:[1,0,0,0,0], capAdm:[1,1,1,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,0], aprGer:[1,0,0,0,0], viewer:[1,0,0,0,0] },
+  // Bibliotecas: workflow/SOP = Compras Adm + Admin
+  'tela04': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,1,1], cmpOp:[1,0,0,0,0], capAdm:[1,0,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,0], aprGer:[1,0,0,0,0], viewer:[1,0,0,0,0] },
+  'tela06': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,1,1], cmpOp:[1,0,0,0,0], capAdm:[1,0,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,0], aprGer:[1,0,0,0,0], viewer:[1,0,0,0,0] },
+  'tela03': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,0,0], cmpOp:[1,0,0,0,0], capAdm:[1,0,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,0], aprGer:[1,0,0,0,0], viewer:[1,0,0,0,0] },
+  // Admin: só admin geral
+  'tela13': { admin:[1,1,-1,-1,-1], cmpAdm:[1,0,-1,-1,-1], cmpOp:[0,0,-1,-1,-1], capAdm:[1,0,-1,-1,-1], capOp:[0,0,-1,-1,-1], aprDir:[1,0,-1,-1,-1], aprGer:[0,0,-1,-1,-1], viewer:[0,0,-1,-1,-1] },
+  'tela60': { admin:[1,1,-1,-1,-1], cmpAdm:[0,0,-1,-1,-1], cmpOp:[0,0,-1,-1,-1], capAdm:[0,0,-1,-1,-1], capOp:[0,0,-1,-1,-1], aprDir:[0,0,-1,-1,-1], aprGer:[0,0,-1,-1,-1], viewer:[0,0,-1,-1,-1] },
+  'tela80': { admin:[1,1,1,1,-1], cmpAdm:[0,0,0,0,-1], cmpOp:[0,0,0,0,-1], capAdm:[0,0,0,0,-1], capOp:[0,0,0,0,-1], aprDir:[0,0,0,0,-1], aprGer:[0,0,0,0,-1], viewer:[0,0,0,0,-1] },
+};
+
+const ROLE_ORDER = ['admin','cmpAdm','cmpOp','capAdm','capOp','aprDir','aprGer','viewer'];
+
+function cellHtml(state) {
+  if (state === -1) {
+    return '<span class="perm-check disabled" title="ação não aplicável">—</span>';
+  }
+  if (state === 1) {
+    return '<span class="perm-check on" title="permitido"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>';
+  }
+  return '<span class="perm-check off" title="negado"></span>';
+}
+
+function buildMatrix() {
+  const body = document.getElementById('matrix-body');
+  let html = '';
+  CATEGORIES.forEach(cat => {
+    html += `<tr class="cat-header"><td colspan="${1 + 8*5}" class="sticky-col">${cat.label}</td></tr>`;
+    cat.rows.forEach(row => {
+      const perms = ROLE_MATRIX[row.code] || {};
+      html += `<tr class="hover:bg-[#FAFBFC]">`;
+      html += `<td class="sticky-col role-name"><div class="flex items-center gap-2"><span class="mono text-[10px] text-dms-tecnologia">${row.code}</span><span>${row.name}</span></div></td>`;
+      ROLE_ORDER.forEach(role => {
+        const states = perms[role] || ROLE_DEFAULTS[role];
+        states.forEach(s => { html += `<td class="action-cell">${cellHtml(s)}</td>`; });
+      });
+      html += `</tr>`;
+    });
+  });
+  body.innerHTML = html;
+}
+
+buildMatrix();
+</script>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text, #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+        <li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+        <li><a href="tela80-permissoes-matriz.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔐</span><span class="sb-label">Permissões</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+<script>
+(function(){
+  var sb=document.getElementById('dms-sidebar'),toggle=document.getElementById('sidebar-toggle'),mobBtn=document.getElementById('dms-sidebar-mobile-btn'),overlay=document.getElementById('dms-sidebar-overlay');
+  if(!sb||!toggle)return; var K='mockup-sidebar-collapsed-v2',c=false; try{c=localStorage.getItem(K)==='1';}catch(e){}
+  function m(){return window.matchMedia('(max-width: 767px)').matches}
+  function r(){if(c&&!m()){sb.classList.add('collapsed');sb.style.width='64px';document.documentElement.style.setProperty('--dms-sb-w','64px');}else{sb.classList.remove('collapsed');sb.style.width=m()?'280px':'240px';document.documentElement.style.setProperty('--dms-sb-w',m()?'0px':'240px');}}
+  toggle.addEventListener('click',function(){c=!c;try{localStorage.setItem(K,c?'1':'0');}catch(e){}r();});
+  function cm(){sb.classList.remove('mobile-open');if(overlay)overlay.classList.remove('show');}
+  if(mobBtn)mobBtn.addEventListener('click',function(){if(sb.classList.contains('mobile-open'))cm();else{sb.classList.add('mobile-open');if(overlay)overlay.classList.add('show');}});
+  if(overlay)overlay.addEventListener('click',cm);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){a.addEventListener('click',function(){if(m())cm();});});
+  var cur=(location.pathname.split('/').pop()||'').toLowerCase();
+  if(cur){sb.querySelectorAll('nav a[href]').forEach(function(a){var h=(a.getAttribute('href')||'').toLowerCase();if(h&&h===cur)a.classList.add('sb-active');});}
+  window.addEventListener('resize',r);r();
+})();
+</script>
+<script src="notes-widget.js" defer></script>
+<script src="i18n-toggle.js" defer></script>
+</body>
+</html>

@@ -82,6 +82,13 @@ tailwind.config = {
           <div class="tab" data-tab="seg">Segurança</div>
           <div class="tab" data-tab="notif" data-i18n="section.notifications">Notificações</div>
           <div class="tab" data-tab="pref">Preferências</div>
+          <div class="tab" data-tab="interv">Intervenientes <span class="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-violet-100 text-violet-700">NOVO</span></div>
+          <div class="ml-auto pr-4 flex items-center">
+            <a href="tela80-permissoes-matriz.html?user=current" class="text-xs font-semibold text-dms-ceu hover:underline flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              Ver minhas funções (permissões)
+            </a>
+          </div>
         </div>
 
         <!-- Dados pessoais -->
@@ -281,6 +288,141 @@ tailwind.config = {
                   <div class="text-xs font-semibold text-dms-mar flex items-center gap-1.5"><input type="radio" name="theme" class="accent-dms-ceu">Sistema</div>
                 </label>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Intervenientes (NOVO) -->
+        <div class="tab-pane p-6" data-pane="interv">
+          <div class="mb-5">
+            <div class="flex items-center gap-3 mb-2">
+              <h2 class="text-lg font-bold text-dms-mar">Intervenientes que você gerencia</h2>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-violet-50 text-violet-700 border border-violet-200">scope · privilégio mínimo</span>
+            </div>
+            <p class="text-sm text-dms-tecnologia max-w-3xl">Defina sobre quais <strong class="text-dms-mar">CCs, fornecedores, contratos e empresas</strong> você atua. Cards no cockpit aparecem apenas pra você quando: <strong>(1)</strong> o stage do workflow requer sua função <strong>E (2)</strong> o documento envolve uma das entidades aqui listadas.</p>
+          </div>
+
+          <div class="bg-[#FFFBEB] border border-[#FDE68A] rounded-md p-3 flex items-start gap-2 mb-6">
+            <svg class="w-5 h-5 text-[#854D0E] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <div class="text-xs text-[#854D0E]">
+              <p class="font-bold mb-0.5">Sem intervenientes configurados, você não recebe cards mesmo tendo a função correta.</p>
+              <p>Exceção: Admin Geral e Gestão de Profile recebem órfãos por design.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-5">
+
+            <!-- A) CCs -->
+            <div class="border border-[#E5E7EB] rounded-lg p-5 bg-white">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-md bg-sky-50 text-dms-ceu flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg></span>
+                  <div>
+                    <div class="text-sm font-bold text-dms-mar">A · Centros de Custo</div>
+                    <div class="text-xs text-dms-tecnologia">5 atribuídos · cards de NF/PO/Contrato com esses CCs caem pra você</div>
+                  </div>
+                </div>
+                <span class="mono text-xs text-dms-tecnologia">5 / ∞</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mb-3">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-sky-50 text-dms-confianca border border-sky-200"><span class="mono">CC-001</span> Logística<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-sky-50 text-dms-confianca border border-sky-200"><span class="mono">CC-005</span> Comercial<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-sky-50 text-dms-confianca border border-sky-200"><span class="mono">CC-012</span> Manutenção<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-sky-50 text-dms-confianca border border-sky-200"><span class="mono">CC-018</span> Administrativo SP<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-sky-50 text-dms-confianca border border-sky-200"><span class="mono">CC-023</span> TI<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="text" placeholder="Buscar CC por código ou nome…" class="flex-1 px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
+                <button class="px-3 py-2 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50">+ Adicionar CC</button>
+              </div>
+            </div>
+
+            <!-- B) Vendors -->
+            <div class="border border-[#E5E7EB] rounded-lg p-5 bg-white">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-md bg-violet-50 text-dms-sabedoria flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></span>
+                  <div>
+                    <div class="text-sm font-bold text-dms-mar">B · Fornecedores (Vendors)</div>
+                    <div class="text-xs text-dms-tecnologia">3 atribuídos · NFs/POs desses vendors caem pra você</div>
+                  </div>
+                </div>
+                <span class="mono text-xs text-dms-tecnologia">3 / ∞</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mb-3">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-violet-50 text-dms-sabedoria border border-violet-200">Transportadora Alpha<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-violet-50 text-dms-sabedoria border border-violet-200">Suprimentos Beta SA<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-violet-50 text-dms-sabedoria border border-violet-200">Locadora Gamma<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="text" placeholder="Buscar fornecedor por nome ou CNPJ…" class="flex-1 px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
+                <button class="px-3 py-2 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50">+ Adicionar fornecedor</button>
+              </div>
+            </div>
+
+            <!-- C) Contratos -->
+            <div class="border border-[#E5E7EB] rounded-lg p-5 bg-white">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-md bg-emerald-50 text-emerald-700 flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></span>
+                  <div>
+                    <div class="text-sm font-bold text-dms-mar">C · Contratos</div>
+                    <div class="text-xs text-dms-tecnologia">2 atribuídos · pagamentos/aditivos desses contratos vêm pra você</div>
+                  </div>
+                </div>
+                <span class="mono text-xs text-dms-tecnologia">2 / ∞</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mb-3">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="mono">CONT-2026-0008</span> Frota Logística<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="mono">CONT-2026-0042</span> Limpeza Predial<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="text" placeholder="Buscar contrato por nº ou objeto…" class="flex-1 px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
+                <button class="px-3 py-2 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50">+ Adicionar contrato</button>
+              </div>
+            </div>
+
+            <!-- D) Empresas -->
+            <div class="border border-[#E5E7EB] rounded-lg p-5 bg-white">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-md bg-amber-50 text-amber-700 flex items-center justify-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg></span>
+                  <div>
+                    <div class="text-sm font-bold text-dms-mar">D · Empresas (CNPJs filhos do grupo)</div>
+                    <div class="text-xs text-dms-tecnologia">2 atribuídas · documentos emitidos nessas empresas vêm pra você</div>
+                  </div>
+                </div>
+                <span class="mono text-xs text-dms-tecnologia">2 / ∞</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mb-3">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200">DMS Logística SA<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200">DMS Comercial Ltda<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="text" placeholder="Buscar empresa por razão social ou CNPJ…" class="flex-1 px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
+                <button class="px-3 py-2 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50">+ Adicionar empresa</button>
+              </div>
+            </div>
+
+            <!-- E) Outros -->
+            <div class="border border-dashed border-[#D1D5DB] rounded-lg p-5 bg-[#FAFBFC]">
+              <div class="flex items-start gap-3">
+                <span class="w-8 h-8 rounded-md bg-gray-100 text-dms-tecnologia flex items-center justify-center flex-shrink-0"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg></span>
+                <div class="flex-1">
+                  <div class="text-sm font-bold text-dms-mar mb-1">E · Outros (extensível)</div>
+                  <p class="text-xs text-dms-tecnologia">Outros tipos de intervenientes podem ser adicionados conforme expansão do sistema (<span class="mono">SOPs</span>, <span class="mono">Procedures</span>, <span class="mono">Workflows</span> específicos, etc.). O modelo <code class="mono">user_scope</code> aceita novos <span class="mono">entity_type</span> sem migração estrutural.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Footer aba -->
+          <div class="mt-6 pt-5 border-t border-[#E5E7EB] flex items-center justify-between">
+            <p class="text-xs text-dms-tecnologia">Alterações são logadas (auditoria — afeta visibilidade de dados financeiros).</p>
+            <div class="flex items-center gap-2">
+              <button class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 border border-[#E5E7EB] rounded-md bg-white">Reverter</button>
+              <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Salvar intervenientes</button>
             </div>
           </div>
         </div>

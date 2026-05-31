@@ -253,3 +253,11 @@ Investigação cruzada (`~/Downloads/dms-mockups` + `/Users/dia1dms/dms/M-dulo-d
 Lógica de distribuição de cards no cockpit fica explícita: `stage.função → users com essa role → filtra por scope da entidade → cards caem nos filtrados`. Sem o triângulo (Permission + Scope + Stage-Role), cockpit não distribui corretamente.
 
 **Próximo passo (Task B):** criar/ajustar as telas mockup correspondentes (tela80 nova, tela50 ganha aba Intervenientes, tela08 ganha campos de função/scope).
+
+## Task B — Permissões/Profile/Stage (2026-05-31)
+
+- **tela80 nova** — Matriz Permissões (Role × Tela × Ação) com 8 roles, 5 ações, agrupamento por categoria, KPIs, filtros, footer salvar
+- **tela50 aba 5 nova** — "Intervenientes" com CCs, Vendors, Contratos, Empresas multi-select + aviso sobre cards
+- **tela08 nova seção** — Atribuição: Função responsável (obrigatório) + filtro escopo + escalação + notificados
+- Preview de distribuição mostrando como cards caem pra usuários filtrados
+- Liga com concepts: PERMISSIONS, USER-SCOPE-INTERVENIENTES, STAGE-ROLE-ASSIGNMENT
