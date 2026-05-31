@@ -173,11 +173,15 @@ tailwind.config = {
 
           <!-- CARD: CRITÉRIOS HABILITADOS -->
           <div class="bg-white border border-[#E5E7EB] rounded-lg p-5 shadow-dms-md">
-            <div class="flex items-center justify-between mb-1">
+            <div class="flex items-center justify-between mb-1 flex-wrap gap-2">
               <h3 class="text-sm font-bold text-dms-mar">Critérios habilitados</h3>
-              <span class="text-xs text-dms-tecnologia">arraste para reordenar · ordem aparece nas tabs do profile</span>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span id="bulk-actions-criterios" class="flex items-center gap-2"></span>
+                <span class="text-xs text-dms-tecnologia">arraste para reordenar</span>
+              </div>
             </div>
-            <p class="text-xs text-dms-tecnologia mb-4">Esses critérios aparecem na <a href="tela50-profile.html#interv" class="text-dms-ceu hover:underline">aba Intervenientes do Profile</a> e no <a href="tela08-builder-stage-trigger.html" class="text-dms-ceu hover:underline">filtro de scope dos stages</a> (tela08).</p>
+            <p class="text-xs text-dms-tecnologia mb-2">Esses critérios aparecem na <a href="tela50-profile.html#interv" class="text-dms-ceu hover:underline">aba Intervenientes do Profile</a> e no <a href="tela08-builder-stage-trigger.html" class="text-dms-ceu hover:underline">filtro de scope dos stages</a> (tela08).</p>
+            <div id="chips-criterios" class="flex flex-wrap gap-1.5 mb-3"></div>
 
             <div class="flex flex-col gap-2.5">
 
@@ -539,5 +543,40 @@ document.querySelectorAll('.toggle').forEach(t => t.addEventListener('click', ()
 </script>
 <script src="notes-widget.js" defer></script>
 <script src="i18n-toggle.js" defer></script>
+<script src="bulk-select.js" defer></script>
+<script>
+// ============================================================
+// Bulk select aplicado ao catálogo de critérios do módulo Compras
+// ============================================================
+(function () {
+  function whenReady(fn) {
+    if (window.dmsBulkSelect) return fn();
+    var t = setInterval(function () { if (window.dmsBulkSelect) { clearInterval(t); fn(); } }, 50);
+  }
+  var criteriosCatalog = [
+    { id: 'cost_center', name: 'Centros de Custo', categoria: 'Financeiro', obrigatorio: 'sim', status: 'habilitado' },
+    { id: 'vendor', name: 'Fornecedores', categoria: 'Compras', obrigatorio: 'sim', status: 'habilitado' },
+    { id: 'contract', name: 'Contratos', categoria: 'Compras', obrigatorio: 'não', status: 'habilitado' },
+    { id: 'company', name: 'Empresas (CNPJ filhos)', categoria: 'Estrutura', obrigatorio: 'não', status: 'habilitado' },
+    { id: 'sop', name: 'SOPs', categoria: 'Processo', obrigatorio: 'não', status: 'catálogo' },
+    { id: 'procedure', name: 'Procedures', categoria: 'Processo', obrigatorio: 'não', status: 'catálogo' },
+    { id: 'tag', name: 'Tags específicas', categoria: 'Classificação', obrigatorio: 'não', status: 'catálogo' },
+    { id: 'workflow', name: 'Workflows específicos', categoria: 'Processo', obrigatorio: 'não', status: 'catálogo' }
+  ];
+  whenReady(function () {
+    window.dmsBulkSelect.attach({
+      buttonContainer: '#bulk-actions-criterios',
+      chipsContainer: '#chips-criterios',
+      entitySingular: 'critério', entityPlural: 'critérios',
+      catalog: criteriosCatalog,
+      alreadyManaged: {},
+      columns: [{ key: 'categoria', label: 'Categoria' }, { key: 'obrigatorio', label: 'Obrigatório' }, { key: 'status', label: 'Status' }],
+      filterFields: [{ key: 'categoria', label: 'Categoria' }, { key: 'status', label: 'Status' }],
+      ruleFields: [{ key: 'categoria', label: 'Categoria' }, { key: 'obrigatorio', label: 'Obrigatório' }, { key: 'status', label: 'Status' }],
+      initialRules: [{ id: 'rule-cat-financeiro', conditions: [{ field: 'categoria', op: '=', value: 'Financeiro', connector: 'AND' }] }]
+    });
+  });
+})();
+</script>
 </body>
 </html>

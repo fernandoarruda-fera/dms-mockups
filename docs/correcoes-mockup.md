@@ -284,3 +284,29 @@ Lógica de distribuição de cards no cockpit fica explícita: `stage.função �
 - **6 validações** — banners/modais em tela08 publish, tela50 save, criação user, bloqueio user, desativar role, remover entidade scope
 - **TODO-WORKFLOWS-DEFAULT.md** — marcar 5 como ✅ feitos
 - index.html: tela82 adicionada ao grupo Admin Avançado (total: 82 telas)
+
+## Top 5 achados do review resolvidos (2026-05-31)
+
+Origem: [[REVIEW-2026-05-31]] Sumário Top 5 prioritários.
+
+- **Achado 1 (#15+#6) — PERMISSIONS modelo:** adicionado `parent_role_id` em `roles` (hierarquia / "gestor da cadeira") + nova tabela `permission_delegations` (auditoria + revogação em cascata, regra 10). Resolve gap pra delegação e gestor da cadeira não terem suporte de dados.
+- **Achado 5 (#20) — TELAS-PENDENTES.md:** criado `docs/TELAS-PENDENTES.md` consolidando todas as telas mencionadas como "a criar" / "refactor" nos concepts, separadas em entregues / refactor / a criar.
+- **Achado 2 (#10+#23) — Ponte ActionIA ↔ Stage:** STAGE-ROLE-ASSIGNMENT ganhou coluna `actionia_id` NULL em `workflow_stages` (XOR com `funcao_responsavel_id` via CHECK constraint) + fluxo 3.2 passo 0 (dispara ActionIA, fallback humano). ACTIONIA ganhou flag `can_replace_stage_user` (default false, exige Admin Geral pra ativar).
+- **Achado 3 (#1+#19) — Alçadas + workflow on-the-fly:** criado `CONCEPT-ALCADAS.md` com modelo `alcadas` (faixa por tipo+valor) + `alcada_aprovacoes` (instâncias) + cadeia sequencial + política de aprovação inline (auto-aprovado < R$ 5k, cadeia padrão 5k–50k, Admin Geral ≥ 50k) + seed default.
+- **Achado 4 (#8+#9) — Gestão de Profile / Órfãos:** PERMISSIONS §6 nova seção formalizando role "Gestão de Profile" (recebe órfãos, edita profile alheio, aprova critérios) + fluxo de cards órfãos (detecção → WF-DEFAULT-Card-Orfao → notificação → ação humana).
+
+**Arquivos criados:** `docs/concepts/CONCEPT-ALCADAS.md`, `docs/TELAS-PENDENTES.md`.
+**Arquivos modificados:** `docs/concepts/CONCEPT-PERMISSIONS.md`, `docs/concepts/CONCEPT-STAGE-ROLE-ASSIGNMENT.md`, `docs/concepts/CONCEPT-ACTIONIA.md`.
+
+## Seleção em lote + regras automáticas (2026-05-31)
+
+Caso de uso: usuário precisa marcar 35 de 80 fornecedores no profile — autocomplete um-por-um é inviável.
+
+- **`bulk-select.js` criado (raiz)** — widget self-contained, idempotente, expõe `window.dmsBulkSelect.attach({...})`.
+- **Modal "📋 Gerenciar em lote"** — tabela searchable com filtros, checkbox por linha, coluna "Já gerido por" (chips warn dos users que já cuidam, evita duplicação), botões "Selecionar visíveis" / "Limpar", footer com contador + "Aplicar".
+- **Modal "📐 Definir por regra"** — construtor AND/OR (campo / operador `= contém em >` / valor), preview ao vivo do count + lista colapsável, salva como `auto_rule`.
+- **Chips por origem** — manual = chip cinza/colorido padrão; regra = chip azul claro `📐 Categoria: X · 35 atuais` (clique edita, × remove).
+- **Aplicado em tela50** (4 cards · CCs/Vendors/Contratos/Empresas) com catálogos mock plausíveis: 30 CCs · 80 fornecedores (Transportes, Suprimentos, Limpeza, TI, Serviços, Marketing, Manutenção, Frota × 8 UFs) · 50 contratos · 8 empresas. Cada card já vem com 1-2 regras de exemplo demonstrando o comportamento.
+- **Aplicado em tela81** card "Critérios habilitados" — bulk select sobre o catálogo de critérios do módulo Compras.
+- **CONCEPT-USER-SCOPE-INTERVENIENTES.md §8** atualizado com modelo `auto_rules` (id, owner_user_id, target_type, filter_json, module, timestamps) + coluna nova `auto_rule_id` NULL em `user_scope` (manual coexiste com derivado), cascata de manutenção, edge cases.
+- **tag-filter.js** — intacto; concept marca como candidate à extensão (mesmo modelo).

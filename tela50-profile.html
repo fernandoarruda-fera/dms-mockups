@@ -332,16 +332,17 @@ tailwind.config = {
                 </div>
                 <span class="mono text-xs text-dms-tecnologia">5 / ∞</span>
               </div>
-              <div class="flex flex-wrap gap-1.5 mb-3">
+              <div class="flex flex-wrap gap-1.5 mb-3" id="chips-cc">
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-sky-50 text-dms-confianca border border-sky-200"><span class="mono">CC-001</span> Logística<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-sky-50 text-dms-confianca border border-sky-200"><span class="mono">CC-005</span> Comercial<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-sky-50 text-dms-confianca border border-sky-200"><span class="mono">CC-012</span> Manutenção<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-sky-50 text-dms-confianca border border-sky-200"><span class="mono">CC-018</span> Administrativo SP<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-sky-50 text-dms-confianca border border-sky-200"><span class="mono">CC-023</span> TI<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
               </div>
-              <div class="flex items-center gap-2">
-                <input type="text" placeholder="Buscar CC por código ou nome…" class="flex-1 px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
+              <div class="flex items-center gap-2 flex-wrap">
+                <input type="text" placeholder="Buscar CC por código ou nome…" class="flex-1 min-w-[200px] px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
                 <button class="px-3 py-2 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50">+ Adicionar CC</button>
+                <span id="bulk-actions-cc" class="flex items-center gap-2"></span>
               </div>
             </div>
 
@@ -361,14 +362,15 @@ tailwind.config = {
                 </div>
                 <span class="mono text-xs text-dms-tecnologia">3 / ∞</span>
               </div>
-              <div class="flex flex-wrap gap-1.5 mb-3">
+              <div class="flex flex-wrap gap-1.5 mb-3" id="chips-vendor">
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-violet-50 text-dms-sabedoria border border-violet-200">Transportadora Alpha<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-violet-50 text-dms-sabedoria border border-violet-200">Suprimentos Beta SA<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-violet-50 text-dms-sabedoria border border-violet-200">Locadora Gamma<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
               </div>
-              <div class="flex items-center gap-2">
-                <input type="text" placeholder="Buscar fornecedor por nome ou CNPJ…" class="flex-1 px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
+              <div class="flex items-center gap-2 flex-wrap">
+                <input type="text" placeholder="Buscar fornecedor por nome ou CNPJ…" class="flex-1 min-w-[200px] px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
                 <button class="px-3 py-2 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50">+ Adicionar fornecedor</button>
+                <span id="bulk-actions-vendor" class="flex items-center gap-2"></span>
               </div>
             </div>
 
@@ -387,13 +389,14 @@ tailwind.config = {
                 </div>
                 <span class="mono text-xs text-dms-tecnologia">2 / ∞</span>
               </div>
-              <div class="flex flex-wrap gap-1.5 mb-3">
+              <div class="flex flex-wrap gap-1.5 mb-3" id="chips-contract">
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="mono">CONT-2026-0008</span> Frota Logística<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200"><span class="mono">CONT-2026-0042</span> Limpeza Predial<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
               </div>
-              <div class="flex items-center gap-2">
-                <input type="text" placeholder="Buscar contrato por nº ou objeto…" class="flex-1 px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
+              <div class="flex items-center gap-2 flex-wrap">
+                <input type="text" placeholder="Buscar contrato por nº ou objeto…" class="flex-1 min-w-[200px] px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
                 <button class="px-3 py-2 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50">+ Adicionar contrato</button>
+                <span id="bulk-actions-contract" class="flex items-center gap-2"></span>
               </div>
             </div>
 
@@ -412,13 +415,14 @@ tailwind.config = {
                 </div>
                 <span class="mono text-xs text-dms-tecnologia">2 / ∞</span>
               </div>
-              <div class="flex flex-wrap gap-1.5 mb-3">
+              <div class="flex flex-wrap gap-1.5 mb-3" id="chips-company">
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200">DMS Logística SA<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200">DMS Comercial Ltda<button class="ml-1 text-dms-tecnologia hover:text-red-600">×</button></span>
               </div>
-              <div class="flex items-center gap-2">
-                <input type="text" placeholder="Buscar empresa por razão social ou CNPJ…" class="flex-1 px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
+              <div class="flex items-center gap-2 flex-wrap">
+                <input type="text" placeholder="Buscar empresa por razão social ou CNPJ…" class="flex-1 min-w-[200px] px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
                 <button class="px-3 py-2 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50">+ Adicionar empresa</button>
+                <span id="bulk-actions-company" class="flex items-center gap-2"></span>
               </div>
             </div>
 
@@ -662,5 +666,163 @@ document.querySelectorAll('.toggle').forEach(t => t.addEventListener('click', ()
 </script>
 <script src="notes-widget.js" defer></script>
 <script src="i18n-toggle.js" defer></script>
+<script src="bulk-select.js" defer></script>
+<script>
+// ============================================================
+// MOCKS — catálogos plausíveis pra demo de bulk select + regras
+// ============================================================
+(function () {
+  function whenReady(fn) {
+    if (window.dmsBulkSelect) return fn();
+    var t = setInterval(function () { if (window.dmsBulkSelect) { clearInterval(t); fn(); } }, 50);
+  }
+
+  // --- VENDORS (80) ---
+  var vendorCategorias = ['Transportes', 'Suprimentos', 'Limpeza', 'TI', 'Serviços', 'Marketing', 'Manutenção', 'Frota'];
+  var vendorEstados = ['SP', 'RJ', 'MG', 'PR', 'SC', 'RS', 'BA', 'PE'];
+  var vendorStatus = ['ativo', 'ativo', 'ativo', 'em homologação', 'suspenso'];
+  var vendorNames = [
+    'Transportadora Alpha', 'Suprimentos Beta SA', 'Locadora Gamma', 'Logística Delta', 'Frota Epsilon',
+    'TecSolutions Zeta', 'CleanPro Eta', 'Marketing Theta', 'Serviços Iota', 'Manutenção Kappa',
+    'Express Lambda', 'Cargo Mi', 'Office Ni', 'Higiene Xi', 'CloudOps Omicron',
+    'PrintPro Pi', 'Rho Distribuidora', 'Sigma Veículos', 'Tau Almoxarifado', 'Upsilon Café',
+    'Phi Tecnologia', 'Chi Limpeza', 'Psi Serviços', 'Omega Frete', 'NewCo Transportes',
+    'BR Suprimentos', 'AlphaLog Cargo', 'BetaClean Predial', 'CentroSul Frete', 'DataCenter SP',
+    'EcoLimp Industrial', 'FastFreight LTDA', 'GoCargo Express', 'HostCloud BR', 'Insumos MG',
+    'JusticeIT Solutions', 'Kombi Express', 'LimpaFácil', 'MultiFrete SA', 'NetSecure',
+    'OfficeCorp', 'PrintFast', 'QuickClean', 'RodaViva Locação', 'SuperClean BR',
+    'TecnoBR', 'UltraFrete', 'VeículosPro', 'WashCar Frota', 'Xerox BR Filial',
+    'YellowCab Cargo', 'ZapPrint', 'Almoxarifado RJ', 'BR Mídia Outdoor', 'Cargo Central',
+    'DigiPress', 'Empório Office', 'FleetCare', 'GráficaMaster', 'HighTech Cabos',
+    'InfraNet Servidores', 'JampaLog', 'KleinPrint', 'LogisCentro', 'MetalSP Manutenção',
+    'NovoFrete BR', 'OperaCenter', 'PortoLog SC', 'QuartzoTI', 'RadioMídia',
+    'SanitClean', 'TopFrete RS', 'UniSuprimentos', 'ValeFrete MG', 'WebDesignPro',
+    'XPress Cargo', 'YbCloud', 'ZenithTI', 'AeroLog PR', 'BravoVeículos'
+  ];
+  var vendorsCatalog = vendorNames.slice(0, 80).map(function (n, i) {
+    return {
+      id: 'VND-' + String(i + 1).padStart(3, '0'),
+      name: n,
+      categoria: vendorCategorias[i % vendorCategorias.length],
+      estado: vendorEstados[i % vendorEstados.length],
+      status: vendorStatus[i % vendorStatus.length]
+    };
+  });
+  var vendorsManaged = {
+    'VND-002': ['João S.'],
+    'VND-004': ['Marina C.', 'Pedro A.'],
+    'VND-009': ['Carla M.'],
+    'VND-015': ['Pedro A.'],
+    'VND-027': ['Lucas R.'],
+    'VND-031': ['Carla M.', 'João S.'],
+    'VND-044': ['Lucas R.']
+  };
+
+  // --- CCs (30) ---
+  var ccTipos = ['Operacional', 'Administrativo', 'Comercial', 'Logística', 'TI', 'Manutenção'];
+  var ccCatalog = [];
+  var ccNomes = [
+    'Logística', 'Comercial SP', 'Manutenção', 'Administrativo SP', 'TI Corporativo',
+    'Frota', 'Almoxarifado', 'Comercial RJ', 'Marketing', 'Jurídico',
+    'Financeiro', 'Operações Sul', 'Operações Norte', 'Operações Nordeste', 'Comercial MG',
+    'TI Infra', 'TI Apps', 'RH', 'Diretoria', 'Compras',
+    'Suprimentos', 'Recepção', 'Limpeza', 'Comercial PR', 'Comercial SC',
+    'Comercial RS', 'Manutenção Frota', 'Manutenção Predial', 'Garagem SP', 'Garagem RJ'
+  ];
+  for (var i = 0; i < 30; i++) {
+    ccCatalog.push({
+      id: 'CC-' + String((i + 1) * 6).padStart(3, '0'),
+      name: ccNomes[i],
+      tipo: ccTipos[i % ccTipos.length],
+      estado: vendorEstados[i % vendorEstados.length],
+      status: 'ativo'
+    });
+  }
+  var ccsManaged = { 'CC-006': ['Marina C.'], 'CC-018': ['Pedro A.'], 'CC-048': ['João S.', 'Lucas R.'] };
+
+  // --- CONTRATOS (50) ---
+  var contractTipos = ['Serviço continuado', 'Fornecimento', 'Locação', 'Manutenção', 'TI'];
+  var contractCatalog = [];
+  for (var j = 0; j < 50; j++) {
+    contractCatalog.push({
+      id: 'CONT-2026-' + String(j + 1).padStart(4, '0'),
+      name: 'Contrato ' + ['Frota', 'Limpeza Predial', 'TI Cloud', 'Manutenção HVAC', 'Material Escritório', 'Vigilância', 'Frete Rodoviário', 'Telefonia', 'Software ERP', 'Locação Veicular'][j % 10] + ' ' + (j + 1),
+      tipo: contractTipos[j % contractTipos.length],
+      categoria: vendorCategorias[j % vendorCategorias.length],
+      status: ['ativo', 'ativo', 'ativo', 'a vencer', 'vencido'][j % 5]
+    });
+  }
+  var contractsManaged = { 'CONT-2026-0005': ['Pedro A.'], 'CONT-2026-0019': ['Carla M.'] };
+
+  // --- EMPRESAS (8) ---
+  var companyCatalog = [
+    { id: 'CIA-01', name: 'DMS Logística SA', segmento: 'Logística', estado: 'SP', status: 'matriz' },
+    { id: 'CIA-02', name: 'DMS Comercial Ltda', segmento: 'Comercial', estado: 'SP', status: 'filial' },
+    { id: 'CIA-03', name: 'DMS Frota SA', segmento: 'Frota', estado: 'RJ', status: 'filial' },
+    { id: 'CIA-04', name: 'DMS Tech Ltda', segmento: 'TI', estado: 'SP', status: 'filial' },
+    { id: 'CIA-05', name: 'DMS Suprimentos SA', segmento: 'Comercial', estado: 'MG', status: 'filial' },
+    { id: 'CIA-06', name: 'DMS Manutenção Ltda', segmento: 'Manutenção', estado: 'PR', status: 'filial' },
+    { id: 'CIA-07', name: 'DMS Sul Logística', segmento: 'Logística', estado: 'RS', status: 'filial' },
+    { id: 'CIA-08', name: 'DMS Nordeste Ltda', segmento: 'Logística', estado: 'BA', status: 'filial' }
+  ];
+  var companiesManaged = { 'CIA-04': ['Lucas R.'], 'CIA-06': ['Pedro A.'] };
+
+  whenReady(function () {
+    // CC card
+    window.dmsBulkSelect.attach({
+      buttonContainer: '#bulk-actions-cc',
+      chipsContainer: '#chips-cc',
+      entitySingular: 'CC', entityPlural: 'CCs',
+      catalog: ccCatalog,
+      alreadyManaged: ccsManaged,
+      columns: [{ key: 'id', label: 'Código' }, { key: 'tipo', label: 'Tipo' }, { key: 'estado', label: 'UF' }, { key: 'status', label: 'Status' }],
+      filterFields: [{ key: 'tipo', label: 'Tipo' }, { key: 'estado', label: 'UF' }],
+      ruleFields: [{ key: 'tipo', label: 'Tipo' }, { key: 'estado', label: 'UF' }, { key: 'status', label: 'Status' }],
+      initialRules: [{ id: 'rule-cc-logist', conditions: [{ field: 'tipo', op: '=', value: 'Logística', connector: 'AND' }] }]
+    });
+
+    // Vendor card
+    window.dmsBulkSelect.attach({
+      buttonContainer: '#bulk-actions-vendor',
+      chipsContainer: '#chips-vendor',
+      entitySingular: 'fornecedor', entityPlural: 'fornecedores',
+      catalog: vendorsCatalog,
+      alreadyManaged: vendorsManaged,
+      columns: [{ key: 'categoria', label: 'Categoria' }, { key: 'estado', label: 'UF' }, { key: 'status', label: 'Status' }],
+      filterFields: [{ key: 'categoria', label: 'Categoria' }, { key: 'estado', label: 'UF' }, { key: 'status', label: 'Status' }],
+      ruleFields: [{ key: 'categoria', label: 'Categoria' }, { key: 'estado', label: 'UF' }, { key: 'status', label: 'Status' }],
+      initialRules: [
+        { id: 'rule-vnd-transp', conditions: [{ field: 'categoria', op: '=', value: 'Transportes', connector: 'AND' }] },
+        { id: 'rule-vnd-supr-sp', conditions: [{ field: 'categoria', op: '=', value: 'Suprimentos', connector: 'AND' }, { field: 'estado', op: '=', value: 'SP', connector: 'AND' }] }
+      ]
+    });
+
+    // Contrato card
+    window.dmsBulkSelect.attach({
+      buttonContainer: '#bulk-actions-contract',
+      chipsContainer: '#chips-contract',
+      entitySingular: 'contrato', entityPlural: 'contratos',
+      catalog: contractCatalog,
+      alreadyManaged: contractsManaged,
+      columns: [{ key: 'tipo', label: 'Tipo' }, { key: 'categoria', label: 'Categoria' }, { key: 'status', label: 'Status' }],
+      filterFields: [{ key: 'tipo', label: 'Tipo' }, { key: 'status', label: 'Status' }],
+      ruleFields: [{ key: 'tipo', label: 'Tipo' }, { key: 'categoria', label: 'Categoria' }, { key: 'status', label: 'Status' }],
+      initialRules: [{ id: 'rule-ct-serv', conditions: [{ field: 'tipo', op: '=', value: 'Serviço continuado', connector: 'AND' }] }]
+    });
+
+    // Empresa card
+    window.dmsBulkSelect.attach({
+      buttonContainer: '#bulk-actions-company',
+      chipsContainer: '#chips-company',
+      entitySingular: 'empresa', entityPlural: 'empresas',
+      catalog: companyCatalog,
+      alreadyManaged: companiesManaged,
+      columns: [{ key: 'segmento', label: 'Segmento' }, { key: 'estado', label: 'UF' }, { key: 'status', label: 'Tipo' }],
+      filterFields: [{ key: 'segmento', label: 'Segmento' }, { key: 'estado', label: 'UF' }],
+      ruleFields: [{ key: 'segmento', label: 'Segmento' }, { key: 'estado', label: 'UF' }, { key: 'status', label: 'Tipo' }]
+    });
+  });
+})();
+</script>
 </body>
 </html>

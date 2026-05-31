@@ -122,7 +122,76 @@ Quando o sistema precisa decidir "quem recebe este card":
 - **tela11** (Cockpit) — leitura do scope para distribuir cards
 - **tela08** (Stage Trigger) — preview "Esta config + função X afeta N usuários"
 
-## 8. Decisões
+## 8. Seleção em lote + regras automáticas
+
+**Problema.** Usuários com scope grande (35 de 80 fornecedores, 12 de 30 CCs) inviabilizam autocomplete-um-por-um. Adicionar 35 itens manualmente é frustrante e propenso a erro.
+
+**Solução** — duas abordagens combinadas, expostas via widget `bulk-select.js`:
+
+### 8.1 Modal "Gerenciar em lote" (seleção manual)
+- Tabela searchable com **checkbox por linha** + filtros por categoria/UF/status
+- Coluna **"Já gerido por"** mostra outros usuários que já cuidam do item — evita duplicação de ownership sem querer
+- Botões "Selecionar todos visíveis" / "Limpar"
+- Footer fixo com contador + "Aplicar seleção"
+- Use case: usuário sabe exatamente quais fornecedores quer e já tem critério de busca em mente
+
+### 8.2 Modal "Definir por regra" (regras automáticas)
+- Construtor AND/OR: `categoria = Transportes AND estado = SP`
+- Preview ao vivo: "Regra atual selecionaria 35 itens" + lista colapsável
+- Salvar a regra cria um **chip especial azul claro** (`📐 Categoria: Transportes · 35 atuais`)
+- Click no chip = editar regra; X = remover regra
+- **Comportamento dinâmico**: quando um novo fornecedor for cadastrado e bater a regra, **entra automaticamente** no scope do usuário (sem ação manual)
+- Use case: "todos os fornecedores de Transportes em SP são meus" — declarativo, não enumeração
+
+### 8.3 Chips por origem
+- **Chip cinza/colorido padrão** = item adicionado manualmente (selecionado no modal bulk ou na busca)
+- **Chip azul claro com 📐** = item virá de uma regra automática (grupo virtual, mostra contagem atual)
+- Item pode estar nos dois (manual + bater regra): se a regra mudar e o item sair dela, ele **permanece no scope** porque foi marcado manualmente também
+
+### 8.4 Modelo de dados — extensão
+
+Nova tabela `auto_rules`:
+```
+auto_rules (
+  id              UUID PK,
+  owner_user_id   UUID FK users,
+  target_type     ENUM ('cost_center','vendor','contract','company','sop','procedure','tag','workflow'),
+  filter_json     JSONB,  -- { conditions: [{field, op, value, connector}], ... }
+  module          TEXT,    -- 'compras', etc
+  created_at      TIMESTAMPTZ,
+  updated_at      TIMESTAMPTZ
+)
+```
+
+Coluna nova em `user_scope`:
+```
+auto_rule_id    UUID NULL FK auto_rules
+```
+- `NULL` = adicionado manualmente
+- não-NULL = derivado de regra (recalculado quando novo item bate a regra ou regra é editada)
+- Ambos podem coexistir: item pode ter linha manual + linha derivada de regra (chave composta `(user_id, entity_type, entity_id, COALESCE(auto_rule_id, '0'))`)
+
+### 8.5 Cascata de manutenção
+
+- **Quando regra muda**: recomputa items derivados — adiciona novos matches, remove os que saíram (a menos que também estejam marcados manualmente)
+- **Quando item novo é cadastrado** (ex: vendor V-099): job avalia todas as `auto_rules` ativas e popula `user_scope` para quem bate
+- **Quando regra é removida**: items derivados saem do scope (manuais permanecem)
+- **Reflexo em ownership de stages**: roda mesmo gatilho do scope manual ([[CONCEPT-STAGE-OWNERSHIP-VALIDATION]])
+
+### 8.6 Edge cases
+
+- **Regra com 0 matches**: salva mesmo assim, mostra warning "Nenhum item atualmente bate" (útil pra preparar pra novos itens)
+- **Regra muito ampla** (ex: `status = ativo` em 5k vendors): UI alerta antes de salvar — "Esta regra incluirá 4.832 itens. Confirmar?"
+- **User removido do scope da regra** (regra editada): item sai do scope automaticamente; se também era manual, fica
+- **Conflito com `Já gerido por`**: o widget só informa visualmente; não bloqueia — produto decide se distribui ou dedupe via cockpit
+
+### 8.7 Onde aplicar
+
+- **tela50** (Profile · aba Intervenientes): cada um dos 4 cards (CCs, Vendors, Contratos, Empresas) recebe os botões
+- **tela81** (Configurador de Intervenientes): card "Critérios habilitados" usa o mesmo widget para incluir/excluir critérios em lote ou via regra
+- **tag-filter.js**: filtros salvos podem evoluir pra suportar regras automáticas (extensão futura, mesmo modelo)
+
+## 9. Decisões
 
 - ✅ Scope é entidade separada de Permission (dois eixos ortogonais)
 - ✅ Sem scope = sem cards (privilégio mínimo)
@@ -131,6 +200,6 @@ Quando o sistema precisa decidir "quem recebe este card":
 - ❌ Não usar grupos intermediários (user → group → entities) no MVP — adiciona indireção
 - ❌ Não suportar exclusão explícita ("este CC NÃO" override) — default whitelist já cobre
 
-## 9. Prioridade
+## 10. Prioridade
 
 **CRÍTICO.** Sem isso, [[CONCEPT-STAGE-ROLE-ASSIGNMENT]] não consegue distribuir cards corretamente — cockpit fica disfuncional em qualquer operação com mais de 1 CC.
