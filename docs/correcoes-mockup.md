@@ -373,3 +373,41 @@ Origem: §2 Crítico #5 da auditoria E3 (matriz tela80 sem save real) + integra�
 - **tela10 (workflow builder)** — abas Alertas/Agentes JÁ consumiam tela77/78 desde Passo 4. Adicionados: `tela10Vincular()` + `tela10Remove()` wirando os 3 botões "Vincular" + todos os "Remover" (alertas/agentes/procedures), antes dead-buttons.
 - **Auditoria E3** marca §2 Crítico #5 (matriz save real) como ✅ resolvido — única pendência crítica restante da E3 fechada.
 - **Sidebar** preservada (33 âncoras tela80 = baseline; tela09/10 inalteradas). Total mockups continua **87**.
+
+## Passo 6 — propagação permission-driven sidebar tela77/78/79 (2026-05-31)
+
+Origem: piloto de `sidebar-permissions.js` (commit 9ab35f2, aplicado em tela80–87). Inventário das 79 telas restantes (tela01-79) mostrou heterogeneidade na sidebar consolidada — só tela77/78/79 já estão no padrão pilot (34 âncoras) e podem receber o script sem sweep adicional.
+
+### Aplicado (3 telas — 34 âncoras = padrão pilot)
+- **tela77-actionia-biblioteca.html**, **tela78-alertas-biblioteca.html**, **tela79-matchengine-workflow.html** — injetado `<script src="sidebar-permissions.js" defer></script>` após `i18n-toggle.js` em cada um.
+
+### Candidatas com sidebar parcial (sweep pendente — Fernando aprovar)
+- **30 âncoras (5 telas)** — `tela60-auditoria-global` · `tela61-webhooks-list` · `tela62-templates-email` · `tela63-config-smtp-imap` · `tela64-api-tokens`
+- **28 âncoras (1)** — `tela50-profile`
+- **27 âncoras (1)** — `tela10-workflow-builder`
+- **26 âncoras (2)** — `tela51-trocar-senha` · `tela52-2fa-setup`
+- **25 âncoras (52)** — `tela01..tela46` (menos as já cobertas), `tela59`, `tela65`, `tela71`, `tela74`, `tela75`
+
+### Sidebar legada (6 âncoras — NÃO aplicar sem sweep)
+- `tela66-wizard-stage-editor` · `tela67-wizard-supplier-detail` · `tela68-modais-bulk-actions` · `tela69-wizard-onboarding` · `tela70-detail-comparativo-versoes`
+
+### Sem sidebar (telas de login/erro/auth — não aplicável)
+- `tela47-login` · `tela48-reset-senha-request` · `tela49-reset-senha-nova` · `tela53-2fa-challenge` · `tela54..tela58` · `tela72-convite-signup` · `tela73-verificar-email` · `tela76-anotacoes-centro`
+
+### Validação cruzada (esperado vs encontrado)
+Simulação Node da matriz `PERMS_MATRIX` contra os `<aside id="dms-sidebar">` reais:
+
+| Tela | total | admin | cmpAdm | cmpOp | capAdm | capOp | aprDir | aprGer | viewer |
+|------|-------|-------|--------|-------|--------|-------|--------|--------|--------|
+| tela80 (pilot) | 32 | 32 | 24 | 15 | 11 | 5 | 13 | 9 | 5 |
+| tela87 (pilot) | 34 | 34 | 25 | 16 | 12 | 6 | 14 | 10 | 6 |
+| tela77 (novo)  | 34 | 34 | 25 | 16 | 12 | 6 | 14 | 10 | 6 |
+| tela78 (novo)  | 34 | 34 | 25 | 16 | 12 | 6 | 14 | 10 | 6 |
+| tela79 (novo)  | 34 | 34 | 25 | 16 | 12 | 6 | 14 | 10 | 6 |
+
+tela77/78/79 batem 1:1 com tela87 (pilot 34-âncoras). Viewer enxerga 6 itens (Profile + Cockpit + Tarefas + Tags + Workflows + SOPs), padrão idêntico ao piloto.
+
+### Cobertura pós-passo
+- **Sidebar permission-driven**: 11 / 87 telas (8 pilot + 3 propagadas = tela77–87)
+- **Pendente sweep p/ ampliar**: 61 telas com sidebar parcial (24–33 âncoras) — exigem alinhamento ao consolidado de 34 antes de receber o script
+- **Excluídas estruturalmente**: 18 telas (5 legadas wizard + 12 auth/erro + tela76)
