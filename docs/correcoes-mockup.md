@@ -276,3 +276,11 @@ Lógica de distribuição de cards no cockpit fica explícita: `stage.função �
 - **tela50 aba Intervenientes refatorada** — dinâmica (renderiza a partir do config do módulo), cards obrigatórios com asterisco, banner cobertura de cards, link pra tela81
 - Sidebar `Engine & Admin` ganhou itens **Permissões** + **Config Intervenientes**
 - index.html: tela81 adicionada ao grupo Admin Avançado (total: 80 telas)
+
+## Task 3: tela82 Saúde Stages + 5 WF default + 6 validações (2026-05-31)
+
+- **tela82 NOVA** — Dashboard Saúde dos Stages: 5 KPIs, filtros multi, tabela mock 10 linhas, card lateral de atalhos
+- **tela04 (Workflows)** — 5 workflows default sistema (`🔒`) criados, Excluir disabled, Editar habilitado, badge Sistema, filtro KPI próprio, contador total 10→15
+- **6 validações** — banners/modais em tela08 publish, tela50 save, criação user, bloqueio user, desativar role, remover entidade scope
+- **TODO-WORKFLOWS-DEFAULT.md** — marcar 5 como ✅ feitos
+- index.html: tela82 adicionada ao grupo Admin Avançado (total: 82 telas)

@@ -136,9 +136,9 @@ tailwind.config = {
       </div>
 
       <!-- KPI CARDS -->
-      <div class="grid grid-cols-5 gap-4 mb-6" id="kpi-row">
+      <div class="grid grid-cols-6 gap-3 mb-6" id="kpi-row">
         <button data-filter="todos" class="kpi-card active text-left bg-dms-mar text-white p-3 rounded-lg">
-          <div class="text-[22px] leading-none font-black">10</div>
+          <div class="text-[22px] leading-none font-black">15</div>
           <div class="caption text-white/80 mt-2">Workflows totais</div>
         </button>
         <button data-filter="requisicao" class="kpi-card text-left bg-white border border-[#E5E7EB] p-3 rounded-lg">
@@ -157,6 +157,10 @@ tailwind.config = {
           <div class="text-[22px] leading-none font-black text-dms-mar">1</div>
           <div class="caption text-dms-tecnologia mt-2">Sub-fluxo</div>
         </button>
+        <button data-filter="sistema" class="kpi-card text-left bg-gray-50 border border-gray-300 p-3 rounded-lg">
+          <div class="text-[22px] leading-none font-black text-gray-700 flex items-center gap-1.5">🔒 5</div>
+          <div class="caption text-gray-600 mt-2">Sistema (default)</div>
+        </button>
       </div>
 
       <!-- TOOLBAR -->
@@ -173,6 +177,7 @@ tailwind.config = {
             <option value="nf">NF</option>
             <option value="sub_fluxo">Sub-fluxo</option>
             <option value="po">PO</option>
+            <option value="sistema">🔒 Sistema (default)</option>
           </select>
         </div>
 
@@ -206,7 +211,7 @@ tailwind.config = {
 
       <!-- Contador no rodapé -->
       <div class="mt-6 text-sm text-dms-tecnologia">
-        Mostrando <span class="font-semibold text-dms-mar" id="wf-count">10</span> de <span class="font-semibold text-dms-mar">10</span> workflows
+        Mostrando <span class="font-semibold text-dms-mar" id="wf-count">15</span> de <span class="font-semibold text-dms-mar">15</span> workflows
       </div>
 
       <!-- Nota informativa -->
@@ -233,6 +238,12 @@ const MOCK_WFS = [
   { code: 'WF-08', type: 'contrato', typeLabel: 'CONTRATO', name: 'Cláusula Avulsa de Contrato', desc: 'Acionamento de cláusula em contrato vigente', stages: ['Solicitação', 'Aprovação (se >X)', 'PO Cláusula', 'Execução', 'NF', 'Pagamento'], slaTotal: '14 dias', procedures: 4, escalations: 0, match: 'tipo_compra=cláusula_avulsa · contrato_id IS NOT NULL', status: 'ativo', extras: [] },
   { code: 'WF-09', type: 'nf', typeLabel: 'NF', name: 'NF Avulsa Padrão', desc: 'NF chega no e-mail e é validada/lançada automaticamente', stages: ['Recebimento', 'Validação Auto', 'Aprov. (se >50k)', 'Aprov. C-Level (sem saldo)', 'Lançamento Omie', 'Pagamento', 'Concluído'], slaTotal: '5 dias', procedures: 8, escalations: 0, match: 'origem=email_NF · tipo_compra=avulsa · sem reprovação validação', status: 'ativo', extras: [{ icon: '🤖', label: 'DOCSIA + MAILIA', color: 'sabedoria' }] },
   { code: 'WF-10', type: 'nf', typeLabel: 'NF', name: 'NF em Quarentena', desc: 'Tratamento de NF que falhou na validação automática', stages: ['Quarentena', 'Análise Time Compras', 'Decisão', 'Reentrada no Fluxo', 'Concluído'], slaTotal: '3 dias', procedures: 3, escalations: 0, match: 'origem=email_NF · status=quarentena (validação reprovou)', status: 'rascunho', extras: [{ icon: '📧', label: 'Email automático ao fornecedor', color: 'ceu' }] },
+  // === WORKFLOWS DEFAULT DO SISTEMA (não deletáveis, customizáveis) ===
+  { code: 'WF-DEFAULT-Stage-Orfao', type: 'sistema', typeLabel: 'SISTEMA · OWNERSHIP', name: 'Stage Órfão — Recuperação', desc: 'Dispara quando um stage perde todos os donos. Cria card to-do pro gestor da cadeira (role superior) pra nomear novo responsável.', stages: ['Detecção 0 donos', 'Identificar gestor da cadeira', 'Card to-do gestor', 'Atribuição manual', 'Re-validação', 'Concluído'], slaTotal: '48h', procedures: 2, escalations: 1, match: 'eligible_users.count = 0 (qualquer trigger event)', status: 'ativo', isSystem: true, extras: [{ icon: '🔒', label: 'sistema', color: 'sistema' }, { icon: '⚠️', label: 'ownership fallback', color: 'sabedoria' }] },
+  { code: 'WF-DEFAULT-Conflito-2-Donos', type: 'sistema', typeLabel: 'SISTEMA · OWNERSHIP', name: 'Conflito de Propriedade — 2+ Donos', desc: 'Dispara quando 2+ users matcham o mesmo stage. Cria card pro gestor pra decidir quem fica.', stages: ['Detecção 2+ donos', 'Listar candidatos', 'Card to-do gestor', 'Decisão', 'Ajuste de scope/role', 'Concluído'], slaTotal: '48h', procedures: 2, escalations: 1, match: 'eligible_users.count >= 2', status: 'ativo', isSystem: true, extras: [{ icon: '🔒', label: 'sistema', color: 'sistema' }, { icon: '⚖️', label: 'conflito', color: 'sabedoria' }] },
+  { code: 'WF-DEFAULT-User-Bloqueado-Impacto', type: 'sistema', typeLabel: 'SISTEMA · OWNERSHIP', name: 'User Bloqueado — Impacto em Stages', desc: 'Disparado quando um user é bloqueado. Detecta se algum stage perdeu único dono e dispara WF-DEFAULT-Stage-Orfao.', stages: ['Trigger: user.status=inativo', 'Scan stages do user', 'Detecta órfãos novos', 'Dispara recovery', 'Concluído'], slaTotal: '24h', procedures: 3, escalations: 0, match: 'event=user_block · stages onde user era único elegível', status: 'ativo', isSystem: true, extras: [{ icon: '🔒', label: 'sistema', color: 'sistema' }, { icon: '🚫', label: 'cascade', color: 'ceu' }] },
+  { code: 'WF-DEFAULT-Role-Inativada-Impacto', type: 'sistema', typeLabel: 'SISTEMA · OWNERSHIP', name: 'Role Inativada — Impacto em Stages', desc: 'Disparado quando uma Role é desativada. Detecta stages que dependiam da role e dispara recovery.', stages: ['Trigger: role.ativo=false', 'Scan stages com funcao_responsavel', 'Detecta órfãos em massa', 'Consolida em 1 card', 'Concluído'], slaTotal: '24h', procedures: 3, escalations: 0, match: 'event=role_inactivate · stages.funcao_responsavel_id = role', status: 'ativo', isSystem: true, extras: [{ icon: '🔒', label: 'sistema', color: 'sistema' }, { icon: '🏷️', label: 'cascade-massa', color: 'ceu' }] },
+  { code: 'WF-DEFAULT-Scope-Removido-Impacto', type: 'sistema', typeLabel: 'SISTEMA · OWNERSHIP', name: 'Entidade do Scope Removida — Impacto', desc: 'Disparado quando entidade (CC/Vendor/Contrato/Empresa) é removida. Detecta stages com gap de ownership.', stages: ['Trigger: scope_entity.deleted', 'Cascade user_scope', 'Scan stages com filtro', 'Detecta órfãos/conflitos', 'Dispara recovery', 'Concluído'], slaTotal: '24h', procedures: 4, escalations: 0, match: 'event=scope_entity_removed · stages com scope_filter no critério', status: 'ativo', isSystem: true, extras: [{ icon: '🔒', label: 'sistema', color: 'sistema' }, { icon: '🗑️', label: 'cascade-async', color: 'ceu' }] },
 ];
 
 const typeColor = {
@@ -241,12 +252,14 @@ const typeColor = {
   nf: 'text-[#7A8F24]',
   sub_fluxo: 'text-dms-sabedoria',
   po: 'text-dms-confianca',
+  sistema: 'text-gray-700',
 };
 
 const extraColor = {
   tropicalidade: 'bg-[rgba(176,201,52,0.15)] text-[#7A8F24]',
   ceu: 'bg-[rgba(0,174,238,0.15)] text-[#005290]',
   sabedoria: 'bg-[rgba(100,53,133,0.10)] text-dms-sabedoria',
+  sistema: 'bg-gray-200 text-gray-800 border border-gray-400',
 };
 
 let activeFilter = 'todos';
@@ -271,14 +284,18 @@ function renderCards() {
 
     const stagesText = w.stages.map(s => `<span>${s}</span>`).join('<span class="arrow">→</span>');
 
+    const cardBg = w.isSystem ? 'bg-gray-50 border-gray-300' : 'bg-white border-[#E5E7EB]';
+    const sysBadge = w.isSystem ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-gray-200 text-gray-800 border border-gray-400 ml-1" title="Workflow do sistema — não pode ser excluído">🔒 Sistema</span>` : '';
+
     return `
-    <div class="wf-card bg-white border border-[#E5E7EB] rounded-lg p-5 shadow-dms-md">
+    <div class="wf-card ${cardBg} border rounded-lg p-5 shadow-dms-md">
       <!-- Header: código · tipo + status -->
       <div class="flex items-start justify-between gap-3 mb-3">
-        <div class="flex items-center gap-2 text-xs font-bold tracking-wide">
+        <div class="flex items-center gap-2 text-xs font-bold tracking-wide flex-wrap">
           <span class="mono text-dms-mar">${w.code}</span>
           <span class="text-dms-tecnologia">·</span>
           <span class="${typeColor[w.type] || 'text-dms-mar'}">${w.typeLabel}</span>
+          ${sysBadge}
         </div>
         ${statusBadge}
       </div>
@@ -324,6 +341,14 @@ function renderCards() {
           <span class="mono text-dms-mar">${w.match}</span>
         </div>
       </div>
+
+      <!-- Ações -->
+      <div class="mt-3 pt-3 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
+        <a href="tela10-workflow-builder.html" class="text-xs font-semibold text-dms-mar border border-dms-mar px-3 py-1.5 rounded hover:bg-dms-mar hover:text-white transition-colors">Editar</a>
+        ${w.isSystem
+          ? `<button disabled class="text-xs font-semibold text-gray-400 border border-gray-300 px-3 py-1.5 rounded cursor-not-allowed bg-gray-100" title="Workflows do sistema não podem ser excluídos. Você pode customizar mas não deletar.">Excluir 🔒</button>`
+          : `<button class="text-xs font-semibold text-red-600 border border-red-300 px-3 py-1.5 rounded hover:bg-red-50 transition-colors">Excluir</button>`}
+      </div>
     </div>
     `;
   }).join('');
@@ -350,6 +375,18 @@ document.getElementById('kpi-row').addEventListener('click', (e) => {
 
 document.getElementById('search-input').addEventListener('input', (e) => { searchQuery = e.target.value; renderCards(); });
 document.getElementById('filter-type').addEventListener('change', (e) => { typeFilter = e.target.value; renderCards(); });
+
+// Aplica filtro vindo via URL (?filter=default ou ?filter=sistema) — usado por tela82
+(function applyFilterParam(){
+  var p = new URLSearchParams(window.location.search);
+  var f = (p.get('filter') || '').toLowerCase();
+  if (f === 'default' || f === 'sistema') {
+    activeFilter = 'sistema';
+    document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active'));
+    var sysBtn = document.querySelector('[data-filter="sistema"]');
+    if (sysBtn) sysBtn.classList.add('active');
+  }
+})();
 
 renderCards();
 </script>

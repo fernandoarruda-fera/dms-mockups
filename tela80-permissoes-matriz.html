@@ -74,6 +74,21 @@ tailwind.config = {
         <p class="text-sm text-dms-tecnologia max-w-3xl">Matriz de permissões por <strong class="text-dms-mar">função (Role)</strong> × <strong class="text-dms-mar">Tela/Módulo</strong> × <strong class="text-dms-mar">Ação</strong>. Cada usuário herda permissões da união das funções que possui (multi-role). Permissão fala sobre <em>capacidade</em>, não sobre escopo — para limitar entidades, ver <a href="tela50-profile.html" class="text-dms-ceu hover:underline">Intervenientes (tela50)</a>.</p>
       </div>
 
+      <!-- Card: Ações sensíveis ao ownership (mock dispara modais de validação) -->
+      <div class="mb-6 bg-white border-l-4 border-l-amber-500 border border-[#E5E7EB] rounded-lg p-4 shadow-dms-md">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex-1">
+            <h3 class="text-sm font-bold text-dms-mar mb-1 flex items-center gap-2">🛡️ Ações de gestão que validam ownership <a href="tela82-saude-stages.html" class="text-[11px] font-normal text-dms-ceu hover:underline">(saúde dos stages →)</a></h3>
+            <p class="text-xs text-dms-tecnologia">Cada ação abaixo dispara validação em <a href="docs/concepts/CONCEPT-STAGE-OWNERSHIP-VALIDATION.md" class="text-dms-ceu hover:underline">6 dimensões</a>. Se gerar órfão/conflito, modal de confirmação aparece.</p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap justify-end">
+            <button onclick="abrirModalOwner('criar-user')" class="text-xs font-semibold text-dms-mar border border-dms-mar px-3 py-1.5 rounded hover:bg-dms-mar hover:text-white transition-colors">+ Criar user (mock)</button>
+            <button onclick="abrirModalOwner('bloquear-user')" class="text-xs font-semibold text-orange-700 border border-orange-300 px-3 py-1.5 rounded hover:bg-orange-50 transition-colors">🚫 Bloquear user (mock)</button>
+            <button onclick="abrirModalOwner('desativar-role')" class="text-xs font-semibold text-red-700 border border-red-300 px-3 py-1.5 rounded hover:bg-red-50 transition-colors">⊘ Desativar role (mock)</button>
+          </div>
+        </div>
+      </div>
+
       <!-- KPIs -->
       <div class="grid grid-cols-4 gap-3 mb-6">
         <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
@@ -453,6 +468,97 @@ buildMatrix();
   window.addEventListener('resize',r);r();
 })();
 </script>
+<!-- ========== MODAIS DE VALIDAÇÃO OWNERSHIP (dim 3/4/5/6) ========== -->
+<div id="modal-owner-criar-user" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,27,76,0.55);">
+  <div class="bg-white rounded-lg shadow-2xl max-w-xl w-full">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
+      <span class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-xl">🔍</span>
+      <div>
+        <h3 class="text-base font-bold text-dms-mar">Análise de ownership · Novo usuário</h3>
+        <p class="text-xs text-dms-tecnologia">Dimensão 3 — criar user revalida stages que ele cobriria</p>
+      </div>
+    </div>
+    <div class="p-6 space-y-3 text-sm">
+      <p class="text-dms-mar">Criando <strong>Júlia Mendes</strong> com função <strong>Compras Adm</strong> + scope <strong>CC-099, CC-100, V-21</strong>:</p>
+      <div class="bg-emerald-50 border border-emerald-200 rounded p-3 text-xs">
+        <p class="font-bold text-emerald-800 mb-2">✓ Cobertura nova</p>
+        <ul class="list-disc list-inside text-emerald-700 space-y-0.5">
+          <li>Cobre <strong>2 stages órfãos atuais</strong>: "Aprovação CC" (WF-09) · "Lançamento Omie" (WF-09)</li>
+          <li>Cria <strong>0 novos conflitos</strong></li>
+        </ul>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded p-3 text-xs text-amber-800">
+        <strong>2 stages continuam órfãos</strong> após esta criação (precisam de scope diferente). <a href="tela82-saude-stages.html" class="underline font-semibold">Ver tela82</a>.
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
+      <button onclick="fecharModalOwner('criar-user')" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Cancelar</button>
+      <button onclick="fecharModalOwner('criar-user')" class="text-sm font-semibold text-white px-4 py-2 bg-emerald-600 rounded hover:bg-emerald-700">Criar usuário</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-owner-bloquear-user" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,27,76,0.55);">
+  <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
+      <span class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center text-xl">🚫</span>
+      <div>
+        <h3 class="text-base font-bold text-dms-mar">Bloquear usuário — impacto em ownership</h3>
+        <p class="text-xs text-dms-tecnologia">Dimensão 4 — bloqueio revalida todos os stages onde user era elegível</p>
+      </div>
+    </div>
+    <div class="p-6 space-y-3 text-sm">
+      <p class="text-dms-mar">Bloqueando <strong>Pedro Lima</strong>:</p>
+      <div class="bg-red-50 border border-red-200 rounded p-3 text-xs">
+        <p class="font-bold text-red-800 mb-2">⚠️ 3 stages ficarão órfãos</p>
+        <table class="w-full text-[11px]">
+          <thead class="text-red-700 font-bold"><tr><th class="text-left pb-1">Stage</th><th class="text-left pb-1">Workflow</th><th class="text-left pb-1">Função</th></tr></thead>
+          <tbody class="text-red-700">
+            <tr><td>Aprov. NF &gt;50k</td><td>WF-09</td><td>CAP Adm</td></tr>
+            <tr><td>Lançamento Omie</td><td>WF-09</td><td>CAP Adm</td></tr>
+            <tr><td>Conferência</td><td>WF-02</td><td>CAP Adm</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="text-xs text-dms-tecnologia">Workflow default <span class="mono text-dms-mar">WF-DEFAULT-User-Bloqueado-Impacto</span> será disparado e gerará card to-do pro gestor da cadeira.</p>
+    </div>
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
+      <button onclick="fecharModalOwner('bloquear-user')" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Cancelar</button>
+      <button onclick="fecharModalOwner('bloquear-user')" class="text-sm font-semibold text-dms-sabedoria border border-dms-sabedoria/40 px-4 py-2 bg-violet-50 rounded">Reatribuir antes de bloquear</button>
+      <button onclick="fecharModalOwner('bloquear-user')" class="text-sm font-semibold text-white px-4 py-2 bg-red-600 rounded hover:bg-red-700">Bloquear mesmo assim</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-owner-desativar-role" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,27,76,0.55);">
+  <div class="bg-white rounded-lg shadow-2xl max-w-xl w-full">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
+      <span class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center text-xl">⊘</span>
+      <div>
+        <h3 class="text-base font-bold text-dms-mar">Desativar role — impacto em ownership</h3>
+        <p class="text-xs text-dms-tecnologia">Dimensão 5 — desativação cascateia em todos os stages com a role</p>
+      </div>
+    </div>
+    <div class="p-6 space-y-3 text-sm">
+      <p class="text-dms-mar">Desativando role <strong>Aprovador Gerente Jr</strong>:</p>
+      <div class="bg-red-50 border border-red-200 rounded p-3 text-xs text-red-800">
+        <p class="font-bold mb-1">⚠️ 7 stages ficarão sem responsável</p>
+        <p>Stages em <strong>4 workflows</strong> dependem desta role como <span class="mono">funcao_responsavel_id</span>. <a href="tela82-saude-stages.html" class="underline font-semibold">Ver detalhes na tela82</a>.</p>
+      </div>
+      <p class="text-xs text-dms-tecnologia">Workflow default <span class="mono text-dms-mar">WF-DEFAULT-Role-Inativada-Impacto</span> consolidará issues em 1 card pro gestor (evita inundar).</p>
+    </div>
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
+      <button onclick="fecharModalOwner('desativar-role')" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Cancelar</button>
+      <button onclick="fecharModalOwner('desativar-role')" class="text-sm font-semibold text-white px-4 py-2 bg-red-600 rounded hover:bg-red-700">Desativar mesmo assim</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function abrirModalOwner(tipo){ var m = document.getElementById('modal-owner-'+tipo); if(m){ m.classList.remove('hidden'); m.classList.add('flex'); } }
+function fecharModalOwner(tipo){ var m = document.getElementById('modal-owner-'+tipo); if(m){ m.classList.add('hidden'); m.classList.remove('flex'); } }
+</script>
+
 <script src="notes-widget.js" defer></script>
 <script src="i18n-toggle.js" defer></script>
 </body>

@@ -166,6 +166,9 @@ function renderRows() {
           <a href="tela33-centro-custo-form.html" class="p-1.5 text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] rounded transition-colors" title="Editar">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
           </a>
+          <button onclick="event.stopPropagation(); document.getElementById('modal-scope-removed').classList.remove('hidden'); document.getElementById('modal-scope-removed').classList.add('flex');" class="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors" title="Excluir CC (valida ownership)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
+          </button>
         </div>
       </td>
     </tr>
@@ -336,6 +339,35 @@ renderRows();
   render();
 })();
 </script>
+<!-- Modal: remoção de CC dispara validação de ownership (dimensão 6) -->
+<div id="modal-scope-removed" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,27,76,0.55);">
+  <div class="bg-white rounded-lg shadow-2xl max-w-xl w-full">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
+      <span class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center text-xl">🗑️</span>
+      <div>
+        <h3 class="text-base font-bold text-dms-mar">Remover CC — impacto em ownership</h3>
+        <p class="text-xs text-dms-tecnologia">Dimensão 6 — entidade do scope removida revalida stages com filtro</p>
+      </div>
+    </div>
+    <div class="p-6 space-y-3 text-sm">
+      <p class="text-dms-mar">Removendo CC-099 do cadastro:</p>
+      <div class="bg-red-50 border border-red-200 rounded p-3 text-xs text-red-800">
+        <p class="font-bold mb-1">⚠️ 4 users têm este CC no scope · 2 stages podem perder dono</p>
+        <ul class="list-disc list-inside mt-1 space-y-0.5">
+          <li>Maria, João, Carla, Pedro perderão CC-099 do user_scope (cascade)</li>
+          <li>Stages "Aprovação CC" (WF-09) e "Conferência" (WF-03) podem virar órfãos</li>
+        </ul>
+      </div>
+      <p class="text-xs text-dms-tecnologia">Workflow default <span class="mono text-dms-mar">WF-DEFAULT-Scope-Removido-Impacto</span> rodará em background — issues aparecem em <a href="tela82-saude-stages.html" class="underline font-semibold">tela82</a>.</p>
+    </div>
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
+      <button onclick="document.getElementById('modal-scope-removed').classList.add('hidden')" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Cancelar</button>
+      <a href="tela82-saude-stages.html" class="text-sm font-semibold text-dms-sabedoria border border-dms-sabedoria/40 px-4 py-2 bg-violet-50 rounded">Ver impacto detalhado →</a>
+      <button onclick="document.getElementById('modal-scope-removed').classList.add('hidden')" class="text-sm font-semibold text-white px-4 py-2 bg-red-600 rounded hover:bg-red-700">Remover mesmo assim</button>
+    </div>
+  </div>
+</div>
+
 <script src="notes-widget.js" defer></script>
 <script src="i18n-toggle.js" defer></script>
 <script src="tag-filter.js" defer></script>

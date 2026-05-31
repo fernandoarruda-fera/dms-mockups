@@ -467,12 +467,56 @@ tailwind.config = {
             </div>
           </div>
 
+          <!-- Mini-banner: impacto da mudança em ownership -->
+          <div class="mt-6 bg-[#FFFBEB] border border-[#FDE68A] rounded-md p-3" id="banner-impacto-ownership">
+            <div class="flex items-start gap-2 text-xs text-[#854D0E]">
+              <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <div class="flex-1">
+                <p class="font-bold mb-1">⚠️ Impacto da mudança em ownership de stages</p>
+                <p class="mb-1"><strong>3 stages</strong> atuais podem perder você como dono · <strong>5 stages</strong> novos vão te incluir.</p>
+                <details>
+                  <summary class="cursor-pointer text-[11px] font-semibold underline">Ver detalhes</summary>
+                  <ul class="mt-2 list-disc list-inside text-[11px] space-y-0.5">
+                    <li>Perdendo: <span class="mono">stage "Aprovação CC"</span> (WF-09) · removeu CC-099 do scope</li>
+                    <li>Perdendo: <span class="mono">stage "Conferência"</span> (WF-02) · removeu Vendor V-12</li>
+                    <li>Perdendo: <span class="mono">stage "Lançamento"</span> (WF-09) · removeu CC-099</li>
+                    <li>Ganhando: <span class="mono">stage "Cotação SP"</span> (WF-04) · adicionou Vendor V-21</li>
+                    <li>...</li>
+                  </ul>
+                </details>
+                <p class="mt-1 text-[11px] italic">Após salvar, <a href="tela82-saude-stages.html" class="underline font-semibold">tela82</a> reflete o estado novo. Stages que ficarem órfãos disparam <span class="mono">WF-DEFAULT-Scope-Removido-Impacto</span>.</p>
+              </div>
+            </div>
+          </div>
+
           <!-- Footer aba -->
-          <div class="mt-6 pt-5 border-t border-[#E5E7EB] flex items-center justify-between">
+          <div class="mt-4 pt-5 border-t border-[#E5E7EB] flex items-center justify-between">
             <p class="text-xs text-dms-tecnologia">Alterações são logadas (auditoria — afeta visibilidade de dados financeiros).</p>
             <div class="flex items-center gap-2">
               <button class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 border border-[#E5E7EB] rounded-md bg-white">Reverter</button>
-              <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Salvar intervenientes</button>
+              <button onclick="document.getElementById('confirma-save-modal').classList.remove('hidden'); document.getElementById('confirma-save-modal').classList.add('flex');" class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Salvar intervenientes</button>
+            </div>
+          </div>
+
+          <!-- Modal de confirmação (impacto >0) -->
+          <div id="confirma-save-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,27,76,0.55);">
+            <div class="bg-white rounded-lg shadow-2xl max-w-lg w-full">
+              <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
+                <span class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-xl">⚠️</span>
+                <div>
+                  <h3 class="text-lg font-bold text-dms-mar">Confirmar mudança</h3>
+                  <p class="text-xs text-dms-tecnologia">Esta alteração afeta ownership de stages em produção.</p>
+                </div>
+              </div>
+              <div class="p-6 space-y-3 text-sm">
+                <div class="bg-amber-50 border border-amber-200 rounded p-3 text-amber-800 text-xs">
+                  Detectados <strong>8 stages</strong> impactados (3 perdas + 5 ganhos). Após salvar, validação cascata roda em background — issues aparecerão em <a href="tela82-saude-stages.html" class="underline font-semibold">tela82</a> se algum stage virar órfão.
+                </div>
+              </div>
+              <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
+                <button onclick="document.getElementById('confirma-save-modal').classList.add('hidden')" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Cancelar</button>
+                <button onclick="document.getElementById('confirma-save-modal').classList.add('hidden')" class="text-sm font-semibold text-white px-4 py-2 bg-dms-mar rounded hover:bg-dms-confianca">Salvar mesmo assim</button>
+              </div>
             </div>
           </div>
         </div>
