@@ -92,3 +92,55 @@ O objetivo é dar ao time de operações controle sobre o ruído do sistema — 
 ## 8. Prioridade
 
 **Médio** — depende de definição da DSL de condições. Implementar em paralelo com [[CONCEPT-ACTIONIA]] já que ambos consomem o workflow editor (tela10).
+
+## 9. Canais de notificação
+
+- **In-app** — centro de notificações ([tela71](../../tela71-notificacoes-centro.html))
+- **Email** — templates configuráveis ([tela62](../../tela62-templates-email.html))
+- **Push notification (mobile/web)** — via service worker (web) + Firebase Cloud Messaging (mobile)
+- **WhatsApp** — futuro, integração Twilio/Z-API (mencionado no data-model do projeto principal)
+- **Slack** — futuro, webhook do workspace do tenant
+
+### 9.1 Push notifications — modelo de dados
+
+User opta-in via aba **Notificações** do profile ([tela50](../../tela50-profile.html)). Token registrado por device.
+
+#### Tabela `push_subscriptions`
+
+| Campo       | Tipo                              | Descrição                                  |
+| ----------- | --------------------------------- | ------------------------------------------ |
+| id          | UUID PK                           |                                            |
+| user_id     | UUID FK users.id                  |                                            |
+| device_id   | text                              | identificador estável do device            |
+| token       | text                              | token FCM/APNs/Web-Push                    |
+| platform    | enum (ios/android/web)            |                                            |
+| ativo       | boolean                           | revogado em logout total ou opt-out        |
+| created_at  | timestamp                         |                                            |
+| last_used_at| timestamp                         | pra purga de tokens stale (>90d)           |
+
+Backend dispara via FCM (Android/web) / APNs (iOS). Conteúdo: título + body + deep link (abre a tela do contexto — ex: card, NF, cotação).
+
+### 9.2 DSL Alert — proposta inicial
+
+Pra criar alerts sofisticados sem hardcode, propor DSL declarativa avaliada server-side:
+
+```yaml
+alert: SLA_critico
+when:
+  - stage.sla_percentual >= 90
+  - stage.status = "ativo"
+unless:
+  - stage.has_alert("SLA_atencao")  # já alertou
+channels:
+  - in_app
+  - push
+  - email: if user.preference.email_critical
+recipients:
+  - role: funcao_responsavel
+  - escalation_chain: 1  # 1 nível acima
+cooldown: 4h  # não repete em 4h
+```
+
+**Operadores propostos:** `>=`, `=`, `in`, `has_alert`, `since`, `between`, condicionais via `if`.
+
+**Pendência:** se DSL virar feature primária (usuários power editando regras), abrir concept dedicado `CONCEPT-ALERT-DSL.md`. Por ora vive como anexo aqui.

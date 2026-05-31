@@ -83,6 +83,7 @@ tailwind.config = {
           <div class="tab" data-tab="notif" data-i18n="section.notifications">Notificações</div>
           <div class="tab" data-tab="pref">Preferências</div>
           <div class="tab" data-tab="interv">Intervenientes <span class="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-violet-100 text-violet-700">NOVO</span></div>
+          <div class="tab" data-tab="times">Times <span class="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-violet-100 text-violet-700">NOVO</span></div>
           <div class="ml-auto pr-4 flex items-center">
             <a href="tela80-permissoes-matriz.html?user=current" class="text-xs font-semibold text-dms-ceu hover:underline flex items-center gap-1">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
@@ -522,6 +523,61 @@ tailwind.config = {
                 <button onclick="document.getElementById('confirma-save-modal').classList.add('hidden')" class="text-sm font-semibold text-white px-4 py-2 bg-dms-mar rounded hover:bg-dms-confianca">Salvar mesmo assim</button>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Times (NOVO - times do user) -->
+        <div class="tab-pane p-6" data-pane="times">
+          <div class="mb-5">
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <h2 class="text-lg font-bold text-dms-mar">Times que você participa</h2>
+                <p class="text-xs text-dms-tecnologia mt-1 max-w-2xl">Times definem agrupamentos organizacionais para <strong>saved filters escopo "Equipe"</strong>, reports agregados e distribuição de cards. Cadastro completo em <a href="tela88-times-cadastro.html" class="text-dms-ceu hover:underline font-semibold">Admin → Times</a> (requer permissão).</p>
+              </div>
+              <a href="tela88-times-cadastro.html" class="text-xs text-dms-ceu hover:underline font-semibold flex-shrink-0">Ver todos os times →</a>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="border border-[#E5E7EB] rounded-lg p-4 flex items-start justify-between hover:bg-[#F8FAFC]">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-lg bg-dms-mar text-white flex items-center justify-center text-sm font-bold flex-shrink-0">🏢</div>
+                <div>
+                  <div class="text-sm font-bold text-dms-mar">Compras Adm</div>
+                  <div class="text-xs text-dms-tecnologia mt-0.5">Código: <span class="mono">CMP-ADM</span> · Empresa: DMS Matriz · 6 membros</div>
+                  <div class="mt-2 flex items-center gap-2">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-purple-100 text-purple-800">gestor</span>
+                    <span class="text-[11px] text-dms-tecnologia">desde 2024-03-12</span>
+                  </div>
+                </div>
+              </div>
+              <a href="tela88-times-cadastro.html?time=CMP-ADM" class="text-xs text-dms-ceu hover:underline font-semibold">Ver time →</a>
+            </div>
+
+            <div class="border border-[#E5E7EB] rounded-lg p-4 flex items-start justify-between hover:bg-[#F8FAFC]">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-lg bg-dms-mar text-white flex items-center justify-center text-sm font-bold flex-shrink-0">🏢</div>
+                <div>
+                  <div class="text-sm font-bold text-dms-mar">Diretoria Compras</div>
+                  <div class="text-xs text-dms-tecnologia mt-0.5">Código: <span class="mono">DIR-CMP</span> · Empresa: DMS Matriz · 3 membros</div>
+                  <div class="mt-2 flex items-center gap-2">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800">membro</span>
+                    <span class="text-[11px] text-dms-tecnologia">desde 2024-09-01</span>
+                  </div>
+                </div>
+              </div>
+              <a href="tela88-times-cadastro.html?time=DIR-CMP" class="text-xs text-dms-ceu hover:underline font-semibold">Ver time →</a>
+            </div>
+          </div>
+
+          <!-- Aviso quando vazio (oculto pois user tem times; comentário pra mock) -->
+          <div class="hidden mt-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-md p-3 flex items-start gap-2" id="aviso-sem-times">
+            <svg class="w-4 h-4 text-[#854D0E] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <p class="text-xs text-[#854D0E]">Você não está em nenhum time. Saved filters com escopo "Equipe" não funcionarão. Peça ao admin pra te atribuir a um time em <a href="tela88-times-cadastro.html" class="underline font-semibold">Admin → Times</a>.</p>
+          </div>
+
+          <div class="mt-5 pt-4 border-t border-[#E5E7EB] text-xs text-dms-tecnologia">
+            Quer saber mais? Veja o conceito completo em <a href="docs/concepts/CONCEPT-TEAMS.md" class="text-dms-ceu hover:underline font-semibold">CONCEPT-TEAMS</a>.
           </div>
         </div>
 
