@@ -7,6 +7,8 @@
 > - [[CONCEPT-PERMISSIONS]] — define O QUE (este define EM QUAIS entidades)
 > - [[CONCEPT-STAGE-ROLE-ASSIGNMENT]] — distribuição de cards = função × scope
 > - [[CONCEPT-USER-PROFILE-PREFERENCES]] — outra dimensão do profile (UI prefs)
+> - [[CONCEPT-MODULE-INTERVENIENTES-CONFIG]] — **fonte de quais critérios fazem parte do scope (dinâmico, não hardcoded)**
+> - [[CONCEPT-STAGE-OWNERSHIP-VALIDATION]] — alterar scope dispara revalidação dos stages
 
 ## 1. Objetivo
 
@@ -37,17 +39,45 @@ Sem esse conceito, qualquer usuário com função "Aprovador" receberia cards de
 
 Constraint: `UNIQUE(user_id, entity_type, entity_id, role_context)`.
 
-**Extensível.** O enum `entity_type` deve cobrir tudo o que define "área de atuação" do usuário. Adicionar SOPs e Procedures hoje porque o módulo de Workflows já trabalha com essas entidades.
+**Extensível e dinâmico por módulo.** `entity_type` não é mais um enum hardcoded — vem do catálogo de critérios de [[CONCEPT-MODULE-INTERVENIENTES-CONFIG]]. Cada módulo (Compras, Jurídico, etc.) define quais critérios fazem parte do seu scope. O front renderiza as tabs da aba Intervenientes dinamicamente com base na config do módulo, sem código específico por critério.
+
+### Exemplo: scope JSON varia por módulo
+
+```json
+// Usuário no módulo Compras (config: CC + Vendor + Contract + Tag)
+{
+  "user_id": "u-123",
+  "module": "compras",
+  "scope": {
+    "cost_center": ["cc-sp", "cc-rj"],
+    "vendor": ["v-acme", "v-globex"],
+    "contract": ["k-2025-001"],
+    "tag": ["alto-risco", "fiscal"]
+  }
+}
+
+// Mesmo usuário no módulo Jurídico (config: Empresa + SOP)
+{
+  "user_id": "u-123",
+  "module": "juridico",
+  "scope": {
+    "company": ["empresa-x"],
+    "sop": ["sop-contencioso"]
+  }
+}
+```
+
+O backend continua armazenando linha-a-linha em `user_scope`; o JSON acima é só a forma agregada de leitura por módulo.
 
 ## 3. Fluxo do usuário
 
 ### 3.1 Configuração (admin ou Gestão de Profile na tela50)
 
 1. Abre profile de um usuário → aba **"Intervenientes"** (a criar)
-2. Tabs internas: **CCs · Fornecedores · Contratos · Empresas · SOPs · Procedures**
+2. Tabs internas **dinâmicas** — vêm de [[CONCEPT-MODULE-INTERVENIENTES-CONFIG]] do módulo ativo. Ex: módulo Compras pode mostrar **CCs · Fornecedores · Contratos · Empresas · Tags**; módulo Jurídico pode mostrar **Empresas · SOPs**.
 3. Em cada tab, multi-select da entidade + botão "Adicionar"
 4. Lista mostra entidades já atribuídas + botão remover
-5. Salvar persiste delta
+5. Salvar persiste delta → dispara [[CONCEPT-STAGE-OWNERSHIP-VALIDATION]] (revalidação dos stages impactados)
 
 ### 3.2 Edição em lote (admin)
 

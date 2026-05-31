@@ -7,6 +7,8 @@
 > - [[CONCEPT-USER-SCOPE-INTERVENIENTES]] — scope sobre entidades (complementa permissão)
 > - [[CONCEPT-STAGE-ROLE-ASSIGNMENT]] — função do stage consome este motor
 > - [[CONCEPT-ACTIONIA]] — ActionIA pode herdar permissões de uma role virtual
+> - [[CONCEPT-MODULE-INTERVENIENTES-CONFIG]] — adiciona permission delegável `intervenientes_config.gerenciar:<modulo>`
+> - [[CONCEPT-STAGE-OWNERSHIP-VALIDATION]] — desativar Role aqui dispara revalidação de stages
 
 ## 1. Objetivo
 
@@ -33,10 +35,11 @@ Já existe no backend (Sprint 2.2). Resumo:
 | Campo       | Tipo    | Descrição                                       |
 | ----------- | ------- | ----------------------------------------------- |
 | id          | uuid    |                                                 |
-| codigo      | string  | Ex: `nfs.aprovar`, `cotacoes.editar`            |
+| codigo      | string  | Ex: `nfs.aprovar`, `cotacoes.editar`, `intervenientes_config.gerenciar:compras` |
 | modulo      | string  | Compras, Cockpit, Profile, etc.                 |
 | tela        | string  | Identificador da tela (`tela01`, `tela50`, …)   |
-| acao        | enum    | `ver` · `incluir` · `editar` · `excluir` · `aprovar` |
+| acao        | enum    | `ver` · `incluir` · `editar` · `excluir` · `aprovar` · `configurar` |
+| **delegavel** | **bool** | **Se `true`, quem recebe a permission pode conceder a outros** |
 
 ### `role_permissions` (N×M)
 
@@ -113,6 +116,20 @@ Layout de **planilha**: linhas = telas/módulos agrupados, colunas = ações, c�
 4. **Roles `is_system = true`** podem ter permissões editadas mas não podem ser deletadas (Admin Geral, Viewer).
 5. **Ações inaplicáveis** (`—` na matriz, ex: "incluir" em Cockpit que é só visualização) ficam disabled.
 6. **Permissão de gestão de outros profiles** (`profile.editar_outros`) é separada — quem tem isso vira candidato a "Gestão de Profile" para órfãos.
+7. **Delegação.** Permissions com `delegavel = true` podem ser concedidas pelo usuário que as detém a outros usuários (sem precisar de Admin Geral). Não é transferência: quem delegou continua tendo a permission. UI: tela80 mostra badge "delegável" na coluna da permission; tela50 (profile próprio) tem ação "Delegar a outro usuário" para as delegáveis que o user possui.
+8. **Cadeia de delegação:** quem recebe por delegação também pode redelegar (transitivo) se a permission é `delegavel`. Auditoria registra a cadeia (`granted_by_user_id` em `role_permissions` extra ou tabela `permission_delegations` separada).
+9. **Revogação:** delegador pode revogar a qualquer momento; revogação em cascata revoga tudo que foi redelegado abaixo.
+
+## 5.1 Catálogo de permissions delegáveis (inicial)
+
+| Codigo                                   | Descrição                                                          | Delegável |
+| ---------------------------------------- | ------------------------------------------------------------------ | --------- |
+| `intervenientes_config.gerenciar:<mod>`  | Configurar critérios de scope do módulo (ver [[CONCEPT-MODULE-INTERVENIENTES-CONFIG]]) | ✅ |
+| `roles.gerenciar`                        | Gestão de roles (atribuir, criar)                                  | ❌ (só Admin) |
+| `nfs.aprovar`                            | Aprovação de NF                                                    | ❌ (vinculada a alçada) |
+| `profile.editar_outros`                  | Editar profile de outros usuários                                  | ❌ (governança) |
+
+Critério inicial: permissions de **configuração descentralizada por área** são delegáveis; permissions de **governança/financeiro** não são.
 
 ## 6. Gaps front
 

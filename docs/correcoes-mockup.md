@@ -261,3 +261,11 @@ Lógica de distribuição de cards no cockpit fica explícita: `stage.função �
 - **tela08 nova seção** — Atribuição: Função responsável (obrigatório) + filtro escopo + escalação + notificados
 - Preview de distribuição mostrando como cards caem pra usuários filtrados
 - Liga com concepts: PERMISSIONS, USER-SCOPE-INTERVENIENTES, STAGE-ROLE-ASSIGNMENT
+
+## Concepts + revisão + TODO (2026-05-31)
+
+- **2 novos:** CONCEPT-MODULE-INTERVENIENTES-CONFIG, CONCEPT-STAGE-OWNERSHIP-VALIDATION
+- **4 atualizados:** PERMISSIONS (delegação), USER-SCOPE (config dinâmica), STAGE-ROLE-ASSIGNMENT (1 dono), WORKFLOW-OBLIGATORY (workflows default)
+- **TODO-WORKFLOWS-DEFAULT.md:** registro de workflows default
+- **REVIEW-2026-05-31.md:** revisão cruzada com achados
+- **Próximo:** Task 2 (tela81 + refactor tela50)

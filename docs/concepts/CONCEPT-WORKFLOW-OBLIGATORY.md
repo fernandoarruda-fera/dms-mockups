@@ -87,6 +87,30 @@ Backfill: registros legados sem workflow recebem `workflow_id = workflow_orfao_d
 - Limite de quantidade de workflows on-the-fly por usuário/mês (anti-abuso)?
 - Migração dos dados existentes — plano de comunicação com clientes.
 
+## 7.1 Workflows default do sistema
+
+Além dos workflows criados por cliente, o sistema publica **workflows default** (pré-criados pelo time DMSYS) na biblioteca de workflows (tela04) com flag `🔒 sistema`. Esses workflows cobrem cenários onde o sistema precisa de **fallback automático** — sempre customizáveis (cliente ajusta canais, SLA, etapas) mas **nunca deletáveis** (`is_system = true, is_deletable = false`).
+
+### Lista inicial (ligada a [[CONCEPT-STAGE-OWNERSHIP-VALIDATION]])
+
+| Workflow                              | Cenário de fallback                                 |
+| ------------------------------------- | --------------------------------------------------- |
+| WF-DEFAULT-Stage-Orfao                | Stage detectado com 0 donos elegíveis               |
+| WF-DEFAULT-Conflito-2-Donos           | Stage detectado com 2+ donos elegíveis              |
+| WF-DEFAULT-User-Bloqueado-Impacto     | Bloqueio de user gera stages órfãos                 |
+| WF-DEFAULT-Role-Inativada-Impacto     | Desativação de Role gera stages órfãos              |
+| WF-DEFAULT-Scope-Removido-Impacto     | Remoção de entidade do scope gera stages órfãos     |
+
+**Outros serão adicionados conforme novos cenários de fallback surgirem.** Registro corrente em `docs/TODO-WORKFLOWS-DEFAULT.md`.
+
+### Regras dos workflows default
+
+1. Aparecem na tela04 com badge `🔒 sistema` e tooltip explicativo
+2. Botão "Editar" permitido — campos: canais de notificação, SLA, etapas extras
+3. Botão "Excluir" **bloqueado** (mensagem: "Workflow do sistema — desabilite em vez de excluir")
+4. Botão "Desabilitar" permitido mas exibe warning sobre o que deixa de ser tratado automaticamente
+5. Versionamento: cada update do default vira nova versão; cliente pode reverter à versão original
+
 ## 8. Prioridade
 
 **🚨 CRÍTICO** — é a regra que mais impacta governança. Bloqueia outras features (SLA, escalation, dashboards de compliance) que assumem workflow vinculado. Implementar **antes** de [[CONCEPT-MATCH-ENGINE]] e [[CONCEPT-ACTIONIA]].

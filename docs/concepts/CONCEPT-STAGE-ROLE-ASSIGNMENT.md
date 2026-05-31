@@ -9,6 +9,8 @@
 > - [[CONCEPT-WORKFLOW-OBLIGATORY]] — todo documento tem workflow, todo workflow tem stages
 > - [[CONCEPT-ACTIONIA]] — ActionIA pode ocupar o papel de "função" em stages automatizáveis
 > - [[CONCEPT-ALERT]] — alertas dependem de saber quem é o responsável
+> - [[CONCEPT-STAGE-OWNERSHIP-VALIDATION]] — **validação obrigatória "1 stage = 1 dono" nos 6 eventos de trigger**
+> - [[CONCEPT-MODULE-INTERVENIENTES-CONFIG]] — `scope_filter` referencia critérios habilitados no módulo do workflow
 
 ## 1. Objetivo
 
@@ -120,6 +122,16 @@ Sem isso, todo workflow precisaria nomear pessoas específicas (frágil — pess
 - ✅ ActionIA é "função virtual" que pode ocupar o slot — não precisa modelo paralelo
 - ❌ Não suportar "lista de usuários específicos" no stage — quebra abstração de função
 - ❌ Não suportar atribuição aleatória/round-robin entre elegíveis no MVP — primeiro a pegar resolve
+
+## 8.1 Validação "1 stage = 1 dono"
+
+Regra absoluta complementar: quando um stage é acionado, ele DEVE cair pra exatamente **1 usuário** — nem zero (órfão), nem 2+ (conflito).
+
+Esta regra é validada em 6 eventos de trigger (criação/publicação de stage, alteração de intervenientes, criação/bloqueio de user, desativação de Role, remoção de entidade de scope) e tem fallback automático via workflows default que geram card to-do pro gestor da cadeira.
+
+Detalhamento completo, modelo `stage_health_issue`, dashboard tela82 e lista dos workflows default: **[[CONCEPT-STAGE-OWNERSHIP-VALIDATION]]**.
+
+Nota sobre a regra 7 da seção 4 ("primeiro a pegar resolve"): aquela regra trata distribuição **dentro de um pool de N elegíveis legítimos**; a validação 1-dono trata da **definição** do pool — deve ter exatamente 1 elegível antes de qualquer "pegar".
 
 ## 9. Prioridade
 
