@@ -51,7 +51,7 @@ Agrupar usuários em times pra:
 
 ## 3. Fluxo do usuário
 
-1. Admin / Gestão de Profile acessa **Admin → Times** (tela88)
+1. Admin / Gestão de Profile acessa **Admin → Times** (tela87)
 2. Cadastra time: nome, código, empresa, parent (opcional), gestor, members
 3. User pode pertencer a múltiplos times (ex: gestor pertence ao seu time + ao time-pai como membro)
 4. Saved filters escopo "Equipe" filtram por user pertencente ao mesmo `team_id` do owner
@@ -67,13 +67,13 @@ Agrupar usuários em times pra:
 
 ## 5. Gaps no front atual
 
-- **tela88** (Times) — não existe → criar nesta sprint
+- **tela87** (Times) — não existe → criar nesta sprint
 - **tela50** profile — aba "Times" não existe → adicionar nesta sprint
 - **tela80** permissions — permissão "Gerenciar Times" não está mapeada → adicionar à matriz numa próxima rodada
 
 ## 6. Telas relacionadas
 
-- **tela88** — cadastro/listagem/edição de times (novo)
+- **tela87** — cadastro/listagem/edição de times (novo)
 - **tela50** — aba "Times" mostrando teams do user logado (somente leitura)
 - **tela80** — permission "Gerenciar Times" (delegável via tela85)
 - **tela16** cockpit — futuramente, filtro "minha equipe"

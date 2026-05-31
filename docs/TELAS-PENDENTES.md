@@ -37,7 +37,7 @@
 | 79         | Regras de Match Engine              | [[CONCEPT-MATCH-ENGINE]] §6                  | Alto       | Lista + edição de regras de match (vincula NF→workflow)         |
 | ~~83~~ ✅  | ~~CRUD de Alçadas~~                 | ~~[[CONCEPT-ALCADAS]] §5~~                   | ~~Alto~~   | **Entregue 2026-05-31 (Sprint A)** — `tela83-alcadas-cadastro.html` |
 | ~~86~~ ✅  | ~~CRUD de Fornecedores (Vendors)~~  | Gap E3 cadastros                             | ~~Alto~~   | **Entregue 2026-05-31 (Sprint A)** — `tela86-fornecedores-cadastro.html` |
-| ~~88~~ ✅  | ~~Times e Departamentos~~           | ~~[[CONCEPT-TEAMS]] §6~~                     | ~~Alto~~   | **Entregue 2026-05-31 (Sprint Seguinte)** — `tela88-times-cadastro.html` (lista + árvore + drawer + modal criar) |
+| ~~88~~ ✅  | ~~Times e Departamentos~~           | ~~[[CONCEPT-TEAMS]] §6~~                     | ~~Alto~~   | **Entregue 2026-05-31 (Sprint Seguinte)** — `tela87-times-cadastro.html` (lista + árvore + drawer + modal criar) |
 
 ## 4. Cobertura por concept
 

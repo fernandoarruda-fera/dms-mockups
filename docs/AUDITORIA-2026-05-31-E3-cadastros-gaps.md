@@ -163,7 +163,7 @@ Legenda: ✅ entregue · 🟡 parcial · ❌ ausente · `—` não aplicável (s
 | T3| **tela85 — Detalhe de ActionIA**             | ACTIONIA §6                                 | Alto       | Edição completa, config por sub-tipo, histórico de execução, vinculações.   |
 | T4| **tela86 — Detalhe de Alert + histórico**    | ALERT §6                                    | Alto       | Edição, preview de mensagem renderizada, log de disparos, throttling.       |
 | T5| **tela87 — Lista de Match Rules**            | MATCH-ENGINE §6                             | Alto       | Catálogo de regras por status/modo + acesso à tela11/79 de edição.          |
-| T6| **tela88 — Times (CRUD)**                    | SAVED-FILTERS §2                            | Crítico    | Sem time, escopo "equipe" do saved filter quebra.                            |
+| T6| **tela87 — Times (CRUD)**                    | SAVED-FILTERS §2                            | Crítico    | Sem time, escopo "equipe" do saved filter quebra.                            |
 | T7| **tela89 — Painel de AI Generation Logs**    | AI-GENERATION §2                            | Médio      | Auditoria de gerações IA (prompts, tokens, rejeições) — governance + custo. |
 | T8| **tela90 — Painel de Match Execution Logs**  | MATCH-ENGINE §2.2                           | Médio      | Visibilidade de matches/órfãos/ambiguidades pra calibrar regras.             |
 | T9| **tela91 — Centro de Workflow Defaults**     | WORKFLOW-OBLIGATORY §7.1                    | Médio      | Customização dos 5 workflows `🔒 sistema` (canais/SLA/etapas) sem deletar.   |
@@ -190,7 +190,7 @@ Legenda: ✅ entregue · 🟡 parcial · ❌ ausente · `—` não aplicável (s
 
 1. **tela83 Alçadas** + integração com tela40/41 — fecha gap crítico de governança financeira.
 2. **tela84 Usuários** — sem isso Admin Geral não consegue criar/bloquear users (já é trigger validado em STAGE-OWNERSHIP §3.3-3.4).
-3. **tela88 Times** — pequena mas destrava saved filter escopo "equipe" que já está em produção mockup.
+3. **tela87 Times** — pequena mas destrava saved filter escopo "equipe" que já está em produção mockup.
 4. **CRUD de Fornecedor** (tela30-style) — vendor é base de scope; sem ele tela50 lista IDs sem fonte.
 5. **Detalhe/edição completa de ActionIA (tela85) + Alert (tela86)** — sem isso telas77/78 são vitrines, não editores.
 
@@ -214,5 +214,5 @@ Legenda: ✅ entregue · 🟡 parcial · ❌ ausente · `—` não aplicável (s
 
 - **Tensão "Agentes vs ActionIA"** (REVIEW #2) — define se tela85 é genérica ou só RPA.
 - **Schema de DSL de `trigger_condition`** (F2/F3) — define UI de tela86.
-- **CONCEPT-TEAMS vs CONCEPT-PERMISSIONS** (REVIEW #13) — define se tela88 é entidade própria ou subset de roles.
+- **CONCEPT-TEAMS vs CONCEPT-PERMISSIONS** (REVIEW #13) — define se tela87 é entidade própria ou subset de roles.
 - **CONCEPT-MULTITENANT** (REVIEW #18) — define escopo de quase tudo em admin.

@@ -332,15 +332,15 @@ Origem: [[AUDITORIA-2026-05-31-E1-botoes-mortos]] + [[AUDITORIA-2026-05-31-E3-ca
 - **TELAS-PENDENTES.md** ✅ tela84 e tela85 marcadas como entregues.
 - Sprint Imediato A + B = 5 telas/fixes entregues.
 
-## Sprint Seguinte — tela88 + concept TEAMS + MULTITENANT + push notifications (2026-05-31)
+## Sprint Seguinte — tela87 + concept TEAMS + MULTITENANT + push notifications (2026-05-31)
 
 Origem: gaps que apareceram na auditoria E3 mas não estavam cobertos (saved filters escopo "Equipe" sem entidade, arquitetura multi-tenant não documentada, canais de alerta limitados a 3).
 
 - **CONCEPT-TEAMS.md** criado — fecha gap onde [[saved-filters]] cita escopo "Equipe" sem definir o que é equipe. Modelo: `teams` (hierarquia recursiva, parent_team_id, gestor) + `team_members` (role_in_team membro/gestor/observador). Limite: 5 níveis de depth. Não cruza empresa (1 time = 1 empresa).
 - **CONCEPT-MULTITENANT.md** criado — formaliza estratégia row-level isolation com `tenant_id`. Distingue tenant (cliente SaaS) de [[empresa]] (filial jurídica dentro do tenant). Define `tenants` + `tenant_users` (user pode ser multi-tenant, ex: consultor). Quotas + suspensão + retenção LGPD (90d cold storage). Prioridade: **crítico** — define arquitetura antes de qualquer segundo cliente.
-- **tela88 NOVA** — Times e Departamentos: KPIs (14 ativos / depth 4 / 38 de 47 atribuídos / 2 sem gestor ⚠️), filtros (busca/empresa/parent/status), toggle Lista ↔ Árvore (hierarquia visual), 10 times mock plausíveis cobrindo Diretoria Compras → Compras Adm → Logística/Comercial SP + Diretoria Financeira → CAP/CAR/Tesouraria + TI → Suporte/Infra. Drawer 5 abas (Detalhes / Membros / Times filhos / Saved filters / Histórico). Modal criar (6 campos com autocomplete de parent + multi-select de members). Aviso sobre dependências de saved filters.
-- **tela50 profile** ganhou aba "Times" (NOVO) listando os times do user atual com role_in_team (chip "gestor"/"membro") + link "Ver time →" pra tela88. Aviso oculto (`hidden`) para caso de user sem times.
+- **tela87 NOVA** — Times e Departamentos: KPIs (14 ativos / depth 4 / 38 de 47 atribuídos / 2 sem gestor ⚠️), filtros (busca/empresa/parent/status), toggle Lista ↔ Árvore (hierarquia visual), 10 times mock plausíveis cobrindo Diretoria Compras → Compras Adm → Logística/Comercial SP + Diretoria Financeira → CAP/CAR/Tesouraria + TI → Suporte/Infra. Drawer 5 abas (Detalhes / Membros / Times filhos / Saved filters / Histórico). Modal criar (6 campos com autocomplete de parent + multi-select de members). Aviso sobre dependências de saved filters.
+- **tela50 profile** ganhou aba "Times" (NOVO) listando os times do user atual com role_in_team (chip "gestor"/"membro") + link "Ver time →" pra tela87. Aviso oculto (`hidden`) para caso de user sem times.
 - **CONCEPT-ALERT** estendido com §9 Canais de notificação: in-app / email / push (FCM/APNs/Web-Push + tabela `push_subscriptions`) / WhatsApp futuro / Slack futuro. Inclui proposta de DSL declarativa (YAML) pra alerts sofisticados (when/unless/channels/recipients/cooldown). Pendência: abrir CONCEPT-ALERT-DSL.md se virar feature primária.
 - **Sidebar consolidada** Engine & Admin ganhou item **Times** (🏢) — padrão M3+ preservado.
-- **index.html** — tela88 adicionada (total: 87 telas no índice; tela87 ficou reservada por skip numérico intencional).
-- **TELAS-PENDENTES.md** ✅ tela88 marcada como entregue.
+- **index.html** — tela87 adicionada (total: 87 telas no índice; tela87 ficou reservada por skip numérico intencional).
+- **TELAS-PENDENTES.md** ✅ tela87 marcada como entregue.
