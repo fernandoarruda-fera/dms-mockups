@@ -241,3 +241,15 @@ Cada concept precisa aprovação do Fernando antes de virar PLAN de implementaç
 **Layout final:**
 - Desktop: `[D · DMSYS V2]    [picker NN/79 · Nome ▾]    [GitHub]`
 - Mobile: `[D · DMSYS V2]  [picker compacto]  [...]` (PT-BR via i18n-toggle flutua bottom-left)
+
+## Pendência permissões/profile/stage — 3 concepts novos (2026-05-31)
+
+Investigação cruzada (`~/Downloads/dms-mockups` + `/Users/dia1dms/dms/M-dulo-de-compras-dms-`): backend já tem Sprint 2.2 Permissions Engine (64 permissões + roles + UI `RolesList.jsx`/`RoleEdit.jsx`/`UserRolesAssign.jsx`/`MyPermissions.jsx`) mas mockup não tinha concept dedicado. Também faltava conceito de scope (intervenientes) e de função-por-stage. Criados 3 concepts:
+
+- **[[CONCEPT-PERMISSIONS]]** — matriz função × tela × ação (gap front: tela80 a criar; UI tipo planilha; multi-role union; roles de sistema irremovíveis)
+- **[[CONCEPT-USER-SCOPE-INTERVENIENTES]]** — escopo do usuário sobre CCs/vendors/contratos/empresas/SOPs/procedures (gap front: aba "Intervenientes" na tela50; tabela `user_scope` polimórfica; sem scope = sem cards)
+- **[[CONCEPT-STAGE-ROLE-ASSIGNMENT]]** — função responsável por stage + filtro de scope + escalação (gap front: tela08 ganha 4 campos novos — função responsável obrigatória, funções notificadas, filtro de scope, função de escalação + preview "N usuários afetados")
+
+Lógica de distribuição de cards no cockpit fica explícita: `stage.função → users com essa role → filtra por scope da entidade → cards caem nos filtrados`. Sem o triângulo (Permission + Scope + Stage-Role), cockpit não distribui corretamente.
+
+**Próximo passo (Task B):** criar/ajustar as telas mockup correspondentes (tela80 nova, tela50 ganha aba Intervenientes, tela08 ganha campos de função/scope).
