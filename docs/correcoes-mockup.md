@@ -269,3 +269,10 @@ Lógica de distribuição de cards no cockpit fica explícita: `stage.função �
 - **TODO-WORKFLOWS-DEFAULT.md:** registro de workflows default
 - **REVIEW-2026-05-31.md:** revisão cruzada com achados
 - **Próximo:** Task 2 (tela81 + refactor tela50)
+
+## Task 2: tela81 + refactor tela50 (2026-05-31)
+
+- **tela81 NOVA** — Configurador de Intervenientes por Módulo (admin): 4 KPIs, 2 colunas (módulos | config), cards de critérios habilitados/disponíveis com toggle, card delegação de permissão, card impacto da mudança
+- **tela50 aba Intervenientes refatorada** — dinâmica (renderiza a partir do config do módulo), cards obrigatórios com asterisco, banner cobertura de cards, link pra tela81
+- Sidebar `Engine & Admin` ganhou itens **Permissões** + **Config Intervenientes**
+- index.html: tela81 adicionada ao grupo Admin Avançado (total: 80 telas)

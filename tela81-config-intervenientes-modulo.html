@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>DMS — Configurador de Intervenientes por Módulo</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .toggle { width: 36px; height: 20px; background: #E5E7EB; border-radius: 999px; position: relative; cursor: pointer; transition: background .2s; flex-shrink:0; }
+  .toggle::after { content:''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: transform .2s; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+  .toggle.on { background: #00AEEE; }
+  .toggle.on::after { transform: translateX(16px); }
+  .module-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; border:1px solid transparent; transition: all .15s; }
+  .module-item:hover { background:#F1F3F5; }
+  .module-item.active { background:rgba(100,53,133,0.08); border-color:rgba(100,53,133,0.3); }
+  .module-item.disabled { opacity:.5; cursor:not-allowed; }
+  .module-item.disabled:hover { background:transparent; }
+  .drag-handle { color:#9CA3AF; cursor:grab; user-select:none; }
+  .drag-handle:active { cursor:grabbing; }
+  .criterio-row { display:flex; align-items:center; gap:12px; padding:12px; border:1px solid #E5E7EB; border-radius:8px; background:#fff; transition: border-color .15s; }
+  .criterio-row:hover { border-color:#00AEEE; }
+  .criterio-row.disabled { background:#FAFBFC; opacity:.85; }
+</style>
+<link rel="stylesheet" href="mobile-responsive.css">
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <span class="text-dms-tecnologia">Admin</span>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Configurador de Intervenientes por Módulo</span>
+      </nav>
+      <div class="flex items-center gap-3">
+        <a href="tela80-permissoes-matriz.html" class="text-xs font-semibold text-dms-ceu hover:underline flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          Ver permissão na matriz
+        </a>
+      </div>
+    </header>
+
+    <main class="flex-1 p-8 pb-28 max-w-[1280px] w-full mx-auto">
+
+      <!-- HEADER -->
+      <div class="mb-6">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h1 class="text-[28px] leading-[36px] font-bold text-dms-mar">Configurador de Intervenientes por Módulo</h1>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-violet-50 text-violet-700 border-violet-200">v2.3 · delegável</span>
+        </div>
+        <p class="text-sm text-dms-tecnologia max-w-3xl">Defina quais critérios (<strong class="text-dms-mar">CC, Vendor, Contrato</strong>, etc.) compõem o escopo de cada módulo. Critérios podem ser adicionados/removidos sem mexer no código — vide <a href="docs/concepts/CONCEPT-MODULE-INTERVENIENTES-CONFIG.md" class="text-dms-ceu hover:underline">concept</a>.</p>
+      </div>
+
+      <!-- AVISO PERMISSÃO -->
+      <div class="bg-[#FFFBEB] border border-[#FDE68A] rounded-md p-3 flex items-start gap-2 mb-6">
+        <svg class="w-5 h-5 text-[#854D0E] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <div class="text-xs text-[#854D0E]">
+          <p class="font-bold mb-0.5">⚠️ Permissão obrigatória</p>
+          <p>Quem altera essa configuração precisa da permissão <span class="mono font-semibold">"Configurar Intervenientes do Módulo X"</span> (delegável). Você está logado como <strong>Admin Geral</strong>.</p>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="grid grid-cols-4 gap-3 mb-6">
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Módulos ativos</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">1</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">Compras · 3 em breve</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Critérios no catálogo</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">8</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">curados pela DMSYS</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Critérios habilitados</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">4</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">2 obrigatórios · 2 opcionais</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Usuários impactados</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">47</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">com profile preenchido</div>
+        </div>
+      </div>
+
+      <!-- LAYOUT 2 COLUNAS -->
+      <div class="grid grid-cols-[300px_1fr] gap-6">
+
+        <!-- COLUNA ESQUERDA -->
+        <aside class="bg-white border border-[#E5E7EB] rounded-lg p-4 shadow-dms-md h-fit sticky top-24">
+          <div class="flex items-center justify-between mb-3">
+            <div class="caption text-dms-tecnologia">Módulos</div>
+            <button class="text-xs text-dms-tecnologia/60 font-semibold border border-[#E5E7EB] px-2 py-1 rounded cursor-not-allowed" title="Cadastro feito pelo time DMSYS — solicite via suporte">+ Novo</button>
+          </div>
+          <ul class="flex flex-col gap-1.5">
+            <li>
+              <div class="module-item active">
+                <span class="w-8 h-8 rounded-md bg-dms-sabedoria text-white flex items-center justify-center text-base">🛒</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-bold text-dms-mar">Compras</div>
+                  <div class="text-[11px] text-dms-tecnologia">4 critérios ativos</div>
+                </div>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-violet-100 text-violet-700">4</span>
+              </div>
+            </li>
+            <li>
+              <div class="module-item disabled">
+                <span class="w-8 h-8 rounded-md bg-gray-100 text-dms-tecnologia flex items-center justify-center text-base">📊</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-bold text-dms-tecnologia">Comercial</div>
+                  <div class="text-[11px] text-dms-tecnologia/70">em breve</div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="module-item disabled">
+                <span class="w-8 h-8 rounded-md bg-gray-100 text-dms-tecnologia flex items-center justify-center text-base">💰</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-bold text-dms-tecnologia">Financeiro</div>
+                  <div class="text-[11px] text-dms-tecnologia/70">em breve</div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <div class="module-item disabled">
+                <span class="w-8 h-8 rounded-md bg-gray-100 text-dms-tecnologia flex items-center justify-center text-base">👥</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-bold text-dms-tecnologia">RH</div>
+                  <div class="text-[11px] text-dms-tecnologia/70">em breve</div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </aside>
+
+        <!-- COLUNA DIREITA -->
+        <section class="flex flex-col gap-5">
+
+          <!-- HEADER DA CONFIG -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg p-5 shadow-dms-md flex items-center justify-between">
+            <div>
+              <div class="text-xs text-dms-tecnologia mb-1">Módulo selecionado</div>
+              <div class="flex items-center gap-3">
+                <h2 class="text-xl font-bold text-dms-mar">Compras</h2>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200">4 critérios ativos</span>
+                <span class="text-xs text-dms-tecnologia mono">cod: compras</span>
+              </div>
+            </div>
+            <button class="px-4 py-2 text-sm font-semibold text-white bg-dms-sabedoria rounded-md hover:opacity-90 transition-opacity">Salvar configuração</button>
+          </div>
+
+          <!-- CARD: CRITÉRIOS HABILITADOS -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg p-5 shadow-dms-md">
+            <div class="flex items-center justify-between mb-1">
+              <h3 class="text-sm font-bold text-dms-mar">Critérios habilitados</h3>
+              <span class="text-xs text-dms-tecnologia">arraste para reordenar · ordem aparece nas tabs do profile</span>
+            </div>
+            <p class="text-xs text-dms-tecnologia mb-4">Esses critérios aparecem na <a href="tela50-profile.html#interv" class="text-dms-ceu hover:underline">aba Intervenientes do Profile</a> e no <a href="tela08-builder-stage-trigger.html" class="text-dms-ceu hover:underline">filtro de scope dos stages</a> (tela08).</p>
+
+            <div class="flex flex-col gap-2.5">
+
+              <!-- Criterio 1: CC (obrigatório) -->
+              <div class="criterio-row">
+                <span class="drag-handle" title="Arraste para reordenar">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </span>
+                <span class="mono text-[10px] text-dms-tecnologia bg-gray-100 px-1.5 py-0.5 rounded">1</span>
+                <div class="toggle on" role="switch" aria-checked="true"></div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-dms-mar">Centros de Custo</span>
+                    <span class="text-xs text-dms-tecnologia mono">(cost_center)</span>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">obrigatório</span>
+                  </div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">Label custom: <input type="text" value="Centros de Custo (CC)" class="text-[11px] mono px-1.5 py-0.5 border border-[#E5E7EB] rounded w-48 inline-block" /></div>
+                </div>
+                <label class="flex items-center gap-1.5 text-xs text-dms-mar cursor-pointer">
+                  <input type="checkbox" checked class="accent-dms-sabedoria">
+                  obrigatório
+                </label>
+                <button class="text-xs text-red-600 hover:bg-red-50 px-2 py-1 rounded font-semibold">Remover</button>
+              </div>
+
+              <!-- Criterio 2: Vendor (obrigatório) -->
+              <div class="criterio-row">
+                <span class="drag-handle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></span>
+                <span class="mono text-[10px] text-dms-tecnologia bg-gray-100 px-1.5 py-0.5 rounded">2</span>
+                <div class="toggle on"></div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-dms-mar">Fornecedores</span>
+                    <span class="text-xs text-dms-tecnologia mono">(vendor)</span>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">obrigatório</span>
+                  </div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">Label custom: <input type="text" value="Fornecedores (Vendor)" class="text-[11px] mono px-1.5 py-0.5 border border-[#E5E7EB] rounded w-48 inline-block" /></div>
+                </div>
+                <label class="flex items-center gap-1.5 text-xs text-dms-mar cursor-pointer">
+                  <input type="checkbox" checked class="accent-dms-sabedoria">
+                  obrigatório
+                </label>
+                <button class="text-xs text-red-600 hover:bg-red-50 px-2 py-1 rounded font-semibold">Remover</button>
+              </div>
+
+              <!-- Criterio 3: Contrato (opcional) -->
+              <div class="criterio-row">
+                <span class="drag-handle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></span>
+                <span class="mono text-[10px] text-dms-tecnologia bg-gray-100 px-1.5 py-0.5 rounded">3</span>
+                <div class="toggle on"></div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-dms-mar">Contratos</span>
+                    <span class="text-xs text-dms-tecnologia mono">(contract)</span>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-dms-tecnologia border border-gray-200">opcional</span>
+                  </div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">Label custom: <input type="text" value="Contratos" class="text-[11px] mono px-1.5 py-0.5 border border-[#E5E7EB] rounded w-48 inline-block" /></div>
+                </div>
+                <label class="flex items-center gap-1.5 text-xs text-dms-mar cursor-pointer">
+                  <input type="checkbox" class="accent-dms-sabedoria">
+                  obrigatório
+                </label>
+                <button class="text-xs text-red-600 hover:bg-red-50 px-2 py-1 rounded font-semibold">Remover</button>
+              </div>
+
+              <!-- Criterio 4: Empresa (opcional) -->
+              <div class="criterio-row">
+                <span class="drag-handle"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></span>
+                <span class="mono text-[10px] text-dms-tecnologia bg-gray-100 px-1.5 py-0.5 rounded">4</span>
+                <div class="toggle on"></div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-bold text-dms-mar">Empresas</span>
+                    <span class="text-xs text-dms-tecnologia mono">(company)</span>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-dms-tecnologia border border-gray-200">opcional</span>
+                  </div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">Label custom: <input type="text" value="Empresas (CNPJ filhos)" class="text-[11px] mono px-1.5 py-0.5 border border-[#E5E7EB] rounded w-48 inline-block" /></div>
+                </div>
+                <label class="flex items-center gap-1.5 text-xs text-dms-mar cursor-pointer">
+                  <input type="checkbox" class="accent-dms-sabedoria">
+                  obrigatório
+                </label>
+                <button class="text-xs text-red-600 hover:bg-red-50 px-2 py-1 rounded font-semibold">Remover</button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- CARD: CATÁLOGO DISPONÍVEL -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg p-5 shadow-dms-md">
+            <h3 class="text-sm font-bold text-dms-mar mb-1">Critérios disponíveis no catálogo (não habilitados)</h3>
+            <p class="text-xs text-dms-tecnologia mb-4">Catálogo é curado pela DMSYS. Habilitar critério aqui faz ele aparecer no profile dos usuários e no filtro de scope dos stages do módulo Compras.</p>
+
+            <div class="grid grid-cols-2 gap-2.5">
+
+              <div class="criterio-row disabled">
+                <input type="checkbox" class="accent-dms-sabedoria">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-semibold text-dms-mar">SOPs</span>
+                    <span class="text-[10px] text-dms-tecnologia mono">(sop)</span>
+                  </div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">Usuário atua sobre SOPs específicos</div>
+                </div>
+                <button class="text-xs font-semibold text-dms-mar border border-dms-ceu px-2.5 py-1 rounded hover:bg-sky-50">+ Habilitar</button>
+              </div>
+
+              <div class="criterio-row disabled">
+                <input type="checkbox" class="accent-dms-sabedoria">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-semibold text-dms-mar">Procedures</span>
+                    <span class="text-[10px] text-dms-tecnologia mono">(procedure)</span>
+                  </div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">Usuário atua sobre procedures específicas</div>
+                </div>
+                <button class="text-xs font-semibold text-dms-mar border border-dms-ceu px-2.5 py-1 rounded hover:bg-sky-50">+ Habilitar</button>
+              </div>
+
+              <div class="criterio-row disabled">
+                <input type="checkbox" class="accent-dms-sabedoria">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-semibold text-dms-mar">Tags específicas</span>
+                    <span class="text-[10px] text-dms-tecnologia mono">(tag)</span>
+                  </div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">Recorta scope por tag (ex: urgente, jurídico)</div>
+                </div>
+                <button class="text-xs font-semibold text-dms-mar border border-dms-ceu px-2.5 py-1 rounded hover:bg-sky-50">+ Habilitar</button>
+              </div>
+
+              <div class="criterio-row disabled">
+                <input type="checkbox" class="accent-dms-sabedoria">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-semibold text-dms-mar">Workflows específicos</span>
+                    <span class="text-[10px] text-dms-tecnologia mono">(workflow)</span>
+                  </div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">Usuário só atua em workflows X/Y</div>
+                </div>
+                <button class="text-xs font-semibold text-dms-mar border border-dms-ceu px-2.5 py-1 rounded hover:bg-sky-50">+ Habilitar</button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- CARD: PERMISSÕES DELEGÁVEIS -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg p-5 shadow-dms-md">
+            <div class="flex items-center justify-between mb-1">
+              <h3 class="text-sm font-bold text-dms-mar">Permissões delegáveis</h3>
+              <button class="text-xs font-semibold text-dms-mar border border-dms-ceu px-3 py-1.5 rounded hover:bg-sky-50">+ Conceder a outra role</button>
+            </div>
+            <p class="text-xs text-dms-tecnologia mb-4">Quem pode configurar intervenientes do módulo <strong class="text-dms-mar">Compras</strong>. Permissão herdada via cadeia de delegação (vide <a href="tela80-permissoes-matriz.html" class="text-dms-ceu hover:underline">tela80</a>).</p>
+
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center justify-between p-3 border border-[#E5E7EB] rounded-lg bg-white">
+                <div class="flex items-center gap-3">
+                  <span class="w-8 h-8 rounded-md bg-violet-50 text-dms-sabedoria flex items-center justify-center text-xs font-bold">AG</span>
+                  <div>
+                    <div class="text-sm font-bold text-dms-mar flex items-center gap-2">Admin Geral <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">sistema</span></div>
+                    <div class="text-[11px] text-dms-tecnologia">permissão raiz · delegável</div>
+                  </div>
+                </div>
+                <span class="text-[11px] text-dms-tecnologia">irremovível</span>
+              </div>
+
+              <div class="flex items-center justify-between p-3 border border-[#E5E7EB] rounded-lg bg-white">
+                <div class="flex items-center gap-3">
+                  <span class="w-8 h-8 rounded-md bg-sky-50 text-dms-ceu flex items-center justify-center text-xs font-bold">CA</span>
+                  <div>
+                    <div class="text-sm font-bold text-dms-mar">Compras Adm</div>
+                    <div class="text-[11px] text-dms-tecnologia">delegada por <strong>Admin Geral</strong> em 28/05/2026 · <span class="font-semibold">pode subdelegar</span></div>
+                  </div>
+                </div>
+                <button class="text-xs text-red-600 hover:bg-red-50 px-2 py-1 rounded font-semibold">Revogar</button>
+              </div>
+            </div>
+
+            <!-- Cadeia visual -->
+            <div class="mt-4 pt-3 border-t border-[#E5E7EB]">
+              <div class="caption text-dms-tecnologia mb-2">Cadeia de delegação</div>
+              <div class="flex items-center gap-2 text-sm">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-violet-50 text-dms-sabedoria border border-violet-200 font-semibold">Admin Geral</span>
+                <svg class="w-4 h-4 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-sky-50 text-dms-ceu border border-sky-200 font-semibold">Compras Adm</span>
+                <span class="text-xs text-dms-tecnologia ml-2">(2 níveis · profundidade máx: 3)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD: IMPACTO -->
+          <div class="bg-[#FFFBEB] border border-[#FDE68A] rounded-lg p-5">
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-[#854D0E] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <div class="flex-1">
+                <h3 class="text-sm font-bold text-[#854D0E] mb-1">Impacto da mudança</h3>
+                <p class="text-xs text-[#854D0E] mb-3">Ao salvar, <strong>47 usuários</strong> podem precisar atualizar seu profile (caso algum critério obrigatório ainda não esteja preenchido).</p>
+                <div class="grid grid-cols-3 gap-3 mb-3">
+                  <div class="bg-white/60 border border-[#FDE68A] rounded p-2.5">
+                    <div class="text-[10px] font-bold text-[#854D0E] uppercase tracking-wider">Usuários afetados</div>
+                    <div class="text-lg font-bold text-[#854D0E] mono mt-0.5">47</div>
+                  </div>
+                  <div class="bg-white/60 border border-[#FDE68A] rounded p-2.5">
+                    <div class="text-[10px] font-bold text-[#854D0E] uppercase tracking-wider">Workflows afetados</div>
+                    <div class="text-lg font-bold text-[#854D0E] mono mt-0.5">12</div>
+                  </div>
+                  <div class="bg-white/60 border border-[#FDE68A] rounded p-2.5">
+                    <div class="text-[10px] font-bold text-[#854D0E] uppercase tracking-wider">Stages a revalidar</div>
+                    <div class="text-lg font-bold text-[#854D0E] mono mt-0.5">38</div>
+                  </div>
+                </div>
+                <button class="text-xs font-semibold text-[#854D0E] border border-[#854D0E] px-3 py-1.5 rounded hover:bg-amber-100 transition-colors">Ver impacto detalhado →</button>
+              </div>
+            </div>
+          </div>
+
+        </section>
+      </div>
+
+    </main>
+
+    <!-- FOOTER FIXO -->
+    <div class="sticky bottom-0 -mx-8 px-8 py-4 bg-white border-t border-[#E5E7EB] flex items-center justify-between gap-3 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.04)]">
+      <div class="text-xs text-dms-tecnologia">
+        Alterações são auditadas (concept <a href="docs/concepts/CONCEPT-STAGE-OWNERSHIP-VALIDATION.md" class="text-dms-ceu hover:underline">STAGE-OWNERSHIP-VALIDATION</a> dispara após salvar).
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 border border-[#E5E7EB] rounded-md bg-white">Cancelar</button>
+        <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-sabedoria rounded-md hover:opacity-90 transition-opacity">Salvar configuração</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.toggle').forEach(t => t.addEventListener('click', () => t.classList.toggle('on')));
+</script>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text, #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label" data-i18n="nav.cockpit">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label" data-i18n="nav.tasks">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label" data-i18n="nav.followup">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.purchases">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label" data-i18n="nav.requisitions">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label" data-i18n="nav.quotes">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label" data-i18n="nav.orders">Pedidos</span></a></li>
+        <li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+        <li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.registrations">Cadastros</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.libraries">Bibliotecas</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label" data-i18n="label.tags">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label" data-i18n="nav.audit">Auditoria</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+        <li><a href="tela80-permissoes-matriz.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔐</span><span class="sb-label">Permissões</span></a></li>
+        <li><a href="tela81-config-intervenientes-modulo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧩</span><span class="sb-label">Config Intervenientes</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Conta</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela50-profile.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👤</span><span class="sb-label">Meu Perfil</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+<script>
+(function(){
+  var sb=document.getElementById('dms-sidebar'),toggle=document.getElementById('sidebar-toggle'),mobBtn=document.getElementById('dms-sidebar-mobile-btn'),overlay=document.getElementById('dms-sidebar-overlay');
+  if(!sb||!toggle)return; var K='mockup-sidebar-collapsed-v2',c=false; try{c=localStorage.getItem(K)==='1';}catch(e){}
+  function m(){return window.matchMedia('(max-width: 767px)').matches}
+  function r(){if(c&&!m()){sb.classList.add('collapsed');sb.style.width='64px';document.documentElement.style.setProperty('--dms-sb-w','64px');}else{sb.classList.remove('collapsed');sb.style.width=m()?'280px':'240px';document.documentElement.style.setProperty('--dms-sb-w',m()?'0px':'240px');}}
+  toggle.addEventListener('click',function(){c=!c;try{localStorage.setItem(K,c?'1':'0');}catch(e){}r();});
+  function cm(){sb.classList.remove('mobile-open');if(overlay)overlay.classList.remove('show');}
+  if(mobBtn)mobBtn.addEventListener('click',function(){if(sb.classList.contains('mobile-open'))cm();else{sb.classList.add('mobile-open');if(overlay)overlay.classList.add('show');}});
+  if(overlay)overlay.addEventListener('click',cm);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){a.addEventListener('click',function(){if(m())cm();});});
+  var cur=(location.pathname.split('/').pop()||'').toLowerCase();
+  if(cur){sb.querySelectorAll('nav a[href]').forEach(function(a){var h=(a.getAttribute('href')||'').toLowerCase();if(h&&h===cur)a.classList.add('sb-active');});}
+  window.addEventListener('resize',r);r();
+})();
+</script>
+<script src="notes-widget.js" defer></script>
+<script src="i18n-toggle.js" defer></script>
+</body>
+</html>
