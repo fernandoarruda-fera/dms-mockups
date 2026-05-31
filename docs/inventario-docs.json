@@ -1,0 +1,222 @@
+[
+  {
+    "path": "docs/AUDITORIA-2026-05-31-E1-botoes-mortos.md",
+    "size_kb": 17.59,
+    "lines": 260,
+    "first_commit": "2026-05-31T13:38:23-03:00",
+    "last_commit": "2026-05-31T16:34:26-03:00",
+    "delta_days": 0,
+    "tipo": "auditoria",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/AUDITORIA-2026-05-31-E2-funcional.md",
+    "size_kb": 11.4,
+    "lines": 246,
+    "first_commit": "2026-05-31T17:01:25-03:00",
+    "last_commit": "2026-05-31T17:01:25-03:00",
+    "delta_days": 0,
+    "tipo": "auditoria",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/AUDITORIA-2026-05-31-E3-cadastros-gaps.md",
+    "size_kb": 24.07,
+    "lines": 248,
+    "first_commit": "2026-05-31T13:22:01-03:00",
+    "last_commit": "2026-05-31T17:33:25-03:00",
+    "delta_days": 0,
+    "tipo": "auditoria",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/TELAS-PENDENTES.md",
+    "size_kb": 6.97,
+    "lines": 65,
+    "first_commit": "2026-05-31T13:07:53-03:00",
+    "last_commit": "2026-05-31T17:18:43-03:00",
+    "delta_days": 0,
+    "tipo": "pendentes",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/TODO-WORKFLOWS-DEFAULT.md",
+    "size_kb": 1.17,
+    "lines": 18,
+    "first_commit": "2026-05-31T12:09:17-03:00",
+    "last_commit": "2026-05-31T12:28:44-03:00",
+    "delta_days": 0,
+    "tipo": "pendentes",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/CONCEPT-ACTIONIA.md",
+    "size_kb": 7.48,
+    "lines": 103,
+    "first_commit": "2026-05-30T13:11:22-03:00",
+    "last_commit": "2026-05-31T13:07:53-03:00",
+    "delta_days": 0,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/CONCEPT-AI-GENERATION.md",
+    "size_kb": 6.0,
+    "lines": 94,
+    "first_commit": "2026-05-30T13:11:22-03:00",
+    "last_commit": "2026-05-30T13:11:22-03:00",
+    "delta_days": 0,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/CONCEPT-ALCADAS.md",
+    "size_kb": 10.2,
+    "lines": 148,
+    "first_commit": "2026-05-31T13:07:53-03:00",
+    "last_commit": "2026-05-31T13:07:53-03:00",
+    "delta_days": 0,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/CONCEPT-ALERT.md",
+    "size_kb": 8.76,
+    "lines": 146,
+    "first_commit": "2026-05-30T13:11:22-03:00",
+    "last_commit": "2026-05-31T14:05:43-03:00",
+    "delta_days": 1,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/CONCEPT-MATCH-ENGINE.md",
+    "size_kb": 7.01,
+    "lines": 113,
+    "first_commit": "2026-05-30T13:11:22-03:00",
+    "last_commit": "2026-05-30T16:09:14-03:00",
+    "delta_days": 0,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/CONCEPT-MODULE-INTERVENIENTES-CONFIG.md",
+    "size_kb": 9.33,
+    "lines": 132,
+    "first_commit": "2026-05-31T12:09:17-03:00",
+    "last_commit": "2026-05-31T12:09:17-03:00",
+    "delta_days": 0,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/CONCEPT-MULTITENANT.md",
+    "size_kb": 4.82,
+    "lines": 88,
+    "first_commit": "2026-05-31T14:05:43-03:00",
+    "last_commit": "2026-05-31T14:05:43-03:00",
+    "delta_days": 0,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/CONCEPT-PERMISSIONS.md",
+    "size_kb": 11.69,
+    "lines": 193,
+    "first_commit": "2026-05-31T10:12:56-03:00",
+    "last_commit": "2026-05-31T13:07:53-03:00",
+    "delta_days": 0,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/CONCEPT-SAVED-FILTERS.md",
+    "size_kb": 4.97,
+    "lines": 85,
+    "first_commit": "2026-05-30T13:11:22-03:00",
+    "last_commit": "2026-05-30T13:11:22-03:00",
+    "delta_days": 0,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/CONCEPT-STAGE-OWNERSHIP-VALIDATION.md",
+    "size_kb": 12.06,
+    "lines": 171,
+    "first_commit": "2026-05-31T12:09:17-03:00",
+    "last_commit": "2026-05-31T12:09:17-03:00",
+    "delta_days": 0,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/CONCEPT-STAGE-ROLE-ASSIGNMENT.md",
+    "size_kb": 9.55,
+    "lines": 142,
+    "first_commit": "2026-05-31T10:12:56-03:00",
+    "last_commit": "2026-05-31T13:07:53-03:00",
+    "delta_days": 0,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/CONCEPT-TEAMS.md",
+    "size_kb": 4.94,
+    "lines": 95,
+    "first_commit": "2026-05-31T14:05:43-03:00",
+    "last_commit": "2026-05-31T15:52:01-03:00",
+    "delta_days": 0,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/CONCEPT-USER-PROFILE-PREFERENCES.md",
+    "size_kb": 5.33,
+    "lines": 107,
+    "first_commit": "2026-05-30T13:11:22-03:00",
+    "last_commit": "2026-05-30T13:11:22-03:00",
+    "delta_days": 0,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/CONCEPT-USER-SCOPE-INTERVENIENTES.md",
+    "size_kb": 11.37,
+    "lines": 205,
+    "first_commit": "2026-05-31T10:12:56-03:00",
+    "last_commit": "2026-05-31T12:59:13-03:00",
+    "delta_days": 0,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/CONCEPT-WORKFLOW-OBLIGATORY.md",
+    "size_kb": 6.83,
+    "lines": 116,
+    "first_commit": "2026-05-30T13:11:22-03:00",
+    "last_commit": "2026-05-31T12:09:17-03:00",
+    "delta_days": 0,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/concepts/REVIEW-2026-05-31.md",
+    "size_kb": 9.93,
+    "lines": 55,
+    "first_commit": "2026-05-31T12:09:17-03:00",
+    "last_commit": "2026-05-31T12:09:17-03:00",
+    "delta_days": 0,
+    "tipo": "concept",
+    "ext": ".md"
+  },
+  {
+    "path": "docs/correcoes-mockup.md",
+    "size_kb": 38.69,
+    "lines": 375,
+    "first_commit": "2026-05-29T16:05:16-03:00",
+    "last_commit": "2026-05-31T17:33:25-03:00",
+    "delta_days": 2,
+    "tipo": "correcao",
+    "ext": ".md"
+  }
+]
