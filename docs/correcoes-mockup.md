@@ -321,3 +321,13 @@ Origem: [[AUDITORIA-2026-05-31-E1-botoes-mortos]] + [[AUDITORIA-2026-05-31-E3-ca
 - **tela86 NOVA** — Fornecedores: CRUD completo, 5 KPIs (Total/Ativos/Bloqueados/Com contrato/Fiscal incompleto), filtros (categoria/UF/status/score), tabela 12 linhas plausíveis, drawer lateral "Novo Fornecedor" com 7 seções colapsáveis (Identificação/Endereço/Contato/Categorização/Fiscal+upload CND/Conta bancária/Status). Linhas link para tela67 (supplier detail). Menu "Ações" com 4 opções (contratos→tela44, NFs→tela38, bloquear, editar).
 - **index.html** atualizado: tela83 (Admin Avançado) + tela86 (Cadastros) — total 84 telas.
 - **TELAS-PENDENTES.md** ✅ marcar tela83 + tela86 como entregues.
+
+## Sprint Imediato B — tela84 + tela85 (2026-05-31)
+
+- **tela84 NOVA** — Usuários admin (CRUD + bloqueio com análise impacto + drawer com 5 abas: Dados / Roles / Intervenientes / Sessões / Audit log). 12 usuários mock, 5 KPIs incluindo "sem intervenientes ⚠️", modais de criação e bloqueio (com cascata de stages órfãos + cards migrados + delegações revogadas + sessões encerradas, dispara WF-DEFAULT-User-Bloqueado-Impacto).
+- **tela85 NOVA** — Permission Delegations (cadeia visual lateral + revogação em cascata + modal concessão com permissions delegáveis filtradas + validade opcional). 12 delegações mock cobrindo 3 níveis de profundidade, 4 KPIs, filtros por permission/role/granted_by/status.
+- **tela80** ganhou header link "🔗 Ver delegações ativas (23) →" apontando pra tela85.
+- **Sidebar** consolidada Engine & Admin ganhou itens **Usuários** (👥) e **Delegações** (🔗); padrão M3+ preservado.
+- **index.html** — tela84 e tela85 adicionadas ao grupo Admin Avançado (total: 86 telas).
+- **TELAS-PENDENTES.md** ✅ tela84 e tela85 marcadas como entregues.
+- Sprint Imediato A + B = 5 telas/fixes entregues.

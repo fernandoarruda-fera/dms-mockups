@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>DMS — Usuários do Sistema (Admin)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .chip { display:inline-flex; align-items:center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+  .chip-role { background: #E0F2FE; color: #0369A1; }
+  .chip-role.admin { background: #FCE7F3; color: #9D174D; }
+  .chip-role.viewer { background: #F3F4F6; color: #4B5563; }
+  .badge { display:inline-flex; align-items:center; gap:4px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid; }
+  .badge-ativo { background: #DCFCE7; color: #166534; border-color: #86EFAC; }
+  .badge-bloqueado { background: #FEE2E2; color: #B91C1C; border-color: #FCA5A5; }
+  .badge-pendente { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; background: #00386C; color: #fff; display:inline-flex; align-items:center; justify-content:center; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+  .user-row:hover { background: #F8FAFC; cursor: pointer; }
+  /* Drawer */
+  #drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 60; display: none; }
+  #drawer-backdrop.show { display: block; }
+  #drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 720px; max-width: 95vw; background: #fff; z-index: 70; transform: translateX(100%); transition: transform .25s ease; box-shadow: -8px 0 24px rgba(0,0,0,.12); overflow-y: auto; }
+  #drawer.show { transform: translateX(0); }
+  .drawer-tab { padding: 10px 14px; font-size: 13px; font-weight: 600; color: #656464; border-bottom: 2px solid transparent; cursor: pointer; }
+  .drawer-tab.active { color: #00386C; border-bottom-color: #00AEEE; }
+  .drawer-pane { display: none; }
+  .drawer-pane.active { display: block; }
+  /* Modal */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 60; display: none; align-items: center; justify-content: center; }
+  .modal-backdrop.show { display: flex; }
+  .modal-box { background: #fff; border-radius: 12px; box-shadow: 0 24px 60px rgba(0,0,0,.28); width: 560px; max-width: 92vw; max-height: 88vh; overflow-y: auto; }
+</style>
+<link rel="stylesheet" href="mobile-responsive.css">
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <span class="text-dms-tecnologia">Admin</span>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Usuários</span>
+      </nav>
+      <div class="flex items-center gap-3">
+        <a href="tela72-convite-signup.html" class="text-xs font-semibold text-dms-ceu hover:underline flex items-center gap-1">✉️ Convidar via email</a>
+        <button onclick="abrirModalCriar()" class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">+ Novo Usuário</button>
+      </div>
+    </header>
+
+    <main class="flex-1 p-8 pb-12 max-w-[1440px] w-full mx-auto">
+
+      <!-- HEADER -->
+      <div class="mb-6">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h1 class="text-[28px] leading-[36px] font-bold text-dms-mar">Usuários do Sistema</h1>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-violet-50 text-violet-700 border-violet-200">Sprint Imediato B · admin</span>
+        </div>
+        <p class="text-sm text-dms-tecnologia max-w-3xl">Cadastro e gestão de usuários do sistema. Cada usuário tem <strong class="text-dms-mar">roles</strong> (o que ele pode fazer — ver <a href="tela80-permissoes-matriz.html" class="text-dms-ceu hover:underline">Permissões</a>) + <strong class="text-dms-mar">scope</strong> de intervenientes (em quais entidades — ver <a href="tela50-profile.html" class="text-dms-ceu hover:underline">Profile → Intervenientes</a>). Sem scope configurado, o usuário não recebe cards.</p>
+      </div>
+
+      <!-- KPIs -->
+      <div class="grid grid-cols-5 gap-3 mb-6">
+        <div class="bg-white border border-emerald-300 rounded-lg p-4">
+          <div class="caption text-emerald-700">Ativos</div>
+          <div class="text-2xl mono font-bold text-emerald-700 mt-1">47</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">acessam normalmente</div>
+        </div>
+        <div class="bg-white border border-red-300 rounded-lg p-4">
+          <div class="caption text-red-700">Bloqueados</div>
+          <div class="text-2xl mono font-bold text-red-700 mt-1">3</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">sem acesso</div>
+        </div>
+        <div class="bg-white border border-amber-300 rounded-lg p-4">
+          <div class="caption text-amber-700">Pendentes</div>
+          <div class="text-2xl mono font-bold text-amber-700 mt-1">8</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">convites não aceitos</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Sem profile completo</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">5</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">faltam preferências</div>
+        </div>
+        <div class="bg-white border-l-4 border-l-orange-500 border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-orange-700">⚠️ Sem intervenientes</div>
+          <div class="text-2xl mono font-bold text-orange-700 mt-1">12</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">não recebem cards</div>
+        </div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 mb-4 shadow-dms-md">
+        <div class="grid grid-cols-12 gap-3 items-end">
+          <div class="col-span-4">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Buscar</label>
+            <div class="relative">
+              <svg class="w-4 h-4 text-dms-tecnologia absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input type="text" placeholder="nome ou email…" class="w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
+            </div>
+          </div>
+          <div class="col-span-3">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Roles</label>
+            <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option>Todas (multi)</option>
+              <option>Admin Geral</option>
+              <option>Compras Adm</option>
+              <option>Compras Operacional</option>
+              <option>Contas a Pagar</option>
+              <option>Aprovador Diretor</option>
+              <option>Gestão de Profile</option>
+              <option>Viewer</option>
+            </select>
+          </div>
+          <div class="col-span-2">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Status</label>
+            <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option>Todos</option>
+              <option>Ativo</option>
+              <option>Bloqueado</option>
+              <option>Pendente</option>
+            </select>
+          </div>
+          <div class="col-span-2">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Empresa</label>
+            <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option>Todas</option>
+              <option>DMS Matriz</option>
+              <option>DMS SP</option>
+              <option>DMS RJ</option>
+            </select>
+          </div>
+          <div class="col-span-1 flex flex-col gap-1.5">
+            <label class="flex items-center gap-1.5 text-xs text-dms-tecnologia cursor-pointer"><input type="checkbox" class="rounded"> sem profile</label>
+            <label class="flex items-center gap-1.5 text-xs text-dms-tecnologia cursor-pointer"><input type="checkbox" class="rounded"> sem scope</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABELA -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+        <div class="px-5 py-3 border-b border-[#E5E7EB] flex items-center justify-between">
+          <div>
+            <div class="text-sm font-bold text-dms-mar">Lista de usuários</div>
+            <div class="text-xs text-dms-tecnologia mt-0.5">Mostrando 12 de 58 · clique numa linha para abrir o detalhe</div>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <button class="px-3 py-1.5 text-xs font-semibold text-dms-tecnologia border border-[#E5E7EB] rounded hover:text-dms-mar bg-white">Exportar CSV</button>
+            <button class="px-3 py-1.5 text-xs font-semibold text-dms-tecnologia border border-[#E5E7EB] rounded hover:text-dms-mar bg-white">Ações em lote</button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-[#F8F9FA] text-[10px] font-semibold text-dms-tecnologia uppercase tracking-wider">
+              <tr>
+                <th class="text-left px-4 py-3"><input type="checkbox" class="rounded"></th>
+                <th class="text-left px-4 py-3">Nome</th>
+                <th class="text-left px-4 py-3">Email</th>
+                <th class="text-left px-4 py-3">Roles</th>
+                <th class="text-left px-4 py-3">Empresa</th>
+                <th class="text-left px-4 py-3">Status</th>
+                <th class="text-left px-4 py-3">Última atividade</th>
+                <th class="text-right px-4 py-3">Cards/dia</th>
+                <th class="text-right px-4 py-3">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="users-tbody" class="divide-y divide-[#F1F3F5]"></tbody>
+          </table>
+        </div>
+
+        <div class="px-5 py-3 border-t border-[#E5E7EB] flex items-center justify-between text-xs text-dms-tecnologia">
+          <span>Mostrando 1–12 de 58</span>
+          <div class="flex gap-2">
+            <button class="px-3 py-1 border border-[#E5E7EB] rounded text-dms-tecnologia hover:text-dms-mar">‹ Anterior</button>
+            <button class="px-3 py-1 border border-[#E5E7EB] rounded text-dms-tecnologia hover:text-dms-mar">Próximo ›</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aviso -->
+      <div class="mt-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-md p-3 flex items-start gap-2">
+        <svg class="w-4 h-4 text-[#854D0E] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <p class="text-xs text-[#854D0E]">Bloquear um usuário pode <strong>órfanar stages</strong> dos workflows ativos. Antes de confirmar, o sistema analisa o impacto e oferece reatribuição (dispara <a href="tela04-catalogo-workflows.html?filter=default" class="underline font-semibold">WF-DEFAULT-User-Bloqueado-Impacto</a>).</p>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ DRAWER DETALHE ============ -->
+<div id="drawer-backdrop" onclick="fecharDrawer()"></div>
+<div id="drawer">
+  <div class="border-b border-[#E5E7EB] px-6 py-5 flex items-start justify-between sticky top-0 bg-white z-10">
+    <div class="flex items-center gap-3">
+      <div class="avatar" style="width:48px;height:48px;font-size:16px;" id="drawer-avatar">--</div>
+      <div>
+        <div class="text-lg font-bold text-dms-mar" id="drawer-name">--</div>
+        <div class="text-xs text-dms-tecnologia mono" id="drawer-email">--</div>
+      </div>
+    </div>
+    <button onclick="fecharDrawer()" class="text-dms-tecnologia hover:text-dms-mar text-xl leading-none">×</button>
+  </div>
+  <div class="border-b border-[#E5E7EB] flex gap-1 px-6 sticky top-[89px] bg-white z-10">
+    <div class="drawer-tab active" data-tab="dados" onclick="trocarTab('dados')">Dados</div>
+    <div class="drawer-tab" data-tab="roles" onclick="trocarTab('roles')">Roles</div>
+    <div class="drawer-tab" data-tab="scope" onclick="trocarTab('scope')">Intervenientes</div>
+    <div class="drawer-tab" data-tab="sessions" onclick="trocarTab('sessions')">Sessões</div>
+    <div class="drawer-tab" data-tab="audit" onclick="trocarTab('audit')">Audit log</div>
+  </div>
+  <div class="px-6 py-5">
+    <!-- pane dados -->
+    <div class="drawer-pane active" data-pane="dados">
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div><div class="caption text-dms-tecnologia mb-1">Empresa</div><div class="text-dms-mar font-semibold">DMS Matriz</div></div>
+        <div><div class="caption text-dms-tecnologia mb-1">Cargo</div><div>Coordenador de Compras</div></div>
+        <div><div class="caption text-dms-tecnologia mb-1">Criado em</div><div class="mono text-xs">2024-03-12</div></div>
+        <div><div class="caption text-dms-tecnologia mb-1">Último login</div><div class="mono text-xs">2026-05-30 14:22</div></div>
+        <div><div class="caption text-dms-tecnologia mb-1">2FA</div><div class="text-emerald-700 font-semibold">✓ Ativo (TOTP)</div></div>
+        <div><div class="caption text-dms-tecnologia mb-1">Idioma</div><div>Português (BR)</div></div>
+      </div>
+      <div class="mt-6 flex gap-2 flex-wrap">
+        <button class="px-3 py-1.5 text-xs font-semibold text-white bg-dms-mar rounded hover:bg-dms-confianca">Editar dados</button>
+        <button class="px-3 py-1.5 text-xs font-semibold text-dms-mar border border-dms-mar rounded hover:bg-dms-mar hover:text-white">Resetar senha (envia email)</button>
+        <button class="px-3 py-1.5 text-xs font-semibold text-orange-700 border border-orange-300 rounded hover:bg-orange-50">Forçar logout</button>
+        <button onclick="abrirModalBloquear()" class="px-3 py-1.5 text-xs font-semibold text-red-700 border border-red-300 rounded hover:bg-red-50">🚫 Bloquear usuário</button>
+      </div>
+    </div>
+    <!-- pane roles -->
+    <div class="drawer-pane" data-pane="roles">
+      <div class="caption text-dms-tecnologia mb-2">Roles atribuídos (3)</div>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <span class="chip chip-role">Compras Adm</span>
+        <span class="chip chip-role">Aprovador Gerente</span>
+        <span class="chip chip-role viewer">Viewer (Cadastros)</span>
+      </div>
+      <div class="text-xs text-dms-tecnologia mb-2">Permissão efetiva = união das 3 roles = 47 permissões em 22 telas.</div>
+      <a href="tela80-permissoes-matriz.html" class="text-xs text-dms-ceu hover:underline font-semibold">Ver matriz completa →</a>
+      <div class="mt-4 pt-4 border-t border-[#E5E7EB]">
+        <button class="px-3 py-1.5 text-xs font-semibold text-dms-mar border border-dms-mar rounded hover:bg-dms-mar hover:text-white">+ Adicionar role</button>
+      </div>
+    </div>
+    <!-- pane scope -->
+    <div class="drawer-pane" data-pane="scope">
+      <div class="text-xs text-dms-tecnologia mb-3">Resumo somente leitura — edição completa em <a href="tela50-profile.html" class="text-dms-ceu hover:underline">Profile → Intervenientes</a>.</div>
+      <div class="space-y-3">
+        <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded p-3"><div class="caption text-dms-tecnologia mb-1">Centros de Custo</div><div class="text-sm text-dms-mar">12 atribuídos · <span class="mono text-xs text-dms-tecnologia">CC-SP-MTZ, CC-RJ-01, +10</span></div></div>
+        <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded p-3"><div class="caption text-dms-tecnologia mb-1">Fornecedores</div><div class="text-sm text-dms-mar">35 atribuídos · <span class="mono text-xs text-dms-tecnologia">📐 1 regra (Transportes/SP)</span></div></div>
+        <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded p-3"><div class="caption text-dms-tecnologia mb-1">Contratos</div><div class="text-sm text-dms-mar">4 atribuídos</div></div>
+        <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded p-3"><div class="caption text-dms-tecnologia mb-1">Empresas</div><div class="text-sm text-dms-mar">2 atribuídas</div></div>
+      </div>
+    </div>
+    <!-- pane sessions -->
+    <div class="drawer-pane" data-pane="sessions">
+      <div class="caption text-dms-tecnologia mb-2">Sessões ativas (2)</div>
+      <div class="space-y-2 text-sm">
+        <div class="border border-[#E5E7EB] rounded p-3 flex items-start justify-between">
+          <div><div class="font-semibold">Chrome 124 · macOS Sequoia</div><div class="text-xs text-dms-tecnologia mono">São Paulo · 200.139.x.x · iniciada há 4h</div></div>
+          <button class="text-xs text-red-700 hover:underline">Encerrar</button>
+        </div>
+        <div class="border border-[#E5E7EB] rounded p-3 flex items-start justify-between">
+          <div><div class="font-semibold">Safari Mobile · iOS 18</div><div class="text-xs text-dms-tecnologia mono">Rio de Janeiro · 191.45.x.x · iniciada há 2 dias</div></div>
+          <button class="text-xs text-red-700 hover:underline">Encerrar</button>
+        </div>
+      </div>
+    </div>
+    <!-- pane audit -->
+    <div class="drawer-pane" data-pane="audit">
+      <div class="caption text-dms-tecnologia mb-2">Eventos recentes</div>
+      <div class="space-y-2 text-xs">
+        <div class="flex gap-2"><span class="mono text-dms-tecnologia">2026-05-30 14:22</span><span>Login (Chrome · SP)</span></div>
+        <div class="flex gap-2"><span class="mono text-dms-tecnologia">2026-05-29 18:01</span><span>Aprovou NF-2026-0451 (R$ 18.450)</span></div>
+        <div class="flex gap-2"><span class="mono text-dms-tecnologia">2026-05-28 09:14</span><span>Adicionou Fornecedor V-Acme ao scope</span></div>
+        <div class="flex gap-2"><span class="mono text-dms-tecnologia">2026-05-27 16:33</span><span>Recebeu role "Aprovador Gerente"</span></div>
+        <div class="flex gap-2"><span class="mono text-dms-tecnologia">2026-05-25 10:08</span><span>2FA reativado após reset</span></div>
+      </div>
+      <a href="tela60-auditoria-global.html" class="mt-3 inline-block text-xs text-dms-ceu hover:underline font-semibold">Ver log completo →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL CRIAR ============ -->
+<div id="modal-criar" class="modal-backdrop" onclick="if(event.target===this)fecharModal('modal-criar')">
+  <div class="modal-box">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+      <h3 class="text-base font-bold text-dms-mar">Novo Usuário</h3>
+      <button onclick="fecharModal('modal-criar')" class="text-dms-tecnologia hover:text-dms-mar text-xl leading-none">×</button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Nome completo *</label>
+        <input type="text" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md focus:outline-none focus:border-dms-ceu" placeholder="ex: Maria Silva">
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Email *</label>
+        <input type="email" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md focus:outline-none focus:border-dms-ceu" placeholder="maria@dmslog.com">
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Empresa *</label>
+        <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+          <option>DMS Matriz</option>
+          <option>DMS SP</option>
+          <option>DMS RJ</option>
+        </select>
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Roles (múltiplas)</label>
+        <select multiple size="4" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          <option>Compras Operacional</option>
+          <option>Compras Adm</option>
+          <option>Contas a Pagar</option>
+          <option>Aprovador Gerente</option>
+          <option>Aprovador Diretor</option>
+          <option>Viewer</option>
+        </select>
+        <div class="text-[11px] text-dms-tecnologia mt-1">Ctrl/⌘ + clique para múltiplas. Permissão efetiva = união das roles.</div>
+      </div>
+      <label class="flex items-center gap-2 text-sm">
+        <input type="checkbox" checked class="rounded">
+        <span>Enviar convite por email (link de definição de senha)</span>
+      </label>
+      <div class="bg-[#FFFBEB] border border-[#FDE68A] rounded p-3 text-xs text-[#854D0E]">
+        ⚠️ Usuário criado <strong>sem intervenientes não recebe cards</strong>. Após criar, configure intervenientes em <a href="tela50-profile.html" class="underline font-semibold">Profile → Intervenientes</a> ou peça pra Gestão de Profile fazer.
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex justify-end gap-2">
+      <button onclick="fecharModal('modal-criar')" class="px-4 py-2 text-sm font-semibold text-dms-tecnologia border border-[#E5E7EB] rounded">Cancelar</button>
+      <button class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded hover:bg-dms-confianca">Criar usuário</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL BLOQUEAR ============ -->
+<div id="modal-bloquear" class="modal-backdrop" onclick="if(event.target===this)fecharModal('modal-bloquear')">
+  <div class="modal-box">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between bg-orange-50">
+      <h3 class="text-base font-bold text-orange-900">🚫 Bloquear usuário — análise de impacto</h3>
+      <button onclick="fecharModal('modal-bloquear')" class="text-dms-tecnologia hover:text-dms-mar text-xl leading-none">×</button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <div class="bg-red-50 border-l-4 border-l-red-500 border border-red-200 rounded p-3 text-sm text-red-900">
+        <div class="font-bold mb-1">Bloqueando <span class="mono">Carlos Andrade</span>:</div>
+        <ul class="list-disc list-inside text-xs space-y-1">
+          <li><strong>4 stages</strong> ficarão órfãos (workflow Cotação Padrão, NF Validação Fiscal, Pedido Aprovação ×2)</li>
+          <li><strong>12 cards abertos</strong> no cockpit dele migrarão para Gestão de Profile</li>
+          <li><strong>2 delegações</strong> que ele concedeu serão revogadas em cascata</li>
+          <li>Sessões ativas (2) serão encerradas imediatamente</li>
+        </ul>
+      </div>
+      <div class="text-xs text-dms-tecnologia">Esta ação dispara o workflow default <a href="tela04-catalogo-workflows.html?filter=default" class="text-dms-ceu hover:underline font-semibold">WF-DEFAULT-User-Bloqueado-Impacto</a>, que notifica gestores e abre tarefa de reatribuição.</div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Motivo do bloqueio</label>
+        <textarea rows="2" placeholder="ex: desligamento, suspensão temporária…" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md focus:outline-none focus:border-dms-ceu"></textarea>
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex justify-end gap-2 flex-wrap">
+      <button onclick="fecharModal('modal-bloquear')" class="px-4 py-2 text-sm font-semibold text-dms-tecnologia border border-[#E5E7EB] rounded">Cancelar</button>
+      <button class="px-4 py-2 text-sm font-semibold text-dms-mar border border-dms-mar rounded hover:bg-dms-mar hover:text-white">Reatribuir antes de bloquear</button>
+      <button class="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded hover:bg-red-700">Bloquear mesmo assim</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============== Mock users ==============
+const USERS = [
+  { id:'u1', initials:'CA', name:'Carlos Andrade', email:'carlos.andrade@dmslog.com', roles:['Compras Adm','Aprovador Gerente'], empresa:'DMS Matriz', status:'Ativo', lastSeen:'há 2h', cards:18 },
+  { id:'u2', initials:'MS', name:'Mariana Souza', email:'mariana.souza@dmslog.com', roles:['Compras Operacional'], empresa:'DMS SP', status:'Ativo', lastSeen:'há 15min', cards:24 },
+  { id:'u3', initials:'JP', name:'João Pereira', email:'joao.pereira@dmslog.com', roles:['Contas a Pagar'], empresa:'DMS Matriz', status:'Ativo', lastSeen:'há 1h', cards:32 },
+  { id:'u4', initials:'AR', name:'Ana Rodrigues', email:'ana.rodrigues@dmslog.com', roles:['Aprovador Diretor'], empresa:'DMS Matriz', status:'Ativo', lastSeen:'há 30min', cards:8 },
+  { id:'u5', initials:'FA', name:'Fernando Arruda', email:'fernando.arruda@dmslog.com', roles:['Admin Geral'], empresa:'DMS Matriz', status:'Ativo', lastSeen:'agora', cards:0, isMe:true },
+  { id:'u6', initials:'RL', name:'Roberta Lima', email:'roberta.lima@dmslog.com', roles:['Gestão de Profile','Viewer'], empresa:'DMS Matriz', status:'Ativo', lastSeen:'há 4h', cards:5 },
+  { id:'u7', initials:'TC', name:'Thiago Castro', email:'thiago.castro@dmslog.com', roles:['Compras Operacional'], empresa:'DMS RJ', status:'Bloqueado', lastSeen:'há 12 dias', cards:0 },
+  { id:'u8', initials:'PB', name:'Patrícia Barros', email:'patricia.barros@dmslog.com', roles:['Aprovador Gerente'], empresa:'DMS SP', status:'Ativo', lastSeen:'há 3h', cards:14, noScope:true },
+  { id:'u9', initials:'LO', name:'Lucas Oliveira', email:'lucas.oliveira@dmslog.com', roles:['Compras Operacional'], empresa:'DMS SP', status:'Pendente', lastSeen:'—', cards:0, noScope:true },
+  { id:'u10', initials:'CF', name:'Camila Ferraz', email:'camila.ferraz@dmslog.com', roles:['Viewer'], empresa:'DMS RJ', status:'Ativo', lastSeen:'há 1 dia', cards:0 },
+  { id:'u11', initials:'DM', name:'Diego Mendes', email:'diego.mendes@dmslog.com', roles:['Contas a Pagar','Viewer'], empresa:'DMS Matriz', status:'Ativo', lastSeen:'há 45min', cards:21 },
+  { id:'u12', initials:'IS', name:'Isabela Santos', email:'isabela.santos@dmslog.com', roles:['Compras Adm'], empresa:'DMS Matriz', status:'Ativo', lastSeen:'há 5h', cards:11 }
+];
+
+function badgeStatus(s){
+  if(s==='Ativo') return '<span class="badge badge-ativo">●&nbsp;Ativo</span>';
+  if(s==='Bloqueado') return '<span class="badge badge-bloqueado">●&nbsp;Bloqueado</span>';
+  return '<span class="badge badge-pendente">●&nbsp;Pendente</span>';
+}
+function chipsRoles(rs){
+  return rs.map(r => {
+    var cls = 'chip chip-role';
+    if(r === 'Admin Geral') cls += ' admin';
+    else if(r.startsWith('Viewer')) cls += ' viewer';
+    return `<span class="${cls}">${r}</span>`;
+  }).join(' ');
+}
+function renderUsers(){
+  const tbody = document.getElementById('users-tbody');
+  tbody.innerHTML = USERS.map(u => `
+    <tr class="user-row" onclick="abrirDrawer('${u.id}')">
+      <td class="px-4 py-3" onclick="event.stopPropagation()"><input type="checkbox" class="rounded"></td>
+      <td class="px-4 py-3">
+        <div class="flex items-center gap-3">
+          <div class="avatar">${u.initials}</div>
+          <div>
+            <div class="font-semibold text-dms-mar">${u.name}${u.isMe?' <span class="text-[10px] text-dms-ceu font-normal">(você)</span>':''}</div>
+            ${u.noScope?'<div class="text-[10px] text-orange-700 font-semibold">⚠️ sem intervenientes</div>':''}
+          </div>
+        </div>
+      </td>
+      <td class="px-4 py-3 text-dms-tecnologia text-xs mono">${u.email}</td>
+      <td class="px-4 py-3"><div class="flex flex-wrap gap-1">${chipsRoles(u.roles)}</div></td>
+      <td class="px-4 py-3 text-dms-tecnologia">${u.empresa}</td>
+      <td class="px-4 py-3">${badgeStatus(u.status)}</td>
+      <td class="px-4 py-3 text-xs text-dms-tecnologia">${u.lastSeen}</td>
+      <td class="px-4 py-3 text-right mono ${u.cards===0?'text-dms-tecnologia':'text-dms-mar font-semibold'}">${u.cards}</td>
+      <td class="px-4 py-3 text-right" onclick="event.stopPropagation()">
+        <button class="text-xs text-dms-ceu hover:underline mr-2" onclick="abrirDrawer('${u.id}')">Editar</button>
+        ${u.status==='Ativo'?'<button class="text-xs text-red-700 hover:underline" onclick="abrirModalBloquear()">Bloquear</button>':''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ============== Drawer ==============
+function abrirDrawer(uid){
+  const u = USERS.find(x => x.id === uid);
+  if(!u) return;
+  document.getElementById('drawer-avatar').textContent = u.initials;
+  document.getElementById('drawer-name').textContent = u.name;
+  document.getElementById('drawer-email').textContent = u.email;
+  document.getElementById('drawer').classList.add('show');
+  document.getElementById('drawer-backdrop').classList.add('show');
+}
+function fecharDrawer(){
+  document.getElementById('drawer').classList.remove('show');
+  document.getElementById('drawer-backdrop').classList.remove('show');
+}
+function trocarTab(tab){
+  document.querySelectorAll('.drawer-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.drawer-pane').forEach(p => p.classList.toggle('active', p.dataset.pane === tab));
+}
+
+// ============== Modais ==============
+function abrirModalCriar(){ document.getElementById('modal-criar').classList.add('show'); }
+function abrirModalBloquear(){ document.getElementById('modal-bloquear').classList.add('show'); }
+function fecharModal(id){ document.getElementById(id).classList.remove('show'); }
+
+renderUsers();
+</script>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text, #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela80-permissoes-matriz.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔐</span><span class="sb-label">Permissões</span></a></li>
+        <li><a href="tela85-permission-delegations.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔗</span><span class="sb-label">Delegações</span></a></li>
+        <li><a href="tela81-config-intervenientes-modulo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧩</span><span class="sb-label">Config Intervenientes</span></a></li>
+        <li><a href="tela82-saude-stages.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🩺</span><span class="sb-label">Saúde Stages</span></a></li>
+        <li><a href="tela84-users-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👥</span><span class="sb-label">Usuários</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Conta</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela50-profile.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👤</span><span class="sb-label">Meu Perfil</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+<script>
+(function(){
+  var sb=document.getElementById('dms-sidebar'),toggle=document.getElementById('sidebar-toggle'),mobBtn=document.getElementById('dms-sidebar-mobile-btn'),overlay=document.getElementById('dms-sidebar-overlay');
+  if(!sb||!toggle)return; var K='mockup-sidebar-collapsed-v2',c=false; try{c=localStorage.getItem(K)==='1';}catch(e){}
+  function m(){return window.matchMedia('(max-width: 767px)').matches}
+  function r(){if(c&&!m()){sb.classList.add('collapsed');sb.style.width='64px';document.documentElement.style.setProperty('--dms-sb-w','64px');}else{sb.classList.remove('collapsed');sb.style.width=m()?'280px':'240px';document.documentElement.style.setProperty('--dms-sb-w',m()?'0px':'240px');}}
+  toggle.addEventListener('click',function(){c=!c;try{localStorage.setItem(K,c?'1':'0');}catch(e){}r();});
+  function cm(){sb.classList.remove('mobile-open');if(overlay)overlay.classList.remove('show');}
+  if(mobBtn)mobBtn.addEventListener('click',function(){if(sb.classList.contains('mobile-open'))cm();else{sb.classList.add('mobile-open');if(overlay)overlay.classList.add('show');}});
+  if(overlay)overlay.addEventListener('click',cm);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){a.addEventListener('click',function(){if(m())cm();});});
+  var cur=(location.pathname.split('/').pop()||'').toLowerCase();
+  if(cur){sb.querySelectorAll('nav a[href]').forEach(function(a){var h=(a.getAttribute('href')||'').toLowerCase();if(h&&h===cur)a.classList.add('sb-active');});}
+  window.addEventListener('resize',r);r();
+})();
+</script>
+<script src="notes-widget.js" defer></script>
+<script src="i18n-toggle.js" defer></script>
+</body>
+</html>
