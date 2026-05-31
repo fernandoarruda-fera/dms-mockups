@@ -18,6 +18,27 @@
 
 ---
 
+## ✅ Status de entrega
+
+**Rodada 1 — 2026-05-31 (Sprint E1):** 9 telas wired via `mockup-handlers.js` (validação visual de campos required + toast mock):
+
+| Tela | CTA(s) wired | Tipo |
+|------|--------------|------|
+| `tela47-login` ✅ | Form login (Entrar) | Auth |
+| `tela48-reset-senha-request` ✅ | Form (Enviar link) | Auth |
+| `tela49-reset-senha-nova` ✅ | Form (Redefinir senha) | Auth |
+| `tela53-2fa-challenge` ✅ | Form (Verificar código) | Auth |
+| `tela72-convite-signup` ✅ | Form + botão "Criar conta e entrar" | Auth |
+| `tela07-editor-sop` ✅ | Salvar rascunho; Publicar nova versão | Builder |
+| `tela08-builder-stage-trigger` ✅ | Salvar rascunho; Publicar | Builder |
+| `tela09-builder-escalation-trigger` ✅ | Salvar rascunho; Publicar | Builder |
+| `tela10-workflow-builder` ✅ | Salvar rascunho; Aprovar v1.0 | Builder |
+
+**Críticos resolvidos nesta rodada:** 9 itens (5 forms auth + 4 conjuntos de CTAs builder).
+**Implementação:** `mockup-handlers.js` — auto-bind em `<form>` e botões com texto `Entrar/Salvar/Publicar/Aprovar/Criar conta/...`. Sem backend; toast visual de confirmação + marcação vermelha em campos required vazios.
+
+---
+
 ## 🔴 Críticos — CTA principal sem destino
 
 CTAs com texto `Salvar / Publicar / Aprovar / Criar / Confirmar / Enviar / Aplicar / Entrar` etc. que **não têm** `onclick`, `action` ou destino de navegação.
@@ -27,10 +48,10 @@ CTAs com texto `Salvar / Publicar / Aprovar / Criar / Confirmar / Enviar / Aplic
 | `tela02-tag-form` | `[btn-sem-onclick]` **Salvar** |
 | `tela04-catalogo-workflows` | `[btn-sem-onclick]` **Excluir** |
 | `tela05-invalidate-modal` | `[btn-sem-onclick]` **Aplicar e Invalidar** |
-| `tela07-editor-sop` | `[btn-sem-onclick]` **Salvar rascunho**; `[btn-sem-onclick]` **Publicar nova versão**; `[btn-sem-onclick]` **Aplicar stages aceitos** |
-| `tela08-builder-stage-trigger` | `[btn-sem-onclick]` **Salvar rascunho**; `[btn-sem-onclick]` **Publicar** |
-| `tela09-builder-escalation-trigger` | `[btn-sem-onclick]` **Salvar rascunho**; `[btn-sem-onclick]` **Publicar** |
-| `tela10-workflow-builder` | `[btn-sem-onclick]` **Salvar rascunho**; `[btn-sem-onclick]` **Aprovar v1.0**; `[btn-sem-onclick]` **Remover** |
+| `tela07-editor-sop` ✅ | `[btn-sem-onclick]` **Salvar rascunho**; `[btn-sem-onclick]` **Publicar nova versão**; `[btn-sem-onclick]` **Aplicar stages aceitos** |
+| `tela08-builder-stage-trigger` ✅ | `[btn-sem-onclick]` **Salvar rascunho**; `[btn-sem-onclick]` **Publicar** |
+| `tela09-builder-escalation-trigger` ✅ | `[btn-sem-onclick]` **Salvar rascunho**; `[btn-sem-onclick]` **Publicar** |
+| `tela10-workflow-builder` ✅ | `[btn-sem-onclick]` **Salvar rascunho**; `[btn-sem-onclick]` **Aprovar v1.0**; `[btn-sem-onclick]` **Remover** |
 | `tela11-match-engine` | `[btn-sem-onclick]` **Salvar critérios**; `[btn-sem-onclick]` **Criar workflow específico →** |
 | `tela12-execution-visibility` | `[btn-sem-onclick]` **Confirmar intervenção** |
 | `tela15-mailia-admin` | `[btn-sem-onclick]` **Aplicar todas correções** |
@@ -48,11 +69,11 @@ CTAs com texto `Salvar / Publicar / Aprovar / Criar / Confirmar / Enviar / Aplic
 | `tela41-aprovacao-detalhe` | `[btn-sem-onclick]` **Aprovar**; `[btn-sem-onclick]` **Rejeitar** |
 | `tela43-orcamento-form` | `[btn-sem-onclick]` **Salvar rascunho**; `[btn-sem-onclick]` **Submeter para aprovação** |
 | `tela45-contrato-form` | `[btn-sem-onclick]` **Salvar rascunho**; `[btn-sem-onclick]` **Submeter para aprovação** |
-| `tela47-login` | `[btn-sem-onclick]` **Entrar com Google**; `[form-sem-handler]` **(form)** |
-| `tela48-reset-senha-request` | `[form-sem-handler]` **(form)** |
-| `tela49-reset-senha-nova` | `[form-sem-handler]` **(form)** |
+| `tela47-login` ✅ | `[btn-sem-onclick]` **Entrar com Google**; `[form-sem-handler]` **(form)** |
+| `tela48-reset-senha-request` ✅ | `[form-sem-handler]` **(form)** |
+| `tela49-reset-senha-nova` ✅ | `[form-sem-handler]` **(form)** |
 | `tela52-2fa-setup` | `[btn-sem-onclick]` **Verificar e ativar 2FA** |
-| `tela53-2fa-challenge` | `[form-sem-handler]` **(form)** |
+| `tela53-2fa-challenge` ✅ | `[form-sem-handler]` **(form)** |
 | `tela59-empty-state-showcase` | `[btn-sem-onclick]` **Criar primeiro item** |
 | `tela60-auditoria-global` | `[btn-sem-onclick]` **Aplicar** |
 | `tela61-webhooks-list` | `[btn-sem-onclick]` **Aplicar**; `[btn-sem-onclick]` **Desativar**; `[btn-sem-onclick]` **Excluir** |
@@ -65,7 +86,7 @@ CTAs com texto `Salvar / Publicar / Aprovar / Criar / Confirmar / Enviar / Aplic
 | `tela68-modais-bulk-actions` | `[btn-sem-onclick]` **Aprovar 12** |
 | `tela70-detail-comparativo-versoes` | `[btn-sem-onclick]` **Aprovar v2.5 como definitiva** |
 | `tela71-notificacoes-centro` | `[btn-sem-onclick]` **Aprovar** |
-| `tela72-convite-signup` | `[btn-sem-onclick]` **Criar conta e entrar**; `[form-sem-handler]` **(form)** |
+| `tela72-convite-signup` ✅ | `[btn-sem-onclick]` **Criar conta e entrar**; `[form-sem-handler]` **(form)** |
 | `tela76-anotacoes-centro` | `[btn-sem-onclick]` **Excluir** |
 | `tela77-actionia-biblioteca` | `[btn-sem-onclick]` **Salvar rascunho**; `[btn-sem-onclick]` **Ativar** |
 | `tela78-alertas-biblioteca` | `[btn-sem-onclick]` **Salvar** |
@@ -79,11 +100,11 @@ Telas onde submeter o form **não leva a lugar nenhum** — UX espera redirect/f
 
 | Tela | Observação |
 |------|------------|
-| `tela47-login` | `<form>` sem `action` → botão "Entrar" não navega |
-| `tela48-reset-senha-request` | `<form>` sem `action` → não navega pra confirmação |
-| `tela49-reset-senha-nova` | `<form>` sem `action` → não navega pra login |
-| `tela53-2fa-challenge` | `<form>` sem `action` → não valida nem navega |
-| `tela72-convite-signup` | `<form>` sem `action` → não navega pra próximo passo |
+| `tela47-login` ✅ | `<form>` sem `action` → botão "Entrar" não navega |
+| `tela48-reset-senha-request` ✅ | `<form>` sem `action` → não navega pra confirmação |
+| `tela49-reset-senha-nova` ✅ | `<form>` sem `action` → não navega pra login |
+| `tela53-2fa-challenge` ✅ | `<form>` sem `action` → não valida nem navega |
+| `tela72-convite-signup` ✅ | `<form>` sem `action` → não navega pra próximo passo |
 
 > **Sugestão:** em mockup, ao menos adicionar `onsubmit="event.preventDefault(); location.href='telaXX.html';"` para preview funcional do fluxo.
 
@@ -119,7 +140,7 @@ Strings que indicam funcionalidade não-pronta em telas que NÃO são `tela75-em
 
 | Tela | Marcador | Contexto |
 |------|----------|----------|
-| `tela10-workflow-builder` | `Em construção` | ms-ceu"> Em construção |
+| `tela10-workflow-builder` ✅ | `Em construção` | ms-ceu"> Em construção |
 | `tela14-setup-integracoes` | `não implementado` | er bg-gray-100 text-gray-600">não implementado |
 | `tela81-config-intervenientes-modulo` | `em breve` | ecnologia mt-0.5">Compras · 3 em breve |
 | `tela81-config-intervenientes-modulo` | `em breve` | 11px] text-dms-tecnologia/70">em breve |
