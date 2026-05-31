@@ -1,22 +1,42 @@
 # Auditoria E3 — Cadastros e Telas Faltantes
 
-> Data: 2026-05-31
+> Data original: 2026-05-31
+> **Reconciliado: 2026-05-31** (após Sprints A, B e Seguinte)
 > Origem: cruzamento dos 14 concepts em `docs/concepts/` + `docs/TELAS-PENDENTES.md` + `docs/correcoes-mockup.md` + `docs/TODO-WORKFLOWS-DEFAULT.md` + inventário de `tela01-82.html`
 > Objetivo: garantir que toda entidade modelada nos concepts tem CRUD funcional no mockup (e dar visibilidade pros PLANs futuros)
 
-## Sumário
+## 0. Reconciliação 2026-05-31
+
+Esta auditoria foi escrita ANTES dos sprints A, B e Seguinte (commits `359ff90`, `d008778`, `dede945`). Estado real do repo em 2026-05-31 já fechou parte dos gaps críticos. Itens reconciliados nesta passagem:
+
+| Item original                            | Status atualizado                     | Evidência                                                  |
+| ---------------------------------------- | ------------------------------------- | ---------------------------------------------------------- |
+| §2 Crítico #1 — CRUD de Alçadas (tela83) | ✅ ENTREGUE Sprint A (`359ff90`)      | `tela83-alcadas-cadastro.html` (519 linhas)                |
+| §2 Crítico #2 — Lista/criar/bloquear User| ✅ ENTREGUE Sprint B (`d008778`)      | `tela84-users-admin.html` (597 linhas, com modal bloqueio) |
+| §2 Crítico #3 — CRUD de Fornecedor       | ✅ ENTREGUE Sprint A (`359ff90`)      | `tela86-fornecedores-cadastro.html` (589 linhas)           |
+| §2 Crítico #4 — Cadastro de Time         | ✅ ENTREGUE Sprint Seguinte (`dede945` + rename `ced4921`) | `tela87-times-cadastro.html` (612 linhas) |
+| §2 Alto #10 — Permission Delegation      | ✅ ENTREGUE Sprint B (`d008778`)      | `tela85-permission-delegations.html` (525 linhas)          |
+| §3 T1 / T2 / T6 (telas 83/84/87 Times)   | ✅ ENTREGUE (ver acima)               | 5 arquivos `tela83-87` confirmados no repo                 |
+| §4 F1 — Push notification (canais)       | 🟡 concept atualizado, tela pendente  | `CONCEPT-ALERT.md` ganhou canais push (commit `dede945`)   |
+| §4 F6 — Multi-tenant (concept + tela)    | 🟡 concept criado, tela pendente      | `CONCEPT-MULTITENANT.md` existe; tela admin não entregue   |
+
+**Não houve descobertas novas** nesta reconciliação — apenas fechamento de gaps já mapeados.
+
+Linhas da matriz (§1) e tabelas de severidade (§2-§3) abaixo foram atualizadas. Permanecem abertos: §2 Crítico #5 (matriz de permissões com save real), §2 Alto #6-9 e #11, todo §2 Médio, T3-T5 e T7-T9, F2-F5/F7.
+
+## Sumário (pós-reconciliação)
 
 - **Entidades catalogadas:** 38 (13 transacionais + 12 admin/config + 8 logs/auditoria + 5 governança/seed)
-- **CRUD completo (✅):** 7
+- **CRUD completo (✅):** 13 (+6 vs versão original)
 - **CRUD parcial (🟡):** 21
-- **Sem CRUD (❌):** 10
-- **Telas faltantes (não-cadastro):** 9
-- **Funcionalidades sem mockup:** 7
+- **Sem CRUD (❌):** 4 (-6 vs versão original)
+- **Telas faltantes (não-cadastro):** 6 (-3)
+- **Funcionalidades sem mockup:** 7 (F1 e F6 com concept entregue, tela ainda pendente)
 
-A maior dívida está em **3 frentes**:
-1. **Gestão de usuários** — não existe lista de users, criar user, bloquear user, redefinir senha de outros. Tela50 só edita o próprio profile.
-2. **Governança financeira** — Alçadas (tela83) e cadeias de aprovação não têm mockup; bloqueia tela40/41.
-3. **Engine & Admin** — Webhooks/SMTP/Tokens/Templates têm lista mas detalhe e configuração avançada são placeholders.
+A maior dívida remanescente está em **3 frentes**:
+1. **Engine & Admin avançado** — Webhooks/SMTP/Tokens/Templates têm lista mas detalhe e configuração avançada são placeholders.
+2. **ActionIA & Alert detalhados** — tela77/78 são listas + drawer "novo"; falta editor completo e log de execução.
+3. **Logs operacionais de IA/Match** — AI Generation Log, Match Execution Log e Alert Fire History não têm tela.
 
 ---
 
@@ -47,7 +67,7 @@ Legenda: ✅ entregue · 🟡 parcial · ❌ ausente · `—` não aplicável (s
 | Tag                 | MATCH-ENGINE/(catálogo)         | ✅ tela01   | ✅ tela02  | 🟡         | ✅          | 🟡          | ✅     |
 | Procedure           | (legado)                        | ✅ tela03   | ❌         | ❌         | ❌          | ❌          | 🟡     |
 | SOP                 | (legado)                        | ✅ tela06   | ✅ tela07  | 🟡         | ✅ tela07  | 🟡          | ✅     |
-| Fornecedor          | USER-SCOPE                      | ❌          | ❌         | 🟡 wizard67| ❌         | ❌          | ❌     |
+| Fornecedor          | USER-SCOPE                      | ✅ tela86   | ✅ tela86  | ✅ tela86  | ✅ tela86  | 🟡          | ✅     |
 
 ### 1.3 Engine & Admin (workflow / integrações)
 
@@ -72,15 +92,15 @@ Legenda: ✅ entregue · 🟡 parcial · ❌ ausente · `—` não aplicável (s
 | ---------------------- | ----------------------------- | ----------- | ---------- | ---------- | ----------- | ----------- | ------ |
 | Role                   | PERMISSIONS                   | ✅ tela80   | ❌         | 🟡 matriz  | 🟡 matriz   | ❌ (is_system)| 🟡   |
 | Permission (catálogo)  | PERMISSIONS                   | `—` seed    | `—`        | 🟡 tela80  | `—`         | `—`         | `—`    |
-| Permission Delegation  | PERMISSIONS §5                | ❌          | ❌         | ❌         | ❌          | ❌          | ❌     |
+| Permission Delegation  | PERMISSIONS §5                | ✅ tela85   | ✅ tela85  | ✅ tela85  | ✅ tela85  | ✅ revogar  | ✅     |
 | User Scope             | USER-SCOPE                    | 🟡 tela50   | 🟡 tela50  | 🟡         | 🟡 tela50  | 🟡          | 🟡     |
 | Auto Rule              | USER-SCOPE §8                 | 🟡 bulk    | 🟡 bulk-modal| ❌      | 🟡          | 🟡          | 🟡     |
 | Módulo                 | MODULE-INTERVENIENTES         | ✅ tela81   | ❌         | ✅ tela81  | 🟡 só ativo | ❌          | 🟡     |
 | Critério (catálogo)    | MODULE-INTERVENIENTES         | `—` seed    | `—` DMSYS  | 🟡 tela81  | `—`         | `—`         | `—`    |
 | Module Interveniente Config | MODULE-INTERVENIENTES    | ✅ tela81   | ✅ tela81  | ✅ tela81  | ✅ tela81  | 🟡          | ✅     |
-| Alçada                 | ALCADAS                       | ❌ (→ tela83)| ❌        | ❌         | ❌          | ❌          | ❌     |
+| Alçada                 | ALCADAS                       | ✅ tela83   | ✅ tela83  | ✅ tela83  | ✅ tela83  | 🟡          | ✅     |
 | Alcada Aprovação       | ALCADAS                       | 🟡 tela40   | `—` runtime| 🟡 tela41  | `—`         | `—`         | 🟡     |
-| Time / Team            | SAVED-FILTERS §2              | ❌          | ❌         | ❌         | ❌          | ❌          | ❌     |
+| Time / Team            | TEAMS / SAVED-FILTERS §2      | ✅ tela87   | ✅ tela87  | ✅ tela87  | ✅ tela87  | 🟡          | ✅     |
 | Stage Health Issue     | STAGE-OWNERSHIP               | ✅ tela82   | `—` engine | ✅ tela82  | ✅ resolver| `—`         | ✅     |
 
 ### 1.5 Usuários e Profile
@@ -88,8 +108,8 @@ Legenda: ✅ entregue · 🟡 parcial · ❌ ausente · `—` não aplicável (s
 | Entidade            | Concept/Origem                  | Lista       | Criar      | Detalhe    | Editar      | Excluir     | Status |
 | ------------------- | ------------------------------- | ----------- | ---------- | ---------- | ----------- | ----------- | ------ |
 | User (próprio)      | PERMISSIONS                     | `—`         | tela72 convite | ✅ tela50 | ✅ tela50 | `—`         | ✅     |
-| User (de outros)    | PERMISSIONS §6 Gestão de Profile| ❌          | ❌ (Gestão)| ❌         | ❌          | ❌          | ❌     |
-| Bloqueio de User    | STAGE-OWNERSHIP §3.4            | ❌          | ❌         | ❌         | ❌          | ❌          | ❌     |
+| User (de outros)    | PERMISSIONS §6 Gestão de Profile| ✅ tela84   | ✅ tela84  | ✅ tela84  | ✅ tela84  | 🟡 soft     | ✅     |
+| Bloqueio de User    | STAGE-OWNERSHIP §3.4            | ✅ tela84   | ✅ tela84  | ✅ tela84  | ✅ tela84  | `—`         | ✅     |
 | User Preferences    | USER-PROFILE-PREFERENCES        | 🟡 drawer   | 🟡         | 🟡         | 🟡         | 🟡 reset    | 🟡     |
 | Saved Filter        | SAVED-FILTERS                   | 🟡 tag-filter| 🟡        | 🟡         | 🟡          | 🟡          | 🟡     |
 | Anotação            | (mockup-only)                   | ✅ tela76   | ✅         | ✅         | ✅          | ✅          | ✅     |
@@ -112,13 +132,13 @@ Legenda: ✅ entregue · 🟡 parcial · ❌ ausente · `—` não aplicável (s
 
 ### 🔴 Crítico — bloqueia operação ou governança em produção
 
-| # | Entidade/Tela faltante                | Concept origem            | Justificativa                                                                                              |
+| # | Entidade/Tela faltante                | Concept origem            | Status / Justificativa                                                                                     |
 | - | ------------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| 1 | **CRUD de Alçadas (tela83)**          | ALCADAS                   | Sem isso, tela40/41 não tem cadeia configurável; toda compra com valor depende de seed manual ou hardcode. |
-| 2 | **Lista de Usuários + criar/bloquear**| PERMISSIONS §6, STAGE-OWNERSHIP §3.3-3.4 | Não existe tela admin de gestão de users. Gestão de Profile não tem onde agir; bloqueio user (trigger STAGE-OWNERSHIP) não tem UI. tela72 só convida. |
-| 3 | **CRUD de Fornecedor**                | USER-SCOPE                | Vendor é critério core de scope (tela50 lista 80 fornecedores) mas não há tela30-style. Wizard67 é só preview. |
-| 4 | **Cadastro de Time (Team)**           | SAVED-FILTERS §2          | Saved filter escopo "equipe" assume `team_id` mas não há onde criar time nem associar users.              |
-| 5 | **Edição da Matriz de Permissões**    | PERMISSIONS §4.2          | tela80 mostra matriz mas o save não dispara fluxo de delegação/cadeia (§5 regras 7-10) — só UI conceitual. |
+| 1 | ~~CRUD de Alçadas (tela83)~~          | ALCADAS                   | ✅ ENTREGUE Sprint A 2026-05-31 — `tela83-alcadas-cadastro.html`. Integração com tela40/41 ainda pendente. |
+| 2 | ~~Lista de Usuários + criar/bloquear~~| PERMISSIONS §6, STAGE-OWNERSHIP §3.3-3.4 | ✅ ENTREGUE Sprint B 2026-05-31 — `tela84-users-admin.html` (modal bloqueio com análise de impacto). |
+| 3 | ~~CRUD de Fornecedor~~                | USER-SCOPE                | ✅ ENTREGUE Sprint A 2026-05-31 — `tela86-fornecedores-cadastro.html`.                                     |
+| 4 | ~~Cadastro de Time (Team)~~           | TEAMS / SAVED-FILTERS §2  | ✅ ENTREGUE Sprint Seguinte 2026-05-31 — `tela87-times-cadastro.html` (lista + árvore + drawer + criar).   |
+| 5 | **Edição da Matriz de Permissões**    | PERMISSIONS §4.2          | ❌ PENDENTE. tela80 mostra matriz mas o save não dispara fluxo de delegação/cadeia (§5 regras 7-10). tela85 entrega gestão de delegações isolada, mas o hook do save da matriz → cadeia ainda não existe. |
 
 ### 🟠 Alto — bloqueia features secundárias ou cria buracos de auditoria
 
@@ -128,7 +148,7 @@ Legenda: ✅ entregue · 🟡 parcial · ❌ ausente · `—` não aplicável (s
 | 7 | **CRUD/detalhe de Alert**                    | ALERT §6              | tela78 mesmo gap — drawer cria mas não tem edição completa, preview de mensagem, log de disparos. |
 | 8 | **Lista de Match Rules (separada da tela11)**| MATCH-ENGINE §6       | tela11 é editor de regra única; tela79 é config por workflow. Falta catálogo `match_rules` indexável por status/modo/input_type. |
 | 9 | **Tela de detalhe de Procedure**             | (legado)              | tela03 tem lista, sem form de criar/editar/detalhe. Procedures são referenciadas em SOP/Stage/Workflow. |
-| 10| **Gestão de Permission Delegation**          | PERMISSIONS §5 regras 7-10 | Modelo `permission_delegations` existe; falta UI de "delegar", "revogar", "ver cadeia". Drawer no tela50? |
+| 10| ~~Gestão de Permission Delegation~~          | PERMISSIONS §5 regras 7-10 | ✅ ENTREGUE Sprint B 2026-05-31 — `tela85-permission-delegations.html` (cadeia + revogação cascata). |
 | 11| **Detalhe + edição de Auto Rule**            | USER-SCOPE §8         | Bulk-modal cria regra mas não há gestão consolidada de "minhas regras automáticas" do user. |
 
 ### 🟡 Médio — workaround existe, mas não atende sustentabilidade
@@ -156,17 +176,19 @@ Legenda: ✅ entregue · 🟡 parcial · ❌ ausente · `—` não aplicável (s
 
 ## 3. Telas faltantes (não-cadastro)
 
-| # | Tela sugerida                                | Concept pede                                | Prioridade | Justificativa                                                              |
+| # | Tela sugerida                                | Concept pede                                | Prioridade | Status / Justificativa                                                     |
 | - | -------------------------------------------- | ------------------------------------------- | ---------- | -------------------------------------------------------------------------- |
-| T1| **tela83 — Gestor de Alçadas**               | ALCADAS §7                                  | Crítico    | Já apontada em TELAS-PENDENTES; bloqueia tela40/41.                         |
-| T2| **tela84 — Lista/Admin de Usuários**         | PERMISSIONS §6, STAGE-OWNERSHIP §3.3-3.4    | Crítico    | Lista + criar + bloquear + atribuir roles + scope inicial.                  |
-| T3| **tela85 — Detalhe de ActionIA**             | ACTIONIA §6                                 | Alto       | Edição completa, config por sub-tipo, histórico de execução, vinculações.   |
-| T4| **tela86 — Detalhe de Alert + histórico**    | ALERT §6                                    | Alto       | Edição, preview de mensagem renderizada, log de disparos, throttling.       |
-| T5| **tela87 — Lista de Match Rules**            | MATCH-ENGINE §6                             | Alto       | Catálogo de regras por status/modo + acesso à tela11/79 de edição.          |
-| T6| **tela87 — Times (CRUD)**                    | SAVED-FILTERS §2                            | Crítico    | Sem time, escopo "equipe" do saved filter quebra.                            |
-| T7| **tela89 — Painel de AI Generation Logs**    | AI-GENERATION §2                            | Médio      | Auditoria de gerações IA (prompts, tokens, rejeições) — governance + custo. |
-| T8| **tela90 — Painel de Match Execution Logs**  | MATCH-ENGINE §2.2                           | Médio      | Visibilidade de matches/órfãos/ambiguidades pra calibrar regras.             |
-| T9| **tela91 — Centro de Workflow Defaults**     | WORKFLOW-OBLIGATORY §7.1                    | Médio      | Customização dos 5 workflows `🔒 sistema` (canais/SLA/etapas) sem deletar.   |
+| T1| ~~tela83 — Gestor de Alçadas~~               | ALCADAS §7                                  | Crítico    | ✅ ENTREGUE Sprint A — `tela83-alcadas-cadastro.html`.                       |
+| T2| ~~tela84 — Lista/Admin de Usuários~~         | PERMISSIONS §6, STAGE-OWNERSHIP §3.3-3.4    | Crítico    | ✅ ENTREGUE Sprint B — `tela84-users-admin.html`.                            |
+| T3| **tela detalhe de ActionIA**                 | ACTIONIA §6                                 | Alto       | ❌ Edição completa, config por sub-tipo, histórico de execução, vinculações. |
+| T4| **tela detalhe de Alert + histórico**        | ALERT §6                                    | Alto       | ❌ Edição, preview de mensagem renderizada, log de disparos, throttling.     |
+| T5| **tela Lista de Match Rules**                | MATCH-ENGINE §6                             | Alto       | ❌ Catálogo de regras por status/modo + acesso à tela11/79 de edição.        |
+| T6| ~~tela Times (CRUD)~~                        | TEAMS / SAVED-FILTERS §2                    | Crítico    | ✅ ENTREGUE Sprint Seguinte — `tela87-times-cadastro.html` (renomeada de tela88). |
+| T7| **Painel de AI Generation Logs**             | AI-GENERATION §2                            | Médio      | ❌ Auditoria de gerações IA (prompts, tokens, rejeições) — governance + custo. |
+| T8| **Painel de Match Execution Logs**           | MATCH-ENGINE §2.2                           | Médio      | ❌ Visibilidade de matches/órfãos/ambiguidades pra calibrar regras.          |
+| T9| **Centro de Workflow Defaults**              | WORKFLOW-OBLIGATORY §7.1                    | Médio      | ❌ Customização dos 5 workflows `🔒 sistema` (canais/SLA/etapas) sem deletar. |
+
+> Nota numeração: a tela de Times foi inicialmente planejada como `tela88` e depois renomeada para `tela87` (commit `ced4921`), substituindo a alocação original de "Match Rules" — esta última volta ao backlog T5 sem número fixo.
 
 ---
 
@@ -174,33 +196,41 @@ Legenda: ✅ entregue · 🟡 parcial · ❌ ausente · `—` não aplicável (s
 
 | # | Funcionalidade                                | Concept origem              | Justificativa                                                                                |
 | - | --------------------------------------------- | --------------------------- | -------------------------------------------------------------------------------------------- |
-| F1| **Push notification real (não só centro)**    | ALERT §2 (`canais`)         | tela71 é centro inapp; canais `email`/`slack` não têm setup de credenciais por canal.        |
+| F1| **Push notification real (não só centro)**    | ALERT §2 (`canais`)         | 🟡 Concept ALERT atualizado em `dede945` (canais push); tela de setup de credenciais por canal continua pendente. |
 | F2| **Engine de DSL de `trigger_condition`**      | ALERT §2                    | Concept marca DSL como pendência; nenhuma tela mostra editor de condição estruturado.        |
 | F3| **Engine de `destinatarios_expr`**            | ALERT §2                    | Mesma situação — drawer tela78 tem textarea livre, sem validação semântica.                  |
 | F4| **Resolução manual de ambiguidade match**     | MATCH-ENGINE §3.2 (>1 caso) | Fila de "matches ambíguos" não tem tela.                                                     |
 | F5| **Backfill workflow_id em legados**           | WORKFLOW-OBLIGATORY §2      | Wizard de migração + dashboard de progresso — sem UI.                                        |
-| F6| **Multi-tenant — isolamento e retenção**     | AI-GENERATION §4, REVIEW #18| Sem concept CONCEPT-MULTITENANT; sem tela admin de tenant.                                   |
+| F6| **Multi-tenant — isolamento e retenção**     | AI-GENERATION §4, REVIEW #18| 🟡 `CONCEPT-MULTITENANT.md` criado em `dede945`; tela admin de tenant continua pendente.     |
 | F7| **Promoção workflow inline → template**       | ALCADAS §4, WORKFLOW-OBLIGATORY §3.2 | Modelo decidido (Admin Geral revisa ≥50k); sem UI de revisão/promoção.            |
 
 ---
 
 ## 5. Recomendações priorizadas
 
-### Sprint atual (entregar antes de ativar produção)
+### Já concluído nesta data (2026-05-31)
 
-1. **tela83 Alçadas** + integração com tela40/41 — fecha gap crítico de governança financeira.
-2. **tela84 Usuários** — sem isso Admin Geral não consegue criar/bloquear users (já é trigger validado em STAGE-OWNERSHIP §3.3-3.4).
-3. **tela87 Times** — pequena mas destrava saved filter escopo "equipe" que já está em produção mockup.
-4. **CRUD de Fornecedor** (tela30-style) — vendor é base de scope; sem ele tela50 lista IDs sem fonte.
-5. **Detalhe/edição completa de ActionIA (tela85) + Alert (tela86)** — sem isso telas77/78 são vitrines, não editores.
+- ✅ **tela83 Alçadas** (Sprint A) — falta apenas integração com tela40/41.
+- ✅ **tela84 Usuários** (Sprint B) — lista + criar + bloquear + análise impacto.
+- ✅ **tela85 Permission Delegations** (Sprint B) — cadeia + revogação cascata.
+- ✅ **tela86 Fornecedores** (Sprint A).
+- ✅ **tela87 Times** (Sprint Seguinte).
+- ✅ **CONCEPT-TEAMS** e **CONCEPT-MULTITENANT** criados (Sprint Seguinte).
+
+### Sprint atual (próximas entregas)
+
+1. **Integração tela83 ↔ tela40/41** — fecha o loop de aprovação por valor.
+2. **Hook save da matriz tela80 → cadeia tela85** — fecha §2 Crítico #5 (única pendência crítica restante).
+3. **Detalhe/edição completa de ActionIA + Alert** — sem isso telas77/78 são vitrines, não editores.
 
 ### Próximas sprints
 
-6. **tela87 Match Rules (catálogo)** + **tela90 Match Execution Logs** — calibragem de regras vira data-driven.
-7. **Permission Delegation (UI)** + **revisão da matriz tela80** para refletir delegação real.
-8. **tela91 Centro de Workflow Defaults** — entrega controle sobre os 5 workflows `🔒` (canais/SLA/etapas).
-9. **CRUD completo de Webhook/Email Template/API Token (tela61-64)** — engine & admin pra valer.
-10. **tela89 AI Generation Logs** — governance + custo IA.
+4. **Lista de Match Rules** + **Painel de Match Execution Logs** — calibragem de regras vira data-driven.
+5. **Centro de Workflow Defaults** — entrega controle sobre os 5 workflows `🔒` (canais/SLA/etapas).
+6. **CRUD completo de Webhook/Email Template/API Token (tela61-64)** — engine & admin pra valer.
+7. **Painel de AI Generation Logs** — governance + custo IA.
+8. **Tela admin de Multi-tenant** — agora que `CONCEPT-MULTITENANT` existe, tela pode ser planejada.
+9. **Setup de canais push (Slack/email)** — agora que `CONCEPT-ALERT` define canais.
 
 ### Backlog (validar com PO)
 
