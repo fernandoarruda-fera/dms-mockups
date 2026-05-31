@@ -41,8 +41,11 @@ Sem isso, todo workflow precisaria nomear pessoas específicas (frágil — pess
 | **escalation_role_id**      | uuid      | não         | Função superior se não houver usuário com função primária |
 | sla_horas                   | int       | não         | Prazo para o stage                                     |
 | can_be_automated            | bool      | sim         | Se ActionIA pode substituir humano neste stage         |
+| **actionia_id**             | **uuid FK actionias.id NULL** | **não** | **Se preenchido, stage é executado por ActionIA (não user humano). XOR com `funcao_responsavel_id`.** |
 
-`funcao_responsavel_id` é NOT NULL — bloqueia criação de workflow com stage sem função.
+`funcao_responsavel_id` é NOT NULL **quando `actionia_id` é NULL** — bloqueia criação de workflow com stage sem função humana, exceto quando explicitamente delegado a ActionIA.
+
+**Constraint:** `CHECK ((funcao_responsavel_id IS NOT NULL AND actionia_id IS NULL) OR (funcao_responsavel_id IS NULL AND actionia_id IS NOT NULL))` — stage tem user humano OU agente, nunca os dois, nunca nenhum.
 
 ## 3. Fluxo
 
@@ -57,6 +60,7 @@ Sem isso, todo workflow precisaria nomear pessoas específicas (frágil — pess
 
 ### 3.2 Execução do stage (runtime)
 
+0. **Se `actionia_id` preenchido:** dispara ActionIA via integração SaaS (ver [[CONCEPT-ACTIONIA]] §9). Pular fluxo humano (passos 1–7). Em caso de falha (timeout/error/can_replace_stage_user revogado), escala pro fallback humano via `escalation_role_id` ou cai em órfão (ver §3.3).
 1. Stage é acionado (manual ou por trigger de workflow)
 2. Sistema lê `funcao_responsavel_id` do stage
 3. Busca usuários com essa role ativa (via `user_roles`)

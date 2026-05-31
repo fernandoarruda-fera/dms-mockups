@@ -22,13 +22,14 @@ Já existe no backend (Sprint 2.2). Resumo:
 
 ### `roles`
 
-| Campo       | Tipo    | Descrição                                       |
-| ----------- | ------- | ----------------------------------------------- |
-| id          | uuid    | Identificador                                   |
-| nome        | string  | Ex: "Compras Adm", "Aprovador Diretor"          |
-| descricao   | string  | Texto livre                                     |
-| is_system   | bool    | Roles de sistema não podem ser deletadas        |
-| created_at  | datetime|                                                 |
+| Campo            | Tipo    | Descrição                                                                  |
+| ---------------- | ------- | -------------------------------------------------------------------------- |
+| id               | uuid    | Identificador                                                              |
+| nome             | string  | Ex: "Compras Adm", "Aprovador Diretor"                                     |
+| descricao        | string  | Texto livre                                                                |
+| is_system        | bool    | Roles de sistema não podem ser deletadas                                   |
+| **parent_role_id** | **uuid FK roles.id NULL** | **Hierarquia: "gestor da cadeira" = parent. NULL = topo.** |
+| created_at       | datetime|                                                                            |
 
 ### `permissions` (catálogo, seed)
 
@@ -56,6 +57,19 @@ Já existe no backend (Sprint 2.2). Resumo:
 | role_id   | uuid  |
 
 **Permissão efetiva do usuário** = união de `role_permissions` de todas as `user_roles` dele.
+
+### `permission_delegations` (auditoria de delegação)
+
+| Campo                | Tipo                       | Descrição                                              |
+| -------------------- | -------------------------- | ------------------------------------------------------ |
+| id                   | uuid PK                    |                                                        |
+| permission_id        | uuid FK permissions.id     | Permission delegada                                    |
+| granted_to_role_id   | uuid FK roles.id           | Quem recebeu                                           |
+| granted_by_user_id   | uuid FK users.id           | Quem concedeu                                          |
+| granted_at           | timestamp                  | Data da concessão                                      |
+| revoked_at           | timestamp NULL             | Data da revogação (NULL = ativa)                       |
+| revoked_by_user_id   | uuid FK users.id NULL      | Quem revogou                                           |
+| reason               | text                       | Motivo opcional (ex: `cascata`, `governança`, livre)  |
 
 ## 3. Roles de referência (seed)
 
@@ -119,6 +133,7 @@ Layout de **planilha**: linhas = telas/módulos agrupados, colunas = ações, c�
 7. **Delegação.** Permissions com `delegavel = true` podem ser concedidas pelo usuário que as detém a outros usuários (sem precisar de Admin Geral). Não é transferência: quem delegou continua tendo a permission. UI: tela80 mostra badge "delegável" na coluna da permission; tela50 (profile próprio) tem ação "Delegar a outro usuário" para as delegáveis que o user possui.
 8. **Cadeia de delegação:** quem recebe por delegação também pode redelegar (transitivo) se a permission é `delegavel`. Auditoria registra a cadeia (`granted_by_user_id` em `role_permissions` extra ou tabela `permission_delegations` separada).
 9. **Revogação:** delegador pode revogar a qualquer momento; revogação em cascata revoga tudo que foi redelegado abaixo.
+10. **Revogação em cascata:** se A concede a B que concede a C, revogar A→B revoga automaticamente B→C (registrado em `permission_delegations.revoked_at` com `reason='cascata'` e `revoked_by_user_id` herdado do revogador raiz).
 
 ## 5.1 Catálogo de permissions delegáveis (inicial)
 
@@ -131,20 +146,41 @@ Layout de **planilha**: linhas = telas/módulos agrupados, colunas = ações, c�
 
 Critério inicial: permissions de **configuração descentralizada por área** são delegáveis; permissions de **governança/financeiro** não são.
 
-## 6. Gaps front
+## 6. Role "Gestão de Profile" — formalização
+
+### Definição
+Role responsável por:
+- Editar profile de outros users (incluir/remover intervenientes alheios)
+- Receber alerta de cards órfãos sem solução automática
+- Aprovar habilitação de novos critérios em módulos (junto com Admin do Módulo)
+
+### Características
+- Hierarquicamente abaixo de Admin Geral (`parent_role_id` aponta pra Admin Geral)
+- Geralmente associada a People Ops / Admin Operacional
+- Por default, recebe permission `profile.editar_outros`
+- Recebe candidatura automática de cards órfãos via [[WF-DEFAULT-Card-Orfao]]
+
+### Cards órfãos — fluxo
+1. Sistema detecta card sem possível dono (NF com CC não cadastrado, p.ex.)
+2. Dispara `WF-DEFAULT-Card-Orfao` (workflow default novo — ver [[TODO-WORKFLOWS-DEFAULT]])
+3. Notifica Gestão de Profile com contexto (qual doc, qual gap, sugestão de correção)
+4. Gestão de Profile age: (a) cadastra entidade faltante, (b) ajusta scope de user, (c) cria new user, (d) escala pra Admin
+5. Card resolvido = retorna ao fluxo normal
+
+## 7. Gaps front
 
 - **Frontend já tem** `RolesList.jsx`, `RoleEdit.jsx`, `UserRolesAssign.jsx`, `MyPermissions.jsx` (Sprint 2.2)
 - **Falta mockup** que valide UX da matriz — especialmente densidade visual com 64+ permissões
 - **Falta integração** com aba "Roles" no profile (tela50)
 
-## 7. Telas relacionadas
+## 8. Telas relacionadas
 
 - **tela80** (nova) — gestão da matriz de roles
 - **tela50** — aba "Roles" no profile (atribuição de roles ao usuário)
 - **tela50** — modal "Minhas permissões"
 - **tela08** — Stage Trigger consome roles para selecionar "função responsável" ([[CONCEPT-STAGE-ROLE-ASSIGNMENT]])
 
-## 8. Decisões
+## 9. Decisões
 
 - ✅ Matriz como planilha (não wizard, não árvore): densidade > guidance porque público é admin técnico
 - ✅ Multi-role com union (não hierarquia): simples, previsível, alinha com Sprint 2.2
@@ -152,6 +188,6 @@ Critério inicial: permissions de **configuração descentralizada por área** s
 - ✅ Roles de sistema não podem ser deletadas (proteção contra lockout)
 - ❌ Não suportar "deny override" (negar explicitamente acima da role) — complexidade não justifica
 
-## 9. Prioridade
+## 10. Prioridade
 
 **CRÍTICO.** Backend já está em produção (Sprint 2.2). Sem mockup, admin precisa configurar via API ou seed — bloqueia onboarding de novos clientes.

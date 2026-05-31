@@ -39,6 +39,7 @@ O objetivo é centralizar a configuração desses "executores" para que workflow
 | saas_endpoint     | string       | não         | URL do endpoint de execução (pendente)                                 |
 | custo_estimado    | decimal      | não         | Custo estimado por execução (R$)                                       |
 | cooldown_seconds  | int          | não         | Intervalo mínimo entre execuções                                       |
+| **can_replace_stage_user** | **bool** | **sim**  | **Default `false`. Se `true`, este ActionIA é elegível para ocupar `workflow_stages.actionia_id` (substituir user humano em stage). Exige aprovação do Admin Geral pra virar `true`.** |
 | status            | enum         | sim         | `rascunho` \| `ativo` \| `em_uso` \| `inativo`                         |
 | owner_id          | uuid         | sim         | Usuário que criou                                                      |
 | created_at        | datetime     | sim         | Data de criação                                                        |
@@ -69,6 +70,8 @@ O objetivo é centralizar a configuração desses "executores" para que workflow
 - ActionAI exige prompt template validado antes da ativação.
 - Roteamento exige pelo menos 1 condition + 1 target.
 - Auditoria: toda mudança de config registra autor + diff.
+- **`can_replace_stage_user = true` só pode ser ativado por Admin Geral** (não basta o owner). Evita que qualquer agente seja silenciosamente atribuído a stages humanos. Mudança fica em audit log com autor + timestamp + motivo.
+- **Ponte ActionIA ↔ Stage:** quando um stage tem `workflow_stages.actionia_id` preenchido, dispara este ActionIA via integração SaaS (ver §9). Falha/timeout escala pro fallback humano via `escalation_role_id` do stage. Ver [[CONCEPT-STAGE-ROLE-ASSIGNMENT]] §3.2.
 
 ## 5. Gaps no front atual
 
