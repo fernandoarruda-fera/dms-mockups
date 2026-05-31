@@ -310,3 +310,14 @@ Caso de uso: usuário precisa marcar 35 de 80 fornecedores no profile — autoco
 - **Aplicado em tela81** card "Critérios habilitados" — bulk select sobre o catálogo de critérios do módulo Compras.
 - **CONCEPT-USER-SCOPE-INTERVENIENTES.md §8** atualizado com modelo `auto_rules` (id, owner_user_id, target_type, filter_json, module, timestamps) + coluna nova `auto_rule_id` NULL em `user_scope` (manual coexiste com derivado), cascata de manutenção, edge cases.
 - **tag-filter.js** — intacto; concept marca como candidate à extensão (mesmo modelo).
+
+
+## Sprint Imediato A — fix tela81 + tela83 + tela86 (2026-05-31)
+
+Origem: [[AUDITORIA-2026-05-31-E1-botoes-mortos]] + [[AUDITORIA-2026-05-31-E3-cadastros-gaps]] + [[TELAS-PENDENTES]].
+
+- **tela81 fix wiring** — 6 CTAs críticos com destino real: "Salvar configuração" (topo + footer, alert de feedback com impacto), "Cancelar" (href tela80), "Remover" critério (confirm + feedback), "+ Habilitar" critério (4 instâncias, alert), "+ Conceder a outra role" (modal placeholder), "Revogar" (confirm), "Ver impacto detalhado" (href tela82).
+- **tela83 NOVA** — Alçadas: CRUD com tabela 12 linhas (NF/REQ/PO/Contrato/Pagamento/Inline), 4 KPIs, filtros (tipo/faixa/status/busca), card lateral "Cadeia visual" (clique na row recalcula elos dinamicamente via JS), card "Workflow Inline" com política R$ 5k auto-aprovação, modal "Nova Alçada" 6 campos. Tudo wired (alert/confirm/href).
+- **tela86 NOVA** — Fornecedores: CRUD completo, 5 KPIs (Total/Ativos/Bloqueados/Com contrato/Fiscal incompleto), filtros (categoria/UF/status/score), tabela 12 linhas plausíveis, drawer lateral "Novo Fornecedor" com 7 seções colapsáveis (Identificação/Endereço/Contato/Categorização/Fiscal+upload CND/Conta bancária/Status). Linhas link para tela67 (supplier detail). Menu "Ações" com 4 opções (contratos→tela44, NFs→tela38, bloquear, editar).
+- **index.html** atualizado: tela83 (Admin Avançado) + tela86 (Cadastros) — total 84 telas.
+- **TELAS-PENDENTES.md** ✅ marcar tela83 + tela86 como entregues.

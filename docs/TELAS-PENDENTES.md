@@ -12,6 +12,8 @@
 | 80  | Permissões — matriz Role × Tela × Ação | [[CONCEPT-PERMISSIONS]]            | ✅ entregue    |
 | 81  | Configurador Intervenientes por Módulo | [[CONCEPT-MODULE-INTERVENIENTES-CONFIG]] | ✅ entregue |
 | 82  | Saúde dos Stages (dashboard) | [[CONCEPT-STAGE-OWNERSHIP-VALIDATION]]      | ✅ entregue (Task 3 — 2026-05-31) |
+| 84  | Usuários — admin CRUD (bloqueio com análise impacto + drawer) | [[CONCEPT-PERMISSIONS]] + [[CONCEPT-USER-SCOPE-INTERVENIENTES]] | ✅ entregue (Sprint Imediato B — 2026-05-31) |
+| 85  | Permission Delegations — cadeia + revogação cascata | [[CONCEPT-PERMISSIONS]] §5.1 e regra 10 | ✅ entregue (Sprint Imediato B — 2026-05-31) |
 | 12  | Dashboards — cards customizáveis | [[CONCEPT-USER-PROFILE-PREFERENCES]]    | ✅ entregue (Lote B parte 2) |
 | 13  | Auditoria + filtros avançados | [[CONCEPT-USER-PROFILE-PREFERENCES]]       | ✅ entregue (Lote B parte 2) |
 | —   | i18n toggle global (5 idiomas) | implícito (Lote B parte 3)                 | ✅ entregue    |
@@ -33,7 +35,8 @@
 | 77         | Lista + edição de Agentes (ActionIA) | [[CONCEPT-ACTIONIA]] §6                    | Médio      | `AgentsList.jsx`/`AgentEdit.jsx` existem como placeholder — falta mockup |
 | 78         | Lista + edição de Alertas           | [[CONCEPT-ALERT]] §6                         | Médio      | Configuração de DSL de condições + canais de notificação        |
 | 79         | Regras de Match Engine              | [[CONCEPT-MATCH-ENGINE]] §6                  | Alto       | Lista + edição de regras de match (vincula NF→workflow)         |
-| 83         | CRUD de Alçadas                     | [[CONCEPT-ALCADAS]] §5                       | Alto       | Define cadeia hierárquica de aprovação — bloqueia tela40/41    |
+| ~~83~~ ✅  | ~~CRUD de Alçadas~~                 | ~~[[CONCEPT-ALCADAS]] §5~~                   | ~~Alto~~   | **Entregue 2026-05-31 (Sprint A)** — `tela83-alcadas-cadastro.html` |
+| ~~86~~ ✅  | ~~CRUD de Fornecedores (Vendors)~~  | Gap E3 cadastros                             | ~~Alto~~   | **Entregue 2026-05-31 (Sprint A)** — `tela86-fornecedores-cadastro.html` |
 
 ## 4. Cobertura por concept
 

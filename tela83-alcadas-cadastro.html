@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>DMS — Alçadas de Aprovação</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .row-clickable { cursor: pointer; transition: background .15s; }
+  .row-clickable:hover { background: #F8FAFD; }
+  .row-clickable.selected { background: rgba(0,174,238,0.08); }
+  .modal-backdrop { background: rgba(0,0,0,.45); }
+  details > summary { list-style: none; }
+  details > summary::-webkit-details-marker { display: none; }
+</style>
+<link rel="stylesheet" href="mobile-responsive.css">
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
+      <nav class="flex items-center gap-2 text-sm">
+        <span class="text-dms-tecnologia">Admin</span>
+        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+        <span class="text-dms-mar font-semibold">Alçadas</span>
+      </nav>
+      <div class="flex items-center gap-3">
+        <a href="docs/concepts/CONCEPT-ALCADAS.md" class="text-xs font-semibold text-dms-ceu hover:underline">Ver concept</a>
+      </div>
+    </header>
+
+    <main class="flex-1 p-8 pb-28 max-w-[1280px] w-full mx-auto">
+
+      <!-- HEADER -->
+      <div class="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[28px] leading-[36px] font-bold text-dms-mar">Alçadas de Aprovação</h1>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-amber-50 text-amber-700 border-amber-200">v1 · cadeia sequencial</span>
+          </div>
+          <p class="text-sm text-dms-tecnologia max-w-3xl">Cadeia hierárquica por valor + tipo de operação. Aplica em aprovações de <strong class="text-dms-mar">REQ / COT / PO / NF / Pagamento / Contrato</strong> + workflows inline. Cada faixa não pode se sobrepor — vide <a href="docs/concepts/CONCEPT-ALCADAS.md" class="text-dms-ceu hover:underline">concept</a>.</p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button onclick="alert('Export iniciado: alcadas_2026-05-31.xlsx (download em segundos)')" class="px-3 py-2 text-sm font-semibold text-dms-mar border border-[#E5E7EB] rounded-md hover:bg-gray-50 bg-white">Exportar</button>
+          <button onclick="document.getElementById('modal-criar').classList.remove('hidden')" class="px-4 py-2 text-sm font-semibold text-white bg-dms-sabedoria rounded-md hover:opacity-90 transition-opacity">+ Nova Alçada</button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="grid grid-cols-4 gap-3 mb-6">
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Alçadas ativas</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">12</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">3 suspensas</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Tipos cobertos</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">6 / 6</div>
+          <div class="text-xs text-dms-tropicalidade mt-0.5">✓ cobertura completa</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Cadeias completas</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">5</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">NF, REQ, PO, Contrato, Inline</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Aprovações no mês</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">287</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">↑ 18% vs abril</div>
+        </div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 shadow-dms-md mb-4">
+        <div class="grid grid-cols-[1fr_180px_180px_140px] gap-3">
+          <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/></svg>
+            <input type="text" placeholder="Buscar por nome ou faixa de valor..." class="w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md focus:outline-none focus:ring-2 focus:ring-dms-ceu" />
+          </div>
+          <select class="px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+            <option>Tipo: Todos</option><option>REQ</option><option>COT</option><option>PO</option><option>NF</option><option>Pagamento</option><option>Contrato</option><option>Workflow Inline</option>
+          </select>
+          <select class="px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+            <option>Faixa: Todas</option><option>até 10k</option><option>10k–50k</option><option>50k–500k</option><option>&gt; 500k</option>
+          </select>
+          <select class="px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+            <option>Status: Ativos</option><option>Suspensos</option><option>Todos</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- LAYOUT 2 COLUNAS: tabela + cards laterais -->
+      <div class="grid grid-cols-[1fr_320px] gap-6">
+
+        <!-- TABELA -->
+        <section class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+          <table class="w-full text-sm">
+            <thead class="bg-[#F8FAFD] border-b border-[#E5E7EB]">
+              <tr class="text-left">
+                <th class="px-3 py-2 caption text-dms-tecnologia">Nome</th>
+                <th class="px-3 py-2 caption text-dms-tecnologia">Tipo</th>
+                <th class="px-3 py-2 caption text-dms-tecnologia">Faixa Valor</th>
+                <th class="px-3 py-2 caption text-dms-tecnologia">Role Aprovadora</th>
+                <th class="px-3 py-2 caption text-dms-tecnologia text-center">Ordem</th>
+                <th class="px-3 py-2 caption text-dms-tecnologia">Status</th>
+                <th class="px-3 py-2 caption text-dms-tecnologia text-right">Aprov. 30d</th>
+                <th class="px-3 py-2 caption text-dms-tecnologia">Ações</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#F1F3F5]" id="tbody-alcadas">
+              <tr class="row-clickable selected" onclick="selectRow(this,'NF até 5k — Coordenador',['Coordenador Operação'])">
+                <td class="px-3 py-2.5 font-bold text-dms-mar">NF até 5k — Coordenador</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-50 text-dms-ceu border border-sky-200">NF</span></td>
+                <td class="px-3 py-2.5 mono text-xs text-dms-mar">R$ 0 — R$ 5.000</td>
+                <td class="px-3 py-2.5 text-dms-mar">Coordenador Operação</td>
+                <td class="px-3 py-2.5 text-center mono text-xs">1</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Ativo</span></td>
+                <td class="px-3 py-2.5 text-right mono text-xs text-dms-tecnologia">84</td>
+                <td class="px-3 py-2.5"><button onclick="event.stopPropagation(); alert('Editar alçada (form pré-preenchido)')" class="text-xs text-dms-ceu hover:underline font-semibold">Editar</button></td>
+              </tr>
+              <tr class="row-clickable" onclick="selectRow(this,'NF 5k–50k — Gestor',['Gestor Área'])">
+                <td class="px-3 py-2.5 font-bold text-dms-mar">NF 5k–50k — Gestor</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-50 text-dms-ceu border border-sky-200">NF</span></td>
+                <td class="px-3 py-2.5 mono text-xs text-dms-mar">R$ 5.001 — R$ 50.000</td>
+                <td class="px-3 py-2.5 text-dms-mar">Gestor Área</td>
+                <td class="px-3 py-2.5 text-center mono text-xs">1</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Ativo</span></td>
+                <td class="px-3 py-2.5 text-right mono text-xs text-dms-tecnologia">62</td>
+                <td class="px-3 py-2.5"><button onclick="event.stopPropagation(); alert('Editar alçada')" class="text-xs text-dms-ceu hover:underline font-semibold">Editar</button></td>
+              </tr>
+              <tr class="row-clickable" onclick="selectRow(this,'NF 50k–500k — Diretor',['Aprovador Diretor'])">
+                <td class="px-3 py-2.5 font-bold text-dms-mar">NF 50k–500k — Diretor</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-50 text-dms-ceu border border-sky-200">NF</span></td>
+                <td class="px-3 py-2.5 mono text-xs text-dms-mar">R$ 50.001 — R$ 500.000</td>
+                <td class="px-3 py-2.5 text-dms-mar">Aprovador Diretor</td>
+                <td class="px-3 py-2.5 text-center mono text-xs">1</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Ativo</span></td>
+                <td class="px-3 py-2.5 text-right mono text-xs text-dms-tecnologia">19</td>
+                <td class="px-3 py-2.5"><button onclick="event.stopPropagation(); alert('Editar alçada')" class="text-xs text-dms-ceu hover:underline font-semibold">Editar</button></td>
+              </tr>
+              <tr class="row-clickable" onclick="selectRow(this,'NF > 500k — Diretor + CFO',['Aprovador Diretor','CFO'])">
+                <td class="px-3 py-2.5 font-bold text-dms-mar">NF &gt; 500k — Diretor + CFO</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-50 text-dms-ceu border border-sky-200">NF</span></td>
+                <td class="px-3 py-2.5 mono text-xs text-dms-mar">R$ 500.001+</td>
+                <td class="px-3 py-2.5 text-dms-mar">Diretor → CFO <span class="mono text-[10px] text-dms-sabedoria ml-1">(cadeia 2 elos)</span></td>
+                <td class="px-3 py-2.5 text-center mono text-xs">1+2</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Ativo</span></td>
+                <td class="px-3 py-2.5 text-right mono text-xs text-dms-tecnologia">4</td>
+                <td class="px-3 py-2.5"><button onclick="event.stopPropagation(); alert('Editar alçada')" class="text-xs text-dms-ceu hover:underline font-semibold">Editar</button></td>
+              </tr>
+              <tr class="row-clickable" onclick="selectRow(this,'REQ até 10k — Gestor',['Gestor Área'])">
+                <td class="px-3 py-2.5 font-bold text-dms-mar">REQ até 10k — Gestor</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">REQ</span></td>
+                <td class="px-3 py-2.5 mono text-xs text-dms-mar">R$ 0 — R$ 10.000</td>
+                <td class="px-3 py-2.5 text-dms-mar">Gestor Área</td>
+                <td class="px-3 py-2.5 text-center mono text-xs">1</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Ativo</span></td>
+                <td class="px-3 py-2.5 text-right mono text-xs text-dms-tecnologia">47</td>
+                <td class="px-3 py-2.5"><button onclick="event.stopPropagation(); alert('Editar alçada')" class="text-xs text-dms-ceu hover:underline font-semibold">Editar</button></td>
+              </tr>
+              <tr class="row-clickable" onclick="selectRow(this,'REQ > 10k — Diretor',['Aprovador Diretor'])">
+                <td class="px-3 py-2.5 font-bold text-dms-mar">REQ &gt; 10k — Diretor</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">REQ</span></td>
+                <td class="px-3 py-2.5 mono text-xs text-dms-mar">R$ 10.001+</td>
+                <td class="px-3 py-2.5 text-dms-mar">Aprovador Diretor</td>
+                <td class="px-3 py-2.5 text-center mono text-xs">1</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Ativo</span></td>
+                <td class="px-3 py-2.5 text-right mono text-xs text-dms-tecnologia">12</td>
+                <td class="px-3 py-2.5"><button onclick="event.stopPropagation(); alert('Editar alçada')" class="text-xs text-dms-ceu hover:underline font-semibold">Editar</button></td>
+              </tr>
+              <tr class="row-clickable" onclick="selectRow(this,'PO até 100k — Gestor',['Gestor Compras'])">
+                <td class="px-3 py-2.5 font-bold text-dms-mar">PO até 100k — Gestor Compras</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200">PO</span></td>
+                <td class="px-3 py-2.5 mono text-xs text-dms-mar">R$ 0 — R$ 100.000</td>
+                <td class="px-3 py-2.5 text-dms-mar">Gestor Compras</td>
+                <td class="px-3 py-2.5 text-center mono text-xs">1</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Ativo</span></td>
+                <td class="px-3 py-2.5 text-right mono text-xs text-dms-tecnologia">23</td>
+                <td class="px-3 py-2.5"><button onclick="event.stopPropagation(); alert('Editar alçada')" class="text-xs text-dms-ceu hover:underline font-semibold">Editar</button></td>
+              </tr>
+              <tr class="row-clickable" onclick="selectRow(this,'PO > 100k — Diretor',['Aprovador Diretor'])">
+                <td class="px-3 py-2.5 font-bold text-dms-mar">PO &gt; 100k — Diretor</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200">PO</span></td>
+                <td class="px-3 py-2.5 mono text-xs text-dms-mar">R$ 100.001+</td>
+                <td class="px-3 py-2.5 text-dms-mar">Aprovador Diretor</td>
+                <td class="px-3 py-2.5 text-center mono text-xs">1</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Ativo</span></td>
+                <td class="px-3 py-2.5 text-right mono text-xs text-dms-tecnologia">7</td>
+                <td class="px-3 py-2.5"><button onclick="event.stopPropagation(); alert('Editar alçada')" class="text-xs text-dms-ceu hover:underline font-semibold">Editar</button></td>
+              </tr>
+              <tr class="row-clickable" onclick="selectRow(this,'Contrato qualquer — Diretor',['Aprovador Diretor'])">
+                <td class="px-3 py-2.5 font-bold text-dms-mar">Contrato (qualquer) — Diretor</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">Contrato</span></td>
+                <td class="px-3 py-2.5 mono text-xs text-dms-mar">R$ 0+ (qualquer)</td>
+                <td class="px-3 py-2.5 text-dms-mar">Aprovador Diretor</td>
+                <td class="px-3 py-2.5 text-center mono text-xs">1</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Ativo</span></td>
+                <td class="px-3 py-2.5 text-right mono text-xs text-dms-tecnologia">9</td>
+                <td class="px-3 py-2.5"><button onclick="event.stopPropagation(); alert('Editar alçada')" class="text-xs text-dms-ceu hover:underline font-semibold">Editar</button></td>
+              </tr>
+              <tr class="row-clickable" onclick="selectRow(this,'Pagamento até 20k — Tesouraria',['Analista Tesouraria'])">
+                <td class="px-3 py-2.5 font-bold text-dms-mar">Pagamento até 20k — Tesouraria</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-teal-50 text-teal-700 border border-teal-200">Pagamento</span></td>
+                <td class="px-3 py-2.5 mono text-xs text-dms-mar">R$ 0 — R$ 20.000</td>
+                <td class="px-3 py-2.5 text-dms-mar">Analista Tesouraria</td>
+                <td class="px-3 py-2.5 text-center mono text-xs">1</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Ativo</span></td>
+                <td class="px-3 py-2.5 text-right mono text-xs text-dms-tecnologia">18</td>
+                <td class="px-3 py-2.5"><button onclick="event.stopPropagation(); alert('Editar alçada')" class="text-xs text-dms-ceu hover:underline font-semibold">Editar</button></td>
+              </tr>
+              <tr class="row-clickable" onclick="selectRow(this,'Workflow Inline 5k–50k',['Gestor Área'])">
+                <td class="px-3 py-2.5 font-bold text-dms-mar">Workflow Inline 5k–50k</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-dms-tecnologia border border-gray-200">Inline</span></td>
+                <td class="px-3 py-2.5 mono text-xs text-dms-mar">R$ 5.000 — R$ 49.999</td>
+                <td class="px-3 py-2.5 text-dms-mar">Gestor Área</td>
+                <td class="px-3 py-2.5 text-center mono text-xs">1</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Ativo</span></td>
+                <td class="px-3 py-2.5 text-right mono text-xs text-dms-tecnologia">2</td>
+                <td class="px-3 py-2.5"><button onclick="event.stopPropagation(); alert('Editar alçada')" class="text-xs text-dms-ceu hover:underline font-semibold">Editar</button></td>
+              </tr>
+              <tr class="row-clickable" onclick="selectRow(this,'Workflow Inline ≥ 50k',['Aprovador Diretor','Admin Geral'])">
+                <td class="px-3 py-2.5 font-bold text-dms-mar">Workflow Inline ≥ 50k</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-dms-tecnologia border border-gray-200">Inline</span></td>
+                <td class="px-3 py-2.5 mono text-xs text-dms-mar">R$ 50.000+</td>
+                <td class="px-3 py-2.5 text-dms-mar">Diretor → Admin Geral <span class="mono text-[10px] text-dms-sabedoria ml-1">(promoção)</span></td>
+                <td class="px-3 py-2.5 text-center mono text-xs">1+2</td>
+                <td class="px-3 py-2.5"><span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Ativo</span></td>
+                <td class="px-3 py-2.5 text-right mono text-xs text-dms-tecnologia">1</td>
+                <td class="px-3 py-2.5"><button onclick="event.stopPropagation(); alert('Editar alçada')" class="text-xs text-dms-ceu hover:underline font-semibold">Editar</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- COLUNA LATERAL -->
+        <aside class="flex flex-col gap-4">
+
+          <!-- CARD: CADEIA VISUAL -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 shadow-dms-md sticky top-24">
+            <div class="caption text-dms-tecnologia mb-2">Cadeia da alçada selecionada</div>
+            <div class="text-sm font-bold text-dms-mar mb-3" id="cadeia-nome">NF até 5k — Coordenador</div>
+
+            <div class="flex flex-col gap-2" id="cadeia-elos">
+              <div class="flex items-center gap-2 p-2.5 rounded-md bg-violet-50 border border-violet-200">
+                <span class="w-6 h-6 rounded-full bg-dms-sabedoria text-white text-xs font-bold flex items-center justify-center">1</span>
+                <span class="text-sm font-semibold text-dms-mar">Coordenador Operação</span>
+              </div>
+            </div>
+
+            <div class="mt-3 pt-3 border-t border-[#E5E7EB] text-[11px] text-dms-tecnologia">
+              <p>Rejeição em qualquer elo encerra a cadeia (v1: sem recurso).</p>
+              <p class="mt-1.5">Timeout do stage escala via <code class="mono">escalation_role_id</code>.</p>
+            </div>
+          </div>
+
+          <!-- CARD: WORKFLOW INLINE -->
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <div class="flex items-start gap-2 mb-2">
+              <svg class="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              <div>
+                <div class="text-sm font-bold text-amber-900">Política de Workflow Inline</div>
+                <div class="text-[11px] text-amber-800 mt-0.5">Para fluxos criados on-the-fly durante operação.</div>
+              </div>
+            </div>
+
+            <div class="bg-white/70 rounded p-2.5 mb-2 border border-amber-200/60">
+              <div class="text-[10px] font-bold text-amber-900 uppercase tracking-wider">Limite auto-aprovação</div>
+              <div class="text-lg mono font-bold text-amber-900 mt-0.5">R$ 5.000</div>
+              <div class="text-[10px] text-amber-800 mt-0.5">Acima → cadeia padrão. ≥ R$ 50k → revisão Admin Geral.</div>
+            </div>
+
+            <button onclick="alert('Modal: Editar limite de auto-aprovação\n\n(Funcionalidade em prototyping — configura valor + escopo da política)')" class="text-xs font-semibold text-amber-900 border border-amber-700 px-3 py-1.5 rounded hover:bg-amber-100 w-full">Editar limite</button>
+          </div>
+
+        </aside>
+
+      </div>
+
+    </main>
+
+    <!-- FOOTER FIXO -->
+    <div class="sticky bottom-0 -mx-8 px-8 py-4 bg-white border-t border-[#E5E7EB] flex items-center justify-between gap-3 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.04)]">
+      <div class="text-xs text-dms-tecnologia">
+        Alterações em alçadas são auditadas e notificam aprovadores envolvidos em cadeias pendentes — vide <a href="docs/concepts/CONCEPT-ALCADAS.md" class="text-dms-ceu hover:underline">CONCEPT-ALCADAS §5</a>.
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="tela80-permissoes-matriz.html" class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 border border-[#E5E7EB] rounded-md bg-white">Cancelar</a>
+        <button onclick="alert('✅ Configurações de alçadas salvas.')" class="text-sm font-semibold text-white px-5 py-2 bg-dms-sabedoria rounded-md hover:opacity-90 transition-opacity">Salvar</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: CRIAR ALÇADA -->
+<div id="modal-criar" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
+  <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+      <h3 class="text-lg font-bold text-dms-mar">Nova Alçada</h3>
+      <button onclick="document.getElementById('modal-criar').classList.add('hidden')" class="text-dms-tecnologia hover:text-dms-mar text-xl">×</button>
+    </div>
+    <form onsubmit="event.preventDefault(); alert('✅ Alçada criada (validação de não-sobreposição passou)'); document.getElementById('modal-criar').classList.add('hidden')" class="p-6 flex flex-col gap-4">
+      <div>
+        <label class="text-xs font-semibold text-dms-mar mb-1 block">Nome <span class="text-red-500">*</span></label>
+        <input type="text" required placeholder="Ex: NF 5k–50k Gestor" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md focus:outline-none focus:ring-2 focus:ring-dms-ceu" />
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-dms-mar mb-1 block">Tipo de operação <span class="text-red-500">*</span></label>
+        <select required class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          <option value="">Selecione...</option><option>REQ</option><option>COT</option><option>PO</option><option>NF</option><option>Pagamento</option><option>Contrato</option><option>Workflow Inline</option><option>* (qualquer)</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs font-semibold text-dms-mar mb-1 block">Valor mínimo (R$)</label>
+          <input type="number" min="0" step="0.01" value="0" class="w-full px-3 py-2 text-sm mono border border-[#E5E7EB] rounded-md" />
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-dms-mar mb-1 block">Valor máximo (R$)</label>
+          <input type="number" min="0" step="0.01" placeholder="vazio = sem teto" class="w-full px-3 py-2 text-sm mono border border-[#E5E7EB] rounded-md" />
+        </div>
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-dms-mar mb-1 block">Role aprovadora <span class="text-red-500">*</span></label>
+        <select required class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          <option value="">Selecione...</option><option>Coordenador Operação</option><option>Gestor Área</option><option>Gestor Compras</option><option>Aprovador Diretor</option><option>CFO</option><option>Admin Geral</option><option>Analista Tesouraria</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-dms-mar mb-1 block">Ordem na cadeia</label>
+        <input type="number" min="1" value="1" class="w-full px-3 py-2 text-sm mono border border-[#E5E7EB] rounded-md" />
+        <p class="text-[11px] text-dms-tecnologia mt-1">1 = primeiro elo. Cadeia é sequencial.</p>
+      </div>
+      <div>
+        <label class="flex items-center gap-2 text-sm text-dms-mar">
+          <input type="checkbox" checked class="accent-dms-sabedoria"> Ativa
+        </label>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#E5E7EB]">
+        <button type="button" onclick="document.getElementById('modal-criar').classList.add('hidden')" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded-md bg-white">Cancelar</button>
+        <button type="submit" class="text-sm font-semibold text-white px-5 py-2 bg-dms-sabedoria rounded-md hover:opacity-90">Criar Alçada</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function selectRow(tr, nome, elos) {
+  document.querySelectorAll('#tbody-alcadas tr.row-clickable').forEach(r => r.classList.remove('selected'));
+  tr.classList.add('selected');
+  document.getElementById('cadeia-nome').textContent = nome;
+  var cont = document.getElementById('cadeia-elos');
+  cont.innerHTML = '';
+  elos.forEach(function(role, i) {
+    var div = document.createElement('div');
+    div.className = 'flex items-center gap-2 p-2.5 rounded-md bg-violet-50 border border-violet-200';
+    div.innerHTML = '<span class="w-6 h-6 rounded-full bg-dms-sabedoria text-white text-xs font-bold flex items-center justify-center">' + (i+1) + '</span><span class="text-sm font-semibold text-dms-mar">' + role + '</span>';
+    cont.appendChild(div);
+    if (i < elos.length - 1) {
+      var arrow = document.createElement('div');
+      arrow.className = 'flex justify-center text-dms-tecnologia';
+      arrow.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>';
+      cont.appendChild(arrow);
+    }
+  });
+}
+</script>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text, #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+        <li><a href="tela86-fornecedores-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🚚</span><span class="sb-label">Fornecedores</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+        <li><a href="tela80-permissoes-matriz.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔐</span><span class="sb-label">Permissões</span></a></li>
+        <li><a href="tela81-config-intervenientes-modulo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧩</span><span class="sb-label">Config Intervenientes</span></a></li>
+        <li><a href="tela82-saude-stages.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🩺</span><span class="sb-label">Saúde Stages</span></a></li>
+        <li><a href="tela83-alcadas-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💲</span><span class="sb-label">Alçadas</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Conta</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela50-profile.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👤</span><span class="sb-label">Meu Perfil</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+<script>
+(function(){
+  var sb=document.getElementById('dms-sidebar'),toggle=document.getElementById('sidebar-toggle'),mobBtn=document.getElementById('dms-sidebar-mobile-btn'),overlay=document.getElementById('dms-sidebar-overlay');
+  if(!sb||!toggle)return; var K='mockup-sidebar-collapsed-v2',c=false; try{c=localStorage.getItem(K)==='1';}catch(e){}
+  function m(){return window.matchMedia('(max-width: 767px)').matches}
+  function r(){if(c&&!m()){sb.classList.add('collapsed');sb.style.width='64px';document.documentElement.style.setProperty('--dms-sb-w','64px');}else{sb.classList.remove('collapsed');sb.style.width=m()?'280px':'240px';document.documentElement.style.setProperty('--dms-sb-w',m()?'0px':'240px');}}
+  toggle.addEventListener('click',function(){c=!c;try{localStorage.setItem(K,c?'1':'0');}catch(e){}r();});
+  function cm(){sb.classList.remove('mobile-open');if(overlay)overlay.classList.remove('show');}
+  if(mobBtn)mobBtn.addEventListener('click',function(){if(sb.classList.contains('mobile-open'))cm();else{sb.classList.add('mobile-open');if(overlay)overlay.classList.add('show');}});
+  if(overlay)overlay.addEventListener('click',cm);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){a.addEventListener('click',function(){if(m())cm();});});
+  var cur=(location.pathname.split('/').pop()||'').toLowerCase();
+  if(cur){sb.querySelectorAll('nav a[href]').forEach(function(a){var h=(a.getAttribute('href')||'').toLowerCase();if(h&&h===cur)a.classList.add('sb-active');});}
+  window.addEventListener('resize',r);r();
+})();
+</script>
+<script src="notes-widget.js" defer></script>
+<script src="i18n-toggle.js" defer></script>
+</body>
+</html>
