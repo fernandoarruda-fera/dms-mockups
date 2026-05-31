@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1280">
-<title>DMS — MatchEngine · Workflow</title>
+<title>DMS — Regras de Match Engine</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,15 +19,37 @@ tailwind.config = {
 };
 </script>
 <style>
-  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; padding-bottom: 80px; }
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
   .tilt-accent { transform: skewX(-16.5deg); }
-  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+  .caption { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
   .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
-  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
-  .mode-card { transition: all .15s ease; cursor: pointer; }
-  .mode-card.active { border-color: #00AEEE; background: linear-gradient(135deg, rgba(0,174,238,0.05), rgba(0,56,108,0.03)); box-shadow: 0 0 0 3px rgba(0,174,238,0.15); }
-  .mode-card:not(.active):hover { border-color: #00AEEE; }
-  .chip { display:inline-flex; align-items:center; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:600; }
+  .chip { display:inline-flex; align-items:center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+  .chip-tag { background: #EEF2FF; color: #4338CA; }
+  .chip-modo-manual { background: #F3F4F6; color: #1F2937; }
+  .chip-modo-ia-assist { background: #DBEAFE; color: #1D4ED8; }
+  .chip-modo-ia-valid { background: #F3E8FF; color: #6D28D9; }
+  .chip-input-email { background: #DBEAFE; color: #1D4ED8; }
+  .chip-input-doc { background: #DCFCE7; color: #166534; }
+  .chip-input-api { background: #FEF3C7; color: #92400E; }
+  .badge { display:inline-flex; align-items:center; gap:4px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid; }
+  .badge-ativo { background: #DCFCE7; color: #166534; border-color: #86EFAC; }
+  .badge-inativo { background: #F3F4F6; color: #4B5563; border-color: #D1D5DB; }
+  .badge-rascunho { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
+  .row-hover:hover { background: #F8FAFC; cursor: pointer; }
+  #drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 60; display: none; }
+  #drawer-backdrop.show { display: block; }
+  #drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 820px; max-width: 95vw; background: #fff; z-index: 70; transform: translateX(100%); transition: transform .25s ease; box-shadow: -8px 0 24px rgba(0,0,0,.12); overflow-y: auto; }
+  #drawer.show { transform: translateX(0); }
+  .modo-card { border: 2px solid #E5E7EB; border-radius: 8px; padding: 12px; cursor: pointer; transition: all .15s ease; }
+  .modo-card:hover { border-color: #00AEEE; }
+  .modo-card.selected { border-color: #00386C; background: #EFF6FF; }
+  .mapping-row { display: grid; grid-template-columns: 1fr 30px 1fr 100px 30px; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px dashed #E5E7EB; }
+  .mapping-row:last-child { border-bottom: 0; }
+  /* counter banner */
+  .stat-card { padding: 12px 14px; border-radius: 8px; border: 1px solid; }
+  .stat-ok { background: #DCFCE7; border-color: #86EFAC; color: #166534; }
+  .stat-orfao { background: #FEF3C7; border-color: #FDE68A; color: #92400E; }
+  .stat-ambig { background: #FEE2E2; border-color: #FCA5A5; color: #991B1B; }
 </style>
 <link rel="stylesheet" href="mobile-responsive.css">
 </head>
@@ -39,375 +61,332 @@ tailwind.config = {
 
     <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
       <nav class="flex items-center gap-2 text-sm">
-        <a href="tela04-catalogo-workflows.html" class="text-dms-tecnologia hover:text-dms-mar">Workflows</a>
+        <span class="text-dms-tecnologia">Engine</span>
         <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
-        <a href="tela10-workflow-builder.html" class="text-dms-tecnologia hover:text-dms-mar">Workflow XPTO</a>
-        <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
-        <span class="text-dms-mar font-semibold">MatchEngine</span>
+        <span class="text-dms-mar font-semibold">Regras de Match</span>
       </nav>
+      <div class="flex items-center gap-3">
+        <a href="tela11-match-engine.html" class="text-xs text-dms-ceu hover:underline">← Match Engine (dashboard)</a>
+        <button onclick="abrirDrawerNovo()" class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">+ Nova Regra</button>
+      </div>
     </header>
 
-    <main class="flex-1 p-8 max-w-[1280px] w-full mx-auto">
+    <main class="flex-1 p-8 pb-12 max-w-[1440px] w-full mx-auto">
 
-      <!-- Title -->
-      <div class="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <div class="flex items-center gap-3 mb-2">
-            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
-            <h1 class="text-[32px] leading-[40px] font-bold text-dms-mar">MatchEngine — <span class="text-dms-confianca">Workflow XPTO</span></h1>
-          </div>
-          <p class="text-sm text-dms-tecnologia max-w-3xl">Configure como este workflow é selecionado quando um documento ou evento entra no sistema. Escolha o modo de configuração que melhor combina velocidade com segurança.</p>
-        </div>
-      </div>
-
-      <!-- Modo de configuração toggle -->
       <div class="mb-6">
-        <div class="caption text-dms-confianca mb-3">Modo de configuração</div>
-        <div class="grid grid-cols-3 gap-3">
-          <div class="mode-card border-2 border-[#E5E7EB] rounded-lg p-4 bg-white" data-mode="A">
-            <div class="flex items-center justify-between mb-2">
-              <div class="text-2xl">🛠️</div>
-              <span class="text-[10px] font-bold text-dms-tecnologia uppercase tracking-wider">Modo A</span>
-            </div>
-            <h3 class="font-bold text-dms-mar mb-1">Manual</h3>
-            <p class="text-xs text-dms-tecnologia leading-relaxed">Você mapeia cada campo de origem pro campo do workflow. Controle total, mais trabalho.</p>
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h1 class="text-[28px] leading-[36px] font-bold text-dms-mar">Regras de Match Engine</h1>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-violet-50 text-violet-700 border-violet-200">cadastro · core</span>
+        </div>
+        <p class="text-sm text-dms-tecnologia max-w-3xl">Vincula <strong>automaticamente</strong> um input (email, documento, evento API) a <strong>exatamente 1 workflow</strong> — garante <a href="docs/concepts/CONCEPT-WORKFLOW-OBLIGATORY.md" class="text-dms-ceu hover:underline">CONCEPT-WORKFLOW-OBLIGATORY</a>. Resultado é único e determinístico: 1 match = vincula, 0 = órfão, >1 = bloqueio + alerta crítico. Concept: <a href="docs/concepts/CONCEPT-MATCH-ENGINE.md" class="text-dms-ceu hover:underline">CONCEPT-MATCH-ENGINE</a>.</p>
+      </div>
+
+      <!-- KPIs: counter -->
+      <div class="grid grid-cols-5 gap-3 mb-6">
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Regras ativas</div>
+          <div class="text-2xl mono font-bold text-emerald-700 mt-1">5</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">de 6 total</div>
+        </div>
+        <div class="stat-card stat-ok">
+          <div class="caption">Match único (24h)</div>
+          <div class="text-2xl mono font-bold mt-1">142</div>
+          <div class="text-xs mt-0.5">93%</div>
+        </div>
+        <div class="stat-card stat-orfao">
+          <div class="caption">Órfãos (24h)</div>
+          <div class="text-2xl mono font-bold mt-1">9</div>
+          <div class="text-xs mt-0.5">resolução manual</div>
+        </div>
+        <div class="stat-card stat-ambig">
+          <div class="caption">Ambiguidade (24h)</div>
+          <div class="text-2xl mono font-bold mt-1">2</div>
+          <div class="text-xs mt-0.5">⚠️ bloqueado</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Confidence médio</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">0.91</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">threshold default: 0.85</div>
+        </div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 mb-4 shadow-dms-md">
+        <div class="grid grid-cols-12 gap-3 items-end">
+          <div class="col-span-4">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Buscar</label>
+            <input type="text" placeholder="workflow, tag, mapping…" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu">
           </div>
-          <div class="mode-card border-2 border-[#E5E7EB] rounded-lg p-4 bg-white active" data-mode="B">
-            <div class="flex items-center justify-between mb-2">
-              <div class="text-2xl">✨</div>
-              <span class="text-[10px] font-bold text-dms-sabedoria uppercase tracking-wider">Modo B · Default</span>
-            </div>
-            <h3 class="font-bold text-dms-mar mb-1">IA Assistida</h3>
-            <p class="text-xs text-dms-tecnologia leading-relaxed">A IA propõe os mapeamentos analisando seu workflow e exemplos. Você aprova ou edita.</p>
+          <div class="col-span-3">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Modo</label>
+            <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+              <option>Todos</option>
+              <option>manual</option>
+              <option>ia_assistida</option>
+              <option>ia_validacao</option>
+            </select>
           </div>
-          <div class="mode-card border-2 border-[#E5E7EB] rounded-lg p-4 bg-white" data-mode="C">
-            <div class="flex items-center justify-between mb-2">
-              <div class="text-2xl">🤖</div>
-              <span class="text-[10px] font-bold text-dms-tecnologia uppercase tracking-wider">Modo C</span>
-            </div>
-            <h3 class="font-bold text-dms-mar mb-1">IA + Validação</h3>
-            <p class="text-xs text-dms-tecnologia leading-relaxed">IA mapeia e valida unicidade: garante que só ESTE workflow vai casar. Bloqueia ambiguidades.</p>
+          <div class="col-span-3">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Input type</label>
+            <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+              <option>Todos</option>
+              <option>email</option>
+              <option>documento</option>
+              <option>evento_api</option>
+            </select>
+          </div>
+          <div class="col-span-2">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Status</label>
+            <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+              <option>Todos</option><option>ativo</option><option>rascunho</option><option>inativo</option>
+            </select>
           </div>
         </div>
       </div>
 
-      <!-- ========== MODO A: MANUAL ========== -->
-      <div id="content-A" class="mode-content hidden">
-        <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md mb-6">
-          <div class="px-5 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
-            <div>
-              <h3 class="font-bold text-dms-mar">Mapear campos</h3>
-              <p class="text-xs text-dms-tecnologia mt-0.5">Conecte cada campo de origem (email, NF, XML, planilha) ao campo correspondente no workflow.</p>
-            </div>
-            <button class="text-xs font-semibold text-dms-confianca hover:text-dms-mar">+ Adicionar mapeamento</button>
-          </div>
-          <div class="divide-y divide-[#E5E7EB]">
-            <div class="px-5 py-3 grid grid-cols-[1fr_auto_1fr_auto] gap-3 items-center">
-              <input type="text" value="email.subject" class="input-dms mono text-sm px-3 py-2 border border-[#E5E7EB] rounded-md bg-white">
-              <span class="text-dms-tecnologia">→</span>
-              <select class="input-dms text-sm px-3 py-2 border border-[#E5E7EB] rounded-md bg-white">
-                <option>workflow.titulo</option><option>workflow.tipo_doc</option><option>workflow.fornecedor</option>
-              </select>
-              <button class="text-dms-tecnologia hover:text-red-500" aria-label="Remover"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-            </div>
-            <div class="px-5 py-3 grid grid-cols-[1fr_auto_1fr_auto] gap-3 items-center">
-              <input type="text" value="nf.cnpj_emit" class="input-dms mono text-sm px-3 py-2 border border-[#E5E7EB] rounded-md bg-white">
-              <span class="text-dms-tecnologia">→</span>
-              <select class="input-dms text-sm px-3 py-2 border border-[#E5E7EB] rounded-md bg-white">
-                <option>workflow.fornecedor_cnpj</option><option>workflow.empresa_cnpj</option>
-              </select>
-              <button class="text-dms-tecnologia hover:text-red-500" aria-label="Remover"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-            </div>
-            <div class="px-5 py-3 grid grid-cols-[1fr_auto_1fr_auto] gap-3 items-center">
-              <input type="text" value="nf.valor_total" class="input-dms mono text-sm px-3 py-2 border border-[#E5E7EB] rounded-md bg-white">
-              <span class="text-dms-tecnologia">→</span>
-              <select class="input-dms text-sm px-3 py-2 border border-[#E5E7EB] rounded-md bg-white">
-                <option>workflow.valor</option><option>workflow.alcada_min</option>
-              </select>
-              <button class="text-dms-tecnologia hover:text-red-500" aria-label="Remover"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-            </div>
-          </div>
+      <!-- TABELA -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-[#F8F9FA] text-[10px] font-semibold text-dms-tecnologia uppercase tracking-wider">
+              <tr>
+                <th class="text-left px-4 py-3">Workflow alvo</th>
+                <th class="text-left px-4 py-3">Modo</th>
+                <th class="text-left px-4 py-3">Input</th>
+                <th class="text-left px-4 py-3">Tags (AND)</th>
+                <th class="text-center px-4 py-3">Confidence min</th>
+                <th class="text-center px-4 py-3">% Match único</th>
+                <th class="text-left px-4 py-3">Status</th>
+                <th class="text-right px-4 py-3">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="regras-tbody" class="divide-y divide-[#F1F3F5]"></tbody>
+          </table>
         </div>
       </div>
 
-      <!-- ========== MODO B: IA ASSISTIDA ========== -->
-      <div id="content-B" class="mode-content">
-        <div class="bg-white border-2 border-dms-sabedoria/30 rounded-lg shadow-dms-md mb-6 overflow-hidden">
-          <div class="px-5 py-4 border-b border-[#E5E7EB] bg-gradient-to-r from-dms-sabedoria/5 to-transparent flex items-center gap-3">
-            <div class="w-9 h-9 rounded-lg bg-dms-sabedoria/15 flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            </div>
-            <div class="flex-1">
-              <h3 class="font-bold text-dms-mar">Sugestões da IA</h3>
-              <p class="text-xs text-dms-tecnologia">A IA analisou o workflow XPTO e 47 documentos do histórico. Confiança média: <strong class="text-emerald-600">92%</strong></p>
-            </div>
-            <span class="chip bg-dms-sabedoria/10 text-dms-sabedoria">5 mapeamentos propostos</span>
-          </div>
-          <div class="divide-y divide-[#E5E7EB]">
-            <div class="px-5 py-3 flex items-center gap-3">
-              <label class="inline-flex items-center cursor-pointer">
-                <input type="checkbox" checked class="sr-only peer">
-                <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-emerald-500 transition-colors relative">
-                  <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
-                </div>
-              </label>
-              <div class="flex-1 grid grid-cols-[1fr_auto_1fr] gap-3 items-center text-sm">
-                <span class="mono text-dms-mar">email.from_domain</span>
-                <span class="text-dms-tecnologia">→</span>
-                <span class="mono text-dms-confianca">workflow.fornecedor</span>
-              </div>
-              <span class="chip bg-emerald-50 text-emerald-700">98%</span>
-              <button class="text-xs text-dms-confianca hover:text-dms-mar font-semibold" data-i18n="btn.edit">Editar</button>
-            </div>
-            <div class="px-5 py-3 flex items-center gap-3">
-              <label class="inline-flex items-center cursor-pointer">
-                <input type="checkbox" checked class="sr-only peer">
-                <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-emerald-500 transition-colors relative">
-                  <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
-                </div>
-              </label>
-              <div class="flex-1 grid grid-cols-[1fr_auto_1fr] gap-3 items-center text-sm">
-                <span class="mono text-dms-mar">nf.cnpj_emit</span>
-                <span class="text-dms-tecnologia">→</span>
-                <span class="mono text-dms-confianca">workflow.fornecedor_cnpj</span>
-              </div>
-              <span class="chip bg-emerald-50 text-emerald-700">96%</span>
-              <button class="text-xs text-dms-confianca hover:text-dms-mar font-semibold" data-i18n="btn.edit">Editar</button>
-            </div>
-            <div class="px-5 py-3 flex items-center gap-3">
-              <label class="inline-flex items-center cursor-pointer">
-                <input type="checkbox" checked class="sr-only peer">
-                <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-emerald-500 transition-colors relative">
-                  <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
-                </div>
-              </label>
-              <div class="flex-1 grid grid-cols-[1fr_auto_1fr] gap-3 items-center text-sm">
-                <span class="mono text-dms-mar">nf.valor_total</span>
-                <span class="text-dms-tecnologia">→</span>
-                <span class="mono text-dms-confianca">workflow.valor</span>
-              </div>
-              <span class="chip bg-emerald-50 text-emerald-700">94%</span>
-              <button class="text-xs text-dms-confianca hover:text-dms-mar font-semibold" data-i18n="btn.edit">Editar</button>
-            </div>
-            <div class="px-5 py-3 flex items-center gap-3">
-              <label class="inline-flex items-center cursor-pointer">
-                <input type="checkbox" checked class="sr-only peer">
-                <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-emerald-500 transition-colors relative">
-                  <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
-                </div>
-              </label>
-              <div class="flex-1 grid grid-cols-[1fr_auto_1fr] gap-3 items-center text-sm">
-                <span class="mono text-dms-mar">email.subject_contains("pedido")</span>
-                <span class="text-dms-tecnologia">→</span>
-                <span class="mono text-dms-confianca">workflow.tipo_doc = pedido</span>
-              </div>
-              <span class="chip bg-amber-50 text-amber-700">82%</span>
-              <button class="text-xs text-dms-confianca hover:text-dms-mar font-semibold" data-i18n="btn.edit">Editar</button>
-            </div>
-            <div class="px-5 py-3 flex items-center gap-3">
-              <label class="inline-flex items-center cursor-pointer">
-                <input type="checkbox" class="sr-only peer">
-                <div class="w-9 h-5 bg-gray-300 rounded-full peer peer-checked:bg-emerald-500 transition-colors relative">
-                  <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4"></div>
-                </div>
-              </label>
-              <div class="flex-1 grid grid-cols-[1fr_auto_1fr] gap-3 items-center text-sm opacity-60">
-                <span class="mono text-dms-mar">attachment.mime = "application/xml"</span>
-                <span class="text-dms-tecnologia">→</span>
-                <span class="mono text-dms-confianca">workflow.tem_xml = true</span>
-              </div>
-              <span class="chip bg-gray-100 text-dms-tecnologia">68%</span>
-              <button class="text-xs text-dms-confianca hover:text-dms-mar font-semibold" data-i18n="btn.edit">Editar</button>
-            </div>
-          </div>
-          <div class="px-5 py-4 border-t border-[#E5E7EB] bg-[#F8F9FA] space-y-3">
-            <label class="text-xs font-semibold text-dms-mar block">Refinar prompt da IA</label>
-            <textarea rows="2" class="input-dms w-full text-sm px-3 py-2 border border-[#E5E7EB] rounded-md bg-white resize-none" placeholder="ex: dê mais peso ao remetente do email do que ao subject; ignore campos com confiança abaixo de 70%."></textarea>
-            <div class="flex justify-end">
-              <button class="inline-flex items-center gap-2 text-sm font-semibold text-white bg-dms-sabedoria px-4 py-2 rounded-md hover:opacity-90">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M5 9a8 8 0 0114-3M19 15a8 8 0 01-14 3"/></svg>
-                Re-gerar sugestões
-              </button>
-            </div>
-          </div>
-        </div>
+      <div class="mt-4 bg-[#FEE2E2] border border-[#FCA5A5] rounded-md p-3 flex items-start gap-2">
+        <svg class="w-4 h-4 text-red-700 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <p class="text-xs text-red-900"><strong>Unicidade obrigatória:</strong> regra ativa que casa com &gt;1 workflow = bloqueio automático. NUNCA escolha heurística. Modo <code class="bg-white px-1 rounded">ia_validacao</code> roda simulação no save e impede salvar regra que gere ambiguidade detectável contra base de workflows existentes.</p>
       </div>
 
-      <!-- ========== MODO C: IA + VALIDAÇÃO ========== -->
-      <div id="content-C" class="mode-content hidden">
-        <div class="bg-white border-2 border-dms-tropicalidade/40 rounded-lg shadow-dms-md mb-6 overflow-hidden">
-          <div class="px-5 py-4 border-b border-[#E5E7EB] bg-gradient-to-r from-dms-tropicalidade/10 to-transparent flex items-center gap-3">
-            <div class="w-9 h-9 rounded-lg bg-dms-tropicalidade/20 flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 text-[#7A8F24]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-            </div>
-            <div class="flex-1">
-              <h3 class="font-bold text-dms-mar">IA + Validação de unicidade</h3>
-              <p class="text-xs text-dms-tecnologia">A IA mapeia e cruza contra os outros 14 workflows ativos pra garantir match único.</p>
-            </div>
-          </div>
-
-          <div class="px-5 py-4 border-b border-[#E5E7EB] bg-emerald-50/40">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-              </div>
-              <div class="flex-1">
-                <div class="text-sm font-bold text-emerald-700">Match único garantido</div>
-                <div class="text-xs text-emerald-700/80">3 dos 5 mapeamentos sugeridos são suficientes pra isolar este workflow. Nenhum outro workflow ativo casaria.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="divide-y divide-[#E5E7EB]">
-            <div class="px-5 py-3 flex items-center gap-3">
-              <span class="text-emerald-500">✓</span>
-              <div class="flex-1 grid grid-cols-[1fr_auto_1fr] gap-3 items-center text-sm">
-                <span class="mono text-dms-mar">nf.cnpj_emit IN [fornec_xpto]</span>
-                <span class="text-dms-tecnologia">→</span>
-                <span class="mono text-dms-confianca">workflow.fornecedor_cnpj</span>
-              </div>
-              <span class="chip bg-emerald-50 text-emerald-700">discriminante</span>
-            </div>
-            <div class="px-5 py-3 flex items-center gap-3">
-              <span class="text-emerald-500">✓</span>
-              <div class="flex-1 grid grid-cols-[1fr_auto_1fr] gap-3 items-center text-sm">
-                <span class="mono text-dms-mar">nf.valor_total BETWEEN 1000 e 50000</span>
-                <span class="text-dms-tecnologia">→</span>
-                <span class="mono text-dms-confianca">workflow.faixa_valor</span>
-              </div>
-              <span class="chip bg-emerald-50 text-emerald-700">discriminante</span>
-            </div>
-            <div class="px-5 py-3 flex items-center gap-3">
-              <span class="text-emerald-500">✓</span>
-              <div class="flex-1 grid grid-cols-[1fr_auto_1fr] gap-3 items-center text-sm">
-                <span class="mono text-dms-mar">attachment.tipo = "XML NFe"</span>
-                <span class="text-dms-tecnologia">→</span>
-                <span class="mono text-dms-confianca">workflow.tipo_doc</span>
-              </div>
-              <span class="chip bg-emerald-50 text-emerald-700">discriminante</span>
-            </div>
-            <div class="px-5 py-3 flex items-center gap-3">
-              <span class="text-dms-tecnologia">○</span>
-              <div class="flex-1 grid grid-cols-[1fr_auto_1fr] gap-3 items-center text-sm">
-                <span class="mono text-dms-mar">email.subject_contains("nota fiscal")</span>
-                <span class="text-dms-tecnologia">→</span>
-                <span class="mono text-dms-confianca">workflow.tipo_doc</span>
-              </div>
-              <span class="chip bg-gray-100 text-dms-tecnologia">redundante</span>
-            </div>
-            <div class="px-5 py-3 flex items-center gap-3">
-              <span class="text-dms-tecnologia">○</span>
-              <div class="flex-1 grid grid-cols-[1fr_auto_1fr] gap-3 items-center text-sm">
-                <span class="mono text-dms-mar">email.from_domain</span>
-                <span class="text-dms-tecnologia">→</span>
-                <span class="mono text-dms-confianca">workflow.fornecedor</span>
-              </div>
-              <span class="chip bg-gray-100 text-dms-tecnologia">redundante</span>
-            </div>
-          </div>
-
-          <!-- Estado alternativo: ambiguidade (collapsed example) -->
-          <details class="border-t border-[#E5E7EB] bg-red-50/30">
-            <summary class="px-5 py-3 cursor-pointer text-sm font-semibold text-red-700 flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-              Exemplo · Estado de ambiguidade (oculto se OK)
-            </summary>
-            <div class="px-5 py-3 border-t border-red-200/50">
-              <div class="flex items-start gap-3">
-                <div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 9v2m0 4h.01"/></svg>
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm font-bold text-red-700">Ambiguidade detectada</div>
-                  <p class="text-xs text-red-700/80 mt-0.5">Com os mapeamentos atuais, o workflow <strong>"NF Serviços TI"</strong> também casaria em 7 dos últimos 100 documentos. Adicione um campo discriminante ou estreite uma faixa de valor.</p>
-                  <button class="mt-2 text-xs font-semibold text-white bg-red-600 px-3 py-1.5 rounded-md hover:bg-red-700">Resolver ambiguidade</button>
-                </div>
-              </div>
-            </div>
-          </details>
-        </div>
-      </div>
-
-      <!-- Como vai funcionar (preview) -->
-      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md mb-6 overflow-hidden">
-        <div class="px-5 py-4 border-b border-[#E5E7EB] bg-gradient-to-r from-dms-ceu/5 to-transparent flex items-center justify-between">
-          <div>
-            <h3 class="font-bold text-dms-mar flex items-center gap-2">
-              <svg class="w-4 h-4 text-dms-ceu" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-              Como vai funcionar
-            </h3>
-            <p class="text-xs text-dms-tecnologia mt-0.5">Exemplo de documento que entraria e o workflow que seria selecionado.</p>
-          </div>
-        </div>
-        <div class="p-5 grid grid-cols-[1fr_auto_1fr] gap-5 items-center">
-          <div class="border border-[#E5E7EB] rounded-lg p-4 bg-[#F8F9FA]">
-            <div class="caption text-dms-tecnologia mb-2">Entrada · email + XML</div>
-            <div class="text-xs space-y-1 mono">
-              <div><span class="text-dms-tecnologia">From:</span> faturamento@fornecxpto.com.br</div>
-              <div><span class="text-dms-tecnologia">Subject:</span> NF 4521 — abril/2026</div>
-              <div><span class="text-dms-tecnologia">Attachment:</span> NFe_4521.xml</div>
-              <div><span class="text-dms-tecnologia">CNPJ emit:</span> 12.345.678/0001-99</div>
-              <div><span class="text-dms-tecnologia">Valor:</span> R$ 18.420,00</div>
-            </div>
-          </div>
-          <svg class="w-10 h-10 text-dms-ceu" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-          <div class="border-2 border-dms-tropicalidade/50 rounded-lg p-4 bg-dms-tropicalidade/5">
-            <div class="caption text-[#7A8F24] mb-2">Workflow selecionado</div>
-            <div class="font-bold text-dms-mar mb-1">Workflow XPTO · NF Fornecedor</div>
-            <div class="text-xs text-dms-tecnologia">Stage inicial: <span class="font-semibold text-dms-mar">Validar XML</span></div>
-            <div class="mt-2"><span class="chip bg-emerald-50 text-emerald-700">match único · 96%</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tags que disparam match -->
-      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md mb-6">
-        <div class="px-5 py-4 border-b border-[#E5E7EB]">
-          <h3 class="font-bold text-dms-mar">Tags que disparam match</h3>
-          <p class="text-xs text-dms-tecnologia mt-0.5">Compartilhado entre os 3 modos. Documentos que entrem com qualquer uma destas tags são roteados pra este workflow.</p>
-        </div>
-        <div class="p-5">
-          <div class="border border-[#E5E7EB] rounded-md px-3 py-2 bg-white flex flex-wrap gap-2 min-h-[48px]">
-            <span class="chip bg-dms-ceu/10 text-dms-confianca">nf_fornecedor <button class="ml-1 text-dms-tecnologia hover:text-red-500">×</button></span>
-            <span class="chip bg-dms-ceu/10 text-dms-confianca">xml_nfe <button class="ml-1 text-dms-tecnologia hover:text-red-500">×</button></span>
-            <span class="chip bg-dms-ceu/10 text-dms-confianca">fornec_xpto <button class="ml-1 text-dms-tecnologia hover:text-red-500">×</button></span>
-            <span class="chip bg-dms-ceu/10 text-dms-confianca">valor_baixo <button class="ml-1 text-dms-tecnologia hover:text-red-500">×</button></span>
-            <input type="text" placeholder="+ adicionar tag (autocomplete)…" class="text-sm px-2 py-1 outline-none flex-1 min-w-[180px]">
-          </div>
-        </div>
+      <div class="mt-2 bg-[#EFF6FF] border border-[#BFDBFE] rounded-md p-3 flex items-start gap-2">
+        <svg class="w-4 h-4 text-[#1D4ED8] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <p class="text-xs text-[#1E3A8A]">Toda execução fica em <code class="bg-white px-1 rounded">match_executions</code> com snapshot do input. Resolução manual de ambiguidade pelo operador alimenta retreino. Tags combinam em <strong>AND</strong> (se regra tem A+B, ambas devem estar no input). Match abaixo de <code class="bg-white px-1 rounded">confidence_min</code> = trata como 0 matches → órfão.</p>
       </div>
 
     </main>
   </div>
 </div>
 
-<!-- Footer fixo -->
-<footer class="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E5E7EB] shadow-[0_-2px_8px_rgba(0,56,108,0.06)] z-30" style="margin-left: var(--dms-sb-w, 240px);">
-  <div class="max-w-[1280px] mx-auto px-8 py-3 flex items-center justify-between">
-    <div class="text-xs text-dms-tecnologia">
-      Modo atual: <strong id="mode-label" class="text-dms-confianca">IA Assistida (B)</strong> · alterações não salvas
+<!-- ============ DRAWER NOVA REGRA ============ -->
+<div id="drawer-backdrop" onclick="fecharDrawer()"></div>
+<div id="drawer">
+  <div class="border-b border-[#E5E7EB] px-6 py-5 flex items-start justify-between sticky top-0 bg-white z-10">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-lg bg-dms-sabedoria text-white flex items-center justify-center text-xl flex-shrink-0">🔧</div>
+      <div>
+        <div class="text-lg font-bold text-dms-mar">Nova Regra de Match</div>
+        <div class="text-xs text-dms-tecnologia">Salva como rascunho. Modo "ia_validacao" simula contra base no save.</div>
+      </div>
     </div>
-    <div class="flex items-center gap-2">
-      <a href="tela10-workflow-builder.html" class="px-4 py-2 text-sm font-medium text-dms-tecnologia border border-[#E5E7EB] rounded-md bg-white hover:text-dms-mar" data-i18n="btn.cancel">Cancelar</a>
-      <button class="px-4 py-2 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50">Testar configuração</button>
-      <button class="px-5 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-md hover:bg-emerald-700">Salvar configuração</button>
+    <button onclick="fecharDrawer()" class="text-dms-tecnologia hover:text-dms-mar text-xl leading-none">×</button>
+  </div>
+  <div class="px-6 py-5 space-y-5">
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Workflow alvo *</label>
+        <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          <option>WF Recebimento NF</option>
+          <option>WF Cotação Spot</option>
+          <option>WF Pedidos &lt; R$ 10k</option>
+          <option>WF Auditoria Fiscal</option>
+          <option>WF Contratos Renovação</option>
+        </select>
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Input type *</label>
+        <select id="input-type" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          <option value="email">📧 email</option>
+          <option value="documento">📄 documento</option>
+          <option value="evento_api">⚡ evento_api</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label class="caption text-dms-tecnologia mb-2 block">Modo *</label>
+      <div class="grid grid-cols-3 gap-2">
+        <div class="modo-card selected" data-modo="manual">
+          <div class="text-xl mb-1">✋</div>
+          <div class="font-semibold text-sm text-dms-mar">Manual</div>
+          <div class="text-[10px] text-dms-tecnologia mt-1">Mapeia campos input→workflow via form. Sem IA. Determinístico.</div>
+        </div>
+        <div class="modo-card" data-modo="ia_assistida">
+          <div class="text-xl mb-1">🤖</div>
+          <div class="font-semibold text-sm text-dms-mar">IA Assistida</div>
+          <div class="text-[10px] text-dms-tecnologia mt-1">IA propõe mapeamento. Você aprova/edita campo a campo.</div>
+        </div>
+        <div class="modo-card" data-modo="ia_validacao">
+          <div class="text-xl mb-1">🔬</div>
+          <div class="font-semibold text-sm text-dms-mar">IA + Validação</div>
+          <div class="text-[10px] text-dms-tecnologia mt-1">IA mapeia + simula contra base. Bloqueia save se ambíguo.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mapping editor -->
+    <div>
+      <div class="flex items-center justify-between mb-2">
+        <label class="caption text-dms-tecnologia">Mapping (campos input → workflow)</label>
+        <button class="text-xs text-dms-ceu hover:underline font-semibold">+ Adicionar campo</button>
+      </div>
+      <div class="border border-[#E5E7EB] rounded-md p-3 bg-[#F8F9FA]">
+        <div class="text-[10px] text-dms-tecnologia uppercase font-semibold mb-2 grid grid-cols-[1fr_30px_1fr_100px_30px] gap-2">
+          <div>Campo do input</div><div></div><div>Campo do workflow</div><div class="text-center">Obrig.</div><div></div>
+        </div>
+        <div class="mapping-row">
+          <input value="email.subject" class="px-2 py-1 text-xs border border-[#E5E7EB] rounded mono">
+          <span class="text-center text-dms-tecnologia">→</span>
+          <input value="workflow.titulo" class="px-2 py-1 text-xs border border-[#E5E7EB] rounded mono">
+          <select class="px-2 py-1 text-xs border border-[#E5E7EB] rounded bg-white"><option>sim</option><option>não</option></select>
+          <button class="text-red-600 hover:bg-red-50 rounded p-1">🗑️</button>
+        </div>
+        <div class="mapping-row">
+          <input value="email.attachments[0].name ~ '*.xml'" class="px-2 py-1 text-xs border border-[#E5E7EB] rounded mono">
+          <span class="text-center text-dms-tecnologia">→</span>
+          <input value="workflow.input_type='nf_xml'" class="px-2 py-1 text-xs border border-[#E5E7EB] rounded mono">
+          <select class="px-2 py-1 text-xs border border-[#E5E7EB] rounded bg-white"><option>sim</option><option>não</option></select>
+          <button class="text-red-600 hover:bg-red-50 rounded p-1">🗑️</button>
+        </div>
+        <div class="mapping-row">
+          <input value="email.from.domain" class="px-2 py-1 text-xs border border-[#E5E7EB] rounded mono">
+          <span class="text-center text-dms-tecnologia">→</span>
+          <input value="workflow.fornecedor.dominio" class="px-2 py-1 text-xs border border-[#E5E7EB] rounded mono">
+          <select class="px-2 py-1 text-xs border border-[#E5E7EB] rounded bg-white"><option>não</option><option>sim</option></select>
+          <button class="text-red-600 hover:bg-red-50 rounded p-1">🗑️</button>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <label class="caption text-dms-tecnologia mb-1 block">Tags que ativam a regra (AND)</label>
+      <input type="text" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md focus:outline-none focus:border-dms-ceu mono" value="nf_eletronica, fornecedor_homologado">
+      <div class="text-[10px] text-dms-tecnologia mt-1 italic">Combinadas em AND — todas devem estar no input. Tags via <a href="tela01-catalogo-tags.html" class="text-dms-ceu hover:underline">Tag Scheme</a>.</div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Confidence mínimo (modos IA)</label>
+        <div class="flex items-center gap-2">
+          <input type="range" min="0.5" max="1" step="0.01" value="0.85" class="flex-1">
+          <span class="mono text-sm font-bold text-dms-mar w-12 text-right">0.85</span>
+        </div>
+        <div class="text-[10px] text-dms-tecnologia mt-1 italic">Abaixo desse threshold → trata como 0 matches → órfão.</div>
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Status inicial</label>
+        <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          <option>rascunho</option>
+          <option>ativo</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Painel simulação -->
+    <div class="border border-violet-200 bg-violet-50 rounded-md p-3">
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-xs font-semibold text-violet-900">🔬 Simulação contra base existente</div>
+        <button class="text-xs text-violet-700 hover:underline font-semibold">Rodar simulação agora</button>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-xs">
+        <div class="bg-white rounded p-2 border border-emerald-200">
+          <div class="text-emerald-700 font-semibold">Match único</div>
+          <div class="mono text-lg font-bold text-emerald-700">112 / 124</div>
+        </div>
+        <div class="bg-white rounded p-2 border border-amber-200">
+          <div class="text-amber-700 font-semibold">Órfão</div>
+          <div class="mono text-lg font-bold text-amber-700">10</div>
+        </div>
+        <div class="bg-white rounded p-2 border border-red-200">
+          <div class="text-red-700 font-semibold">Ambíguo</div>
+          <div class="mono text-lg font-bold text-red-700">2</div>
+        </div>
+      </div>
+      <div class="text-[10px] text-violet-700 mt-2 italic">⚠️ 2 cenários ambíguos detectados (regra conflitaria com WF Cotação Spot). Modo <code class="bg-white px-1 rounded">ia_validacao</code> bloquearia o save até resolução.</div>
+    </div>
+
+    <div class="bg-[#EFF6FF] border border-[#BFDBFE] rounded p-3 text-xs text-[#1E3A8A]">
+      ℹ️ Toda execução em runtime grava em <code class="bg-white px-1 rounded">match_executions</code> com snapshot do input + matched_count + confidence + action_taken. Logs visíveis na <a href="tela11-match-engine.html" class="text-dms-ceu hover:underline font-semibold">tela11</a>.
     </div>
   </div>
-</footer>
+  <div class="px-6 py-4 border-t border-[#E5E7EB] flex justify-end gap-2 sticky bottom-0 bg-white">
+    <button onclick="fecharDrawer()" class="px-4 py-2 text-sm font-semibold text-dms-tecnologia border border-[#E5E7EB] rounded">Cancelar</button>
+    <button class="px-4 py-2 text-sm font-semibold text-dms-mar border border-dms-mar rounded hover:bg-dms-mar hover:text-white">Salvar como rascunho</button>
+    <button class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded hover:bg-dms-confianca">Salvar &amp; ativar</button>
+  </div>
+</div>
 
 <script>
-const MODE_LABEL = { A:'Manual (A)', B:'IA Assistida (B)', C:'IA + Validação (C)' };
-document.querySelectorAll('.mode-card').forEach(c => c.addEventListener('click', () => {
-  document.querySelectorAll('.mode-card').forEach(x => x.classList.remove('active'));
-  c.classList.add('active');
-  const m = c.dataset.mode;
-  document.querySelectorAll('.mode-content').forEach(x => x.classList.add('hidden'));
-  document.getElementById('content-' + m).classList.remove('hidden');
-  document.getElementById('mode-label').textContent = MODE_LABEL[m];
-}));
+const REGRAS = [
+  { id:'m1', workflow:'WF Recebimento NF', modo:'ia_validacao', input:'email', tags:['nf_eletronica','fornecedor_homologado'], conf:0.90, sucesso:96, status:'ativo' },
+  { id:'m2', workflow:'WF Cotação Spot', modo:'ia_assistida', input:'email', tags:['cotacao','spot'], conf:0.85, sucesso:88, status:'ativo' },
+  { id:'m3', workflow:'WF Pedidos < R$ 10k', modo:'manual', input:'evento_api', tags:['pedido_automatico'], conf:null, sucesso:99, status:'ativo' },
+  { id:'m4', workflow:'WF Auditoria Fiscal', modo:'ia_validacao', input:'documento', tags:['nf','auditoria'], conf:0.88, sucesso:91, status:'ativo' },
+  { id:'m5', workflow:'WF Contratos Renovação', modo:'ia_assistida', input:'documento', tags:['contrato_pdf'], conf:0.80, sucesso:78, status:'ativo' },
+  { id:'m6', workflow:'WF Cotação Spot (v2)', modo:'manual', input:'email', tags:['cotacao_v2'], conf:null, sucesso:0, status:'rascunho' }
+];
+
+function chipModo(m){
+  const map={manual:['Manual','chip-modo-manual','✋'],ia_assistida:['IA Assistida','chip-modo-ia-assist','🤖'],ia_validacao:['IA + Validação','chip-modo-ia-valid','🔬']};
+  const [lbl,cls,ico]=map[m]||['?','chip',''];
+  return `<span class="chip ${cls}">${ico} ${lbl}</span>`;
+}
+function chipInput(i){
+  const map={email:['📧 email','chip-input-email'],documento:['📄 documento','chip-input-doc'],evento_api:['⚡ evento_api','chip-input-api']};
+  const [lbl,cls]=map[i]||['?','chip'];
+  return `<span class="chip ${cls}">${lbl}</span>`;
+}
+function badgeStatus(s){
+  if(s==='ativo') return '<span class="badge badge-ativo">● Ativo</span>';
+  if(s==='rascunho') return '<span class="badge badge-rascunho">○ Rascunho</span>';
+  return '<span class="badge badge-inativo">● Inativo</span>';
+}
+function sucessoBar(p){
+  const cor = p >= 90 ? 'bg-emerald-500' : p >= 70 ? 'bg-amber-500' : 'bg-red-500';
+  return `<div class="flex items-center gap-2"><div class="w-20 bg-[#F3F4F6] rounded-full h-1.5"><div class="${cor} h-1.5 rounded-full" style="width:${p}%"></div></div><span class="mono text-xs font-bold">${p}%</span></div>`;
+}
+
+function render(){
+  const tbody=document.getElementById('regras-tbody');
+  tbody.innerHTML = REGRAS.map(r => `
+    <tr class="row-hover">
+      <td class="px-4 py-3"><div class="font-semibold text-dms-mar">${r.workflow}</div><div class="text-[10px] text-dms-tecnologia mono mt-0.5">id: ${r.id}</div></td>
+      <td class="px-4 py-3">${chipModo(r.modo)}</td>
+      <td class="px-4 py-3">${chipInput(r.input)}</td>
+      <td class="px-4 py-3"><div class="flex flex-wrap gap-1">${r.tags.map(t=>`<span class="chip chip-tag">${t}</span>`).join('')}</div></td>
+      <td class="px-4 py-3 text-center mono text-xs">${r.conf !== null ? r.conf.toFixed(2) : '<span class="text-dms-tecnologia">—</span>'}</td>
+      <td class="px-4 py-3">${r.sucesso ? sucessoBar(r.sucesso) : '<span class="text-xs text-dms-tecnologia italic">sem dados</span>'}</td>
+      <td class="px-4 py-3">${badgeStatus(r.status)}</td>
+      <td class="px-4 py-3 text-right">
+        <button class="text-xs text-dms-ceu hover:underline mr-2">Editar</button>
+        <button class="text-xs text-dms-tecnologia hover:text-dms-mar">⋯</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function abrirDrawerNovo(){document.getElementById('drawer').classList.add('show');document.getElementById('drawer-backdrop').classList.add('show');}
+function fecharDrawer(){document.getElementById('drawer').classList.remove('show');document.getElementById('drawer-backdrop').classList.remove('show');}
+document.querySelectorAll('.modo-card').forEach(c=>{
+  c.addEventListener('click',()=>{document.querySelectorAll('.modo-card').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');});
+});
+render();
 </script>
 
-<!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
+<!-- ===== DMS CONSOLIDATED SIDEBAR ===== -->
 <style id="dms-cs-style">
   aside.w-\[260px\].bg-dms-mar { display: none !important; }
   .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
@@ -418,9 +397,7 @@ document.querySelectorAll('.mode-card').forEach(c => c.addEventListener('click',
   #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
   #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
   #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
-  #dms-sidebar.collapsed .sb-label,
-  #dms-sidebar.collapsed .sb-section-title,
-  #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text { display: none; }
   #dms-sidebar.collapsed .sb-brand-icon { display: none; }
   #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
   #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
@@ -433,10 +410,7 @@ document.querySelectorAll('.mode-card').forEach(c => c.addEventListener('click',
   @media (max-width: 767px) {
     #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
     #dms-sidebar.mobile-open { transform: translateX(0); }
-    #dms-sidebar.collapsed .sb-label,
-    #dms-sidebar.collapsed .sb-section-title,
-    #dms-sidebar.collapsed .sb-brand-text,
-    #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text, #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
     #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
     #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
     #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
@@ -445,12 +419,10 @@ document.querySelectorAll('.mode-card').forEach(c => c.addEventListener('click',
     #sidebar-toggle { display: none; }
   }
 </style>
-
 <button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
 </button>
 <div id="dms-sidebar-overlay"></div>
-
 <aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
   <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
     <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
@@ -459,114 +431,90 @@ document.querySelectorAll('.mode-card').forEach(c => c.addEventListener('click',
       <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
     </button>
   </div>
-
   <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
-    <div style="padding:14px 14px 6px;">
-      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela16-cockpit-overview.html" title="Cockpit" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label" data-i18n="nav.cockpit">Cockpit</span></a></li>
-        <li><a href="tela17-cockpit-email.html" title="Email" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
-        <li><a href="tela18-cockpit-todo.html" title="Tarefas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label" data-i18n="nav.tasks">Tarefas</span></a></li>
-        <li><a href="tela19-cockpit-followup.html" title="Follow-up" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label" data-i18n="nav.followup">Follow-up</span></a></li>
-        <li><a href="tela20-cockpit-update.html" title="Updates" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
       </ul>
     </div>
-
-    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
-      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.purchases">Compras</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela21-requisicoes-list.html" title="Requisições" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label" data-i18n="nav.requisitions">Requisições</span></a></li>
-        <li><a href="tela24-cotacoes-list.html" title="Cotações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label" data-i18n="nav.quotes">Cotações</span></a></li>
-        <li><a href="tela27-pedidos-list.html" title="Pedidos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label" data-i18n="nav.orders">Pedidos</span></a></li>
-        <li><a href="tela44-contratos-list.html" title="Contratos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
-        <li><a href="tela38-notas-fiscais-list.html" title="Notas Fiscais" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
-        <li><a href="tela40-aprovacoes-list.html" title="Aprovações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
       </ul>
     </div>
-
-    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
-      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela36-pre-lancamentos-list.html" title="Pré-lançamentos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
-        <li><a href="tela42-orcamento-overview.html" title="Orçamento" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
+        <li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+        <li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
       </ul>
     </div>
-
-    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
-      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.registrations">Cadastros</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela30-empresas-list.html" title="Empresas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
-        <li><a href="tela32-centros-custo-list.html" title="Centros de Custo" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
-        <li><a href="tela34-plano-contas-list.html" title="Plano de Contas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+        <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
       </ul>
     </div>
-
-    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
-      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.libraries">Bibliotecas</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela01-catalogo-tags.html" title="Tags" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label" data-i18n="label.tags">Tags</span></a></li>
-        <li><a href="tela03-procedures-list.html" title="Procedures" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
-        <li><a href="tela04-catalogo-workflows.html" title="Workflows" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
-        <li><a href="tela06-biblioteca-sop.html" title="SOPs" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
-        <li><a href="tela77-actionia-biblioteca.html" title="ActionIA" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🤖</span><span class="sb-label">ActionIA</span></a></li>
-        <li><a href="tela78-alertas-biblioteca.html" title="Alertas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🚨</span><span class="sb-label">Alertas</span></a></li>
-        <li><a href="tela12-execution-visibility.html" title="Execuções" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
-        <li><a href="tela13-audit-trail.html" title="Auditoria" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label" data-i18n="nav.audit">Auditoria</span></a></li>
+        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
       </ul>
     </div>
-
-    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
-      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela11-match-engine.html" title="Match Engine" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
-        <li><a href="tela14-setup-integracoes.html" title="Setup" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
-        <li><a href="tela15-mailia-admin.html" title="MAILIA Admin" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+        <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+        <li><a href="tela80-permissoes-matriz.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔐</span><span class="sb-label">Permissões</span></a></li>
+        <li><a href="tela81-config-intervenientes-modulo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧩</span><span class="sb-label">Config Intervenientes</span></a></li>
+        <li><a href="tela82-saude-stages.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🩺</span><span class="sb-label">Saúde dos Stages</span></a></li>
+        <li><a href="tela83-alcadas-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚖️</span><span class="sb-label">Alçadas</span></a></li>
+        <li><a href="tela84-users-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👥</span><span class="sb-label">Usuários</span></a></li>
+        <li><a href="tela85-permission-delegations.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔗</span><span class="sb-label">Delegações</span></a></li>
+        <li><a href="tela86-fornecedores-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏭</span><span class="sb-label">Fornecedores</span></a></li>
+        <li><a href="tela87-times-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Times</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Conta</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela50-profile.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👤</span><span class="sb-label">Meu Perfil</span></a></li>
       </ul>
     </div>
   </nav>
 </aside>
-
 <script>
 (function(){
-  var sb = document.getElementById('dms-sidebar');
-  var toggle = document.getElementById('sidebar-toggle');
-  var mobBtn = document.getElementById('dms-sidebar-mobile-btn');
-  var overlay = document.getElementById('dms-sidebar-overlay');
-  if (!sb || !toggle) return;
-  var STORAGE_KEY = 'mockup-sidebar-collapsed-v2';
-  var collapsed = false;
-  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
-  function isMobile(){ return window.matchMedia('(max-width: 767px)').matches; }
-  function render(){
-    if (collapsed && !isMobile()) {
-      sb.classList.add('collapsed');
-      sb.style.width = '64px';
-      document.documentElement.style.setProperty('--dms-sb-w', '64px');
-    } else {
-      sb.classList.remove('collapsed');
-      sb.style.width = isMobile() ? '280px' : '240px';
-      document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px');
-    }
-  }
-  toggle.addEventListener('click', function(){ collapsed = !collapsed; try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {} render(); });
-  function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
-  function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
-  if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
-  if (overlay) overlay.addEventListener('click', closeMobile);
-  sb.querySelectorAll('nav a[href]').forEach(function(a){ a.addEventListener('click', function(){ if (isMobile()) closeMobile(); }); });
-  var current = (location.pathname.split('/').pop() || '').toLowerCase();
-  if (current) {
-    sb.querySelectorAll('nav a[href]').forEach(function(a){
-      var href = (a.getAttribute('href') || '').toLowerCase();
-      if (href && href === current) a.classList.add('sb-active');
-    });
-  }
-  window.addEventListener('resize', render);
-  render();
+  var sb=document.getElementById('dms-sidebar'),toggle=document.getElementById('sidebar-toggle'),mobBtn=document.getElementById('dms-sidebar-mobile-btn'),overlay=document.getElementById('dms-sidebar-overlay');
+  if(!sb||!toggle)return; var K='mockup-sidebar-collapsed-v2',c=false; try{c=localStorage.getItem(K)==='1';}catch(e){}
+  function m(){return window.matchMedia('(max-width: 767px)').matches}
+  function r(){if(c&&!m()){sb.classList.add('collapsed');sb.style.width='64px';document.documentElement.style.setProperty('--dms-sb-w','64px');}else{sb.classList.remove('collapsed');sb.style.width=m()?'280px':'240px';document.documentElement.style.setProperty('--dms-sb-w',m()?'0px':'240px');}}
+  toggle.addEventListener('click',function(){c=!c;try{localStorage.setItem(K,c?'1':'0');}catch(e){}r();});
+  function cm(){sb.classList.remove('mobile-open');if(overlay)overlay.classList.remove('show');}
+  if(mobBtn)mobBtn.addEventListener('click',function(){if(sb.classList.contains('mobile-open'))cm();else{sb.classList.add('mobile-open');if(overlay)overlay.classList.add('show');}});
+  if(overlay)overlay.addEventListener('click',cm);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){a.addEventListener('click',function(){if(m())cm();});});
+  var cur=(location.pathname.split('/').pop()||'').toLowerCase();
+  if(cur){sb.querySelectorAll('nav a[href]').forEach(function(a){var h=(a.getAttribute('href')||'').toLowerCase();if(h&&h===cur)a.classList.add('sb-active');});}
+  window.addEventListener('resize',r);r();
 })();
 </script>
+<script src="bulk-select.js" defer></script>
 <script src="notes-widget.js" defer></script>
-<script src="list-customizer.js" defer></script>
 <script src="i18n-toggle.js" defer></script>
+<script src="mockup-handlers.js" defer></script>
 </body>
 </html>

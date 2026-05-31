@@ -32,9 +32,9 @@
 
 | # sugerido | Tela                                | Concept de origem                            | Prioridade | Justificativa                                                   |
 | ---------- | ----------------------------------- | -------------------------------------------- | ---------- | --------------------------------------------------------------- |
-| 77         | Lista + edição de Agentes (ActionIA) | [[CONCEPT-ACTIONIA]] §6                    | Médio      | `AgentsList.jsx`/`AgentEdit.jsx` existem como placeholder — falta mockup |
-| 78         | Lista + edição de Alertas           | [[CONCEPT-ALERT]] §6                         | Médio      | Configuração de DSL de condições + canais de notificação        |
-| 79         | Regras de Match Engine              | [[CONCEPT-MATCH-ENGINE]] §6                  | Alto       | Lista + edição de regras de match (vincula NF→workflow)         |
+| ~~77~~ ✅  | ~~Lista + edição de Agentes (ActionIA)~~ | ~~[[CONCEPT-ACTIONIA]] §6~~              | ~~Médio~~  | **Entregue 2026-05-31 (Passo 4)** — `tela77-actionia-biblioteca.html` (4 tipos + can_replace_stage_user + drawer + modal) |
+| ~~78~~ ✅  | ~~Lista + edição de Alertas~~        | ~~[[CONCEPT-ALERT]] §6~~                    | ~~Médio~~  | **Entregue 2026-05-31 (Passo 4)** — `tela78-alertas-biblioteca.html` (2 abas Regras+Histórico, DSL editor, 4 canais) |
+| ~~79~~ ✅  | ~~Regras de Match Engine~~           | ~~[[CONCEPT-MATCH-ENGINE]] §6~~              | ~~Alto~~   | **Entregue 2026-05-31 (Passo 4)** — `tela79-matchengine-workflow.html` (3 modos + mapping editor + simulação) |
 | ~~83~~ ✅  | ~~CRUD de Alçadas~~                 | ~~[[CONCEPT-ALCADAS]] §5~~                   | ~~Alto~~   | **Entregue 2026-05-31 (Sprint A)** — `tela83-alcadas-cadastro.html` |
 | ~~86~~ ✅  | ~~CRUD de Fornecedores (Vendors)~~  | Gap E3 cadastros                             | ~~Alto~~   | **Entregue 2026-05-31 (Sprint A)** — `tela86-fornecedores-cadastro.html` |
 | ~~88~~ ✅  | ~~Times e Departamentos~~           | ~~[[CONCEPT-TEAMS]] §6~~                     | ~~Alto~~   | **Entregue 2026-05-31 (Sprint Seguinte)** — `tela87-times-cadastro.html` (lista + árvore + drawer + modal criar) |
@@ -48,9 +48,9 @@
 | CONCEPT-STAGE-OWNERSHIP-VALIDATION       | 100% mockup (tela82) | Validações inline em tela08/50/80 pendentes                 |
 | CONCEPT-STAGE-ROLE-ASSIGNMENT            | 0% — depende tela08  | Refactor tela08 é core                                      |
 | CONCEPT-WORKFLOW-OBLIGATORY              | 0% — refactor tela11 | Badge órfão + wizard on-the-fly pendentes                   |
-| CONCEPT-ACTIONIA                         | 0% — tela77          | Mockup ainda não criado                                     |
-| CONCEPT-ALERT                            | 0% — tela78          | Mockup ainda não criado                                     |
-| CONCEPT-MATCH-ENGINE                     | 0% — tela79          | Mockup ainda não criado                                     |
+| CONCEPT-ACTIONIA                         | 100% mockup (tela77) | Refactor tela10 aba "Agentes" pendente                      |
+| CONCEPT-ALERT                            | 100% mockup (tela78) | Refactor tela10 aba "Alertas" + tela09 (consumidor) pendente |
+| CONCEPT-MATCH-ENGINE                     | 100% mockup (tela79) | Hook ingestão emails/NFs + integração LLM são backend       |
 | CONCEPT-ALCADAS                          | 0% — tela83          | Concept recém-criado, mockup não iniciado                   |
 | CONCEPT-USER-SCOPE-INTERVENIENTES        | 0% — refactor tela50 | Aba "Intervenientes" não existe ainda                       |
 | CONCEPT-SAVED-FILTERS                    | Parcial (tela12/13)  | Filtros salvos genéricos pendentes em listas tela01-tela60  |

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1280">
-<title>DMS — Biblioteca ActionIA</title>
+<title>DMS — Agentes ActionIA (Biblioteca)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,15 +21,34 @@ tailwind.config = {
 <style>
   body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
   .tilt-accent { transform: skewX(-16.5deg); }
-  .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+  .caption { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
   .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
-  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
-  .kpi-card { background:#fff; border:1px solid #E5E7EB; border-radius:8px; padding:16px 18px; }
-  .kpi-label { font-size:11px; font-weight:600; color:#656464; letter-spacing:0.04em; text-transform:uppercase; }
-  .kpi-value { font-family:'JetBrains Mono',Consolas,monospace; font-size:28px; font-weight:800; color:#00386C; line-height:1.1; margin-top:6px; }
-  .kpi-sub { font-size:11px; color:#656464; margin-top:4px; }
-  .chip { display:inline-flex; align-items:center; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:600; }
-  .row-hover:hover { background:#F8FBFE; cursor:pointer; }
+  .chip { display:inline-flex; align-items:center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; }
+  .chip-skill { background: #EEF2FF; color: #4338CA; }
+  .chip-tipo-actionai { background: #F3E8FF; color: #6D28D9; }
+  .chip-tipo-validacao { background: #DCFCE7; color: #166534; }
+  .chip-tipo-roteamento { background: #DBEAFE; color: #1D4ED8; }
+  .chip-tipo-notificacao { background: #FEF3C7; color: #92400E; }
+  .badge { display:inline-flex; align-items:center; gap:4px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; border: 1px solid; }
+  .badge-ativo { background: #DCFCE7; color: #166534; border-color: #86EFAC; }
+  .badge-inativo { background: #F3F4F6; color: #4B5563; border-color: #D1D5DB; }
+  .badge-rascunho { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
+  .badge-em-uso { background: #DBEAFE; color: #1D4ED8; border-color: #93C5FD; }
+  .row-hover:hover { background: #F8FAFC; cursor: pointer; }
+  #drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 60; display: none; }
+  #drawer-backdrop.show { display: block; }
+  #drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 720px; max-width: 95vw; background: #fff; z-index: 70; transform: translateX(100%); transition: transform .25s ease; box-shadow: -8px 0 24px rgba(0,0,0,.12); overflow-y: auto; }
+  #drawer.show { transform: translateX(0); }
+  .drawer-tab { padding: 10px 14px; font-size: 13px; font-weight: 600; color: #656464; border-bottom: 2px solid transparent; cursor: pointer; }
+  .drawer-tab.active { color: #00386C; border-bottom-color: #00AEEE; }
+  .drawer-pane { display: none; }
+  .drawer-pane.active { display: block; }
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 60; display: none; align-items: center; justify-content: center; }
+  .modal-backdrop.show { display: flex; }
+  .modal-box { background: #fff; border-radius: 12px; box-shadow: 0 24px 60px rgba(0,0,0,.28); width: 720px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+  .tipo-card { border: 2px solid #E5E7EB; border-radius: 8px; padding: 12px; cursor: pointer; transition: all .15s ease; }
+  .tipo-card:hover { border-color: #00AEEE; background: #F0F9FF; }
+  .tipo-card.selected { border-color: #00386C; background: #EFF6FF; }
 </style>
 <link rel="stylesheet" href="mobile-responsive.css">
 </head>
@@ -43,312 +62,376 @@ tailwind.config = {
       <nav class="flex items-center gap-2 text-sm">
         <span class="text-dms-tecnologia">Bibliotecas Avançadas</span>
         <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
-        <span class="text-dms-mar font-semibold">ActionIA</span>
+        <span class="text-dms-mar font-semibold">Agentes ActionIA</span>
       </nav>
       <div class="flex items-center gap-3">
-        <div class="relative">
-          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <input type="text" placeholder="Buscar em todo o sistema..." class="input-dms w-[260px] pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA]">
-        </div>
+        <button class="px-3 py-2 text-xs font-semibold text-dms-tecnologia border border-[#E5E7EB] rounded-md hover:text-dms-mar bg-white">📥 Templates</button>
+        <button onclick="abrirModalCriar()" class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">+ Novo Agente</button>
       </div>
     </header>
 
-    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+    <main class="flex-1 p-8 pb-12 max-w-[1440px] w-full mx-auto">
 
-      <!-- Header -->
-      <div class="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <div class="flex items-center gap-3 mb-2">
-            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
-            <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">ActionIA</h1>
-          </div>
-          <p class="text-sm text-dms-tecnologia max-w-3xl">Biblioteca ActionIA do sistema. Cada ActionIA é uma cápsula reutilizável de comportamento — validação, roteamento, automação ou notificação — vinculável a workflows e stages.</p>
+      <div class="mb-6">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h1 class="text-[28px] leading-[36px] font-bold text-dms-mar">Agentes ActionIA</h1>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-violet-50 text-violet-700 border-violet-200">cadastro · biblioteca</span>
         </div>
-        <div class="flex items-center gap-2 flex-shrink-0">
-          <button id="btn-novo-actionia" class="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 bg-dms-sabedoria rounded-md hover:opacity-90 transition-opacity">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-            Novo ActionIA
-          </button>
-        </div>
+        <p class="text-sm text-dms-tecnologia max-w-3xl">Agentes Inteligentes executores em workflows — 4 tipos: <strong>ActionAI</strong> (RPA/LLM), <strong>Validação</strong>, <strong>Roteamento</strong>, <strong>Notificação</strong>. Vinculam-se a workflows pela aba "Agentes" do <a href="tela10-workflow-editor.html" class="text-dms-ceu hover:underline">Workflow Editor</a> e podem ocupar stages humanos quando <code class="bg-[#F3F4F6] px-1 rounded">can_replace_stage_user=true</code> (exige aprovação do Admin Geral). Concept: <a href="docs/concepts/CONCEPT-ACTIONIA.md" class="text-dms-ceu hover:underline">CONCEPT-ACTIONIA</a>.</p>
       </div>
 
       <!-- KPIs -->
-      <div class="grid grid-cols-4 gap-3 mb-6">
-        <div class="kpi-card"><div class="kpi-label" data-i18n="label.total">Total</div><div class="kpi-value">14</div><div class="kpi-sub">na biblioteca</div></div>
-        <div class="kpi-card"><div class="kpi-label" data-i18n="filter.active">Ativos</div><div class="kpi-value text-emerald-600">11</div><div class="kpi-sub">disponíveis para uso</div></div>
-        <div class="kpi-card"><div class="kpi-label" data-i18n="filter.inactive">Inativos</div><div class="kpi-value text-dms-tecnologia">3</div><div class="kpi-sub">rascunhos ou desativados</div></div>
-        <div class="kpi-card"><div class="kpi-label">Em uso</div><div class="kpi-value text-dms-ceu">9</div><div class="kpi-sub">vinculados a workflows</div></div>
-      </div>
-
-      <!-- Filtros -->
-      <div class="flex items-center gap-3 mb-4 flex-wrap">
-        <div class="relative flex-1 min-w-[260px] max-w-[420px]">
-          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <input id="f-search" type="text" placeholder="Buscar por nome, descrição, skill..." class="input-dms w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+      <div class="grid grid-cols-5 gap-3 mb-6">
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Total na biblioteca</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">6</div>
         </div>
-        <select id="f-tipo" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
-          <option value="">Todos os tipos</option>
-          <option value="ActionAI">ActionAI</option>
-          <option value="Validação">Validação</option>
-          <option value="Roteamento">Roteamento</option>
-          <option value="Notificação">Notificação</option>
-        </select>
-        <select id="f-status" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
-          <option value="">Todos os status</option>
-          <option value="Ativo">Ativo</option>
-          <option value="Inativo">Inativo</option>
-          <option value="Rascunho">Rascunho</option>
-        </select>
-        <span id="f-count" class="ml-auto text-xs text-dms-tecnologia">14 ActionIAs</span>
-      </div>
-
-      <!-- Tabela -->
-      <div id="table-wrap" class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
-        <table class="w-full text-sm">
-          <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
-            <tr class="text-left">
-              <th class="px-4 py-3 caption text-dms-tecnologia font-semibold" data-i18n="label.name">Nome</th>
-              <th class="px-4 py-3 caption text-dms-tecnologia font-semibold" data-i18n="label.type">Tipo</th>
-              <th class="px-4 py-3 caption text-dms-tecnologia font-semibold" data-i18n="label.description">Descrição</th>
-              <th class="px-4 py-3 caption text-dms-tecnologia font-semibold">Skills</th>
-              <th class="px-4 py-3 caption text-dms-tecnologia font-semibold text-center">Workflows</th>
-              <th class="px-4 py-3 caption text-dms-tecnologia font-semibold" data-i18n="label.status">Status</th>
-              <th class="px-4 py-3 caption text-dms-tecnologia font-semibold">Atualizado</th>
-              <th class="px-4 py-3 w-10"></th>
-            </tr>
-          </thead>
-          <tbody id="tbody" class="divide-y divide-[#E5E7EB]"></tbody>
-        </table>
-      </div>
-
-      <!-- Empty state (oculto por default) -->
-      <div id="empty" class="hidden bg-white border border-[#E5E7EB] rounded-lg p-12 text-center">
-        <div class="w-16 h-16 mx-auto rounded-full bg-dms-ceu/10 flex items-center justify-center mb-3">
-          <svg class="w-8 h-8 text-dms-ceu" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        <div class="bg-white border border-emerald-300 rounded-lg p-4">
+          <div class="caption text-emerald-700">Ativos</div>
+          <div class="text-2xl mono font-bold text-emerald-700 mt-1">4</div>
         </div>
-        <h3 class="text-base font-semibold text-dms-mar mb-1">Nenhum ActionIA encontrado</h3>
-        <p class="text-sm text-dms-tecnologia">Ajuste os filtros ou crie um novo ActionIA.</p>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Em uso</div>
+          <div class="text-2xl mono font-bold text-dms-ceu mt-1">3</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">vinculados a workflow</div>
+        </div>
+        <div class="bg-white border-l-4 border-l-violet-500 border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-violet-700">Substituem stage humano</div>
+          <div class="text-2xl mono font-bold text-violet-700 mt-1">2</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">can_replace=true</div>
+        </div>
+        <div class="bg-white border-l-4 border-l-amber-500 border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-amber-700">⚠️ Rascunhos</div>
+          <div class="text-2xl mono font-bold text-amber-700 mt-1">2</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">não validados</div>
+        </div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 mb-4 shadow-dms-md">
+        <div class="grid grid-cols-12 gap-3 items-end">
+          <div class="col-span-4">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Buscar</label>
+            <input id="f-search" type="text" placeholder="nome, skill, objetivo…" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu">
+          </div>
+          <div class="col-span-3">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Tipo</label>
+            <select id="f-tipo" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option value="">Todos</option>
+              <option value="actionai">ActionAI (RPA/LLM)</option>
+              <option value="validacao">Validação</option>
+              <option value="roteamento">Roteamento</option>
+              <option value="notificacao">Notificação</option>
+            </select>
+          </div>
+          <div class="col-span-3">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Status</label>
+            <select id="f-status" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option value="">Todos</option>
+              <option>ativo</option>
+              <option>em_uso</option>
+              <option>rascunho</option>
+              <option>inativo</option>
+            </select>
+          </div>
+          <div class="col-span-2">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Stage humano</label>
+            <select id="f-replace" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option value="">Todos</option>
+              <option value="true">Pode substituir</option>
+              <option value="false">Não substitui</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-xs text-dms-tecnologia"><span id="contador">6</span> agentes mostrados</div>
+        <div class="text-[11px] text-dms-tecnologia italic">Agentes <code class="bg-[#F3F4F6] px-1 rounded">em_uso</code> não podem ser excluídos — apenas inativados.</div>
+      </div>
+
+      <!-- TABELA -->
+      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-[#F8F9FA] text-[10px] font-semibold text-dms-tecnologia uppercase tracking-wider">
+              <tr>
+                <th class="text-left px-4 py-3">Nome</th>
+                <th class="text-left px-4 py-3">Tipo</th>
+                <th class="text-left px-4 py-3">Skills</th>
+                <th class="text-left px-4 py-3">Em uso por</th>
+                <th class="text-center px-4 py-3">Stage humano?</th>
+                <th class="text-left px-4 py-3">Owner</th>
+                <th class="text-left px-4 py-3">Status</th>
+                <th class="text-right px-4 py-3">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="agentes-tbody" class="divide-y divide-[#F1F3F5]"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="mt-4 bg-[#EFF6FF] border border-[#BFDBFE] rounded-md p-3 flex items-start gap-2">
+        <svg class="w-4 h-4 text-[#1D4ED8] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <p class="text-xs text-[#1E3A8A]"><strong>Ponte ActionIA ↔ Stage:</strong> agentes com <code class="bg-white px-1 rounded">can_replace_stage_user=true</code> podem ocupar <code class="bg-white px-1 rounded">workflow_stages.actionia_id</code> e substituir user humano em stages. Mudança requer Admin Geral + motivo no audit log. Falha/timeout escala via <code class="bg-white px-1 rounded">escalation_role_id</code>.</p>
       </div>
 
     </main>
-
   </div>
 </div>
 
-<!-- DRAWER: Novo ActionIA -->
-<div id="drawer-overlay" class="hidden fixed inset-0 bg-black/40 z-40"></div>
-<aside id="drawer" class="hidden fixed top-0 right-0 h-screen w-[520px] bg-white shadow-2xl z-50 flex flex-col">
-  <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
-    <div>
-      <div class="caption text-dms-confianca" data-i18n="page.library">Biblioteca</div>
-      <h2 class="text-lg font-bold text-dms-mar">Novo ActionIA</h2>
+<!-- ============ DRAWER DETALHE ============ -->
+<div id="drawer-backdrop" onclick="fecharDrawer()"></div>
+<div id="drawer">
+  <div class="border-b border-[#E5E7EB] px-6 py-5 flex items-start justify-between sticky top-0 bg-white z-10">
+    <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-lg bg-dms-sabedoria text-white flex items-center justify-center text-xl flex-shrink-0">🤖</div>
+      <div>
+        <div class="text-lg font-bold text-dms-mar" id="drawer-name">--</div>
+        <div class="text-xs text-dms-tecnologia mono" id="drawer-id">--</div>
+      </div>
     </div>
-    <button id="drawer-close" class="text-dms-tecnologia hover:text-dms-mar" aria-label="Fechar">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-    </button>
+    <button onclick="fecharDrawer()" class="text-dms-tecnologia hover:text-dms-mar text-xl leading-none">×</button>
   </div>
-
-  <div class="flex-1 overflow-y-auto p-6 space-y-5">
-
-    <!-- Seção 1 — Identificação -->
-    <div>
-      <div class="caption text-dms-confianca mb-2 pb-1 border-b border-[#E5E7EB]">1 · Identificação</div>
-      <div class="space-y-3">
-        <div>
-          <label class="text-xs font-semibold text-dms-mar block mb-1">Nome <span class="text-red-500">*</span></label>
-          <input type="text" placeholder="ex: ActionAI Aprovação NF" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
-        </div>
-        <div>
-          <label class="text-xs font-semibold text-dms-mar block mb-1">Tipo <span class="text-red-500">*</span></label>
-          <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
-            <option>ActionAI</option><option>Validação</option><option>Roteamento</option><option>Notificação</option>
-          </select>
-        </div>
-        <div>
-          <label class="text-xs font-semibold text-dms-mar block mb-1" data-i18n="label.description">Descrição</label>
-          <textarea rows="2" placeholder="Resumo em uma frase do que esse ActionIA faz." class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
-        </div>
-        <div>
-          <label class="text-xs font-semibold text-dms-mar block mb-1">Objetivo <span class="text-red-500">*</span></label>
-          <textarea rows="2" placeholder="Para que serve este ActionIA? Qual problema ele resolve no workflow?" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
-        </div>
-        <div>
-          <label class="text-xs font-semibold text-dms-mar block mb-1">Resultado / Entrega <span class="text-red-500">*</span></label>
-          <textarea rows="2" placeholder="O que ele entrega ao final? Que tipo de output gera (decisão, classificação, mensagem, JSON, etc.)?" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
-        </div>
+  <div class="border-b border-[#E5E7EB] flex gap-1 px-6 sticky top-[89px] bg-white z-10">
+    <div class="drawer-tab active" data-tab="dados" onclick="trocarTab('dados')">Detalhes</div>
+    <div class="drawer-tab" data-tab="config" onclick="trocarTab('config')">Config</div>
+    <div class="drawer-tab" data-tab="workflows" onclick="trocarTab('workflows')">Em uso por</div>
+    <div class="drawer-tab" data-tab="hist" onclick="trocarTab('hist')">Histórico</div>
+  </div>
+  <div class="px-6 py-5">
+    <div class="drawer-pane active" data-pane="dados">
+      <div class="grid grid-cols-2 gap-4 text-sm mb-5">
+        <div><div class="caption text-dms-tecnologia mb-1">Tipo</div><div id="drawer-tipo">--</div></div>
+        <div><div class="caption text-dms-tecnologia mb-1">Status</div><div id="drawer-status">--</div></div>
+        <div class="col-span-2"><div class="caption text-dms-tecnologia mb-1">Objetivo</div><div class="text-sm" id="drawer-objetivo">--</div></div>
+        <div class="col-span-2"><div class="caption text-dms-tecnologia mb-1">Resultado entregue</div><div class="text-sm" id="drawer-resultado">--</div></div>
+        <div><div class="caption text-dms-tecnologia mb-1">Owner</div><div id="drawer-owner">--</div></div>
+        <div><div class="caption text-dms-tecnologia mb-1">Atualizado</div><div class="mono text-xs" id="drawer-updated">--</div></div>
+        <div class="col-span-2"><div class="caption text-dms-tecnologia mb-1">Skills</div><div id="drawer-skills" class="flex flex-wrap gap-1"></div></div>
       </div>
-    </div>
-
-    <!-- Seção 2 — Especificação técnica -->
-    <div>
-      <div class="caption text-dms-confianca mb-2 pb-1 border-b border-[#E5E7EB]">2 · Especificação técnica</div>
-      <div class="space-y-3">
-        <div>
-          <label class="text-xs font-semibold text-dms-mar block mb-1">Input esperado</label>
-          <textarea rows="2" placeholder="Que tipo de dado/contexto ele recebe pra trabalhar? (ex: payload de NF, ID de pedido, threshold…)" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
-        </div>
-        <div>
-          <label class="text-xs font-semibold text-dms-mar block mb-1">Output esperado</label>
-          <textarea rows="2" placeholder="Formato/estrutura do que ele retorna (ex: { decisao, score, motivo[] })" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none mono"></textarea>
-        </div>
-        <div>
-          <label class="text-xs font-semibold text-dms-mar block mb-1">Skills</label>
-          <div class="border border-[#E5E7EB] rounded-md px-2 py-1.5 bg-white flex flex-wrap gap-1.5">
-            <span class="chip bg-dms-ceu/10 text-dms-confianca">classificar <button class="ml-1 text-dms-tecnologia hover:text-red-500">×</button></span>
-            <span class="chip bg-dms-ceu/10 text-dms-confianca">extrair_campos <button class="ml-1 text-dms-tecnologia hover:text-red-500">×</button></span>
-            <input type="text" placeholder="+ skill" class="text-xs px-1 py-0.5 outline-none flex-1 min-w-[80px]">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Seção 3 — Integração SaaS (pendente) -->
-    <div>
-      <div class="caption text-dms-confianca mb-2 pb-1 border-b border-[#E5E7EB]">3 · Integração SaaS</div>
-      <div class="bg-amber-50 border border-amber-200 rounded-md p-3 mb-3 flex items-start gap-2">
-        <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-        <div class="text-xs text-amber-800 leading-snug">
-          <strong>Integração com SaaS externo — pendente.</strong> Campos abaixo serão configurados quando o contrato técnico for definido (REST / webhook / SDK / MCP / etc).
-        </div>
-      </div>
-      <div class="space-y-3 opacity-70">
-        <div>
-          <label class="text-xs font-semibold text-dms-mar block mb-1">Referência SaaS</label>
-          <input type="text" disabled placeholder="URL ou ID do agente externo (a definir)" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA] cursor-not-allowed mono">
-        </div>
-        <div>
-          <label class="text-xs font-semibold text-dms-mar block mb-1">Tipo de autenticação</label>
-          <select disabled class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA] cursor-not-allowed">
-            <option>— a definir —</option><option>API Key</option><option>OAuth 2.0</option><option>JWT</option><option>mTLS</option>
-          </select>
-        </div>
-        <div>
-          <label class="text-xs font-semibold text-dms-mar block mb-1">Endpoint de execução</label>
-          <input type="text" disabled placeholder="https://… (a definir após contrato técnico)" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA] cursor-not-allowed mono">
-        </div>
-      </div>
-      <div class="mt-3 text-[11px] text-dms-tecnologia leading-relaxed bg-[#F8F9FA] border border-dashed border-[#E5E7EB] rounded-md p-3">
-        Estes campos serão funcionais após decisão do contrato de integração — ver <span class="mono text-dms-confianca">CONCEPT_ACTIONIA.md</span> seção 9 "Integração SaaS".
-      </div>
-    </div>
-
-    <!-- Seção 4 — Configurações operacionais -->
-    <div>
-      <div class="caption text-dms-confianca mb-2 pb-1 border-b border-[#E5E7EB]">4 · Configurações operacionais</div>
-      <div class="space-y-3">
-        <div>
-          <label class="text-xs font-semibold text-dms-mar block mb-1">Status</label>
-          <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
-            <option>Ativo</option><option>Inativo</option><option>Rascunho</option>
-          </select>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
+      <div class="border-t border-[#E5E7EB] pt-4">
+        <div class="flex items-center justify-between bg-violet-50 border border-violet-200 rounded p-3 mb-3">
           <div>
-            <label class="text-xs font-semibold text-dms-mar block mb-1">Custo estimado / execução</label>
-            <input type="text" placeholder="R$ 0,05" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white mono">
+            <div class="text-xs font-semibold text-violet-900">can_replace_stage_user</div>
+            <div class="text-[11px] text-violet-700 mt-0.5">Permite ocupar stages humanos (workflow_stages.actionia_id)</div>
           </div>
-          <div>
-            <label class="text-xs font-semibold text-dms-mar block mb-1">Cooldown entre execuções</label>
-            <input type="text" placeholder="30 segundos" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white mono">
+          <span id="drawer-replace" class="badge">--</span>
+        </div>
+        <div class="text-[11px] text-dms-tecnologia italic">Para alterar essa flag, abra solicitação ao Admin Geral. Mudança registrada em audit log com autor + motivo.</div>
+      </div>
+      <div class="mt-6 flex gap-2 flex-wrap">
+        <button class="px-3 py-1.5 text-xs font-semibold text-white bg-dms-mar rounded hover:bg-dms-confianca">Editar</button>
+        <button class="px-3 py-1.5 text-xs font-semibold text-dms-mar border border-dms-mar rounded hover:bg-dms-mar hover:text-white">Testar (sandbox)</button>
+        <button class="px-3 py-1.5 text-xs font-semibold text-dms-mar border border-dms-mar rounded hover:bg-dms-mar hover:text-white">Duplicar</button>
+        <button id="drawer-btn-toggle-status" class="px-3 py-1.5 text-xs font-semibold text-amber-700 border border-amber-300 rounded hover:bg-amber-50">Inativar</button>
+      </div>
+    </div>
+    <div class="drawer-pane" data-pane="config">
+      <div class="caption text-dms-tecnologia mb-2">Configuração (depende do tipo)</div>
+      <pre id="drawer-config" class="mono text-[11px] bg-[#0F1B4C] text-[#B0C934] p-4 rounded overflow-x-auto whitespace-pre-wrap">--</pre>
+      <div class="mt-4 grid grid-cols-2 gap-3 text-xs">
+        <div><div class="caption text-dms-tecnologia mb-1">Input esperado</div><div id="drawer-input">--</div></div>
+        <div><div class="caption text-dms-tecnologia mb-1">Output esperado</div><div id="drawer-output">--</div></div>
+        <div><div class="caption text-dms-tecnologia mb-1">Custo / execução</div><div class="mono" id="drawer-custo">--</div></div>
+        <div><div class="caption text-dms-tecnologia mb-1">Cooldown</div><div class="mono" id="drawer-cooldown">--</div></div>
+      </div>
+    </div>
+    <div class="drawer-pane" data-pane="workflows">
+      <div class="caption text-dms-tecnologia mb-3">Workflows que consomem este agente</div>
+      <div class="space-y-2" id="drawer-workflows-list"></div>
+      <p class="text-[11px] text-dms-tecnologia mt-3 italic">Inativar este agente emite alerta nos workflows acima — não bloqueia, mas avisa donos.</p>
+    </div>
+    <div class="drawer-pane" data-pane="hist">
+      <div class="caption text-dms-tecnologia mb-3">Mudanças recentes</div>
+      <div class="space-y-2 text-xs">
+        <div class="flex gap-2"><span class="mono text-dms-tecnologia">2026-05-28</span><span>Carlos Andrade aprovou <code class="bg-[#F3F4F6] px-1 rounded">can_replace_stage_user</code> → true · motivo: piloto stage validação NF</span></div>
+        <div class="flex gap-2"><span class="mono text-dms-tecnologia">2026-05-22</span><span>Fernando Arruda atualizou prompt_template (+12 tokens)</span></div>
+        <div class="flex gap-2"><span class="mono text-dms-tecnologia">2026-05-15</span><span>Skill "OCR-PDF" adicionada</span></div>
+        <div class="flex gap-2"><span class="mono text-dms-tecnologia">2026-04-30</span><span>Agente criado por Fernando Arruda</span></div>
+      </div>
+      <a href="tela60-auditoria-global.html" class="mt-3 inline-block text-xs text-dms-ceu hover:underline font-semibold">Ver log completo →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL NOVO AGENTE ============ -->
+<div id="modal-criar" class="modal-backdrop" onclick="if(event.target===this)fecharModal()">
+  <div class="modal-box">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between sticky top-0 bg-white">
+      <h3 class="text-base font-bold text-dms-mar">Novo Agente ActionIA</h3>
+      <button onclick="fecharModal()" class="text-dms-tecnologia hover:text-dms-mar text-xl leading-none">×</button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <div>
+        <label class="caption text-dms-tecnologia mb-2 block">Tipo *</label>
+        <div class="grid grid-cols-4 gap-2">
+          <div class="tipo-card selected" data-tipo="actionai">
+            <div class="text-xl mb-1">🤖</div>
+            <div class="font-semibold text-sm text-dms-mar">ActionAI</div>
+            <div class="text-[10px] text-dms-tecnologia mt-1">RPA / LLM com prompt</div>
+          </div>
+          <div class="tipo-card" data-tipo="validacao">
+            <div class="text-xl mb-1">✅</div>
+            <div class="font-semibold text-sm text-dms-mar">Validação</div>
+            <div class="text-[10px] text-dms-tecnologia mt-1">Regras + on_fail</div>
+          </div>
+          <div class="tipo-card" data-tipo="roteamento">
+            <div class="text-xl mb-1">🔀</div>
+            <div class="font-semibold text-sm text-dms-mar">Roteamento</div>
+            <div class="text-[10px] text-dms-tecnologia mt-1">Conditions → targets</div>
+          </div>
+          <div class="tipo-card" data-tipo="notificacao">
+            <div class="text-xl mb-1">🔔</div>
+            <div class="font-semibold text-sm text-dms-mar">Notificação</div>
+            <div class="text-[10px] text-dms-tecnologia mt-1">Canais + template</div>
           </div>
         </div>
       </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="caption text-dms-tecnologia mb-1 block">Nome *</label>
+          <input type="text" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md focus:outline-none focus:border-dms-ceu" placeholder="ex: Validador NF Fiscal">
+        </div>
+        <div>
+          <label class="caption text-dms-tecnologia mb-1 block">Descrição (1 frase)</label>
+          <input type="text" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md focus:outline-none focus:border-dms-ceu" placeholder="resumo curto">
+        </div>
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Objetivo * <span class="text-[10px] text-dms-tecnologia">— que problema resolve no workflow?</span></label>
+        <textarea rows="2" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md focus:outline-none focus:border-dms-ceu" placeholder="ex: Comparar campos fiscais da NF com pedido de origem e bloquear divergências > 5%"></textarea>
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Resultado entregue *</label>
+        <textarea rows="2" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md focus:outline-none focus:border-dms-ceu" placeholder="ex: { ok: bool, divergencias: [...] }"></textarea>
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Skills <span class="text-[10px] text-dms-tecnologia">(chips · sugestões do catálogo)</span></label>
+        <input type="text" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md focus:outline-none focus:border-dms-ceu" placeholder="ex: OCR, comparação fiscal, cálculo" list="skills-sug">
+        <datalist id="skills-sug">
+          <option value="OCR"></option><option value="comparação fiscal"></option>
+          <option value="cálculo"></option><option value="parsing XML"></option>
+          <option value="extração entidades"></option><option value="similarity match"></option>
+        </datalist>
+      </div>
+      <div class="border border-[#E5E7EB] rounded p-3">
+        <div class="caption text-dms-tecnologia mb-2">Config (ActionAI)</div>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <label class="text-[11px] text-dms-tecnologia">Modelo</label>
+            <select class="w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded">
+              <option>claude-sonnet-4-6</option>
+              <option>claude-opus-4-7</option>
+              <option>gpt-4o</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[11px] text-dms-tecnologia">Max tokens</label>
+            <input type="number" value="2048" class="w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded mono">
+          </div>
+          <div class="col-span-2">
+            <label class="text-[11px] text-dms-tecnologia">Prompt template</label>
+            <textarea rows="3" class="w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded mono" placeholder="Compare {{nf.valor_total}} com {{pedido.valor_aprovado}} e..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="bg-violet-50 border border-violet-200 rounded p-3 flex items-start gap-3">
+        <input id="cb-replace" type="checkbox" class="mt-0.5">
+        <div>
+          <label for="cb-replace" class="text-xs font-semibold text-violet-900 cursor-pointer">Permitir substituir user humano em stages</label>
+          <div class="text-[11px] text-violet-700 mt-1">Ativa <code class="bg-white px-1 rounded">can_replace_stage_user=true</code>. Requer aprovação do Admin Geral antes de virar elegível — fica em pendência até aprovação.</div>
+        </div>
+      </div>
+      <div class="bg-[#EFF6FF] border border-[#BFDBFE] rounded p-3 text-xs text-[#1E3A8A]">
+        ℹ️ Status inicial = <code class="bg-white px-1 rounded">rascunho</code>. ActionAI exige prompt template validado antes de ativar. Você poderá testar em sandbox no detalhe.
+      </div>
     </div>
-
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex justify-end gap-2 sticky bottom-0 bg-white">
+      <button onclick="fecharModal()" class="px-4 py-2 text-sm font-semibold text-dms-tecnologia border border-[#E5E7EB] rounded">Cancelar</button>
+      <button class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded hover:bg-dms-confianca">Salvar como rascunho</button>
+    </div>
   </div>
-
-  <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2 bg-[#F8F9FA]">
-    <button id="drawer-cancel" class="px-4 py-2 text-sm font-medium text-dms-tecnologia border border-[#E5E7EB] rounded-md bg-white hover:text-dms-mar" data-i18n="btn.cancel">Cancelar</button>
-    <button class="px-4 py-2 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md hover:bg-sky-50">Salvar rascunho</button>
-    <button class="px-4 py-2 text-sm font-semibold text-white bg-emerald-600 rounded-md hover:bg-emerald-700">Ativar</button>
-  </div>
-</aside>
+</div>
 
 <script>
-const AGENTS = [
-  { name:'ActionAI Aprovação NF', tipo:'ActionAI', desc:'Sugere aprovação ou rejeição de NFs comparando com pedido + contrato.', obj:'Reduzir tempo de aprovação fiscal sugerindo decisão automaticamente baseada em regras do contrato.', skills:['classificar','extrair_campos','decidir'], workflows:4, status:'Ativo', upd:'há 2h' },
-  { name:'Validador CNPJ Brasil', tipo:'Validação', desc:'Consulta Receita Federal e valida situação cadastral do CNPJ.', obj:'Bloquear cadastro/movimentação com fornecedores em situação fiscal irregular.', skills:['consultar_externo','validar'], workflows:6, status:'Ativo', upd:'há 1d' },
-  { name:'Roteador SLA Crítico', tipo:'Roteamento', desc:'Decide próxima fila quando SLA está em zona vermelha.', obj:'Evitar estouro de SLA escalando demanda pro time correto antes do prazo.', skills:['priorizar','redirecionar'], workflows:3, status:'Ativo', upd:'há 3d' },
-  { name:'Extrator XML NFe', tipo:'Validação', desc:'Lê XML de NFe e extrai itens, impostos, totais e chave de acesso.', obj:'Estruturar dados de NFe sem digitação manual.', skills:['extrair_campos','parsear_xml'], workflows:5, status:'Ativo', upd:'há 5d' },
-  { name:'Notificador Slack #compras', tipo:'Notificação', desc:'Posta mensagem no canal #compras com mention do aprovador.', obj:'Reduzir atraso em aprovações via notificação direta no canal de operações.', skills:['notificar','formatar_msg'], workflows:2, status:'Ativo', upd:'há 1sem' },
-  { name:'Sugestor Plano de Contas', tipo:'ActionAI', desc:'Sugere conta contábil baseado em descrição da NF e histórico.', obj:'Automatizar classificação contábil reduzindo trabalho do time financeiro.', skills:['classificar','sugerir'], workflows:3, status:'Ativo', upd:'há 1sem' },
-  { name:'Detector Divergência Pedido×NF', tipo:'Validação', desc:'Compara valores, itens e quantidades entre pedido e NF recebida.', obj:'Identificar divergências fiscais antes de aprovar pagamento.', skills:['comparar','sinalizar'], workflows:4, status:'Ativo', upd:'há 2sem' },
-  { name:'Roteador Multi-Empresa', tipo:'Roteamento', desc:'Identifica a empresa correta pela CNPJ do destinatário no XML.', obj:'Rotear NF automaticamente pra empresa correta em grupo multi-CNPJ.', skills:['identificar','redirecionar'], workflows:2, status:'Ativo', upd:'há 2sem' },
-  { name:'Resumidor Email Fornecedor', tipo:'ActionAI', desc:'Resume thread de email longa em 3 bullets pro aprovador.', obj:'Reduzir tempo de leitura de threads longas com fornecedor.', skills:['resumir'], workflows:1, status:'Ativo', upd:'há 3sem' },
-  { name:'Notificador WhatsApp', tipo:'Notificação', desc:'Envia mensagem WhatsApp pelo número cadastrado do aprovador.', obj:'Garantir notificação fora do horário comercial via canal pessoal.', skills:['notificar'], workflows:0, status:'Rascunho', upd:'há 1mês' },
-  { name:'ActionAI Conciliação Bancária', tipo:'ActionAI', desc:'Casa lançamentos do extrato com pré-lançamentos abertos.', obj:'Conciliar extrato bancário com pré-lançamentos sem trabalho manual.', skills:['comparar','sugerir'], workflows:1, status:'Ativo', upd:'há 1mês' },
-  { name:'Validador Boleto Linha Digitável', tipo:'Validação', desc:'Decodifica linha digitável e valida dígito verificador.', obj:'Evitar pagamento de boleto com linha digitável corrompida.', skills:['validar','parsear'], workflows:0, status:'Inativo', upd:'há 2mês' },
-  { name:'Roteador por Centro de Custo', tipo:'Roteamento', desc:'Roteia despesa pro aprovador responsável pelo CC.', obj:'Direcionar aprovação pro responsável correto sem configuração manual.', skills:['redirecionar'], workflows:3, status:'Ativo', upd:'há 2mês' },
-  { name:'Notificador Email Diário', tipo:'Notificação', desc:'Compila pendências do dia e envia digest matinal por email.', obj:'Garantir visibilidade de pendências sem dependência de login no sistema.', skills:['notificar','agregar'], workflows:0, status:'Inativo', upd:'há 3mês' },
+const AGENTES = [
+  { id:'a1', nome:'Validador NF Fiscal', tipo:'validacao', objetivo:'Comparar campos fiscais NF↔pedido e bloquear divergências > 5%', resultado:'{ ok: bool, divergencias: [{campo, esperado, recebido}] }', skills:['comparação fiscal','cálculo','parsing XML'], em_uso_por:['WF Recebimento NF','WF Auditoria Fiscal'], replace:true, owner:'Carlos Andrade', updated:'2026-05-28', status:'em_uso', input:'NF xml + pedido_id', output:'JSON', custo:'R$ 0,02', cooldown:0, config:'{\n  "rules": [\n    "cmp(nf.valor_total, pedido.valor_aprovado, tol=0.05)",\n    "cmp(nf.cnpj_emit, pedido.fornecedor.cnpj, eq=true)"\n  ],\n  "on_fail": "block",\n  "message_template": "Divergência {{campo}}: NF={{recebido}} vs pedido={{esperado}}"\n}' },
+  { id:'a2', nome:'Classificador de Email (MAILIA)', tipo:'actionai', objetivo:'Ler emails recebidos e classificar como NF, cotação, follow-up ou ruído', resultado:'{ categoria, confidence, extracao_minima }', skills:['NLP','classificação','extração entidades'], em_uso_por:['WF MAILIA Triagem'], replace:false, owner:'Mariana Souza', updated:'2026-05-25', status:'em_uso', input:'email + anexos', output:'JSON', custo:'R$ 0,008', cooldown:0, config:'{\n  "prompt_template": "Classifique o email abaixo em: nf | cotacao | followup | ruido...",\n  "model": "claude-sonnet-4-6",\n  "max_tokens": 1024,\n  "tools": ["read_attachment", "ocr_pdf"]\n}' },
+  { id:'a3', nome:'Roteador Aprovação por Alçada', tipo:'roteamento', objetivo:'Encaminhar pedidos para aprovador correto baseado em valor + centro de custo', resultado:'workflow_id ou approver_user_id', skills:['lookup alçadas','escalation'], em_uso_por:['WF Pedidos > R$ 10k'], replace:true, owner:'Roberta Lima', updated:'2026-05-20', status:'ativo', input:'pedido_id', output:'user_id ou role_id', custo:'R$ 0,001', cooldown:0, config:'{\n  "conditions": [\n    { "if": "pedido.valor < 10000", "target": "role:comprador_jr" },\n    { "if": "pedido.valor < 50000", "target": "role:gerente_compras" },\n    { "if": "pedido.valor >= 50000", "target": "role:diretor" }\n  ],\n  "fallback": "role:admin_geral"\n}' },
+  { id:'a4', nome:'Notificador Slack #compras', tipo:'notificacao', objetivo:'Postar resumo de cards parados há +24h no canal #compras', resultado:'mensagem postada (Slack message_ts)', skills:['Slack webhook'], em_uso_por:[], replace:false, owner:'Fernando Arruda', updated:'2026-05-30', status:'ativo', input:'lista cards', output:'message_ts', custo:'R$ 0,00', cooldown:3600, config:'{\n  "channels": ["slack"],\n  "template_id": "tpl_compras_diario",\n  "recipients_expr": "channel:#compras"\n}' },
+  { id:'a5', nome:'Extrator PDF Boleto', tipo:'actionai', objetivo:'Ler PDF de boleto bancário e extrair dados estruturados', resultado:'{ valor, vencimento, beneficiario, cod_barras }', skills:['OCR','parsing','extração entidades'], em_uso_por:[], replace:false, owner:'João Pereira', updated:'2026-05-18', status:'rascunho', input:'PDF binário', output:'JSON', custo:'R$ 0,015', cooldown:0, config:'{\n  "prompt_template": "Extraia os campos do boleto...",\n  "model": "claude-opus-4-7",\n  "max_tokens": 2048,\n  "tools": ["ocr_pdf"]\n}' },
+  { id:'a6', nome:'Validador Match Engine (legado)', tipo:'validacao', objetivo:'Validar regra de match contra base existente', resultado:'{ ambiguidade: bool, sugestoes: [...] }', skills:['similarity match','validação'], em_uso_por:[], replace:false, owner:'Ana Rodrigues', updated:'2026-04-12', status:'inativo', input:'rule_id', output:'JSON', custo:'R$ 0,01', cooldown:60, config:'{\n  "rules": ["test_against_workflows", "check_ambiguity"],\n  "on_fail": "warn"\n}' }
 ];
 
-const TYPE_STYLES = {
-  'ActionAI':    'bg-dms-sabedoria/10 text-dms-sabedoria',
-  'Validação':   'bg-emerald-50 text-emerald-700',
-  'Roteamento':  'bg-amber-50 text-amber-700',
-  'Notificação': 'bg-dms-ceu/10 text-dms-confianca',
-};
-const STATUS_STYLES = {
-  'Ativo':    'bg-emerald-50 text-emerald-700 border-emerald-200',
-  'Inativo':  'bg-gray-100 text-dms-tecnologia border-gray-200',
-  'Rascunho': 'bg-amber-50 text-amber-700 border-amber-200',
-};
-
-let fSearch = '', fTipo = '', fStatus = '';
-
-function render() {
-  const tbody = document.getElementById('tbody');
-  const empty = document.getElementById('empty');
-  const wrap  = document.getElementById('table-wrap');
-  const q = fSearch.toLowerCase();
-  const rows = AGENTS.filter(a =>
-    (!fTipo   || a.tipo   === fTipo) &&
-    (!fStatus || a.status === fStatus) &&
-    (!q || a.name.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q) || a.skills.some(s => s.includes(q)))
-  );
-  document.getElementById('f-count').textContent = `${rows.length} ActionIA${rows.length===1?'':'s'}`;
-  if (rows.length === 0) { wrap.classList.add('hidden'); empty.classList.remove('hidden'); return; }
-  wrap.classList.remove('hidden'); empty.classList.add('hidden');
-  tbody.innerHTML = rows.map(a => `
-    <tr class="row-hover">
-      <td class="px-4 py-3">
-        <div class="font-semibold text-dms-mar">${a.name}</div>
-        <div class="text-[11px] text-dms-tecnologia italic mt-0.5 max-w-md truncate" title="${a.obj}">🎯 ${a.obj}</div>
-      </td>
-      <td class="px-4 py-3"><span class="chip ${TYPE_STYLES[a.tipo]}">${a.tipo}</span></td>
-      <td class="px-4 py-3 text-dms-tecnologia max-w-md">${a.desc}</td>
-      <td class="px-4 py-3">
-        <div class="flex flex-wrap gap-1">
-          ${a.skills.slice(0,3).map(s => `<span class="chip bg-[#F8F9FA] text-dms-tecnologia border border-[#E5E7EB] mono">${s}</span>`).join('')}
-          ${a.skills.length>3 ? `<span class="chip bg-[#F8F9FA] text-dms-tecnologia">+${a.skills.length-3}</span>` : ''}
-        </div>
-      </td>
-      <td class="px-4 py-3 text-center mono font-semibold ${a.workflows>0?'text-dms-confianca':'text-dms-tecnologia'}">${a.workflows}</td>
-      <td class="px-4 py-3"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${STATUS_STYLES[a.status]}">${a.status}</span></td>
-      <td class="px-4 py-3 text-xs text-dms-tecnologia">${a.upd}</td>
-      <td class="px-4 py-3 text-dms-tecnologia">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-      </td>
-    </tr>`).join('');
+function chipTipo(t){
+  const map={actionai:['ActionAI','chip-tipo-actionai','🤖'],validacao:['Validação','chip-tipo-validacao','✅'],roteamento:['Roteamento','chip-tipo-roteamento','🔀'],notificacao:['Notificação','chip-tipo-notificacao','🔔']};
+  const [lbl,cls,ico]=map[t]||['?','chip',''];
+  return `<span class="chip ${cls}">${ico} ${lbl}</span>`;
+}
+function badgeStatus(s){
+  if(s==='ativo') return '<span class="badge badge-ativo">● Ativo</span>';
+  if(s==='em_uso') return '<span class="badge badge-em-uso">● Em uso</span>';
+  if(s==='rascunho') return '<span class="badge badge-rascunho">○ Rascunho</span>';
+  return '<span class="badge badge-inativo">● Inativo</span>';
 }
 
-document.getElementById('f-search').addEventListener('input', e => { fSearch = e.target.value; render(); });
-document.getElementById('f-tipo').addEventListener('change', e => { fTipo = e.target.value; render(); });
-document.getElementById('f-status').addEventListener('change', e => { fStatus = e.target.value; render(); });
+function render(){
+  const tbody=document.getElementById('agentes-tbody');
+  tbody.innerHTML = AGENTES.map(a => `
+    <tr class="row-hover" onclick="abrirDrawer('${a.id}')">
+      <td class="px-4 py-3"><div class="font-semibold text-dms-mar">${a.nome}</div><div class="text-[11px] text-dms-tecnologia mt-0.5">${a.objetivo.slice(0,60)}…</div></td>
+      <td class="px-4 py-3">${chipTipo(a.tipo)}</td>
+      <td class="px-4 py-3"><div class="flex flex-wrap gap-1 max-w-[200px]">${a.skills.map(s=>`<span class="chip chip-skill">${s}</span>`).join('')}</div></td>
+      <td class="px-4 py-3 text-xs">${a.em_uso_por.length ? a.em_uso_por.length+' workflow'+(a.em_uso_por.length>1?'s':'') : '<span class="text-dms-tecnologia italic">—</span>'}</td>
+      <td class="px-4 py-3 text-center">${a.replace ? '<span class="badge" style="background:#F3E8FF;color:#6D28D9;border-color:#DDD6FE">⚡ sim</span>' : '<span class="text-xs text-dms-tecnologia">—</span>'}</td>
+      <td class="px-4 py-3 text-xs">${a.owner}</td>
+      <td class="px-4 py-3">${badgeStatus(a.status)}</td>
+      <td class="px-4 py-3 text-right" onclick="event.stopPropagation()">
+        <button class="text-xs text-dms-ceu hover:underline" onclick="abrirDrawer('${a.id}')">Detalhe</button>
+      </td>
+    </tr>
+  `).join('');
+  document.getElementById('contador').textContent = AGENTES.length;
+}
 
-const drawer = document.getElementById('drawer');
-const overlay = document.getElementById('drawer-overlay');
-function openDrawer(){ drawer.classList.remove('hidden'); overlay.classList.remove('hidden'); }
-function closeDrawer(){ drawer.classList.add('hidden'); overlay.classList.add('hidden'); }
-document.getElementById('btn-novo-actionia').addEventListener('click', openDrawer);
-document.getElementById('drawer-close').addEventListener('click', closeDrawer);
-document.getElementById('drawer-cancel').addEventListener('click', closeDrawer);
-overlay.addEventListener('click', closeDrawer);
-
+function abrirDrawer(id){
+  const a=AGENTES.find(x=>x.id===id);if(!a)return;
+  document.getElementById('drawer-name').textContent=a.nome;
+  document.getElementById('drawer-id').textContent='id: '+a.id;
+  document.getElementById('drawer-tipo').innerHTML=chipTipo(a.tipo);
+  document.getElementById('drawer-status').innerHTML=badgeStatus(a.status);
+  document.getElementById('drawer-objetivo').textContent=a.objetivo;
+  document.getElementById('drawer-resultado').textContent=a.resultado;
+  document.getElementById('drawer-owner').textContent=a.owner;
+  document.getElementById('drawer-updated').textContent=a.updated;
+  document.getElementById('drawer-skills').innerHTML=a.skills.map(s=>`<span class="chip chip-skill">${s}</span>`).join('');
+  document.getElementById('drawer-replace').innerHTML = a.replace
+    ? '<span class="badge" style="background:#F3E8FF;color:#6D28D9;border-color:#DDD6FE">⚡ true</span>'
+    : '<span class="badge badge-inativo">false</span>';
+  document.getElementById('drawer-config').textContent=a.config;
+  document.getElementById('drawer-input').textContent=a.input;
+  document.getElementById('drawer-output').textContent=a.output;
+  document.getElementById('drawer-custo').textContent=a.custo;
+  document.getElementById('drawer-cooldown').textContent=a.cooldown ? a.cooldown+'s' : 'sem cooldown';
+  document.getElementById('drawer-workflows-list').innerHTML = a.em_uso_por.length
+    ? a.em_uso_por.map(w => `<div class="border border-[#E5E7EB] rounded p-2.5 flex items-center justify-between"><span class="font-semibold text-sm text-dms-mar">${w}</span><a href="tela04-catalogo-workflows.html" class="text-xs text-dms-ceu hover:underline">Abrir →</a></div>`).join('')
+    : '<div class="text-xs text-dms-tecnologia italic">Não vinculado a workflows.</div>';
+  document.getElementById('drawer').classList.add('show');
+  document.getElementById('drawer-backdrop').classList.add('show');
+}
+function fecharDrawer(){document.getElementById('drawer').classList.remove('show');document.getElementById('drawer-backdrop').classList.remove('show');}
+function trocarTab(t){document.querySelectorAll('.drawer-tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===t));document.querySelectorAll('.drawer-pane').forEach(x=>x.classList.toggle('active',x.dataset.pane===t));}
+function abrirModalCriar(){document.getElementById('modal-criar').classList.add('show');}
+function fecharModal(){document.getElementById('modal-criar').classList.remove('show');}
+document.querySelectorAll('.tipo-card').forEach(c=>{
+  c.addEventListener('click',()=>{document.querySelectorAll('.tipo-card').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');});
+});
 render();
 </script>
 
-<!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
+<!-- ===== DMS CONSOLIDATED SIDEBAR ===== -->
 <style id="dms-cs-style">
   aside.w-\[260px\].bg-dms-mar { display: none !important; }
   .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
@@ -359,9 +442,7 @@ render();
   #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
   #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
   #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
-  #dms-sidebar.collapsed .sb-label,
-  #dms-sidebar.collapsed .sb-section-title,
-  #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text { display: none; }
   #dms-sidebar.collapsed .sb-brand-icon { display: none; }
   #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
   #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
@@ -374,10 +455,7 @@ render();
   @media (max-width: 767px) {
     #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
     #dms-sidebar.mobile-open { transform: translateX(0); }
-    #dms-sidebar.collapsed .sb-label,
-    #dms-sidebar.collapsed .sb-section-title,
-    #dms-sidebar.collapsed .sb-brand-text,
-    #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text, #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
     #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
     #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
     #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
@@ -386,12 +464,10 @@ render();
     #sidebar-toggle { display: none; }
   }
 </style>
-
 <button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
 </button>
 <div id="dms-sidebar-overlay"></div>
-
 <aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
   <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
     <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
@@ -400,114 +476,90 @@ render();
       <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
     </button>
   </div>
-
   <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
-    <div style="padding:14px 14px 6px;">
-      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela16-cockpit-overview.html" title="Cockpit" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label" data-i18n="nav.cockpit">Cockpit</span></a></li>
-        <li><a href="tela17-cockpit-email.html" title="Email" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
-        <li><a href="tela18-cockpit-todo.html" title="Tarefas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label" data-i18n="nav.tasks">Tarefas</span></a></li>
-        <li><a href="tela19-cockpit-followup.html" title="Follow-up" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label" data-i18n="nav.followup">Follow-up</span></a></li>
-        <li><a href="tela20-cockpit-update.html" title="Updates" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
       </ul>
     </div>
-
-    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
-      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.purchases">Compras</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela21-requisicoes-list.html" title="Requisições" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label" data-i18n="nav.requisitions">Requisições</span></a></li>
-        <li><a href="tela24-cotacoes-list.html" title="Cotações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label" data-i18n="nav.quotes">Cotações</span></a></li>
-        <li><a href="tela27-pedidos-list.html" title="Pedidos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label" data-i18n="nav.orders">Pedidos</span></a></li>
-        <li><a href="tela44-contratos-list.html" title="Contratos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
-        <li><a href="tela38-notas-fiscais-list.html" title="Notas Fiscais" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
-        <li><a href="tela40-aprovacoes-list.html" title="Aprovações" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
       </ul>
     </div>
-
-    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
-      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela36-pre-lancamentos-list.html" title="Pré-lançamentos" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
-        <li><a href="tela42-orcamento-overview.html" title="Orçamento" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
+        <li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+        <li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
       </ul>
     </div>
-
-    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
-      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.registrations">Cadastros</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela30-empresas-list.html" title="Empresas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
-        <li><a href="tela32-centros-custo-list.html" title="Centros de Custo" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
-        <li><a href="tela34-plano-contas-list.html" title="Plano de Contas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+        <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
       </ul>
     </div>
-
-    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
-      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.libraries">Bibliotecas</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela01-catalogo-tags.html" title="Tags" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label" data-i18n="label.tags">Tags</span></a></li>
-        <li><a href="tela03-procedures-list.html" title="Procedures" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
-        <li><a href="tela04-catalogo-workflows.html" title="Workflows" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
-        <li><a href="tela06-biblioteca-sop.html" title="SOPs" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
-        <li><a href="tela77-actionia-biblioteca.html" title="ActionIA" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🤖</span><span class="sb-label">ActionIA</span></a></li>
-        <li><a href="tela78-alertas-biblioteca.html" title="Alertas" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🚨</span><span class="sb-label">Alertas</span></a></li>
-        <li><a href="tela12-execution-visibility.html" title="Execuções" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
-        <li><a href="tela13-audit-trail.html" title="Auditoria" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label" data-i18n="nav.audit">Auditoria</span></a></li>
+        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
       </ul>
     </div>
-
-    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;">
-      <p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela11-match-engine.html" title="Match Engine" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
-        <li><a href="tela14-setup-integracoes.html" title="Setup" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
-        <li><a href="tela15-mailia-admin.html" title="MAILIA Admin" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+        <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+        <li><a href="tela80-permissoes-matriz.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔐</span><span class="sb-label">Permissões</span></a></li>
+        <li><a href="tela81-config-intervenientes-modulo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧩</span><span class="sb-label">Config Intervenientes</span></a></li>
+        <li><a href="tela82-saude-stages.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🩺</span><span class="sb-label">Saúde dos Stages</span></a></li>
+        <li><a href="tela83-alcadas-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚖️</span><span class="sb-label">Alçadas</span></a></li>
+        <li><a href="tela84-users-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👥</span><span class="sb-label">Usuários</span></a></li>
+        <li><a href="tela85-permission-delegations.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔗</span><span class="sb-label">Delegações</span></a></li>
+        <li><a href="tela86-fornecedores-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏭</span><span class="sb-label">Fornecedores</span></a></li>
+        <li><a href="tela87-times-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Times</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Conta</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela50-profile.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👤</span><span class="sb-label">Meu Perfil</span></a></li>
       </ul>
     </div>
   </nav>
 </aside>
-
 <script>
 (function(){
-  var sb = document.getElementById('dms-sidebar');
-  var toggle = document.getElementById('sidebar-toggle');
-  var mobBtn = document.getElementById('dms-sidebar-mobile-btn');
-  var overlay = document.getElementById('dms-sidebar-overlay');
-  if (!sb || !toggle) return;
-  var STORAGE_KEY = 'mockup-sidebar-collapsed-v2';
-  var collapsed = false;
-  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
-  function isMobile(){ return window.matchMedia('(max-width: 767px)').matches; }
-  function render(){
-    if (collapsed && !isMobile()) {
-      sb.classList.add('collapsed');
-      sb.style.width = '64px';
-      document.documentElement.style.setProperty('--dms-sb-w', '64px');
-    } else {
-      sb.classList.remove('collapsed');
-      sb.style.width = isMobile() ? '280px' : '240px';
-      document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px');
-    }
-  }
-  toggle.addEventListener('click', function(){ collapsed = !collapsed; try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {} render(); });
-  function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
-  function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
-  if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
-  if (overlay) overlay.addEventListener('click', closeMobile);
-  sb.querySelectorAll('nav a[href]').forEach(function(a){ a.addEventListener('click', function(){ if (isMobile()) closeMobile(); }); });
-  var current = (location.pathname.split('/').pop() || '').toLowerCase();
-  if (current) {
-    sb.querySelectorAll('nav a[href]').forEach(function(a){
-      var href = (a.getAttribute('href') || '').toLowerCase();
-      if (href && href === current) a.classList.add('sb-active');
-    });
-  }
-  window.addEventListener('resize', render);
-  render();
+  var sb=document.getElementById('dms-sidebar'),toggle=document.getElementById('sidebar-toggle'),mobBtn=document.getElementById('dms-sidebar-mobile-btn'),overlay=document.getElementById('dms-sidebar-overlay');
+  if(!sb||!toggle)return; var K='mockup-sidebar-collapsed-v2',c=false; try{c=localStorage.getItem(K)==='1';}catch(e){}
+  function m(){return window.matchMedia('(max-width: 767px)').matches}
+  function r(){if(c&&!m()){sb.classList.add('collapsed');sb.style.width='64px';document.documentElement.style.setProperty('--dms-sb-w','64px');}else{sb.classList.remove('collapsed');sb.style.width=m()?'280px':'240px';document.documentElement.style.setProperty('--dms-sb-w',m()?'0px':'240px');}}
+  toggle.addEventListener('click',function(){c=!c;try{localStorage.setItem(K,c?'1':'0');}catch(e){}r();});
+  function cm(){sb.classList.remove('mobile-open');if(overlay)overlay.classList.remove('show');}
+  if(mobBtn)mobBtn.addEventListener('click',function(){if(sb.classList.contains('mobile-open'))cm();else{sb.classList.add('mobile-open');if(overlay)overlay.classList.add('show');}});
+  if(overlay)overlay.addEventListener('click',cm);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){a.addEventListener('click',function(){if(m())cm();});});
+  var cur=(location.pathname.split('/').pop()||'').toLowerCase();
+  if(cur){sb.querySelectorAll('nav a[href]').forEach(function(a){var h=(a.getAttribute('href')||'').toLowerCase();if(h&&h===cur)a.classList.add('sb-active');});}
+  window.addEventListener('resize',r);r();
 })();
 </script>
+<script src="bulk-select.js" defer></script>
 <script src="notes-widget.js" defer></script>
-<script src="list-customizer.js" defer></script>
 <script src="i18n-toggle.js" defer></script>
+<script src="mockup-handlers.js" defer></script>
 </body>
 </html>
