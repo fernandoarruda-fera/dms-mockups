@@ -411,3 +411,40 @@ tela77/78/79 batem 1:1 com tela87 (pilot 34-âncoras). Viewer enxerga 6 itens (P
 - **Sidebar permission-driven**: 11 / 87 telas (8 pilot + 3 propagadas = tela77–87)
 - **Pendente sweep p/ ampliar**: 61 telas com sidebar parcial (24–33 âncoras) — exigem alinhamento ao consolidado de 34 antes de receber o script
 - **Excluídas estruturalmente**: 18 telas (5 legadas wizard + 12 auth/erro + tela76)
+
+---
+
+## Sweep sidebar 61 telas → consolidação 34 âncoras (2026-05-31)
+
+Sweep mecânico via script Python substituindo o bloco `<aside id="dms-sidebar">...</aside>` pelo template extraído de `tela87-times-cadastro.html` e injetando `<script defer src="sidebar-permissions.js"></script>` no `<head>`.
+
+### Distribuição antes (60 telas alvo encontradas; 1 a menos que o plano — sweep prévio já cobriu)
+| Âncoras | Telas |
+|---------|-------|
+| 30 | 5 (tela60–64) |
+| 28 | 1 (tela50-profile) |
+| 27 | 1 (tela10-workflow-builder) |
+| 26 | 2 (tela51, tela52) |
+| 25 | 50 (tela01–46 menos cobertas + tela59, tela65, tela71, tela74, tela75) |
+| 32 | 1 (tela80 — incluída no sweep pra normalizar) |
+
+### Distribuição depois
+| Âncoras | Telas | Status |
+|---------|-------|--------|
+| 34 | 70 | ✅ Padrão consolidado (10 piloto + 60 sweepadas) |
+| 6  | 5  | Legadas wizard (NÃO TOCAR — tela66–70) |
+| 0  | 12 | Auth/erro (sem sidebar) |
+
+### Validação cruzada (3 amostras pós-sweep, simulando matriz em Python)
+| Tela | total | admin | viewer | cmpAdm |
+|------|-------|-------|--------|--------|
+| tela60-auditoria-global | 34 | 34 | 6 | 25 |
+| tela01-catalogo-tags    | 34 | 34 | 6 | 25 |
+| tela51-trocar-senha     | 34 | 34 | 6 | 25 |
+
+Resultado bate 1:1 com o piloto tela87. ✅
+
+### Cobertura final
+- **Sidebar permission-driven**: 70 / 87 telas (antes: 11/87)
+- **Falhas no sweep**: 0 / 60
+- **Excluídas estruturalmente**: 17 telas (5 legadas wizard + 12 auth/erro)
