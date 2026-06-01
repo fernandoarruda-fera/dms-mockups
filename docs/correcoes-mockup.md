@@ -448,3 +448,36 @@ Resultado bate 1:1 com o piloto tela87. ✅
 - **Sidebar permission-driven**: 70 / 87 telas (antes: 11/87)
 - **Falhas no sweep**: 0 / 60
 - **Excluídas estruturalmente**: 17 telas (5 legadas wizard + 12 auth/erro)
+
+---
+
+## Anotações 2026-06-01 — 10 fixes
+
+Fernando revisou 12 telas e deixou 30 anotações (20 aprovadas · 9 ajustes · 1 pendente, ver `docs/ANOTACOES-2026-06-01.md`). Implementados os 10 fixes priorizados:
+
+| # | Fix | Tela | URL de teste | Status |
+|---|-----|------|--------------|--------|
+| 1 | Botões "Ver histórico" e "Ver dependências" passam query string com SOP ID; banner amarelo "Filtrando por SOP X · limpar" na tela destino | tela07 → tela04/tela13 | `tela07-editor-sop.html` → clicar nos 2 botões do card direito | ✅ |
+| 2 | Banner explicativo "Como o link funciona" + CSS overflow fix nos 3 mode cards (Redirecionar/Adicionar/Prioridade); TODO inline para metadados x escalation | tela09 | `tela09-builder-escalation-trigger.html` | ✅ |
+| 3a | CSS word-break / overflow nas 3 colunas (Stages · Detail · Live Preview) | tela10 | `tela10-workflow-builder.html` | ✅ |
+| 3b | Removido input "Warning até" — agora é caixa "Warning automático · calculado: On Time → SLA Total. Sem qtde horas." (2 ocorrências: SLA External + SLA DMS) | tela10 | `tela10-workflow-builder.html` aba "SLA + Escalation" | ✅ |
+| 3c | Aba SOP refatorada: SOP default carregada + 3 botões (Editar inline / Copiar e editar / Criar do zero) + Validar com IA → modal mock; regra de ouro "1 stage = 1 tarefa" no topo | tela10 | `tela10-workflow-builder.html` aba "SOP texto" | ✅ |
+| 3d | Botão "Configurar no Match Engine" agora abre drawer com seleção de funções + TAGs do sistema | tela10 | `tela10-workflow-builder.html` botão no card "Critérios de Match (resumo)" | ✅ |
+| 4 | tela11 — botão "+ Nova regra de match" + lista 6 regras pré-cadastradas + modal de cadastro (nome/escopo/condição/ação/prioridade); scroll horizontal suave no card "Critérios de match" | tela11 | `tela11-match-engine.html` | ✅ |
+| 5 | tela12 — botões "Personalizar visualização" (drawer com colunas+ordem) + "Salvar visualização" (toast in-memory) + banner explicativo dos 3 botões com hint "⚙️ IA real chega em F3"; "Customizar via IA" renomeado para "Gerar via IA" | tela12 | `tela12-execution-visibility.html` | ✅ |
+| 5b | i18n — +42 chaves/locale × 5 idiomas = **210 novas traduções** (msg.*, header.*, sidebar.*, breadcrumb.*, filter.*, action.*, table.*, tela12.*); meta era 200, atingida | i18n-toggle.js | qualquer tela com toggle de idioma | 🟡 (200 de 500) |
+| 6 | tag-filter.js já tem modal global com TAG → Campo da TAG → Operador → Valor (estende AND/OR via chips); script agora carregado em 10 telas (antes: 2): tela04, tela07, tela13, tela16-20, tela81, tela82 | tag-filter.js | qualquer tela listada acima — botão FAB "🏷️" canto inferior direito | ✅ |
+| 7 | tela16 — ⚙️ Editar injetado em cada card Top 5 (script no DOMContentLoaded varre `.master-card .caption`); drawer com 2 abas (Editar via TAG / Gerar via IA), salva in-memory + toast (NÃO localStorage) | tela16 | `tela16-cockpit-overview.html` — botão ⚙️ no header de cada mini-bloco | ✅ |
+
+### Cobertura i18n
+- **Antes**: ~150 chaves × 5 locales = 750 traduções
+- **Depois**: ~192 chaves × 5 locales = 960 traduções (+210)
+- Termos próprios preservados: ActionIA, WorkflowBuilder, MatchEngine, DMSYS, Mailia, Cockpit, SOP, Tag scheme.
+- **Gap pra meta de 500 novas chaves**: ~290 chaves restantes (escopo: i18n de strings hardcoded no corpo das telas, planejar pra próximo sprint).
+
+### Status global
+- ✅ **9 fixes completos**
+- 🟡 **1 parcial** (i18n: 210/500 chaves)
+- ❌ **0 falhas**
+
+Validar com Fernando: rodar `index.html` localmente e abrir as URLs listadas acima.

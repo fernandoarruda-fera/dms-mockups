@@ -139,13 +139,76 @@ tailwind.config = {
               <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
               View salvo
             </span>
+            <button onclick="openCustomViewDrawer()" type="button" class="text-xs font-semibold text-dms-mar px-3 py-1.5 bg-white border border-dms-mar/30 rounded hover:bg-dms-mar hover:text-white transition-colors">⚙️ Personalizar visualização</button>
+            <button onclick="saveCurrentView()" type="button" class="text-xs font-semibold text-dms-confianca px-3 py-1.5 bg-white border border-dms-confianca/30 rounded hover:bg-dms-confianca hover:text-white transition-colors">💾 Salvar visualização</button>
+          </div>
+          <!-- Banner explicativo (Fix 2026-06-01) -->
+          <div class="mt-3 bg-dms-sabedoria/5 border-l-4 border-dms-sabedoria rounded-r-md px-3 py-2 max-w-3xl">
+            <p class="text-[11px] text-dms-mar leading-snug">
+              <strong>Personalizar visualização</strong> = ajuste manual (quais colunas/cards mostrar, ordem, filtros padrão).
+              <strong>Gerar via IA</strong> = descreva em linguagem natural o dashboard que precisa e a IA monta automaticamente.
+              <strong>Salvar visualização</strong> = grava a configuração atual com um nome (você reaplica via dropdown "View").
+              <em class="text-dms-tecnologia">⚙️ IA real chega em F3 (Copilot). Aqui é mock visual.</em>
+            </p>
           </div>
         </div>
         <button onclick="openAiDashboardModal()" title="Descreva o dashboard que você quer e a IA monta automaticamente" class="flex-shrink-0 inline-flex items-center gap-2 text-sm font-bold text-white px-4 py-2.5 rounded-md shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5" style="background: linear-gradient(135deg, #643585, #00386C);">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-          ✨ Customizar via IA
+          ✨ Gerar via IA
         </button>
       </div>
+
+      <!-- Drawer "Personalizar visualização" (Fix 2026-06-01) -->
+      <div id="cust-view-drawer" class="hidden fixed inset-0 z-[60]">
+        <div onclick="closeCustomViewDrawer()" class="absolute inset-0" style="background: rgba(0,56,108,0.5); backdrop-filter: blur(2px);"></div>
+        <div class="absolute right-0 top-0 h-full w-[420px] max-w-[95vw] bg-white shadow-2xl overflow-y-auto">
+          <div class="px-5 py-4 border-b border-[#E5E7EB] flex items-center justify-between bg-[#F8F9FA]">
+            <h3 class="text-sm font-bold text-dms-mar">⚙️ Personalizar visualização</h3>
+            <button onclick="closeCustomViewDrawer()" class="text-dms-tecnologia hover:text-dms-mar">✕</button>
+          </div>
+          <div class="p-5 space-y-4 text-xs">
+            <div>
+              <div class="caption text-dms-confianca mb-2">Colunas visíveis</div>
+              <label class="flex items-center gap-2 py-1"><input type="checkbox" checked> Processo / código</label>
+              <label class="flex items-center gap-2 py-1"><input type="checkbox" checked> Workflow</label>
+              <label class="flex items-center gap-2 py-1"><input type="checkbox" checked> Stage atual</label>
+              <label class="flex items-center gap-2 py-1"><input type="checkbox" checked> SLA usado</label>
+              <label class="flex items-center gap-2 py-1"><input type="checkbox" checked> Responsável</label>
+              <label class="flex items-center gap-2 py-1"><input type="checkbox"> Time</label>
+              <label class="flex items-center gap-2 py-1"><input type="checkbox"> Fornecedor</label>
+              <label class="flex items-center gap-2 py-1"><input type="checkbox"> Valor</label>
+              <label class="flex items-center gap-2 py-1"><input type="checkbox"> Início</label>
+            </div>
+            <div>
+              <div class="caption text-dms-confianca mb-2">Ordem das colunas</div>
+              <p class="text-[11px] text-dms-tecnologia italic mb-2">Arraste para reordenar (drag&drop visual)</p>
+              <div class="space-y-1">
+                <div class="px-2.5 py-1.5 bg-[#F8F9FA] border border-[#E5E7EB] rounded flex items-center justify-between cursor-move"><span>⋮⋮ Processo</span><span class="text-dms-tecnologia">1</span></div>
+                <div class="px-2.5 py-1.5 bg-[#F8F9FA] border border-[#E5E7EB] rounded flex items-center justify-between cursor-move"><span>⋮⋮ Workflow</span><span class="text-dms-tecnologia">2</span></div>
+                <div class="px-2.5 py-1.5 bg-[#F8F9FA] border border-[#E5E7EB] rounded flex items-center justify-between cursor-move"><span>⋮⋮ Stage</span><span class="text-dms-tecnologia">3</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="px-5 py-3 bg-[#F8F9FA] border-t border-[#E5E7EB] flex items-center justify-end gap-2">
+            <button onclick="closeCustomViewDrawer()" class="text-xs font-semibold text-dms-mar px-3 py-1.5 border border-[#E5E7EB] rounded">Cancelar</button>
+            <button onclick="applyCustomView()" class="text-xs font-semibold text-white px-3 py-1.5 bg-dms-mar rounded">Aplicar</button>
+          </div>
+        </div>
+      </div>
+      <script>
+      function openCustomViewDrawer(){ document.getElementById('cust-view-drawer').classList.remove('hidden'); }
+      function closeCustomViewDrawer(){ document.getElementById('cust-view-drawer').classList.add('hidden'); }
+      function applyCustomView(){ closeCustomViewDrawer(); _t12Toast('Visualização aplicada (mockup)'); }
+      function saveCurrentView(){ _t12Toast('Visualização salva (mockup) — disponível em "View" no topo'); }
+      function _t12Toast(msg){
+        var t = document.createElement('div');
+        t.textContent = msg;
+        t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#00386C;color:#fff;padding:10px 16px;border-radius:6px;font-size:12px;font-weight:600;z-index:100;opacity:0;transition:opacity .2s;box-shadow:0 8px 24px rgba(0,0,0,.2)';
+        document.body.appendChild(t);
+        setTimeout(function(){ t.style.opacity='1'; },10);
+        setTimeout(function(){ t.style.opacity='0'; setTimeout(function(){ t.remove(); },250); },2400);
+      }
+      </script>
 
       <!-- KPI CARDS (resumo global) -->
       <div class="grid grid-cols-5 gap-4 mb-6" id="kpi-row">

@@ -301,6 +301,17 @@ tailwind.config = {
                     <p class="text-[11px] text-dms-tecnologia mt-1 italic">Item específico que será monitorado.</p>
                   </div>
                 </div>
+                <!-- Banner explicativo: como o link stage/mailia → escalation funciona -->
+                <div class="mt-3 bg-dms-ceu/5 border border-dms-ceu/30 rounded-md px-3 py-2 flex items-start gap-2">
+                  <span class="text-dms-confianca text-sm flex-shrink-0">💡</span>
+                  <p class="text-[11px] text-dms-mar leading-snug">
+                    <strong>Como o link funciona:</strong> o escalation é disparado quando o
+                    <strong id="ex-origem-label">Stage</strong> selecionado acima
+                    <strong>excede SLA</strong> (interno, cliente ou ambos, conforme o campo "Disparar quando"). A IA pode propor automaticamente o destinatário, mas você pode override no bloco Then (Action) abaixo.
+                  </p>
+                </div>
+                <!-- TODO: melhorar relação metadados x escalation conforme anotação 2026-06-01 -->
+
                 <script>
                 (function(){
                   var STAGE_OPTS = [
@@ -323,6 +334,8 @@ tailwind.config = {
                     var lbl = document.getElementById('f-origem-label');
                     var opts = origem === 'mailia' ? MAILIA_OPTS : STAGE_OPTS;
                     if(lbl) lbl.textContent = origem === 'mailia' ? 'MAILIA rule' : 'Stage';
+                    var lblEx = document.getElementById('ex-origem-label');
+                    if(lblEx) lblEx.textContent = origem === 'mailia' ? 'MAILIA rule' : 'Stage';
                     if(!sel) return;
                     sel.innerHTML = '<option value="">Selecione...</option>' +
                       opts.map(function(o){ return '<option value="'+o[0]+'">'+o[1]+'</option>'; }).join('');
@@ -343,8 +356,8 @@ tailwind.config = {
                 <!-- 3 modos como radio cards -->
                 <div>
                   <label class="caption text-dms-tecnologia mb-2 block">Modo de Escalation <span class="text-red-500">*</span></label>
-                  <div class="grid grid-cols-3 gap-3 [&>div]:min-w-0 [&_span]:break-words [&_span]:leading-tight">
-                    <div onclick="selectMode('redirecionar')" id="mode-redirecionar" class="mode-card selected bg-white border border-[#E5E7EB] rounded-lg p-3">
+                  <div class="grid grid-cols-3 gap-3 [&>div]:min-w-0 [&>div]:overflow-hidden [&_span]:break-words [&_span]:leading-tight [&_p]:break-words" style="word-break: break-word;">
+                    <div onclick="selectMode('redirecionar')" id="mode-redirecionar" class="mode-card selected bg-white border border-[#E5E7EB] rounded-lg p-3 flex flex-col gap-1" style="min-width: 0; overflow: hidden;">
                       <div class="flex items-center gap-2 mb-1">
                         <svg class="mode-icon w-4 h-4 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                         <span class="font-semibold text-dms-mar text-sm">Redirecionar role</span>

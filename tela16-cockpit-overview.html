@@ -1112,5 +1112,119 @@ function renderConfigPreview() {
 </script>
 <script src="notes-widget.js" defer></script>
 <script src="i18n-toggle.js" defer></script>
+<!-- Top 5 edit drawer (Fix 2026-06-01) -->
+<div id="t5-drawer" class="hidden fixed inset-0 z-[60]">
+  <div onclick="closeTop5Drawer()" class="absolute inset-0" style="background: rgba(0,56,108,0.5); backdrop-filter: blur(2px);"></div>
+  <div class="absolute right-0 top-0 h-full w-[460px] max-w-[95vw] bg-white shadow-2xl overflow-y-auto">
+    <div class="px-5 py-4 border-b border-[#E5E7EB] flex items-center justify-between" style="background:#F8F9FA;">
+      <div>
+        <h3 class="text-sm font-bold text-dms-mar">⚙️ Editar card Top 5</h3>
+        <p class="text-[11px] text-dms-tecnologia" id="t5-card-name">Card: —</p>
+      </div>
+      <button onclick="closeTop5Drawer()" class="text-dms-tecnologia hover:text-dms-mar">✕</button>
+    </div>
+    <!-- Abas -->
+    <div class="border-b border-[#E5E7EB] flex items-center px-5">
+      <button onclick="t5Tab('tag')" id="t5-tab-tag" class="text-xs font-semibold px-3 py-2.5 border-b-2 border-dms-mar text-dms-mar">Editar via TAG</button>
+      <button onclick="t5Tab('ia')" id="t5-tab-ia" class="text-xs font-semibold px-3 py-2.5 border-b-2 border-transparent text-dms-tecnologia">Gerar via IA</button>
+    </div>
+    <!-- Conteúdo via TAG -->
+    <div id="t5-content-tag" class="p-5 space-y-3 text-xs">
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">TAG do sistema</label>
+        <select class="input-dms w-full px-3 py-2 border border-[#E5E7EB] rounded bg-white">
+          <option>@tipo_compra</option><option>@valor_total</option><option>@tipo_servico</option><option>@fornecedor_id</option><option>@centro_custo</option><option>@cliente_id</option><option>@categoria</option>
+        </select>
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Campo da TAG</label>
+        <select class="input-dms w-full px-3 py-2 border border-[#E5E7EB] rounded bg-white">
+          <option>valor</option><option>label</option><option>código</option><option>categoria</option>
+        </select>
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Agrupar por</label>
+        <select class="input-dms w-full px-3 py-2 border border-[#E5E7EB] rounded bg-white">
+          <option>Top 5 maior count</option><option>Top 5 maior valor</option><option>Top 5 mais recente</option>
+        </select>
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Filtros adicionais</label>
+        <input type="text" placeholder="Ex.: status = aberto" class="input-dms w-full px-3 py-2 border border-[#E5E7EB] rounded">
+      </div>
+    </div>
+    <!-- Conteúdo via IA -->
+    <div id="t5-content-ia" class="hidden p-5 space-y-3 text-xs">
+      <div>
+        <label class="caption text-dms-tecnologia mb-1 block">Descreva o que você quer ver</label>
+        <textarea rows="5" placeholder="Ex.: Top 5 fornecedores com mais atrasos nos últimos 30 dias" class="input-dms w-full px-3 py-2 border border-[#E5E7EB] rounded"></textarea>
+      </div>
+      <div class="bg-dms-sabedoria/5 border border-dms-sabedoria/30 rounded-md p-3 text-[11px] text-dms-mar">
+        <p><strong>⚙️ IA real chega em F3 (Copilot).</strong> Aqui é mock visual — o botão "Gerar" simula a resposta.</p>
+      </div>
+      <button class="w-full text-xs font-semibold text-white px-3 py-2 bg-dms-sabedoria rounded">✨ Gerar visualização (preview)</button>
+    </div>
+    <div class="px-5 py-3 bg-[#F8F9FA] border-t border-[#E5E7EB] flex items-center justify-end gap-2">
+      <button onclick="closeTop5Drawer()" class="text-xs font-semibold text-dms-mar px-3 py-1.5 border border-[#E5E7EB] rounded">Cancelar</button>
+      <button onclick="saveTop5()" class="text-xs font-semibold text-white px-3 py-1.5 bg-dms-mar rounded">💾 Salvar visualização</button>
+    </div>
+  </div>
+</div>
+<script>
+// In-memory storage (NÃO localStorage por design)
+window.__t5Views = {};
+window.__t5Current = '';
+function openTop5Drawer(cardName){
+  window.__t5Current = cardName || '?';
+  document.getElementById('t5-card-name').textContent = 'Card: ' + window.__t5Current;
+  document.getElementById('t5-drawer').classList.remove('hidden');
+  t5Tab('tag');
+}
+function closeTop5Drawer(){ document.getElementById('t5-drawer').classList.add('hidden'); }
+function t5Tab(which){
+  document.getElementById('t5-content-tag').classList.toggle('hidden', which!=='tag');
+  document.getElementById('t5-content-ia').classList.toggle('hidden', which!=='ia');
+  document.getElementById('t5-tab-tag').classList.toggle('border-dms-mar', which==='tag');
+  document.getElementById('t5-tab-tag').classList.toggle('text-dms-mar', which==='tag');
+  document.getElementById('t5-tab-tag').classList.toggle('border-transparent', which!=='tag');
+  document.getElementById('t5-tab-tag').classList.toggle('text-dms-tecnologia', which!=='tag');
+  document.getElementById('t5-tab-ia').classList.toggle('border-dms-mar', which==='ia');
+  document.getElementById('t5-tab-ia').classList.toggle('text-dms-mar', which==='ia');
+  document.getElementById('t5-tab-ia').classList.toggle('border-transparent', which!=='ia');
+  document.getElementById('t5-tab-ia').classList.toggle('text-dms-tecnologia', which!=='ia');
+}
+function saveTop5(){
+  window.__t5Views[window.__t5Current] = { savedAt: Date.now() };
+  closeTop5Drawer();
+  var t = document.createElement('div');
+  t.textContent = '💾 Visualização "' + window.__t5Current + '" salva (mockup, in-memory)';
+  t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#00386C;color:#fff;padding:10px 16px;border-radius:6px;font-size:12px;font-weight:600;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.2)';
+  document.body.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 2400);
+}
+// Injeta botões ⚙️ Editar em todos os cards que têm "Top 5" no caption
+document.addEventListener('DOMContentLoaded', function(){
+  var captions = document.querySelectorAll('.master-card .caption');
+  captions.forEach(function(cap){
+    if (cap.textContent && cap.textContent.indexOf('Top 5') !== -1) {
+      var card = cap.closest('.master-card');
+      if (!card) return;
+      var header = card.querySelector('.flex.items-center.justify-between');
+      if (!header || header.querySelector('.t5-edit-btn')) return;
+      var rightSide = header.lastElementChild;
+      var btn = document.createElement('button');
+      btn.className = 't5-edit-btn text-dms-tecnologia hover:text-dms-sabedoria hover:bg-[#F8F9FA] p-1.5 rounded transition-all';
+      btn.title = 'Editar card Top 5';
+      btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>';
+      var titleEl = header.querySelector('.font-bold.text-sm');
+      var name = titleEl ? titleEl.textContent.trim() : 'Top 5';
+      btn.onclick = function(e){ e.preventDefault(); e.stopPropagation(); openTop5Drawer(name); };
+      // insere antes do botão de expandir
+      rightSide.parentNode.insertBefore(btn, rightSide);
+    }
+  });
+});
+</script>
+<script src="tag-filter.js" defer></script>
 </body>
 </html>

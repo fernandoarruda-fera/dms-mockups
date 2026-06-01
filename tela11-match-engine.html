@@ -132,9 +132,113 @@ tailwind.config = {
         </div>
         <div class="flex items-center gap-3 flex-shrink-0">
           <a href="#" class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 transition-colors" data-i18n="btn.cancel">Cancelar</a>
+          <button onclick="openNewRuleModal()" type="button" class="text-sm font-semibold text-dms-mar px-4 py-2 bg-white border border-dms-mar/30 rounded-md hover:bg-dms-mar hover:text-white transition-colors">+ Nova regra de match</button>
           <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Salvar critérios</button>
         </div>
       </div>
+
+      <!-- Lista de regras cadastradas (Fix 2026-06-01) -->
+      <div class="mb-6 bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
+        <div class="px-5 py-3 border-b border-[#E5E7EB] flex items-center justify-between bg-[#F8F9FA]">
+          <h3 class="text-sm font-bold text-dms-mar">Regras de match cadastradas <span class="text-dms-tecnologia font-normal">(6)</span></h3>
+          <button onclick="openNewRuleModal()" type="button" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar">+ Nova regra</button>
+        </div>
+        <div class="divide-y divide-[#E5E7EB]" id="rules-list">
+          <div class="px-5 py-2.5 flex items-center justify-between text-xs hover:bg-[#F8F9FA]">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="font-semibold text-dms-mar">Compras TI Baixo Valor</span>
+              <span class="text-dms-tecnologia">Compras · prioridade 10</span>
+              <span class="px-1.5 py-0.5 bg-dms-tropicalidade/10 text-dms-tropicalidade-dark rounded mono" style="color:#7A8F24">Auto-match</span>
+            </div>
+            <div class="flex items-center gap-2"><button class="text-dms-confianca hover:text-dms-mar">Editar</button><button class="text-red-500 hover:text-red-700">Excluir</button></div>
+          </div>
+          <div class="px-5 py-2.5 flex items-center justify-between text-xs hover:bg-[#F8F9FA]">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="font-semibold text-dms-mar">Contrato Recorrente Padrão</span>
+              <span class="text-dms-tecnologia">Compras · prioridade 20</span>
+              <span class="px-1.5 py-0.5 bg-dms-tropicalidade/10 text-dms-tropicalidade-dark rounded mono" style="color:#7A8F24">Auto-match</span>
+            </div>
+            <div class="flex items-center gap-2"><button class="text-dms-confianca hover:text-dms-mar">Editar</button><button class="text-red-500 hover:text-red-700">Excluir</button></div>
+          </div>
+          <div class="px-5 py-2.5 flex items-center justify-between text-xs hover:bg-[#F8F9FA]">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="font-semibold text-dms-mar">Fornecedor Crítico Aprovação Diretor</span>
+              <span class="text-dms-tecnologia">Fornecedor · prioridade 5</span>
+              <span class="px-1.5 py-0.5 bg-[#FEF3C7] text-[#854D0E] rounded mono">Sugerir</span>
+            </div>
+            <div class="flex items-center gap-2"><button class="text-dms-confianca hover:text-dms-mar">Editar</button><button class="text-red-500 hover:text-red-700">Excluir</button></div>
+          </div>
+          <div class="px-5 py-2.5 flex items-center justify-between text-xs hover:bg-[#F8F9FA]">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="font-semibold text-dms-mar">Cliente VIP Fast Track</span>
+              <span class="text-dms-tecnologia">Cliente · prioridade 15</span>
+              <span class="px-1.5 py-0.5 bg-dms-tropicalidade/10 text-dms-tropicalidade-dark rounded mono" style="color:#7A8F24">Auto-match</span>
+            </div>
+            <div class="flex items-center gap-2"><button class="text-dms-confianca hover:text-dms-mar">Editar</button><button class="text-red-500 hover:text-red-700">Excluir</button></div>
+          </div>
+          <div class="px-5 py-2.5 flex items-center justify-between text-xs hover:bg-[#F8F9FA]">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="font-semibold text-dms-mar">NF Sem Pedido (rejeitar)</span>
+              <span class="text-dms-tecnologia">Global · prioridade 50</span>
+              <span class="px-1.5 py-0.5 bg-red-50 text-red-700 rounded mono">Rejeitar</span>
+            </div>
+            <div class="flex items-center gap-2"><button class="text-dms-confianca hover:text-dms-mar">Editar</button><button class="text-red-500 hover:text-red-700">Excluir</button></div>
+          </div>
+          <div class="px-5 py-2.5 flex items-center justify-between text-xs hover:bg-[#F8F9FA]">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="font-semibold text-dms-mar">Fallback Genérico Compras</span>
+              <span class="text-dms-tecnologia">Global · prioridade 999</span>
+              <span class="px-1.5 py-0.5 bg-[#FEF3C7] text-[#854D0E] rounded mono">Sugerir</span>
+            </div>
+            <div class="flex items-center gap-2"><button class="text-dms-confianca hover:text-dms-mar">Editar</button><button class="text-red-500 hover:text-red-700">Excluir</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Nova regra de match (Fix 2026-06-01) -->
+      <div id="new-rule-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,56,108,0.5);">
+        <div class="bg-white rounded-lg shadow-2xl w-[560px] max-w-[95vw] max-h-[90vh] overflow-y-auto">
+          <div class="px-5 py-3 border-b border-[#E5E7EB] flex items-center justify-between bg-[#F8F9FA]">
+            <h3 class="text-sm font-bold text-dms-mar">+ Nova regra de match</h3>
+            <button onclick="closeNewRuleModal()" class="text-dms-tecnologia hover:text-dms-mar">✕</button>
+          </div>
+          <div class="p-5 space-y-3 text-xs">
+            <div><label class="caption text-dms-tecnologia mb-1 block">Nome da regra <span class="text-red-500">*</span></label><input type="text" placeholder="Ex.: Compras TI Baixo Valor" class="input-dms w-full px-3 py-2 border border-[#E5E7EB] rounded-md"></div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="caption text-dms-tecnologia mb-1 block">Escopo</label>
+                <select class="input-dms w-full px-3 py-2 border border-[#E5E7EB] rounded-md bg-white">
+                  <option>Global</option><option>Fornecedor</option><option>Contrato</option><option>Cliente</option><option>Centro de custo</option>
+                </select>
+              </div>
+              <div>
+                <label class="caption text-dms-tecnologia mb-1 block">Prioridade</label>
+                <input type="number" value="10" class="input-dms w-full px-3 py-2 border border-[#E5E7EB] rounded-md text-center">
+              </div>
+            </div>
+            <div>
+              <label class="caption text-dms-tecnologia mb-1 block">Condição (DSL)</label>
+              <textarea rows="4" class="input-dms w-full px-3 py-2 border border-[#E5E7EB] rounded-md mono" placeholder="@tipo_compra IN [avulsa, contrato] AND @valor_total BETWEEN 0 AND 50000"></textarea>
+              <p class="text-[10px] text-dms-tecnologia italic mt-1">Ou use o form builder visual (chega em wave 2).</p>
+            </div>
+            <div>
+              <label class="caption text-dms-tecnologia mb-1 block">Ação</label>
+              <select class="input-dms w-full px-3 py-2 border border-[#E5E7EB] rounded-md bg-white">
+                <option>Matchear automaticamente</option><option>Sugerir match</option><option>Rejeitar</option>
+              </select>
+            </div>
+          </div>
+          <div class="px-5 py-3 bg-[#F8F9FA] border-t border-[#E5E7EB] flex items-center justify-end gap-2">
+            <button onclick="closeNewRuleModal()" class="text-xs font-semibold text-dms-mar px-3 py-1.5 border border-[#E5E7EB] rounded">Cancelar</button>
+            <button onclick="saveNewRule()" class="text-xs font-semibold text-white px-3 py-1.5 bg-dms-mar rounded">Salvar regra</button>
+          </div>
+        </div>
+      </div>
+      <script>
+      function openNewRuleModal(){ document.getElementById('new-rule-modal').classList.remove('hidden'); }
+      function closeNewRuleModal(){ document.getElementById('new-rule-modal').classList.add('hidden'); }
+      function saveNewRule(){ closeNewRuleModal(); alert('Regra salva (mockup). Veja na lista acima.'); }
+      </script>
 
       <!-- ========== AVISO MVP MÍNIMO ========== -->
       <div class="mb-6 p-4 bg-dms-ceu/5 border border-dms-ceu/20 rounded-lg flex gap-3">
@@ -181,7 +285,14 @@ tailwind.config = {
 
               <!-- Tabela de critérios -->
               <div class="border border-[#E5E7EB] rounded-lg relative">
-                <div class="overflow-x-auto rounded-lg" style="scrollbar-width: thin;">
+                <div class="overflow-x-auto rounded-lg" style="scrollbar-width: thin; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;">
+                  <style>
+                    /* Fix 2026-06-01: scroll horizontal suave + scrollbar visível */
+                    .overflow-x-auto::-webkit-scrollbar { height: 8px; }
+                    .overflow-x-auto::-webkit-scrollbar-thumb { background: rgba(0,56,108,0.3); border-radius: 4px; }
+                    .overflow-x-auto::-webkit-scrollbar-thumb:hover { background: rgba(0,56,108,0.5); }
+                    .overflow-x-auto::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); }
+                  </style>
                   <table class="w-full text-sm" style="min-width: 720px;">
                     <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
                       <tr>
