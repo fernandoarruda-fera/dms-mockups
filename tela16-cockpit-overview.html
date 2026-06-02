@@ -1,9 +1,21 @@
 <!DOCTYPE html>
+<!--
+  tela16 Cockpit Overview v2 (refeita 2026-06-02)
+
+  Substitui versão anterior (1.230 linhas) que tinha botões sem onClick.
+  Baseada no CONCEPT-cockpit.md decisão Fernando 2026-05-04 (opção D).
+
+  IMPORTANTE: Em produção real, sem Workflow Instances ativos e sem MAILIA conectada,
+  TO DO/FOLLOW UP/UPDATE ficam vazios. EMAIL depende de MAILIA (Sprint 5 DP #29).
+  Os mocks aqui simulam dados que viriam dos 5 WFs default planejados pra Sprint 4 (DP #29).
+
+  IA Chat Assessor (RAG) e IA Construção de View = Future (F1.5/F2), aqui só ícones com TBD.
+-->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1280">
-<title>DMS — Cockpit do Usuário</title>
+<title>DMS — Cockpit Overview</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,947 +23,153 @@
 <script>
 tailwind.config = {
   corePlugins: { preflight: true },
-  theme: {
-    extend: {
-      colors: {
-        dms: {
-          mar: '#00386C', ceu: '#00AEEE', confianca: '#005290',
-          sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464',
-        },
-      },
-      fontFamily: {
-        sans: ['Montserrat', 'Verdana', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
-      },
-      boxShadow: {
-        'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
-      },
-    },
-  },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464', warning: '#EAB308', danger: '#DC2626' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)' },
+  } },
 };
 </script>
 <style>
   body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
-  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
   .tilt-accent { transform: skewX(-16.5deg); }
-  .caption { font-size: 11px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 16px; }
+  .caption { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
   .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
-  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
-  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
 
-  /* === MASTER CARDS (5 cards do topo) — padrão visual da Tela 18 === */
-  .master-card {
-    border-radius: 6px !important;
-    border: 1px solid #E5E7EB !important;
-    transition: all 150ms ease;
-    cursor: default;
+  /* Badges genéricos */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.02em; }
+  .badge-tbd { background: rgba(234,179,8,0.12); color: #854D0E; border: 1px solid rgba(234,179,8,0.3); }
+  .badge-real { background: rgba(176,201,52,0.15); color: #6B7E20; border: 1px solid rgba(176,201,52,0.35); }
+  .badge-sys { background: rgba(101,100,100,0.12); color: #656464; border: 1px solid rgba(101,100,100,0.25); }
+  .badge-future { background: rgba(100,53,133,0.10); color: #5C2A78; border: 1px solid rgba(100,53,133,0.30); }
+
+  /* Tipo card badges (TO DO / FOLLOW UP / UPDATE / EMAIL) */
+  .ct { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .ct-todo      { background: rgba(0,174,238,0.16);  color: #005290;  border: 1px solid rgba(0,174,238,0.35); }
+  .ct-followup  { background: rgba(100,53,133,0.14); color: #5C2A78;  border: 1px solid rgba(100,53,133,0.30); }
+  .ct-update    { background: rgba(176,201,52,0.18); color: #5D6E1C;  border: 1px solid rgba(176,201,52,0.40); }
+  .ct-email     { background: rgba(101,100,100,0.12); color: #1A1A1A; border: 1px solid rgba(101,100,100,0.30); }
+
+  /* Avatar */
+  .avatar { width: 30px; height: 30px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; letter-spacing: 0.02em; }
+  .av-1 { background: linear-gradient(135deg, #00386C, #00AEEE); }
+  .av-2 { background: linear-gradient(135deg, #643585, #00AEEE); }
+  .av-3 { background: linear-gradient(135deg, #005290, #6B7E20); }
+  .av-4 { background: linear-gradient(135deg, #00386C, #643585); }
+  .av-5 { background: linear-gradient(135deg, #B0C934, #005290); }
+  .av-me { background: linear-gradient(135deg, #00AEEE, #B0C934); }
+
+  /* Tabs pill */
+  .tab-pill { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all 0.12s ease; background: transparent; color: #1A1A1A; }
+  .tab-pill:hover { background: #F1F4F7; }
+  .tab-pill.active { background: #00386C; color: #fff; }
+  .tab-pill.active .tab-count { background: rgba(255,255,255,0.25); color: #fff; }
+  .tab-count { background: #E5E7EB; color: #656464; font-size: 10px; padding: 1px 7px; border-radius: 999px; font-weight: 700; min-width: 18px; text-align: center; }
+
+  /* Mode toggle (Stage / SOP / Workflow) */
+  .mode-toggle { display: inline-flex; padding: 3px; background: #F1F4F7; border-radius: 999px; gap: 2px; }
+  .mode-btn { padding: 5px 14px; border-radius: 999px; font-size: 11.5px; font-weight: 600; color: #656464; cursor: pointer; border: 0; background: transparent; transition: all 0.12s ease; letter-spacing: 0.02em; }
+  .mode-btn:hover { color: #00386C; }
+  .mode-btn.active { background: #fff; color: #00386C; box-shadow: 0 1px 2px rgba(0,56,108,0.08); }
+
+  /* View source toggle (mock-rico ↔ vazio) */
+  .src-toggle { display: inline-flex; padding: 2px; background: #F1F4F7; border-radius: 6px; gap: 2px; }
+  .src-btn { padding: 4px 10px; border-radius: 4px; font-size: 10.5px; font-weight: 600; color: #656464; cursor: pointer; border: 0; background: transparent; transition: all 0.12s ease; }
+  .src-btn.active { background: #fff; color: #00386C; box-shadow: 0 1px 2px rgba(0,56,108,0.10); }
+
+  /* Card */
+  .ck-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 10px; padding: 14px 16px; transition: all 0.12s ease; position: relative; }
+  .ck-card:hover { border-color: #00AEEE; box-shadow: 0 4px 8px -2px rgba(0,56,108,0.10); }
+  .ck-card.overdue { border-left: 4px solid #DC2626; }
+  .ck-card.urgent  { border-left: 4px solid #EAB308; }
+  .ck-title { font-size: 14px; font-weight: 700; color: #00386C; line-height: 1.3; }
+  .ck-meta  { font-size: 11.5px; color: #656464; }
+  .ck-context { font-size: 12px; color: #1A1A1A; }
+  .ck-prazo-ok      { color: #5D6E1C; }
+  .ck-prazo-warn    { color: #854D0E; }
+  .ck-prazo-late    { color: #B91C1C; font-weight: 700; }
+
+  /* Sidebar filters */
+  .filter-side { width: 240px; background: #fff; border: 1px solid #E5E7EB; border-radius: 10px; }
+  .filter-block { padding: 14px; border-bottom: 1px solid #F1F4F7; }
+  .filter-block:last-child { border-bottom: 0; }
+  .filter-block h4 { font-size: 11px; font-weight: 700; color: #656464; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .filter-select { width: 100%; padding: 5px 8px; font-size: 12px; border: 1px solid #E5E7EB; border-radius: 6px; background: #fff; cursor: pointer; }
+  .filter-select:focus { outline: none; border-color: #00AEEE; }
+
+  .saved-view { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; font-size: 12px; cursor: pointer; color: #1A1A1A; transition: background 0.1s ease; }
+  .saved-view:hover { background: #F1F4F7; color: #00386C; }
+  .saved-view.active { background: rgba(0,174,238,0.10); color: #00386C; font-weight: 600; }
+  .saved-view .sv-dot { width: 6px; height: 6px; border-radius: 999px; flex-shrink: 0; }
+
+  /* KPI cards */
+  .kpi-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 10px; padding: 12px 14px; }
+  .kpi-card .kpi-num { font-size: 22px; font-weight: 800; line-height: 1; }
+  .kpi-card .kpi-lbl { font-size: 10.5px; font-weight: 600; color: #656464; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .kpi-card .kpi-foot { font-size: 10.5px; color: #656464; margin-top: 4px; }
+  .kpi-ok { color: #5D6E1C; }
+  .kpi-warn { color: #854D0E; }
+  .kpi-late { color: #B91C1C; }
+  .kpi-info { color: #00386C; }
+
+  /* Prioridades agora */
+  .prio-block { background: linear-gradient(135deg, #FFF7ED 0%, #FFF 70%); border: 1px solid #FED7AA; border-left: 4px solid #EA580C; }
+  .prio-item { padding: 10px 12px; background: #fff; border: 1px solid #FED7AA; border-radius: 8px; display: flex; gap: 10px; align-items: flex-start; transition: all 0.12s ease; cursor: pointer; }
+  .prio-item:hover { border-color: #EA580C; box-shadow: 0 2px 6px rgba(234,88,12,0.10); }
+  .prio-rank { width: 22px; height: 22px; border-radius: 999px; background: #EA580C; color: #fff; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  /* Email thread card */
+  .email-card { background: #FAFBFC; border: 1px solid #E5E7EB; border-radius: 10px; padding: 14px 16px; }
+  .email-card .em-subj { font-size: 13.5px; font-weight: 700; color: #00386C; }
+  .email-card .em-body { font-size: 12px; color: #1A1A1A; background: #fff; border: 1px solid #F1F4F7; border-radius: 6px; padding: 8px 10px; margin-top: 6px; line-height: 1.5; }
+  .email-card .em-meta { font-size: 11px; color: #656464; }
+  .email-card .em-replies { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; background: rgba(0,174,238,0.10); color: #005290; font-size: 10.5px; font-weight: 700; }
+
+  /* Drawer / Modal */
+  .ck-drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 50; display: none; }
+  .ck-drawer-overlay.open { display: block; }
+  .ck-drawer { position: fixed; top: 0; right: 0; height: 100vh; width: 420px; background: #fff; border-left: 1px solid #E5E7EB; z-index: 60; transform: translateX(100%); transition: transform 0.25s ease; display: flex; flex-direction: column; box-shadow: -10px 0 40px rgba(0,56,108,0.15); }
+  .ck-drawer.open { transform: translateX(0); }
+  .ck-drawer-header { padding: 16px 20px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: space-between; }
+  .ck-drawer-body { padding: 18px 20px; overflow-y: auto; flex: 1; }
+  .ck-drawer-footer { padding: 14px 20px; border-top: 1px solid #E5E7EB; display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* IA buttons (header) */
+  .ia-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #E5E7EB; background: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; position: relative; transition: all 0.12s ease; color: #00386C; }
+  .ia-btn:hover { border-color: #00AEEE; background: rgba(0,174,238,0.05); }
+  .ia-btn .ia-tbd { position: absolute; bottom: -4px; right: -4px; font-size: 8px; font-weight: 800; background: #EAB308; color: #fff; padding: 1px 4px; border-radius: 3px; letter-spacing: 0.04em; }
+
+  .notif-btn { position: relative; width: 36px; height: 36px; border-radius: 8px; border: 1px solid #E5E7EB; background: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #00386C; }
+  .notif-btn:hover { border-color: #00AEEE; }
+  .notif-badge { position: absolute; top: -4px; right: -4px; background: #DC2626; color: #fff; font-size: 9px; font-weight: 800; min-width: 16px; height: 16px; border-radius: 999px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+
+  .empty-state { padding: 60px 40px; text-align: center; background: #fff; border: 1px dashed #E5E7EB; border-radius: 12px; }
+  .empty-illustr { font-size: 64px; line-height: 1; opacity: 0.5; }
+
+  /* Indicador extra (SOP/Workflow) */
+  .extra-ind { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 4px; background: rgba(0,56,108,0.06); color: #00386C; font-size: 11px; font-weight: 600; }
+
+  /* Hide initially based on mode */
+  .extra-sop, .extra-workflow { display: none; }
+  body[data-mode="sop"] .extra-sop { display: inline-flex; }
+  body[data-mode="workflow"] .extra-sop,
+  body[data-mode="workflow"] .extra-workflow { display: inline-flex; }
+
+  /* Visibility helpers for tabs/sources */
+  .ck-tab-panel { display: none; }
+  .ck-tab-panel.active { display: block; }
+
+  body[data-source="empty"] .src-rich-only { display: none !important; }
+  body[data-source="rich"]  .src-empty-only { display: none !important; }
+
+  @media (max-width: 980px) {
+    .cockpit-layout { grid-template-columns: 1fr !important; }
+    .filter-side { width: 100% !important; position: static !important; max-height: none !important; }
   }
-  .master-card:hover { box-shadow: 0 4px 10px -2px rgba(0,56,108,0.12); transform: translateY(-1px); border-color: #D1D5DB !important; }
-  .master-card.kpi-card-style { border-top: 3px solid #00386C !important; }  /* KPIs do dia: Mar */
-  .master-card.email { border-top: 3px solid #00AEEE !important; }           /* E-mail: Céu */
-  .master-card.todo { border-top: 3px solid #00386C !important; }            /* To Do: Mar */
-  .master-card.followup { border-top: 3px solid #643585 !important; }        /* Follow Up: Sabedoria */
-  .master-card.update { border-top: 3px solid #B0C934 !important; }          /* Update: Tropicalidade */
-
-  /* === KPIs do dia (bg dark) === */
-  .kpi-dia { background: linear-gradient(135deg, #00386C, #002952); color: white; }
-
-  /* === Coluna de tarefas (80% bottom) === */
-  .task-col-header { border-top: 3px solid; padding: 10px 12px; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: space-between; }
-  .task-col-header.email { border-color: #00AEEE; color: #005290; background: rgba(0,174,238,0.04); }
-  .task-col-header.todo { border-color: #00386C; color: #00386C; background: rgba(0,56,108,0.04); }
-  .task-col-header.followup { border-color: #643585; color: #643585; background: rgba(100,53,133,0.04); }
-  .task-col-header.update { border-color: #B0C934; color: #5C7818; background: rgba(176,201,52,0.06); }
-
-  .task-row {
-    background: white;
-    border: 1px solid #E5E7EB;
-    border-radius: 6px;
-    padding: 10px 12px;
-    cursor: pointer;
-    transition: all 150ms ease;
-    font-size: 12px;
-    line-height: 1.4;
-  }
-  .task-row:hover { box-shadow: 0 2px 6px -1px rgba(0,56,108,0.10); transform: translateY(-1px); border-color: #D1D5DB; }
-  /* Border-top colorido por tipo (igual padrão Tela 18 delay/warning/ontime) */
-  .task-row.reclamacao { border-top: 3px solid #DC2626; }
-  .task-row.documento { border-top: 3px solid #00AEEE; }
-  .task-row.info { border-top: 3px solid #B0C934; }
-  .task-row.thread { border-top: 3px solid #643585; }
-  .task-row.update-confirmed { border-top: 3px solid #B0C934; }
-  .task-row.update-escalation { border-top: 3px solid #643585; }
-  .task-row.update-mailia { border-top: 3px solid #DC2626; }
-  .task-row.todo-delay { border-top: 3px solid #DC2626; }
-  .task-row.todo-warning { border-top: 3px solid #EAB308; }
-  .task-row.todo-ontime { border-top: 3px solid #B0C934; }
-
-  /* Search por coluna */
-  .col-search { width: 100%; font-size: 11px; padding: 4px 8px 4px 22px; border: 1px solid #E5E7EB; border-radius: 4px; background: white; }
-  .col-search:focus { outline: none; border-color: #00AEEE; }
-
-  /* Mini Top 5 */
-  .top5-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 12px; border-bottom: 1px solid #F3F4F6; }
-  .top5-row:last-child { border-bottom: none; }
-  .top5-label { color: #1A1A1A; flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px; }
-  .top5-count { font-weight: 700; color: #00386C; }
-
-  /* IA Chat */
-  .drawer-overlay { background: rgba(0, 56, 108, 0.40); backdrop-filter: blur(2px); }
-  .drawer-panel { animation: slideIn 200ms ease-out; }
-  @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-
-  .card-ia { background: linear-gradient(135deg, rgba(100,53,133,0.05), rgba(0,174,238,0.05)); border-color: rgba(100,53,133,0.2); }
-  .chat-user { background: #00386C; color: white; border-radius: 12px 12px 4px 12px; }
-  .chat-ai { background: white; border: 1px solid #E5E7EB; border-radius: 12px 12px 12px 4px; }
-  .chat-ai-card { background: rgba(0,174,238,0.05); border: 1px solid rgba(0,174,238,0.20); border-radius: 6px; }
 </style>
 <link rel="stylesheet" href="mobile-responsive.css">
-  <script defer src="sidebar-permissions.js"></script>
 </head>
-<body class="min-h-screen">
-
-<div class="flex min-h-screen">
-
-  <!-- SIDEBAR NAV -->
-  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
-    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
-      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
-        <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
-      </div>
-      <div>
-        <div class="font-bold text-base leading-tight">DMS</div>
-        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
-      </div>
-    </div>
-    <nav class="flex-1 py-4 overflow-y-auto">
-      <div class="caption text-white/40 px-6 mb-2">Trabalho</div>
-      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        <span data-i18n="nav.cockpit">Cockpit</span>
-      </a>
-      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-        MAILIA (admin)
-      </a>
-      <div class="caption text-white/40 px-6 mt-6 mb-2" data-i18n="nav.purchases">Compras</div>
-      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        <span data-i18n="nav.requisitions">Requisições</span>
-      </a>
-      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-        <span data-i18n="nav.orders">Pedidos de Compra</span>
-      </a>
-      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        Contratos
-      </a>
-    </nav>
-    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
-      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">MC</div>
-      <div class="flex-1 min-w-0">
-        <div class="text-sm font-semibold truncate">Maria Costa</div>
-        <div class="text-xs text-white/60 truncate">Diretor Financeiro</div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- MAIN -->
-  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
-
-    <!-- HEADER personalizado (mockup pg 29) -->
-    <header class="bg-white border-b border-[#E5E7EB] px-6 py-4 sticky top-0 z-20">
-      <div class="flex items-start justify-between gap-6">
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-3 mb-1">
-            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
-            <h1 class="text-[28px] leading-tight font-bold text-dms-mar">Bom dia, Maria Costa</h1>
-          </div>
-          <p class="text-sm text-dms-tecnologia ml-[60px]">
-            <strong class="text-dms-mar">Diretor Financeiro</strong> · <strong class="text-dms-mar">487 tarefas</strong> em andamento · SLA cumprido 30d: <strong class="text-dms-tropicalidade">94%</strong>
-          </p>
-        </div>
-        <div class="flex items-center gap-3 flex-shrink-0">
-          <button onclick="openIaChat()" class="flex items-center gap-2 text-sm font-semibold text-white px-3 py-1.5 bg-dms-sabedoria rounded-md hover:opacity-90 transition-opacity">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-            IA Chat
-          </button>
-          <button class="flex items-center gap-2 text-sm font-semibold text-dms-tecnologia px-3 py-1.5 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            Meu desempenho
-          </button>
-          <button onclick="openConfigModal()" class="flex items-center gap-2 text-sm font-semibold text-white px-3 py-1.5 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            Configurar
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <main class="flex-1 p-6 max-w-[1600px] w-full mx-auto">
-
-      <!-- ========== TOPO ~20%: KPIs DO DIA + 4 MINI-BLOCOS ========== -->
-      <div class="grid" style="grid-template-columns: repeat(5, 1fr); gap: 20px; margin-bottom: 24px;">
-
-        <!-- KPIs DO DIA (col-span-2) - bg dark com border + shadow forte -->
-        <div class="master-card kpi-card-style kpi-dia p-4 shadow-md">
-          <div class="caption text-white/60 mb-3">KPIs do dia</div>
-          <div class="grid grid-cols-2" style="gap: 12px;">
-            <div>
-              <div class="text-2xl font-black leading-none">487</div>
-              <div class="text-[10px] uppercase tracking-wider text-white/70 mt-1" data-i18n="label.total">Total</div>
-            </div>
-            <div>
-              <div class="text-2xl font-black leading-none text-dms-tropicalidade">94%</div>
-              <div class="text-[10px] uppercase tracking-wider text-white/70 mt-1">SLA 30d</div>
-            </div>
-            <div>
-              <div class="text-2xl font-black leading-none text-dms-tropicalidade">8</div>
-              <div class="text-[10px] uppercase tracking-wider text-white/70 mt-1">Concluídas</div>
-            </div>
-            <div>
-              <div class="text-2xl font-black leading-none text-red-400">11</div>
-              <div class="text-[10px] uppercase tracking-wider text-white/70 mt-1">Em delay</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- E-MAIL mini-bloco -->
-        <div class="master-card email bg-white shadow-md p-4">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-1.5 text-dms-confianca">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-              <span class="font-bold text-sm">E-MAIL (23)</span>
-            </div>
-            <button onclick="window.open('tela17-cockpit-email.html','_self')" class="text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] p-1.5 rounded transition-all" title="Expandir tela cheia">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-            </button>
-          </div>
-          <div class="caption text-dms-tecnologia mb-2">Top 5 MAILIA</div>
-          <div class="space-y-0.5">
-            <div class="top5-row"><span class="top5-label">📄 Documentos</span><span class="top5-count">9</span></div>
-            <div class="top5-row"><span class="top5-label">💬 Continuação</span><span class="top5-count">6</span></div>
-            <div class="top5-row"><span class="top5-label">ℹ️ Info esperada</span><span class="top5-count">4</span></div>
-            <div class="top5-row"><span class="top5-label text-red-700">⚠️ Reclamações</span><span class="top5-count text-red-600">2</span></div>
-            <div class="top5-row"><span class="top5-label text-dms-tecnologia">Não classific</span><span class="top5-count text-dms-tecnologia">2</span></div>
-          </div>
-        </div>
-
-        <!-- TO DO mini-bloco -->
-        <div class="master-card todo bg-white shadow-md p-4">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-1.5 text-dms-mar">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-              <span class="font-bold text-sm">TO DO (209)</span>
-            </div>
-            <button onclick="window.open('tela18-cockpit-todo.html','_self')" class="text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] p-1.5 rounded transition-all" title="Expandir tela cheia">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-            </button>
-          </div>
-          <div class="caption text-dms-tecnologia mb-2">Top 5 Stages</div>
-          <div class="space-y-0.5">
-            <div class="top5-row"><span class="top5-label">Aprov. Diretor</span><span class="top5-count">87</span></div>
-            <div class="top5-row"><span class="top5-label">Validação NF</span><span class="top5-count">54</span></div>
-            <div class="top5-row"><span class="top5-label">Cotação</span><span class="top5-count">38</span></div>
-            <div class="top5-row"><span class="top5-label">Renovação</span><span class="top5-count">17</span></div>
-            <div class="top5-row"><span class="top5-label text-dms-tecnologia">Outros (5)</span><span class="top5-count text-dms-tecnologia">13</span></div>
-          </div>
-        </div>
-
-        <!-- FOLLOW UP mini-bloco -->
-        <div class="master-card followup bg-white shadow-md p-4">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-1.5 text-dms-sabedoria">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-              <span class="font-bold text-sm">FOLLOW UP (128)</span>
-            </div>
-            <button onclick="window.open('tela19-cockpit-followup.html','_self')" class="text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] p-1.5 rounded transition-all" title="Expandir tela cheia">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-            </button>
-          </div>
-          <div class="caption text-dms-tecnologia mb-2">Top 5 Executores</div>
-          <div class="space-y-0.5">
-            <div class="top5-row"><span class="top5-label">Coord. TI</span><span class="top5-count">32</span></div>
-            <div class="top5-row"><span class="top5-label">Gerente Fin</span><span class="top5-count">28</span></div>
-            <div class="top5-row"><span class="top5-label">Coord. Fac</span><span class="top5-count">21</span></div>
-            <div class="top5-row"><span class="top5-label text-red-700">C-Level <span title="sobrecarga: 6 atrasos">⚠</span></span><span class="top5-count text-red-600">14</span></div>
-            <div class="top5-row"><span class="top5-label text-dms-tecnologia">Outros</span><span class="top5-count text-dms-tecnologia">33</span></div>
-          </div>
-        </div>
-
-        <!-- UPDATE mini-bloco -->
-        <div class="master-card update bg-white shadow-md p-4">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-1.5" style="color: #5C7818">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5"/></svg>
-              <span class="font-bold text-sm">UPDATE (47 HOJE)</span>
-            </div>
-            <button onclick="window.open('tela20-cockpit-update.html','_self')" class="text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] p-1.5 rounded transition-all" title="Expandir tela cheia">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
-            </button>
-          </div>
-          <div class="caption text-dms-tecnologia mb-2">Top 5 Eventos</div>
-          <div class="space-y-0.5">
-            <div class="top5-row"><span class="top5-label">Stage confirmado</span><span class="top5-count">21</span></div>
-            <div class="top5-row"><span class="top5-label">NF aprovada</span><span class="top5-count">11</span></div>
-            <div class="top5-row"><span class="top5-label">Pagamento</span><span class="top5-count">8</span></div>
-            <div class="top5-row"><span class="top5-label">PO emitido</span><span class="top5-count">4</span></div>
-            <div class="top5-row"><span class="top5-label text-dms-tecnologia">Outros</span><span class="top5-count text-dms-tecnologia">3</span></div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- ========== 80%: 4 COLUNAS COM TODAS AS TAREFAS (mockup pg 30) ========== -->
-      <div class="grid grid-cols-4" style="gap: 12px;">
-
-        <!-- ===== COLUNA E-MAIL ===== -->
-        <div class="bg-white rounded-lg shadow-dms-md overflow-hidden">
-          <div class="task-col-header email">
-            <span>✉ E-mail (23)</span>
-            <span class="text-[10px] text-dms-tecnologia font-normal">10 visíveis</span>
-          </div>
-          <div class="p-2 border-b border-[#E5E7EB] bg-white">
-            <div class="relative">
-              <svg class="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-              <input type="text" placeholder="Filtrar..." class="col-search">
-            </div>
-          </div>
-          <div class="overflow-y-auto" style="max-height: 500px; display: flex; flex-direction: column; gap: 6px; padding: 8px;">
-            <div class="task-row reclamacao">
-              <div class="font-semibold text-dms-mar">Fornecedor A</div>
-              <div class="flex items-center justify-between text-[11px] text-red-700 mt-0.5"><span>⚠ Reclamação</span><span>12min</span></div>
-            </div>
-            <div class="task-row documento">
-              <div class="font-semibold text-dms-mar">Fornecedor B — NF</div>
-              <div class="flex items-center justify-between text-[11px] text-dms-confianca mt-0.5"><span>📄 Doc</span><span>35min</span></div>
-            </div>
-            <div class="task-row info">
-              <div class="font-semibold text-dms-mar">João Silva</div>
-              <div class="flex items-center justify-between text-[11px] mt-0.5" style="color:#5C7818"><span>ℹ Info</span><span class="text-dms-tecnologia">1h</span></div>
-            </div>
-            <div class="task-row thread">
-              <div class="font-semibold text-dms-mar">RE: Cotação 0044</div>
-              <div class="flex items-center justify-between text-[11px] text-dms-tecnologia mt-0.5"><span>💬 Thread</span><span>2h</span></div>
-            </div>
-            <div class="task-row documento">
-              <div class="font-semibold text-dms-mar">Fornecedor C</div>
-              <div class="flex items-center justify-between text-[11px] text-dms-confianca mt-0.5"><span>📄 Doc</span><span>3h</span></div>
-            </div>
-            <div class="task-row info">
-              <div class="font-semibold text-dms-mar">Pedro Santos</div>
-              <div class="flex items-center justify-between text-[11px] mt-0.5" style="color:#5C7818"><span>ℹ Info</span><span class="text-dms-tecnologia">4h</span></div>
-            </div>
-            <div class="task-row thread">
-              <div class="font-semibold text-dms-mar">Marketing CO</div>
-              <div class="flex items-center justify-between text-[11px] text-dms-tecnologia mt-0.5"><span>💬 Thread</span><span>5h</span></div>
-            </div>
-            <div class="task-row thread">
-              <div class="font-semibold text-dms-mar">RE: Renovação</div>
-              <div class="flex items-center justify-between text-[11px] text-dms-tecnologia mt-0.5"><span>💬 Thread</span><span>6h</span></div>
-            </div>
-            <div class="task-row documento">
-              <div class="font-semibold text-dms-mar">TI Solutions</div>
-              <div class="flex items-center justify-between text-[11px] text-dms-confianca mt-0.5"><span>📄 Doc</span><span>8h</span></div>
-            </div>
-            <div class="task-row text-center text-[11px] text-dms-tecnologia italic">+14 e-mails</div>
-          </div>
-        </div>
-
-        <!-- ===== COLUNA TO DO ===== -->
-        <div class="bg-white rounded-lg shadow-dms-md overflow-hidden">
-          <div class="task-col-header todo">
-            <span>📋 To Do (209)</span>
-            <span class="text-[10px] text-dms-tecnologia font-normal">9 visíveis</span>
-          </div>
-          <div class="p-2 border-b border-[#E5E7EB] bg-white">
-            <div class="relative">
-              <svg class="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-              <input type="text" placeholder="Filtrar..." class="col-search">
-            </div>
-          </div>
-          <div class="overflow-y-auto" style="max-height: 500px; display: flex; flex-direction: column; gap: 6px; padding: 8px;">
-            <div class="task-row todo-delay">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">REQ-0142</span><span class="text-[11px] text-red-700 font-semibold">+14h</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Aprov. Diretor · R$ 73.500</div>
-            </div>
-            <div class="task-row todo-delay">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">REQ-0140</span><span class="text-[11px] text-red-700 font-semibold">+6h</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Aprov. Diretor · R$ 42.300</div>
-            </div>
-            <div class="task-row todo-warning">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">REQ-0138</span><span class="text-[11px] text-[#854D0E] font-semibold">38h</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Aprov. Diretor · R$ 28.100</div>
-            </div>
-            <div class="task-row todo-warning">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">REQ-0135</span><span class="text-[11px] text-[#854D0E] font-semibold">32h</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Aprov. Diretor · R$ 67.800</div>
-            </div>
-            <div class="task-row todo-ontime">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">REQ-0150</span><span class="text-[11px] font-semibold" style="color:#5C7818">6h</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Aprov. Diretor · R$ 12.400</div>
-            </div>
-            <div class="task-row">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">NF-0531</span><span class="text-[11px] text-[#854D0E] font-semibold">14h</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Validação NF · Op Logística</div>
-            </div>
-            <div class="task-row todo-warning">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">NF-0530</span><span class="text-[11px] text-[#854D0E] font-semibold">18h</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Validação NF · TI Solutions</div>
-            </div>
-            <div class="task-row todo-ontime">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">RFQ-0048</span><span class="text-[11px] font-semibold" style="color:#5C7818">2d</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Cotação · Facilities</div>
-            </div>
-            <div class="task-row todo-ontime">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">CONT-017</span><span class="text-[11px] font-semibold" style="color:#5C7818">4d</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Renovação · Marketing</div>
-            </div>
-            <div class="task-row text-center text-[11px] text-dms-tecnologia italic">+200 tarefas</div>
-          </div>
-        </div>
-
-        <!-- ===== COLUNA FOLLOW UP ===== -->
-        <div class="bg-white rounded-lg shadow-dms-md overflow-hidden">
-          <div class="task-col-header followup">
-            <span>👀 Follow Up (128)</span>
-            <span class="text-[10px] text-dms-tecnologia font-normal">9 visíveis</span>
-          </div>
-          <div class="p-2 border-b border-[#E5E7EB] bg-white">
-            <div class="relative">
-              <svg class="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-              <input type="text" placeholder="Filtrar..." class="col-search">
-            </div>
-          </div>
-          <div class="overflow-y-auto" style="max-height: 500px; display: flex; flex-direction: column; gap: 6px; padding: 8px;">
-            <div class="task-row">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">REQ-0138</span><span class="text-[11px] text-red-700 font-semibold">+3d</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">C-Level · R$ 67.800</div>
-            </div>
-            <div class="task-row">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">RFQ-0044</span><span class="text-[11px] text-red-700 font-semibold">+1d</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Coord TI · 7d em curso</div>
-            </div>
-            <div class="task-row todo-ontime">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">CONT-017</span><span class="text-[11px] text-[#854D0E] font-semibold">4d/5d</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Gerente Fin</div>
-            </div>
-            <div class="task-row todo-ontime">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">RFQ-0048</span><span class="text-[11px] font-semibold" style="color:#5C7818">2d/5d</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Coord Fac</div>
-            </div>
-            <div class="task-row">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">PO-0089</span><span class="text-[11px] font-semibold" style="color:#5C7818">●</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Coord TI · Recebimento</div>
-            </div>
-            <div class="task-row">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">PO-0091</span><span class="text-[11px] font-semibold" style="color:#5C7818">●</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Op Logística</div>
-            </div>
-            <div class="task-row">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">NF-0528</span><span class="text-[11px] font-semibold" style="color:#5C7818">●</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Validação Auto</div>
-            </div>
-            <div class="task-row">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">REQ-0145</span><span class="text-[11px] font-semibold" style="color:#5C7818">●</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Coord Marketing</div>
-            </div>
-            <div class="task-row">
-              <div class="flex items-center justify-between"><span class="mono font-semibold text-dms-mar">CONT-022</span><span class="text-[11px] font-semibold" style="color:#5C7818">●</span></div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Gerente Fin</div>
-            </div>
-            <div class="task-row text-center text-[11px] text-dms-tecnologia italic">+119 itens</div>
-          </div>
-        </div>
-
-        <!-- ===== COLUNA UPDATE ===== -->
-        <div class="bg-white rounded-lg shadow-dms-md overflow-hidden">
-          <div class="task-col-header update">
-            <span>🔔 Update (47 hoje)</span>
-            <span class="text-[10px] text-dms-tecnologia font-normal">10 visíveis</span>
-          </div>
-          <div class="p-2 border-b border-[#E5E7EB] bg-white">
-            <div class="relative">
-              <svg class="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-              <input type="text" placeholder="Filtrar..." class="col-search">
-            </div>
-          </div>
-          <div class="overflow-y-auto" style="max-height: 500px; display: flex; flex-direction: column; gap: 6px; padding: 8px;">
-            <div class="task-row">
-              <div class="font-semibold text-dms-mar">NF-0528 aprovada</div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">10:42 · Diretor Fin</div>
-            </div>
-            <div class="task-row">
-              <div class="font-semibold text-red-700">MAILIA: Reclamação</div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">10:30 · REQ-0142</div>
-            </div>
-            <div class="task-row">
-              <div class="font-semibold text-dms-mar">Pgto -0085 OK</div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">9:14 · Webhook Omie</div>
-            </div>
-            <div class="task-row">
-              <div class="font-semibold text-dms-sabedoria">Escalation -0142</div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">8:55 · Head notificado</div>
-            </div>
-            <div class="task-row">
-              <div class="font-semibold text-dms-mar">PO-0091 emitido</div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Ontem 17:22</div>
-            </div>
-            <div class="task-row">
-              <div class="font-semibold text-dms-confianca">DOCSIA: NFe 8821</div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Ontem 14:08</div>
-            </div>
-            <div class="task-row">
-              <div class="font-semibold text-dms-mar">NF-0527 aprovada</div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Ontem 12:30</div>
-            </div>
-            <div class="task-row">
-              <div class="font-semibold text-dms-mar">REQ-0144 criada</div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Ontem 10:15</div>
-            </div>
-            <div class="task-row">
-              <div class="font-semibold text-dms-mar">Stage confirmado</div>
-              <div class="text-[11px] text-dms-tecnologia mt-0.5">Ontem 9:00</div>
-            </div>
-            <div class="task-row text-center text-[11px] text-dms-tecnologia italic">+38 hoje · 191 nos últimos 7d</div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Rodapé: layout descrito -->
-      <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded-lg p-3 text-xs text-dms-tecnologia flex items-start gap-2" style="margin-top: 24px;">
-        <svg class="w-4 h-4 text-dms-confianca flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <p class="leading-relaxed"><strong class="text-dms-mar">Layout 20/80:</strong> topo = visão consolidada (KPIs gerais + Top 5 + ⤢ por coluna). 80% restante = trabalho real com TODAS as tarefas listadas e search por coluna. Botão ⤢ leva pra tela cheia da coluna (telas 17-20).</p>
-      </div>
-
-    </main>
-  </div>
-</div>
-
-<!-- DRAWER IA CHAT ASSESSOR -->
-<div id="ia-chat-drawer" class="fixed inset-0 z-50 hidden">
-  <div class="drawer-overlay absolute inset-0" onclick="closeIaChat()"></div>
-
-  <div class="drawer-panel absolute right-0 top-0 h-full w-[480px] max-w-[90vw] bg-white shadow-2xl flex flex-col">
-
-    <div class="border-b border-[#E5E7EB] px-5 py-4 card-ia flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-dms-sabedoria/15 flex items-center justify-center">
-          <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-        </div>
-        <div>
-          <h3 class="font-bold text-dms-mar text-sm">IA Chat Assessor</h3>
-          <p class="text-[10px] text-dms-tecnologia">Modo W · varre base interna DMS</p>
-        </div>
-      </div>
-      <button onclick="closeIaChat()" class="p-1 text-dms-tecnologia hover:text-dms-mar hover:bg-white rounded transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
-    </div>
-
-    <div class="flex-1 overflow-y-auto p-5 space-y-4 bg-[#F8F9FA]">
-      <div class="flex gap-2">
-        <div class="w-7 h-7 rounded-full bg-dms-sabedoria/15 flex items-center justify-center flex-shrink-0">
-          <svg class="w-3.5 h-3.5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        </div>
-        <div class="chat-ai p-3 max-w-[85%]">
-          <p class="text-sm text-dms-mar">Olá Maria! Sou o IA Chat Assessor. Posso te ajudar consultando SOPs, workflows, casos similares e histórico. O que você precisa?</p>
-        </div>
-      </div>
-
-      <div class="flex gap-2 justify-end">
-        <div class="chat-user p-3 max-w-[85%]">
-          <p class="text-sm">REQ-0142 está atrasada. Padrão?</p>
-        </div>
-        <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-white font-semibold text-[10px]" style="background: linear-gradient(135deg, #00AEEE, #005290);">MC</div>
-      </div>
-
-      <div class="flex gap-2">
-        <div class="w-7 h-7 rounded-full bg-dms-sabedoria/15 flex items-center justify-center flex-shrink-0">
-          <svg class="w-3.5 h-3.5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        </div>
-        <div class="chat-ai p-3 max-w-[85%] space-y-3">
-          <p class="text-sm text-dms-mar">REQ-2026-0142 (R$ 73.500 · Facilities · ARC) está há 14h em Aprov. Diretor.</p>
-
-          <div class="chat-ai-card p-3 space-y-2">
-            <div class="text-xs text-dms-mar"><strong>Padrão histórico (90d):</strong> 8 casos análogos (Facilities · ARC · R$ 60-80k), todos aprovados sem ressalva por você.</div>
-            <div class="text-xs text-dms-tecnologia border-t border-dms-ceu/20 pt-2">Tempo médio decisão: <strong class="text-dms-mar">4.2h</strong> · SLA stage: 48h · MAILIA já recebeu reclamação do fornecedor há 12 min.</div>
-          </div>
-
-          <p class="text-sm text-dms-mar"><strong>Sugestão:</strong> aprovar com base no padrão. Aciona escalation #3 simultânea (Reclamação) já registrada pelo MAILIA.</p>
-
-          <div class="bg-white border border-[#E5E7EB] rounded p-2 text-xs">
-            <div class="caption text-dms-tecnologia mb-1">Fontes consultadas</div>
-            <ul class="space-y-0.5 text-dms-mar">
-              <li>• Histórico aprovações Maria Costa (90d)</li>
-              <li>• REQ-0142 (estado atual + MAILIA stream)</li>
-              <li>• CONCEPT-escalation §3 (escalations paralelas)</li>
-            </ul>
-          </div>
-
-          <div class="flex items-center gap-2 pt-1">
-            <button class="text-xs font-semibold text-white px-3 py-1.5 bg-dms-sabedoria rounded hover:opacity-90 transition-opacity">Aprovar REQ-0142</button>
-            <button class="text-xs font-semibold text-dms-tecnologia px-3 py-1.5 hover:text-dms-mar transition-colors">Ver casos análogos</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="border-t border-[#E5E7EB] p-4 bg-white">
-      <div class="flex items-end gap-2">
-        <textarea rows="1" placeholder="Pergunte algo sobre processos, SOPs, casos similares..." class="input-dms flex-1 px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA] resize-none"></textarea>
-        <button class="p-2 text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors flex-shrink-0">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-        </button>
-      </div>
-      <p class="text-[10px] text-dms-tecnologia mt-2">IA usa contexto de SOPs · Stages · Workflows · 90d histórico</p>
-    </div>
-
-  </div>
-</div>
-
-<script>
-function openIaChat() {
-  document.getElementById('ia-chat-drawer').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-}
-function closeIaChat() {
-  document.getElementById('ia-chat-drawer').classList.add('hidden');
-  document.body.style.overflow = '';
-}
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeIaChat(); closeConfigModal(); }});
-
-// =============== MODAL CONFIGURAR COLUNAS DO COCKPIT ===============
-const AVAILABLE_TAGS = [
-  { id: 'workflow', label: 'Workflow', tag: '@process.workflow_name', category: 'Processo' },
-  { id: 'valor', label: 'Valor', tag: '@process.valor_total', category: 'Processo' },
-  { id: 'cc', label: 'Centro de Custo', tag: '@process.centro_custo', category: 'Processo' },
-  { id: 'fornecedor', label: 'Fornecedor', tag: '@process.fornecedor', category: 'Processo' },
-  { id: 'solicitante', label: 'Solicitante', tag: '@process.solicitante', category: 'Processo' },
-  { id: 'data_criacao', label: 'Data de criação', tag: '@process.created_at', category: 'Processo' },
-  { id: 'data_vencimento', label: 'Data de vencimento', tag: '@process.due_date', category: 'Processo' },
-  { id: 'empresa', label: 'Empresa', tag: '@process.empresa', category: 'Processo' },
-  { id: 'tipo_compra', label: 'Tipo de Compra', tag: '@compras.tipo_compra', category: 'Compras' },
-  { id: 'tipo_servico', label: 'Tipo de Serviço', tag: '@compras.tipo_servico', category: 'Compras' },
-  { id: 'contrato_id', label: 'Contrato vinculado', tag: '@compras.contrato_id', category: 'Compras' },
-  { id: 'po_id', label: 'PO associada', tag: '@compras.po_id', category: 'Compras' },
-  { id: 'sla_bar', label: 'SLA bar visual', tag: '@workflow.sla_progress', category: 'Workflow' },
-  { id: 'priority', label: 'Prioridade', tag: '@workflow.priority', category: 'Workflow' },
-  { id: 'tempo_decorrido', label: 'Tempo decorrido', tag: '@workflow.elapsed_time', category: 'Workflow' },
-  { id: 'mailia_class', label: 'Classificação MAILIA', tag: '@mailia.classification', category: 'E-mail' },
-  { id: 'sender', label: 'Remetente', tag: '@email.sender', category: 'E-mail' },
-  { id: 'subject', label: 'Assunto', tag: '@email.subject', category: 'E-mail' },
-  { id: 'evento_tipo', label: 'Tipo de evento', tag: '@update.event_type', category: 'Update' },
-  { id: 'evento_actor', label: 'Quem fez', tag: '@update.actor', category: 'Update' },
-  { id: 'executor', label: 'Executor responsável', tag: '@workflow.assigned_to', category: 'Follow Up' },
-  { id: 'tempo_executor', label: 'Tempo c/ executor', tag: '@workflow.time_with_assignee', category: 'Follow Up' },
-];
-
-// Estado inicial por aba (defaults DMS)
-let configState = {
-  todo:     ['workflow', 'valor', 'cc', 'fornecedor'],
-  followup: ['executor', 'tempo_executor', 'workflow', 'valor'],
-  update:   ['evento_tipo', 'evento_actor', 'data_criacao'],
-  email:    ['sender', 'subject', 'mailia_class', 'data_criacao'],
-};
-const DEFAULTS = JSON.parse(JSON.stringify(configState)); // snapshot pra Restaurar
-
-let activeConfigTab = 'todo';
-const MAX_FIELDS = 8;
-
-function openConfigModal() {
-  document.getElementById('config-modal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-  renderConfigTab();
-}
-function closeConfigModal() {
-  document.getElementById('config-modal').classList.add('hidden');
-  document.body.style.overflow = '';
-}
-function selectConfigTab(tab) {
-  activeConfigTab = tab;
-  ['todo', 'followup', 'update', 'email'].forEach(t => {
-    const el = document.getElementById('config-tab-' + t);
-    if (el) {
-      el.classList.toggle('active-config-tab', t === tab);
-    }
-  });
-  renderConfigTab();
-}
-
-function renderConfigTab() {
-  const selected = configState[activeConfigTab];
-
-  // Renderiza @-tags disponíveis (esquerda) — agrupadas por categoria
-  const availList = document.getElementById('config-available');
-  const categories = [...new Set(AVAILABLE_TAGS.map(t => t.category))];
-  availList.innerHTML = categories.map(cat => {
-    const tagsInCat = AVAILABLE_TAGS.filter(t => t.category === cat);
-    return `
-      <div class="mb-4">
-        <div class="caption text-dms-tecnologia mb-1.5 px-1">${cat}</div>
-        ${tagsInCat.map(t => {
-          const isSelected = selected.includes(t.id);
-          const atLimit = selected.length >= MAX_FIELDS && !isSelected;
-          return `
-            <button onclick="toggleField('${t.id}')" ${atLimit ? 'disabled' : ''}
-              class="w-full text-left flex items-center justify-between gap-2 px-2.5 py-1.5 mb-1 rounded text-xs transition-colors
-                ${isSelected ? 'bg-dms-tropicalidade/10 text-[#5C7818] cursor-default' : atLimit ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'hover:bg-dms-ceu/10 text-dms-mar cursor-pointer'}">
-              <div class="flex-1 min-w-0">
-                <div class="font-semibold truncate">${t.label}</div>
-                <div class="mono text-[10px] ${isSelected ? 'text-[#5C7818]/70' : 'text-dms-tecnologia'} truncate">${t.tag}</div>
-              </div>
-              <span class="flex-shrink-0">
-                ${isSelected
-                  ? '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>'
-                  : atLimit
-                    ? '<span class="text-[10px]">limite</span>'
-                    : '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>'}
-              </span>
-            </button>
-          `;
-        }).join('')}
-      </div>
-    `;
-  }).join('');
-
-  // Renderiza selecionados (direita) ordenáveis
-  const selList = document.getElementById('config-selected');
-  if (selected.length === 0) {
-    selList.innerHTML = `
-      <div class="text-center py-8 text-xs text-dms-tecnologia italic">
-        Nenhum campo selecionado.<br>Clique em uma @-tag à esquerda pra adicionar.
-      </div>
-    `;
-  } else {
-    selList.innerHTML = selected.map((fieldId, idx) => {
-      const meta = AVAILABLE_TAGS.find(t => t.id === fieldId);
-      const isDefault = DEFAULTS[activeConfigTab].includes(fieldId);
-      return `
-        <div class="flex items-center gap-2 px-3 py-2 bg-white border border-[#E5E7EB] rounded mb-1.5">
-          <div class="flex flex-col gap-0.5 flex-shrink-0">
-            <button onclick="moveField(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}
-              class="text-dms-tecnologia hover:text-dms-mar disabled:opacity-20 disabled:cursor-not-allowed transition-colors">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
-            </button>
-            <button onclick="moveField(${idx}, 1)" ${idx === selected.length - 1 ? 'disabled' : ''}
-              class="text-dms-tecnologia hover:text-dms-mar disabled:opacity-20 disabled:cursor-not-allowed transition-colors">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-            </button>
-          </div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-1.5">
-              <span class="text-xs font-bold text-dms-mar">${idx + 1}.</span>
-              <span class="text-xs font-semibold text-dms-mar truncate">${meta.label}</span>
-              ${isDefault ? '<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-dms-tropicalidade/15 text-[#5C7818]">default</span>' : ''}
-            </div>
-            <div class="mono text-[10px] text-dms-tecnologia truncate">${meta.tag}</div>
-          </div>
-          <button onclick="toggleField('${fieldId}')" class="text-dms-tecnologia hover:text-red-600 p-1 transition-colors flex-shrink-0" title="Remover">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-          </button>
-        </div>
-      `;
-    }).join('');
-  }
-
-  // Contador
-  document.getElementById('config-counter').innerHTML =
-    `<strong class="${selected.length >= MAX_FIELDS ? 'text-[#854D0E]' : 'text-dms-mar'}">${selected.length}/${MAX_FIELDS}</strong> campos selecionados`;
-
-  // Preview
-  renderConfigPreview();
-}
-
-function toggleField(fieldId) {
-  const arr = configState[activeConfigTab];
-  const idx = arr.indexOf(fieldId);
-  if (idx >= 0) {
-    arr.splice(idx, 1);
-  } else {
-    if (arr.length >= MAX_FIELDS) return;
-    arr.push(fieldId);
-  }
-  renderConfigTab();
-}
-
-function moveField(idx, dir) {
-  const arr = configState[activeConfigTab];
-  const newIdx = idx + dir;
-  if (newIdx < 0 || newIdx >= arr.length) return;
-  [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
-  renderConfigTab();
-}
-
-function restoreDefaults() {
-  if (!confirm('Restaurar os campos padrão da DMS para a aba ' + activeConfigTab.toUpperCase() + '?')) return;
-  configState[activeConfigTab] = [...DEFAULTS[activeConfigTab]];
-  renderConfigTab();
-}
-
-function saveConfig() {
-  alert('Configuração salva!\n\n' + JSON.stringify(configState, null, 2) + '\n\nEm produção: enviaria pro backend e atualizaria as listas em real-time.');
-  closeConfigModal();
-}
-
-function renderConfigPreview() {
-  const selected = configState[activeConfigTab];
-  const preview = document.getElementById('config-preview');
-
-  // Sample data por aba
-  const SAMPLE = {
-    todo: { stage: 'Aprovação Diretor', process: 'REQ-2026-0142', time: '+14h', timeClass: 'delay', prio: 'Crítica', prioClass: 'prio-critica',
-      workflow: 'NF Avulsa', valor: 'R$ 73.500', cc: 'Facilities', fornecedor: 'Op. Logística',
-      solicitante: 'João Silva', empresa: 'DMS Log', tipo_compra: 'avulsa', tipo_servico: 'Facilities',
-      executor: 'Diretor Fin', tempo_executor: '14h c/ aprovador', evento_tipo: 'Stage iniciado', evento_actor: 'Sistema',
-      sender: 'fornecedor@x.com', subject: 'Atraso urgente', mailia_class: 'Reclamação',
-      data_criacao: '24/05/2026', data_vencimento: '26/05/2026', priority: 'Crítica',
-      sla_bar: '[████░░░░] 60%', tempo_decorrido: '14h', contrato_id: '—', po_id: 'PO-0089'
-    },
-    followup: { stage: 'Cotação', process: 'RFQ-0044', time: '7d', timeClass: 'warning', prio: 'Normal', prioClass: 'prio-normal',
-      executor: 'Coord. TI', tempo_executor: '7d em curso', workflow: 'Cláusula', valor: 'R$ 35.000',
-      cc: 'TI', fornecedor: '3 fornec.', solicitante: 'Maria S.', empresa: 'DMS Log',
-      sender: '—', subject: '—', mailia_class: '—', evento_tipo: '—', evento_actor: '—',
-      data_criacao: '20/05/2026', data_vencimento: '—', priority: 'Normal',
-      sla_bar: '[██████░░] 70%', tempo_decorrido: '7d', contrato_id: 'CONT-017', po_id: '—', tipo_compra: 'cotacao', tipo_servico: 'TI'
-    },
-    update: { stage: 'Update', process: 'NF-2026-0528', time: '10:42', timeClass: 'ontime', prio: 'Info', prioClass: 'prio-normal',
-      evento_tipo: 'Stage confirmado', evento_actor: 'Diretor Fin', data_criacao: 'Hoje 10:42',
-      workflow: 'NF Avulsa', valor: 'R$ 12.400', cc: 'TI', fornecedor: 'Op. Logística',
-      solicitante: '—', empresa: 'DMS Log', sender: '—', subject: 'NF aprovada', mailia_class: '—',
-      data_vencimento: '—', priority: 'Info', sla_bar: '✓ concluído', tempo_decorrido: '—',
-      contrato_id: '—', po_id: 'PO-0085', tipo_compra: '—', tipo_servico: '—',
-      executor: '—', tempo_executor: '—'
-    },
-    email: { stage: 'E-mail', process: 'Fornecedor A', time: '12 min', timeClass: 'delay', prio: 'Urgente', prioClass: 'prio-critica',
-      sender: 'fornecedor@x.com', subject: 'Atraso urgente NF 0531', mailia_class: 'Reclamação', data_criacao: 'Hoje 17:30',
-      workflow: 'NF Avulsa', valor: 'R$ 73.500', cc: 'Facilities', fornecedor: 'Op. Logística',
-      solicitante: '—', empresa: 'DMS Log', evento_tipo: '—', evento_actor: '—',
-      data_vencimento: '—', priority: 'Urgente', sla_bar: '—', tempo_decorrido: '12 min',
-      contrato_id: '—', po_id: 'PO-0089', tipo_compra: '—', tipo_servico: '—',
-      executor: '—', tempo_executor: '—'
-    }
-  };
-  const data = SAMPLE[activeConfigTab];
-
-  const metaItems = selected.map(fieldId => {
-    const meta = AVAILABLE_TAGS.find(t => t.id === fieldId);
-    const value = data[fieldId] || '—';
-    return `<div class="meta-row" style="font-size:10.5px;color:#656464;line-height:1.35"><span style="color:#1A1A1A;font-weight:600">${meta.label}:</span> ${value}</div>`;
-  }).join('');
-
-  preview.innerHTML = `
-    <div style="background:white;border:1px solid #E5E7EB;border-radius:6px;padding:10px 12px;border-top:3px solid ${data.timeClass === 'delay' ? '#DC2626' : data.timeClass === 'warning' ? '#EAB308' : '#B0C934'};display:flex;flex-direction:column;gap:6px;max-width:240px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
-        <span class="time-pill ${data.timeClass}">${data.time}</span>
-        <span class="inline-flex items-center px-1.5 py-0.5 rounded ${data.prioClass}" style="font-size:9px;font-weight:bold;text-transform:uppercase;">${data.prio}</span>
-      </div>
-      <div style="font-size:12px;font-weight:700;color:#00386C;line-height:1.25">${data.stage}</div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;color:#005290">${data.process}</div>
-      <div style="display:flex;flex-direction:column;gap:2px">${metaItems}</div>
-      <div style="display:flex;align-items:center;justify-content:flex-end;padding-top:4px;border-top:1px solid #F3F4F6;margin-top:auto;">
-        <button style="font-size:10px;font-weight:700;color:white;padding:4px 10px;background:#00386C;border-radius:4px;border:none">Abrir →</button>
-      </div>
-    </div>
-  `;
-}
-</script>
-
-<!-- ============ MODAL CONFIGURAR COLUNAS ============ -->
-<div id="config-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
-  <div class="drawer-overlay absolute inset-0" onclick="closeConfigModal()"></div>
-
-  <div class="relative bg-white rounded-lg shadow-2xl flex flex-col" style="width:1100px;max-width:95vw;max-height:90vh;">
-
-    <!-- Header -->
-    <div class="border-b border-[#E5E7EB] px-6 py-4 flex items-start justify-between">
-      <div>
-        <h2 class="text-lg font-bold text-dms-mar flex items-center gap-2">
-          <svg class="w-5 h-5 text-dms-mar" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          Configurar campos do Cockpit
-        </h2>
-        <p class="text-xs text-dms-tecnologia mt-1">Cada aba (TO DO · FOLLOW UP · UPDATE · E-MAIL) tem campos próprios. Máximo <strong>8 campos</strong> por aba.</p>
-      </div>
-      <button onclick="closeConfigModal()" class="p-1 text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] rounded transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
-    </div>
-
-    <!-- Abas (estilo Cockpit) -->
-    <div class="border-b border-[#E5E7EB] flex items-center px-2 bg-[#FAFBFC]">
-      <button onclick="selectConfigTab('todo')" id="config-tab-todo" class="active-config-tab cursor-pointer text-xs font-semibold py-3 px-4 transition-colors text-dms-mar border-b-2 border-dms-ceu">📋 TO DO</button>
-      <button onclick="selectConfigTab('followup')" id="config-tab-followup" class="cursor-pointer text-xs font-semibold py-3 px-4 transition-colors text-dms-tecnologia hover:text-dms-mar">👀 FOLLOW UP</button>
-      <button onclick="selectConfigTab('update')" id="config-tab-update" class="cursor-pointer text-xs font-semibold py-3 px-4 transition-colors text-dms-tecnologia hover:text-dms-mar">🔔 UPDATE</button>
-      <button onclick="selectConfigTab('email')" id="config-tab-email" class="cursor-pointer text-xs font-semibold py-3 px-4 transition-colors text-dms-tecnologia hover:text-dms-mar">✉️ E-MAIL</button>
-    </div>
-
-    <!-- Body -->
-    <div class="flex-1 overflow-hidden grid" style="grid-template-columns: 360px 1fr 280px;">
-
-      <!-- Coluna 1: @-tags disponíveis -->
-      <div class="border-r border-[#E5E7EB] flex flex-col overflow-hidden">
-        <div class="px-4 py-3 border-b border-[#E5E7EB] bg-[#FAFBFC]">
-          <div class="caption text-dms-mar font-bold mb-2">@-tags disponíveis</div>
-          <div class="relative">
-            <svg class="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input type="text" placeholder="Buscar tag..." class="input-dms w-full pl-7 pr-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white">
-          </div>
-        </div>
-        <div id="config-available" class="flex-1 overflow-y-auto p-3"></div>
-      </div>
-
-      <!-- Coluna 2: Selecionados (ordenáveis) -->
-      <div class="flex flex-col overflow-hidden border-r border-[#E5E7EB]">
-        <div class="px-4 py-3 border-b border-[#E5E7EB] bg-[#FAFBFC] flex items-center justify-between">
-          <div>
-            <div class="caption text-dms-mar font-bold">Campos selecionados</div>
-            <div id="config-counter" class="text-[10px] text-dms-tecnologia mt-0.5">0/8 campos selecionados</div>
-          </div>
-          <button onclick="restoreDefaults()" class="text-[10px] text-dms-confianca hover:text-dms-mar font-semibold transition-colors">↻ Restaurar defaults</button>
-        </div>
-        <div id="config-selected" class="flex-1 overflow-y-auto p-3 bg-[#F8F9FA]"></div>
-      </div>
-
-      <!-- Coluna 3: Preview ao vivo -->
-      <div class="flex flex-col overflow-hidden bg-[#FAFBFC]">
-        <div class="px-4 py-3 border-b border-[#E5E7EB] bg-white">
-          <div class="caption text-dms-mar font-bold">Preview ao vivo</div>
-          <div class="text-[10px] text-dms-tecnologia mt-0.5">Como o card vai ficar</div>
-        </div>
-        <div class="flex-1 overflow-y-auto p-4 flex items-start justify-center">
-          <div id="config-preview"></div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Footer -->
-    <div class="border-t border-[#E5E7EB] px-6 py-3 bg-[#FAFBFC] flex items-center justify-between flex-shrink-0">
-      <p class="text-[11px] text-dms-tecnologia">Configuração persistida por usuário + aba.</p>
-      <div class="flex items-center gap-2">
-        <button onclick="closeConfigModal()" class="text-xs font-semibold text-dms-tecnologia px-4 py-2 hover:text-dms-mar transition-colors" data-i18n="btn.cancel">Cancelar</button>
-        <button onclick="saveConfig()" class="flex items-center gap-1.5 text-xs font-semibold text-white px-4 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-          Salvar configuração
-        </button>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<style>
-  .active-config-tab { color: #00386C !important; border-bottom-color: #00AEEE !important; font-weight: 700 !important; background: white !important; }
-  .time-pill { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 10px; font-size: 11px; font-weight: 700; }
-  .time-pill.delay { background: rgba(220,38,38,0.10); color: #991B1B; }
-  .time-pill.warning { background: rgba(234,179,8,0.15); color: #854D0E; }
-  .time-pill.ontime { background: rgba(176,201,52,0.15); color: #5C7818; }
-  .prio-critica { background: rgba(220,38,38,0.10); color: #991B1B; }
-  .prio-alta { background: rgba(234,179,8,0.15); color: #854D0E; }
-  .prio-normal { background: rgba(0,56,108,0.08); color: #00386C; }
-</style>
+<body class="min-h-screen" data-mode="stage" data-source="rich">
 
 <!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
 <style id="dms-cs-style">
@@ -964,9 +182,7 @@ function renderConfigPreview() {
   #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
   #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
   #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
-  #dms-sidebar.collapsed .sb-label,
-  #dms-sidebar.collapsed .sb-section-title,
-  #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text { display: none; }
   #dms-sidebar.collapsed .sb-brand-icon { display: none; }
   #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
   #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
@@ -979,10 +195,7 @@ function renderConfigPreview() {
   @media (max-width: 767px) {
     #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
     #dms-sidebar.mobile-open { transform: translateX(0); }
-    #dms-sidebar.collapsed .sb-label,
-    #dms-sidebar.collapsed .sb-section-title,
-    #dms-sidebar.collapsed .sb-brand-text,
-    #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text, #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
     #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
     #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
     #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
@@ -991,12 +204,10 @@ function renderConfigPreview() {
     #sidebar-toggle { display: none; }
   }
 </style>
-
 <button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
 </button>
 <div id="dms-sidebar-overlay"></div>
-
 <aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
   <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
     <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
@@ -1053,7 +264,7 @@ function renderConfigPreview() {
         <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
         <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
         <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
-        <li><a href="tela80-permissoes-matriz.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔐</span><span class="sb-label">Permissões</span></a></li>
+        <li data-required-perm="role.manage"><a href="tela80-permissoes-matriz.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔐</span><span class="sb-label">Permissões</span></a></li>
         <li><a href="tela81-config-intervenientes-modulo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧩</span><span class="sb-label">Config Intervenientes</span></a></li>
         <li><a href="tela82-saude-stages.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🩺</span><span class="sb-label">Saúde dos Stages</span></a></li>
         <li><a href="tela83-alcadas-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚖️</span><span class="sb-label">Alçadas</span></a></li>
@@ -1070,161 +281,712 @@ function renderConfigPreview() {
     </div>
   </nav>
 </aside>
-
 <script>
 (function(){
-  var sb = document.getElementById('dms-sidebar');
-  var toggle = document.getElementById('sidebar-toggle');
-  var mobBtn = document.getElementById('dms-sidebar-mobile-btn');
-  var overlay = document.getElementById('dms-sidebar-overlay');
-  if (!sb || !toggle) return;
-  var STORAGE_KEY = 'mockup-sidebar-collapsed-v2';
-  var collapsed = false;
-  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
-  function isMobile(){ return window.matchMedia('(max-width: 767px)').matches; }
-  function render(){
-    if (collapsed && !isMobile()) {
-      sb.classList.add('collapsed');
-      sb.style.width = '64px';
-      document.documentElement.style.setProperty('--dms-sb-w', '64px');
-    } else {
-      sb.classList.remove('collapsed');
-      sb.style.width = isMobile() ? '280px' : '240px';
-      document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px');
-    }
-  }
-  toggle.addEventListener('click', function(){ collapsed = !collapsed; try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {} render(); });
-  function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
-  function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
-  if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
-  if (overlay) overlay.addEventListener('click', closeMobile);
-  sb.querySelectorAll('nav a[href]').forEach(function(a){ a.addEventListener('click', function(){ if (isMobile()) closeMobile(); }); });
-  var current = (location.pathname.split('/').pop() || '').toLowerCase();
-  if (current) {
-    sb.querySelectorAll('nav a[href]').forEach(function(a){
-      var href = (a.getAttribute('href') || '').toLowerCase();
-      if (href && href === current) a.classList.add('sb-active');
-    });
-  }
-  window.addEventListener('resize', render);
-  render();
+  var sb=document.getElementById('dms-sidebar'),toggle=document.getElementById('sidebar-toggle'),mobBtn=document.getElementById('dms-sidebar-mobile-btn'),overlay=document.getElementById('dms-sidebar-overlay');
+  if(!sb||!toggle)return; var K='mockup-sidebar-collapsed-v2',c=false; try{c=localStorage.getItem(K)==='1';}catch(e){}
+  function m(){return window.matchMedia('(max-width: 767px)').matches}
+  function r(){if(c&&!m()){sb.classList.add('collapsed');sb.style.width='64px';document.documentElement.style.setProperty('--dms-sb-w','64px');}else{sb.classList.remove('collapsed');sb.style.width=m()?'280px':'240px';document.documentElement.style.setProperty('--dms-sb-w',m()?'0px':'240px');}}
+  toggle.addEventListener('click',function(){c=!c;try{localStorage.setItem(K,c?'1':'0');}catch(e){}r();});
+  function cm(){sb.classList.remove('mobile-open');if(overlay)overlay.classList.remove('show');}
+  if(mobBtn)mobBtn.addEventListener('click',function(){if(sb.classList.contains('mobile-open'))cm();else{sb.classList.add('mobile-open');if(overlay)overlay.classList.add('show');}});
+  if(overlay)overlay.addEventListener('click',cm);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){a.addEventListener('click',function(){if(m())cm();});});
+  var cur=(location.pathname.split('/').pop()||'').toLowerCase();
+  if(cur){sb.querySelectorAll('nav a[href]').forEach(function(a){var h=(a.getAttribute('href')||'').toLowerCase();if(h&&h===cur)a.classList.add('sb-active');});}
+  window.addEventListener('resize',r);r();
 })();
 </script>
-<script src="notes-widget.js" defer></script>
-<script src="i18n-toggle.js" defer></script>
-<!-- Top 5 edit drawer (Fix 2026-06-01) -->
-<div id="t5-drawer" class="hidden fixed inset-0 z-[60]">
-  <div onclick="closeTop5Drawer()" class="absolute inset-0" style="background: rgba(0,56,108,0.5); backdrop-filter: blur(2px);"></div>
-  <div class="absolute right-0 top-0 h-full w-[460px] max-w-[95vw] bg-white shadow-2xl overflow-y-auto">
-    <div class="px-5 py-4 border-b border-[#E5E7EB] flex items-center justify-between" style="background:#F8F9FA;">
-      <div>
-        <h3 class="text-sm font-bold text-dms-mar">⚙️ Editar card Top 5</h3>
-        <p class="text-[11px] text-dms-tecnologia" id="t5-card-name">Card: —</p>
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <!-- ===== HEADER GLOBAL ===== -->
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-6 sticky top-0 z-20">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="avatar av-me">MC</span>
+        <div class="min-w-0">
+          <div class="text-sm font-bold text-dms-mar leading-tight">Bom dia, Maria Costa</div>
+          <div class="text-[10.5px] text-dms-tecnologia leading-tight">Gerente de Compras · DMS Logística</div>
+        </div>
       </div>
-      <button onclick="closeTop5Drawer()" class="text-dms-tecnologia hover:text-dms-mar">✕</button>
-    </div>
-    <!-- Abas -->
-    <div class="border-b border-[#E5E7EB] flex items-center px-5">
-      <button onclick="t5Tab('tag')" id="t5-tab-tag" class="text-xs font-semibold px-3 py-2.5 border-b-2 border-dms-mar text-dms-mar">Editar via TAG</button>
-      <button onclick="t5Tab('ia')" id="t5-tab-ia" class="text-xs font-semibold px-3 py-2.5 border-b-2 border-transparent text-dms-tecnologia">Gerar via IA</button>
-    </div>
-    <!-- Conteúdo via TAG -->
-    <div id="t5-content-tag" class="p-5 space-y-3 text-xs">
-      <div>
-        <label class="caption text-dms-tecnologia mb-1 block">TAG do sistema</label>
-        <select class="input-dms w-full px-3 py-2 border border-[#E5E7EB] rounded bg-white">
-          <option>@tipo_compra</option><option>@valor_total</option><option>@tipo_servico</option><option>@fornecedor_id</option><option>@centro_custo</option><option>@cliente_id</option><option>@categoria</option>
-        </select>
+
+      <div class="flex items-center gap-2 flex-1 max-w-xl mx-6">
+        <div class="relative flex-1">
+          <svg class="w-4 h-4 text-dms-tecnologia absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Buscar cards, workflows, clientes, SOPs…" onkeydown="if(event.key==='Enter'){event.preventDefault();notice('Busca global mockada — função real conecta a Vector Search (DP-CKP-08).')}" class="w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#FAFBFC] focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
+        </div>
       </div>
-      <div>
-        <label class="caption text-dms-tecnologia mb-1 block">Campo da TAG</label>
-        <select class="input-dms w-full px-3 py-2 border border-[#E5E7EB] rounded bg-white">
-          <option>valor</option><option>label</option><option>código</option><option>categoria</option>
-        </select>
+
+      <div class="flex items-center gap-2">
+        <button class="ia-btn" onclick="event.preventDefault();notice('🤖 IA Chat Assessor — TBD/Future (Fase B do RAG, CONCEPT-cockpit § 6).');" title="IA Chat Assessor (RAG sobre docs DMS) — Future">
+          🤖
+          <span class="ia-tbd">TBD</span>
+        </button>
+        <button class="ia-btn" onclick="event.preventDefault();notice('🪄 IA Construção de View — TBD/Future (gera Saved View por prompt, Fase 2).');" title="IA Construção de View — Future">
+          🪄
+          <span class="ia-tbd">TBD</span>
+        </button>
+        <button class="notif-btn" onclick="event.preventDefault();notice('Centro de notificações — abriria tela71-notificacoes-centro.html');" title="Notificações">
+          🔔
+          <span class="notif-badge">3</span>
+        </button>
+        <button onclick="event.preventDefault();location.href='tela50-profile.html';" class="avatar av-1 hover:opacity-90 transition" title="Meu perfil">MC</button>
       </div>
-      <div>
-        <label class="caption text-dms-tecnologia mb-1 block">Agrupar por</label>
-        <select class="input-dms w-full px-3 py-2 border border-[#E5E7EB] rounded bg-white">
-          <option>Top 5 maior count</option><option>Top 5 maior valor</option><option>Top 5 mais recente</option>
-        </select>
+    </header>
+
+    <main class="flex-1 p-6 pb-12 max-w-[1480px] w-full mx-auto">
+
+      <!-- PageHeader -->
+      <div class="mb-5">
+        <div class="flex items-center gap-3 mb-1.5 flex-wrap">
+          <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h1 class="text-[26px] leading-[34px] font-bold text-dms-mar">Cockpit</h1>
+          <span class="badge badge-real">v2 · refeita 2026-06-02</span>
+          <span class="badge badge-sys">CONCEPT-cockpit § 1.5</span>
+        </div>
+        <p class="text-[13px] text-dms-tecnologia max-w-3xl">
+          Sua única tela de trabalho. <strong class="text-dms-mar">Orquestra</strong> tarefas, acompanhamentos, updates e emails de todos os Workflow Instances em que você participa.
+          Card = Stage Instance (TO DO/FOLLOW UP/UPDATE) ou Email Thread. Clique <strong>"Abrir tela operacional"</strong> para editar dados reais no módulo de domínio.
+        </p>
       </div>
-      <div>
-        <label class="caption text-dms-tecnologia mb-1 block">Filtros adicionais</label>
-        <input type="text" placeholder="Ex.: status = aberto" class="input-dms w-full px-3 py-2 border border-[#E5E7EB] rounded">
+
+      <!-- ===== LAYOUT: SIDEBAR FILTROS + AREA PRINCIPAL ===== -->
+      <div class="cockpit-layout grid gap-5" style="grid-template-columns: 240px 1fr;">
+
+        <!-- ====== SIDEBAR FILTROS (sticky) ====== -->
+        <aside class="filter-side self-start sticky top-[88px] max-h-[calc(100vh-104px)] overflow-y-auto shadow-dms-md">
+
+          <div class="filter-block">
+            <h4>Filtros</h4>
+            <div class="flex flex-col gap-2">
+              <div>
+                <label class="text-[10.5px] text-dms-tecnologia block mb-1">Módulo</label>
+                <select class="filter-select" onchange="event.preventDefault();notice('Filtro Módulo aplicado (mock — só visual).');">
+                  <option>Todos</option>
+                  <option>Compras</option>
+                  <option>Embarques</option>
+                  <option>Cotações</option>
+                  <option>Aprovações</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10.5px] text-dms-tecnologia block mb-1">Workflow</label>
+                <select class="filter-select" onchange="event.preventDefault();notice('Filtro Workflow aplicado (mock).');">
+                  <option>Todos</option>
+                  <option>Embarque MIA-GIG Libbs</option>
+                  <option>Cotação Trimestral Q2</option>
+                  <option>Aprovação Pedido &gt; 50k</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10.5px] text-dms-tecnologia block mb-1">Prioridade</label>
+                <select class="filter-select" onchange="event.preventDefault();notice('Filtro Prioridade aplicado (mock).');">
+                  <option>Todas</option>
+                  <option>Urgente</option>
+                  <option>Alta</option>
+                  <option>Normal</option>
+                  <option>Baixa</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10.5px] text-dms-tecnologia block mb-1">Prazo</label>
+                <select class="filter-select" onchange="event.preventDefault();notice('Filtro Prazo aplicado (mock).');">
+                  <option>Qualquer</option>
+                  <option>Hoje</option>
+                  <option>Esta semana</option>
+                  <option>Atrasados</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10.5px] text-dms-tecnologia block mb-1">Cliente</label>
+                <select class="filter-select" onchange="event.preventDefault();notice('Filtro Cliente aplicado (mock).');">
+                  <option>Todos</option>
+                  <option>Libbs Farmacêutica</option>
+                  <option>EMS Pharma</option>
+                  <option>Eurofarma</option>
+                  <option>Aché</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10.5px] text-dms-tecnologia block mb-1">Rota</label>
+                <select class="filter-select" onchange="event.preventDefault();notice('Filtro Rota aplicado (mock).');">
+                  <option>Todas</option>
+                  <option>MIA-GIG</option>
+                  <option>JFK-GRU</option>
+                  <option>SHA-VCP</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-block">
+            <h4>Saved Views</h4>
+            <div class="flex flex-col gap-1">
+              <div class="saved-view active" onclick="setSavedView('atrasados', this)">
+                <span class="sv-dot" style="background:#DC2626;"></span>
+                <span class="flex-1">Meus Atrasados</span>
+                <span class="text-[10px] mono text-dms-tecnologia">5</span>
+              </div>
+              <div class="saved-view" onclick="setSavedView('aereos', this)">
+                <span class="sv-dot" style="background:#00AEEE;"></span>
+                <span class="flex-1">Embarques Aéreos</span>
+                <span class="text-[10px] mono text-dms-tecnologia">8</span>
+              </div>
+              <div class="saved-view" onclick="setSavedView('aprov', this)">
+                <span class="sv-dot" style="background:#EAB308;"></span>
+                <span class="flex-1">Aprovações Urgentes</span>
+                <span class="text-[10px] mono text-dms-tecnologia">3</span>
+              </div>
+              <div class="saved-view" onclick="setSavedView('cot', this)">
+                <span class="sv-dot" style="background:#B0C934;"></span>
+                <span class="flex-1">Cotações Hoje</span>
+                <span class="text-[10px] mono text-dms-tecnologia">2</span>
+              </div>
+            </div>
+            <button onclick="event.preventDefault();notice('+ Nova View — modal de configuração (DP-CKP-15). Aqui só visual.');" class="mt-3 w-full text-[11.5px] font-semibold text-dms-mar border border-dashed border-[#E5E7EB] rounded px-2 py-2 hover:bg-[#FAFBFC] flex items-center justify-center gap-1.5">
+              <span class="text-base leading-none">+</span> Nova view
+            </button>
+          </div>
+        </aside>
+
+        <!-- ====== ÁREA PRINCIPAL ====== -->
+        <section class="min-w-0">
+
+          <!-- 1. PRIORIDADES AGORA -->
+          <div class="prio-block rounded-lg p-4 mb-5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xl leading-none">🔥</span>
+                <h2 class="text-[15px] font-bold text-[#9A3412]">Prioridades agora</h2>
+                <span class="text-[11.5px] text-[#9A3412]">· 5 itens consolidados</span>
+              </div>
+              <button onclick="openEditViewDrawer()" class="text-[11.5px] font-semibold text-[#9A3412] border border-[#FED7AA] bg-white rounded px-2.5 py-1 hover:bg-[#FFF7ED] flex items-center gap-1.5">
+                ⚙️ Editar view
+              </button>
+            </div>
+            <div class="grid md:grid-cols-5 gap-2">
+              <div class="prio-item">
+                <span class="prio-rank">1</span>
+                <div class="min-w-0">
+                  <div class="text-[12px] font-bold text-dms-mar leading-tight">Aprovar Pedido #PED-2614</div>
+                  <div class="text-[10.5px] text-dms-tecnologia mt-0.5">Libbs · R$ 184k</div>
+                  <div class="text-[10.5px] ck-prazo-late mt-0.5">⏰ Atrasado 6h</div>
+                </div>
+              </div>
+              <div class="prio-item">
+                <span class="prio-rank">2</span>
+                <div class="min-w-0">
+                  <div class="text-[12px] font-bold text-dms-mar leading-tight">Validar XML NFE 12345</div>
+                  <div class="text-[10.5px] text-dms-tecnologia mt-0.5">Embarque MIA-GIG</div>
+                  <div class="text-[10.5px] ck-prazo-warn mt-0.5">⏰ Vence em 2h</div>
+                </div>
+              </div>
+              <div class="prio-item">
+                <span class="prio-rank">3</span>
+                <div class="min-w-0">
+                  <div class="text-[12px] font-bold text-dms-mar leading-tight">📧 Cliente EMS: dúvida cotação</div>
+                  <div class="text-[10.5px] text-dms-tecnologia mt-0.5">Thread · 4 respostas</div>
+                  <div class="text-[10.5px] ck-prazo-warn mt-0.5">⏰ SLA 4h</div>
+                </div>
+              </div>
+              <div class="prio-item">
+                <span class="prio-rank">4</span>
+                <div class="min-w-0">
+                  <div class="text-[12px] font-bold text-dms-mar leading-tight">Rastreio AWB 071-2389</div>
+                  <div class="text-[10.5px] text-dms-tecnologia mt-0.5">Eurofarma · Aéreo</div>
+                  <div class="text-[10.5px] ck-prazo-ok mt-0.5">⏰ Hoje 18h</div>
+                </div>
+              </div>
+              <div class="prio-item">
+                <span class="prio-rank">5</span>
+                <div class="min-w-0">
+                  <div class="text-[12px] font-bold text-dms-mar leading-tight">Workflow aprovado: WF-Cot-2614</div>
+                  <div class="text-[10.5px] text-dms-tecnologia mt-0.5">Aché · cotação encerrada</div>
+                  <div class="text-[10.5px] ck-prazo-ok mt-0.5">⏰ Ver hoje</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. KPI CARDS SLA -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+            <div class="kpi-card">
+              <div class="kpi-lbl">% no prazo</div>
+              <div class="kpi-num kpi-ok">87%</div>
+              <div class="kpi-foot">↑ 4pp vs semana passada</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-lbl">Cards atrasados</div>
+              <div class="kpi-num kpi-late">12</div>
+              <div class="kpi-foot">5 críticos · meus + da equipe</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-lbl">Tempo médio stage</div>
+              <div class="kpi-num kpi-warn">4.2h</div>
+              <div class="kpi-foot">meta 3h · TBD: histograma</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-lbl">SOPs ativas</div>
+              <div class="kpi-num kpi-info">8</div>
+              <div class="kpi-foot">3 em pausa</div>
+            </div>
+          </div>
+
+          <!-- 3. CARTÃO ABAS + TOGGLE MODO + TOGGLE SOURCE -->
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+
+            <!-- Header da área de abas -->
+            <div class="px-4 py-3 border-b border-[#E5E7EB] flex items-center justify-between flex-wrap gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
+                <button class="tab-pill active" data-tab="todo" onclick="setTab('todo', this)">
+                  📋 TO DO <span class="tab-count" id="cnt-todo">2</span>
+                </button>
+                <button class="tab-pill" data-tab="followup" onclick="setTab('followup', this)">
+                  👁️ FOLLOW UP <span class="tab-count" id="cnt-followup">2</span>
+                </button>
+                <button class="tab-pill" data-tab="update" onclick="setTab('update', this)">
+                  🔔 UPDATE <span class="tab-count" id="cnt-update">2</span>
+                </button>
+                <button class="tab-pill" data-tab="email" onclick="setTab('email', this)">
+                  📧 EMAIL <span class="tab-count" id="cnt-email">4</span>
+                </button>
+              </div>
+
+              <div class="flex items-center gap-3 flex-wrap">
+                <!-- Mode toggle -->
+                <div class="flex items-center gap-2">
+                  <span class="text-[10.5px] caption text-dms-tecnologia">Zoom:</span>
+                  <div class="mode-toggle" role="tablist">
+                    <button class="mode-btn active" data-mode="stage"    onclick="setMode('stage', this)">Stage</button>
+                    <button class="mode-btn"        data-mode="sop"      onclick="setMode('sop', this)">SOP</button>
+                    <button class="mode-btn"        data-mode="workflow" onclick="setMode('workflow', this)">Workflow</button>
+                  </div>
+                </div>
+                <!-- Source toggle -->
+                <div class="flex items-center gap-2">
+                  <span class="text-[10.5px] caption text-dms-tecnologia">Ver:</span>
+                  <div class="src-toggle">
+                    <button class="src-btn active" data-source="rich"  onclick="setSource('rich', this)">Mock rico</button>
+                    <button class="src-btn"        data-source="empty" onclick="setSource('empty', this)">Estado vazio</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Conteúdo: estado RICO ou VAZIO -->
+            <div class="src-rich-only">
+
+              <!-- ====== PANEL TO DO ====== -->
+              <div class="ck-tab-panel active" data-panel="todo">
+                <div class="p-4 flex flex-col gap-3">
+
+                  <!-- Card 1 — Validar XML (overdue) -->
+                  <div class="ck-card overdue">
+                    <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="ct ct-todo">TO DO</span>
+                        <span class="badge badge-sys">🔧 Sistema</span>
+                        <span class="ck-meta">Embarques · WF "Embarque MIA-GIG Libbs FCA"</span>
+                      </div>
+                      <span class="ck-prazo-late text-[12px]">⏰ Atrasado 1h12m</span>
+                    </div>
+                    <div class="ck-title mb-1">Validar XML da NFE 12345</div>
+                    <div class="ck-context mb-2">Cliente: <strong>Libbs Farmacêutica</strong> · Embarque #001 · valor R$ 89.420</div>
+                    <div class="flex items-center gap-2 flex-wrap mb-3">
+                      <span class="extra-ind extra-sop">📊 3 de 8 stages restantes · SOP "Recepção"</span>
+                      <span class="extra-ind extra-workflow">🔀 2 de 6 SOPs restantes · 14 stages totais</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <button onclick="event.preventDefault();notice('✅ Stage concluído (mock). Função real registra cockpit_action_log.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Concluir</button>
+                      <button onclick="event.preventDefault();notice('💬 Modal de comentário abre aqui.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Comentar</button>
+                      <button onclick="event.preventDefault();notice('⭐ Card marcado como urgente.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Marcar</button>
+                      <button onclick="event.preventDefault();location.href='tela38-notas-fiscais-list.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir tela operacional →</button>
+                    </div>
+                  </div>
+
+                  <!-- Card 2 — Aprovar pedido (urgent) -->
+                  <div class="ck-card urgent">
+                    <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="ct ct-todo">TO DO</span>
+                        <span class="badge" style="background:rgba(220,38,38,0.10);color:#B91C1C;border:1px solid rgba(220,38,38,0.30);">🔺 Urgente</span>
+                        <span class="ck-meta">Aprovações · WF "Pedido &gt; 50k"</span>
+                      </div>
+                      <span class="ck-prazo-warn text-[12px]">⏰ Vence em 2h</span>
+                    </div>
+                    <div class="ck-title mb-1">Aprovar Pedido #PED-2614 — R$ 184.300</div>
+                    <div class="ck-context mb-2">Fornecedor: <strong>Cargolux Brasil</strong> · solicitado por João Mendes · alçada Gerência</div>
+                    <div class="flex items-center gap-2 flex-wrap mb-3">
+                      <span class="extra-ind extra-sop">📊 1 de 3 stages restantes · SOP "Aprovação alçada"</span>
+                      <span class="extra-ind extra-workflow">🔀 1 de 2 SOPs restantes · 5 stages totais</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <button onclick="event.preventDefault();notice('✅ Pedido aprovado (mock).');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Concluir</button>
+                      <button onclick="event.preventDefault();notice('💬 Comentário interno.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Comentar</button>
+                      <button onclick="event.preventDefault();notice('⭐ Marcado.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Marcar</button>
+                      <button onclick="event.preventDefault();location.href='tela41-aprovacao-detalhe.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir tela operacional →</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- ====== PANEL FOLLOW UP ====== -->
+              <div class="ck-tab-panel" data-panel="followup">
+                <div class="p-4 flex flex-col gap-3">
+
+                  <div class="ck-card">
+                    <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="ct ct-followup">FOLLOW UP</span>
+                        <span class="ck-meta">Embarques · WF "Aéreo Eurofarma JFK-GRU"</span>
+                      </div>
+                      <span class="ck-prazo-ok text-[12px]">⏰ Hoje 18h</span>
+                    </div>
+                    <div class="ck-title mb-1">Rastreio AWB 071-2389 — em trânsito</div>
+                    <div class="ck-context mb-2">Cliente: <strong>Eurofarma</strong> · executor: Paula Reis · você é observador (cadeira_observador)</div>
+                    <div class="flex items-center gap-2 flex-wrap mb-3">
+                      <span class="extra-ind extra-sop">📊 4 de 7 stages restantes · SOP "Aéreo internacional"</span>
+                      <span class="extra-ind extra-workflow">🔀 3 de 5 SOPs restantes · 12 stages totais</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <button onclick="event.preventDefault();notice('👁️ Marcado como visto.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Marcar visto</button>
+                      <button onclick="event.preventDefault();notice('💬 Comentário interno (notifica executor).');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Comentar</button>
+                      <button onclick="event.preventDefault();notice('🔺 Escalado pro executor com aviso urgente.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Escalar</button>
+                      <button onclick="event.preventDefault();location.href='tela12-execution-visibility.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir tela operacional →</button>
+                    </div>
+                  </div>
+
+                  <div class="ck-card">
+                    <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="ct ct-followup">FOLLOW UP</span>
+                        <span class="ck-meta">Cotações · WF "Cotação Trimestral Q2"</span>
+                      </div>
+                      <span class="ck-prazo-warn text-[12px]">⏰ Amanhã 12h</span>
+                    </div>
+                    <div class="ck-title mb-1">Cotação cliente EMS — aguardando resposta fornecedor</div>
+                    <div class="ck-context mb-2">Cliente: <strong>EMS Pharma</strong> · executor: Bruno Lima · 3 fornecedores cotando</div>
+                    <div class="flex items-center gap-2 flex-wrap mb-3">
+                      <span class="extra-ind extra-sop">📊 2 de 4 stages restantes · SOP "Cotação 3-way"</span>
+                      <span class="extra-ind extra-workflow">🔀 1 de 3 SOPs restantes · 8 stages totais</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <button onclick="event.preventDefault();notice('👁️ Marcado como visto.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Marcar visto</button>
+                      <button onclick="event.preventDefault();notice('💬 Comentário interno.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Comentar</button>
+                      <button onclick="event.preventDefault();notice('🔺 Escalado.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Escalar</button>
+                      <button onclick="event.preventDefault();location.href='tela26-cotacao-detalhe.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir tela operacional →</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- ====== PANEL UPDATE ====== -->
+              <div class="ck-tab-panel" data-panel="update">
+                <div class="p-4 flex flex-col gap-3">
+
+                  <div class="ck-card">
+                    <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="ct ct-update">UPDATE</span>
+                        <span class="ck-meta">Workflow Engine · WF "Cotação Aché Q2"</span>
+                      </div>
+                      <span class="text-[12px] text-dms-tecnologia">há 2h</span>
+                    </div>
+                    <div class="ck-title mb-1">Workflow aprovado: WF-Cot-2614 encerrado com sucesso</div>
+                    <div class="ck-context mb-2">Pedro Alves (Diretor) aprovou. Próximo passo: emissão de PO automática.</div>
+                    <div class="flex items-center gap-2 flex-wrap mb-3">
+                      <span class="extra-ind extra-sop">📊 SOP "Aprovação Q2" finalizada</span>
+                      <span class="extra-ind extra-workflow">🔀 Workflow encerrado · 0 SOPs restantes</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <button onclick="event.preventDefault();notice('📥 Marcado como lido.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Marcar lido</button>
+                      <button onclick="event.preventDefault();notice('📦 Arquivado.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Arquivar</button>
+                      <button onclick="event.preventDefault();notice('⭐ Marcado importante.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Importante</button>
+                      <button onclick="event.preventDefault();location.href='tela29-pedido-detalhe.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir tela operacional →</button>
+                    </div>
+                  </div>
+
+                  <div class="ck-card">
+                    <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="ct ct-update">UPDATE</span>
+                        <span class="ck-meta">NF Eletrônica · WF "Recepção Libbs"</span>
+                      </div>
+                      <span class="text-[12px] text-dms-tecnologia">há 35min</span>
+                    </div>
+                    <div class="ck-title mb-1">NF 67890 recebida e classificada automaticamente</div>
+                    <div class="ck-context mb-2">Match Engine vinculou ao Pedido #PED-2580 (97% confiança). Aguardando sua revisão.</div>
+                    <div class="flex items-center gap-2 flex-wrap mb-3">
+                      <span class="extra-ind extra-sop">📊 SOP "Match NF→Pedido" · stage 1 de 3</span>
+                      <span class="extra-ind extra-workflow">🔀 2 de 3 SOPs restantes · 6 stages totais</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <button onclick="event.preventDefault();notice('📥 Marcado como lido.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Marcar lido</button>
+                      <button onclick="event.preventDefault();notice('📦 Arquivado.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Arquivar</button>
+                      <button onclick="event.preventDefault();notice('⭐ Importante.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Importante</button>
+                      <button onclick="event.preventDefault();location.href='tela39-nota-fiscal-detalhe.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir tela operacional →</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- ====== PANEL EMAIL ====== -->
+              <div class="ck-tab-panel" data-panel="email">
+                <div class="p-4 flex flex-col gap-3">
+
+                  <!-- Email 1 — Cliente EMS dúvida cotação -->
+                  <div class="email-card">
+                    <div class="flex items-start justify-between gap-3 mb-1 flex-wrap">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="ct ct-email">EMAIL</span>
+                        <span class="badge badge-sys">🔗 Vinculado WF-Cot-2580</span>
+                        <span class="em-replies">↳ 4 respostas</span>
+                      </div>
+                      <span class="ck-prazo-warn text-[12px]">SLA resposta: 4h</span>
+                    </div>
+                    <div class="em-subj mb-1">RE: Cotação trimestral Q2 — dúvida sobre lead time MIA-GRU</div>
+                    <div class="em-meta">De: <strong>compras@ems.com.br</strong> (Carla Vieira) · para: maria.costa@dms.com.br · há 1h</div>
+                    <div class="em-body">"Maria, conseguimos antecipar o embarque para a primeira semana de junho? Precisamos do produto antes do lançamento. Aguardo retorno até hoje 17h."</div>
+                    <div class="flex items-center gap-2 flex-wrap mt-3">
+                      <span class="extra-ind extra-sop">📊 SOP "Atendimento cotação" · stage 2 de 4</span>
+                      <span class="extra-ind extra-workflow">🔀 1 de 2 SOPs restantes</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap mt-3">
+                      <button onclick="event.preventDefault();notice('✉️ Composer abre (TBD — DP-CKP-06).');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Responder</button>
+                      <button onclick="event.preventDefault();notice('↪️ Encaminhar.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Encaminhar</button>
+                      <button onclick="event.preventDefault();notice('📥 TO DO criado a partir deste email.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Criar TO DO</button>
+                      <button onclick="event.preventDefault();location.href='tela17-cockpit-email.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir thread completa →</button>
+                    </div>
+                  </div>
+
+                  <!-- Email 2 — Cargolux confirmação reserva -->
+                  <div class="email-card">
+                    <div class="flex items-start justify-between gap-3 mb-1 flex-wrap">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="ct ct-email">EMAIL</span>
+                        <span class="badge badge-sys">🔗 Vinculado WF-Emb-001</span>
+                        <span class="em-replies">↳ 2 respostas</span>
+                      </div>
+                      <span class="ck-prazo-ok text-[12px]">Sem SLA</span>
+                    </div>
+                    <div class="em-subj mb-1">Booking confirmado — MIA-GIG 03/06 voo CV 7521</div>
+                    <div class="em-meta">De: <strong>booking@cargolux.com</strong> · para: maria.costa@dms.com.br · há 25min</div>
+                    <div class="em-body">"Confirmamos reserva CV 7521 saindo MIA 03/06 às 22:15 com chegada GIG 04/06 09:30. AWB 071-2389 emitido. Tarifa USD 4.20/kg conforme tabela."</div>
+                    <div class="flex items-center gap-2 flex-wrap mt-3">
+                      <span class="extra-ind extra-sop">📊 SOP "Booking aéreo" · stage 3 de 5</span>
+                      <span class="extra-ind extra-workflow">🔀 2 de 4 SOPs restantes</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap mt-3">
+                      <button onclick="event.preventDefault();notice('✉️ Composer.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Responder</button>
+                      <button onclick="event.preventDefault();notice('↪️ Encaminhar.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Encaminhar</button>
+                      <button onclick="event.preventDefault();notice('📦 Arquivado.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Arquivar</button>
+                      <button onclick="event.preventDefault();location.href='tela17-cockpit-email.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir thread completa →</button>
+                    </div>
+                  </div>
+
+                  <!-- Email 3 — Libbs ajuste valor -->
+                  <div class="email-card">
+                    <div class="flex items-start justify-between gap-3 mb-1 flex-wrap">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="ct ct-email">EMAIL</span>
+                        <span class="badge" style="background:rgba(234,179,8,0.14);color:#854D0E;border:1px solid rgba(234,179,8,0.35);">🤖 IA Triage — sem vínculo</span>
+                        <span class="em-replies">↳ 3 respostas</span>
+                      </div>
+                      <span class="ck-prazo-warn text-[12px]">SLA 8h</span>
+                    </div>
+                    <div class="em-subj mb-1">Ajuste de preço pedido PED-2580 — valor unitário divergente</div>
+                    <div class="em-meta">De: <strong>fiscal@libbs.com.br</strong> (Renata Tavares) · para: maria.costa@dms.com.br · há 3h</div>
+                    <div class="em-body">"Identificamos divergência no valor unitário do item B-7720 entre o pedido e a nota fiscal. Item está R$ 12.40 mas o contrato é R$ 11.80. Podem revisar e emitir correção?"</div>
+                    <div class="flex items-center gap-2 flex-wrap mt-3">
+                      <button onclick="event.preventDefault();notice('✉️ Composer.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Responder</button>
+                      <button onclick="event.preventDefault();notice('🔗 Modal de vínculo manual abre — MAILIA falhou em classificar.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Vincular Workflow</button>
+                      <button onclick="event.preventDefault();notice('📥 TO DO criado.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Criar TO DO</button>
+                      <button onclick="event.preventDefault();location.href='tela17-cockpit-email.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir thread completa →</button>
+                    </div>
+                  </div>
+
+                  <!-- Email 4 — Eurofarma confirmação POD -->
+                  <div class="email-card">
+                    <div class="flex items-start justify-between gap-3 mb-1 flex-wrap">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="ct ct-email">EMAIL</span>
+                        <span class="badge badge-sys">🔗 Vinculado WF-Emb-007</span>
+                        <span class="em-replies">↳ 2 respostas</span>
+                      </div>
+                      <span class="ck-prazo-ok text-[12px]">Resolvido</span>
+                    </div>
+                    <div class="em-subj mb-1">POD assinado — embarque GRU-MIA Eurofarma OK</div>
+                    <div class="em-meta">De: <strong>logistica@eurofarma.com.br</strong> · para: maria.costa@dms.com.br · ontem 17:42</div>
+                    <div class="em-body">"Maria, POD foi assinado pelo recebedor às 14h05 sem ressalvas. Anexamos cópia digitalizada. Embarque pode ser encerrado no sistema."</div>
+                    <div class="flex items-center gap-2 flex-wrap mt-3">
+                      <button onclick="event.preventDefault();notice('✉️ Composer.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Responder</button>
+                      <button onclick="event.preventDefault();notice('📦 Arquivado.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Arquivar</button>
+                      <button onclick="event.preventDefault();notice('⭐ Importante.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Importante</button>
+                      <button onclick="event.preventDefault();location.href='tela17-cockpit-email.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir thread completa →</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+
+            <!-- ESTADO VAZIO (toggle) -->
+            <div class="src-empty-only p-4">
+              <div class="empty-state">
+                <div class="empty-illustr mb-3">📭</div>
+                <h3 class="text-lg font-bold text-dms-mar mb-2">Você ainda não tem pendências</h3>
+                <p class="text-[13px] text-dms-tecnologia max-w-md mx-auto mb-5">
+                  Nenhum Workflow Instance ativo gera cards pra você no momento.
+                  Em produção, sem MAILIA conectada e sem WFs default da Sprint 4, esse é o estado real ao logar pela 1ª vez.
+                </p>
+                <div class="flex items-center justify-center gap-2 flex-wrap">
+                  <button onclick="event.preventDefault();location.href='tela22-requisicao-form.html';" class="text-[12px] font-semibold text-white bg-dms-mar rounded px-3.5 py-2 hover:bg-dms-confianca">📋 Crie uma Requisição</button>
+                  <button onclick="event.preventDefault();location.href='tela04-catalogo-workflows.html';" class="text-[12px] font-semibold text-dms-mar border border-[#E5E7EB] bg-white rounded px-3.5 py-2 hover:bg-[#FAFBFC]">🔀 Veja Workflows exemplo</button>
+                  <button onclick="event.preventDefault();location.href='tela15-mailia-admin.html';" class="text-[12px] font-semibold text-dms-mar border border-[#E5E7EB] bg-white rounded px-3.5 py-2 hover:bg-[#FAFBFC]">📨 Configure MAILIA</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <p class="text-[11px] text-dms-tecnologia mt-4 leading-relaxed max-w-3xl">
+            <strong>Nota MVP:</strong> ordem padrão = atrasados no topo + prazo ascendente (RN-CKP-06). Cards refletem cadeiras do seu profile (executor → TO DO, observador → FOLLOW UP, destinatária → UPDATE). Email Threads são N:M com Workflow Instance (RN-CKP-05). IA Chat e IA View = Future (RN-CKP-15 Fase B/C).
+          </p>
+        </section>
+
       </div>
-    </div>
-    <!-- Conteúdo via IA -->
-    <div id="t5-content-ia" class="hidden p-5 space-y-3 text-xs">
-      <div>
-        <label class="caption text-dms-tecnologia mb-1 block">Descreva o que você quer ver</label>
-        <textarea rows="5" placeholder="Ex.: Top 5 fornecedores com mais atrasos nos últimos 30 dias" class="input-dms w-full px-3 py-2 border border-[#E5E7EB] rounded"></textarea>
-      </div>
-      <div class="bg-dms-sabedoria/5 border border-dms-sabedoria/30 rounded-md p-3 text-[11px] text-dms-mar">
-        <p><strong>⚙️ IA real chega em F3 (Copilot).</strong> Aqui é mock visual — o botão "Gerar" simula a resposta.</p>
-      </div>
-      <button class="w-full text-xs font-semibold text-white px-3 py-2 bg-dms-sabedoria rounded">✨ Gerar visualização (preview)</button>
-    </div>
-    <div class="px-5 py-3 bg-[#F8F9FA] border-t border-[#E5E7EB] flex items-center justify-end gap-2">
-      <button onclick="closeTop5Drawer()" class="text-xs font-semibold text-dms-mar px-3 py-1.5 border border-[#E5E7EB] rounded">Cancelar</button>
-      <button onclick="saveTop5()" class="text-xs font-semibold text-white px-3 py-1.5 bg-dms-mar rounded">💾 Salvar visualização</button>
-    </div>
+    </main>
   </div>
 </div>
+
+<!-- ============ DRAWER: Editar View ============ -->
+<div id="drawer-overlay" class="ck-drawer-overlay" onclick="closeEditViewDrawer()"></div>
+<div id="drawer-edit-view" class="ck-drawer" role="dialog" aria-labelledby="drawer-title">
+  <div class="ck-drawer-header">
+    <div>
+      <h3 id="drawer-title" class="text-base font-bold text-dms-mar">⚙️ Editar view "Meus Atrasados"</h3>
+      <p class="text-[11px] text-dms-tecnologia mt-0.5">Reconfigure quais cards entram em Prioridades agora</p>
+    </div>
+    <button onclick="closeEditViewDrawer()" class="text-dms-tecnologia hover:text-dms-mar text-2xl leading-none">×</button>
+  </div>
+  <div class="ck-drawer-body">
+    <div class="mb-5">
+      <label class="caption text-dms-tecnologia mb-1.5 block">Nome da view</label>
+      <input type="text" value="Meus Atrasados" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu">
+    </div>
+
+    <div class="mb-5">
+      <label class="caption text-dms-tecnologia mb-2 block">Tipos de card incluídos</label>
+      <div class="flex flex-col gap-2">
+        <label class="flex items-center gap-2 text-[12.5px]"><input type="checkbox" checked class="accent-dms-ceu"> TO DO</label>
+        <label class="flex items-center gap-2 text-[12.5px]"><input type="checkbox" checked class="accent-dms-ceu"> FOLLOW UP</label>
+        <label class="flex items-center gap-2 text-[12.5px]"><input type="checkbox" class="accent-dms-ceu"> UPDATE</label>
+        <label class="flex items-center gap-2 text-[12.5px]"><input type="checkbox" checked class="accent-dms-ceu"> EMAIL (vinculados)</label>
+      </div>
+    </div>
+
+    <div class="mb-5">
+      <label class="caption text-dms-tecnologia mb-1.5 block">Condição de prioridade</label>
+      <select class="filter-select">
+        <option>Atrasados + venc. próx. 4h</option>
+        <option>Atrasados apenas</option>
+        <option>Venc. hoje</option>
+        <option>Urgência manual ≥ Alta</option>
+      </select>
+    </div>
+
+    <div class="mb-5">
+      <label class="caption text-dms-tecnologia mb-1.5 block">Top N</label>
+      <input type="number" value="5" min="3" max="10" class="w-24 px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+      <span class="text-[11px] text-dms-tecnologia ml-2">itens no bloco</span>
+    </div>
+
+    <div class="mb-5 p-3 bg-[#FAFBFC] border border-[#E5E7EB] rounded text-[11px] text-dms-tecnologia leading-relaxed">
+      💡 Em produção, esses critérios viram <code class="mono">cockpit_saved_view.filters</code> (json) — ver CONCEPT-cockpit § 2.6.
+    </div>
+
+    <div class="badge badge-tbd">TBD: persistência real — DP-CKP-14</div>
+  </div>
+  <div class="ck-drawer-footer">
+    <button onclick="closeEditViewDrawer()" class="text-[12px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-3 py-1.5 hover:text-dms-mar">Cancelar</button>
+    <button onclick="event.preventDefault();notice('💾 View salva (mock). Função real persiste em cockpit_saved_view.');closeEditViewDrawer();" class="text-[12px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Salvar view</button>
+  </div>
+</div>
+
+<!-- ============ TOAST NOTIFICATIONS ============ -->
+<div id="toast-stack" style="position:fixed; bottom:24px; right:24px; z-index:80; display:flex; flex-direction:column; gap:8px; pointer-events:none;"></div>
+
 <script>
-// In-memory storage (NÃO localStorage por design)
-window.__t5Views = {};
-window.__t5Current = '';
-function openTop5Drawer(cardName){
-  window.__t5Current = cardName || '?';
-  document.getElementById('t5-card-name').textContent = 'Card: ' + window.__t5Current;
-  document.getElementById('t5-drawer').classList.remove('hidden');
-  t5Tab('tag');
-}
-function closeTop5Drawer(){ document.getElementById('t5-drawer').classList.add('hidden'); }
-function t5Tab(which){
-  document.getElementById('t5-content-tag').classList.toggle('hidden', which!=='tag');
-  document.getElementById('t5-content-ia').classList.toggle('hidden', which!=='ia');
-  document.getElementById('t5-tab-tag').classList.toggle('border-dms-mar', which==='tag');
-  document.getElementById('t5-tab-tag').classList.toggle('text-dms-mar', which==='tag');
-  document.getElementById('t5-tab-tag').classList.toggle('border-transparent', which!=='tag');
-  document.getElementById('t5-tab-tag').classList.toggle('text-dms-tecnologia', which!=='tag');
-  document.getElementById('t5-tab-ia').classList.toggle('border-dms-mar', which==='ia');
-  document.getElementById('t5-tab-ia').classList.toggle('text-dms-mar', which==='ia');
-  document.getElementById('t5-tab-ia').classList.toggle('border-transparent', which!=='ia');
-  document.getElementById('t5-tab-ia').classList.toggle('text-dms-tecnologia', which!=='ia');
-}
-function saveTop5(){
-  window.__t5Views[window.__t5Current] = { savedAt: Date.now() };
-  closeTop5Drawer();
-  var t = document.createElement('div');
-  t.textContent = '💾 Visualização "' + window.__t5Current + '" salva (mockup, in-memory)';
-  t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#00386C;color:#fff;padding:10px 16px;border-radius:6px;font-size:12px;font-weight:600;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.2)';
-  document.body.appendChild(t);
-  setTimeout(function(){ t.remove(); }, 2400);
-}
-// Injeta botões ⚙️ Editar em todos os cards que têm "Top 5" no caption
-document.addEventListener('DOMContentLoaded', function(){
-  var captions = document.querySelectorAll('.master-card .caption');
-  captions.forEach(function(cap){
-    if (cap.textContent && cap.textContent.indexOf('Top 5') !== -1) {
-      var card = cap.closest('.master-card');
-      if (!card) return;
-      var header = card.querySelector('.flex.items-center.justify-between');
-      if (!header || header.querySelector('.t5-edit-btn')) return;
-      var rightSide = header.lastElementChild;
-      var btn = document.createElement('button');
-      btn.className = 't5-edit-btn text-dms-tecnologia hover:text-dms-sabedoria hover:bg-[#F8F9FA] p-1.5 rounded transition-all';
-      btn.title = 'Editar card Top 5';
-      btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>';
-      var titleEl = header.querySelector('.font-bold.text-sm');
-      var name = titleEl ? titleEl.textContent.trim() : 'Top 5';
-      btn.onclick = function(e){ e.preventDefault(); e.stopPropagation(); openTop5Drawer(name); };
-      // insere antes do botão de expandir
-      rightSide.parentNode.insertBefore(btn, rightSide);
-    }
+  /* ===== Mode toggle (Stage / SOP / Workflow) ===== */
+  function setMode(mode, btn){
+    document.body.setAttribute('data-mode', mode);
+    document.querySelectorAll('.mode-btn').forEach(function(b){ b.classList.remove('active'); });
+    if(btn) btn.classList.add('active');
+  }
+
+  /* ===== Source toggle (rich / empty) ===== */
+  function setSource(src, btn){
+    document.body.setAttribute('data-source', src);
+    document.querySelectorAll('.src-btn').forEach(function(b){ b.classList.remove('active'); });
+    if(btn) btn.classList.add('active');
+  }
+
+  /* ===== Tabs (TO DO / FOLLOW UP / UPDATE / EMAIL) ===== */
+  function setTab(tab, btn){
+    document.querySelectorAll('.tab-pill').forEach(function(b){ b.classList.remove('active'); });
+    if(btn) btn.classList.add('active');
+    document.querySelectorAll('.ck-tab-panel').forEach(function(p){ p.classList.remove('active'); });
+    var panel = document.querySelector('.ck-tab-panel[data-panel="'+tab+'"]');
+    if(panel) panel.classList.add('active');
+  }
+
+  /* ===== Saved views ===== */
+  function setSavedView(view, el){
+    document.querySelectorAll('.saved-view').forEach(function(v){ v.classList.remove('active'); });
+    if(el) el.classList.add('active');
+    var label = el ? el.querySelector('span.flex-1').textContent.trim() : view;
+    notice('Saved view "' + label + '" aplicada (mock).');
+  }
+
+  /* ===== Drawer Editar View ===== */
+  function openEditViewDrawer(){
+    document.getElementById('drawer-overlay').classList.add('open');
+    document.getElementById('drawer-edit-view').classList.add('open');
+  }
+  function closeEditViewDrawer(){
+    document.getElementById('drawer-overlay').classList.remove('open');
+    document.getElementById('drawer-edit-view').classList.remove('open');
+  }
+
+  /* ===== Toast notifications ===== */
+  function notice(msg){
+    var stack = document.getElementById('toast-stack');
+    if(!stack) return;
+    var t = document.createElement('div');
+    t.style.cssText = 'background:#00386C; color:#fff; padding:10px 14px; border-radius:8px; font-size:12.5px; font-weight:500; box-shadow:0 6px 20px rgba(0,56,108,0.25); max-width:380px; pointer-events:auto; opacity:0; transform:translateY(10px); transition:all 0.2s ease;';
+    t.textContent = msg;
+    stack.appendChild(t);
+    requestAnimationFrame(function(){ t.style.opacity = '1'; t.style.transform = 'translateY(0)'; });
+    setTimeout(function(){
+      t.style.opacity = '0'; t.style.transform = 'translateY(10px)';
+      setTimeout(function(){ t.remove(); }, 220);
+    }, 2600);
+  }
+
+  /* ===== Esc fecha drawer ===== */
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ closeEditViewDrawer(); }
   });
-});
 </script>
-<script src="tag-filter.js" defer></script>
+
+<script src="notes-widget.js" defer></script>
+<script src="i18n-toggle.js" defer></script>
+<script src="sidebar-permissions.js" defer></script>
 </body>
 </html>
