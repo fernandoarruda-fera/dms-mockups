@@ -1,26 +1,27 @@
 <!DOCTYPE html>
 <!--
   ============================================================================
-  DMS — Delegações de Permissão por Ausência (tela85b)
+  DMS — Delegações por Ausência (tela85b)
   ============================================================================
 
-  PARADIGMA: Usuário → Usuário, ausência/cobertura temporária.
-  Caso de uso: Fernando vai de férias e cede sua permissão `workflow.publish`
-  pra Mariana de 10/06 a 25/06. Janela fixa, motivo livre, cascata por perda
-  da role original do delegante.
+  Data: 2026-06-02 · Aprovado por Fernando Arruda
+  Substitui v1 (paradigma inicial sem tipo Completa/Parcial).
 
-  COEXISTE com `tela85-permission-delegations.html` (paradigma cadeias
-  transitivas Admin→Role, com sub-delegação A→B→C). As duas atendem casos
-  de uso distintos do DP #29 (A9 Sprint 1 F1):
+  Paradigma: Usuário→Usuário por ausência (férias, viagem, licença).
+  COEXISTE com tela85 (cadeias transitivas).
 
-    - tela85  → governança descentralizada via cadeias de delegação
-    - tela85b → cobertura pontual por ausência (esta tela)
-
-  RENAME SUGERIDO (a decidir em outra DP, NÃO fazer aqui):
-    - tela85  → tela85a-permission-delegations-cadeias.html
-    - tela85b → tela85b-permission-delegations-ausencia.html (já correto)
-
-  Versão: Mockup v1 — 02/06/2026 · A9 Sprint 1 F1 · Fernando Arruda
+  Características:
+    1. Modal Nova é um WIZARD de 3 steps (Tipo / Itens / Delegados)
+    2. Step 1 muda conforme tipo:
+       - Parcial: lista flat com 23 perms, checkboxes individuais
+       - Completa: 4 buckets agrupados por módulo, tudo pré-selecionado
+    3. Step 2: auto-sugere delegados por cargo similar + busca livre
+       - Completa: 1 delegado POR BUCKET (+ "Ajustar manualmente")
+       - Parcial: 1 delegado por item ou agrupamento por módulo
+    4. Validação no submit (Completa bloqueia se bucket sem delegado;
+       Parcial mostra summary "delegando X de Y")
+    5. Tabela ganha coluna "Tipo" (🔴 Completa / 🟡 Parcial)
+    6. Card no modal Histórico mostra distribuição multi-delegado
   ============================================================================
 -->
 <html lang="pt-BR">
@@ -55,7 +56,7 @@ tailwind.config = {
   .badge-real { background: rgba(176,201,52,0.15); color: #6B7E20; border: 1px solid rgba(176,201,52,0.35); }
   .badge-sys { background: rgba(101,100,100,0.12); color: #656464; border: 1px solid rgba(101,100,100,0.25); }
 
-  /* Status badges */
+  /* Status */
   .st-deleg { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.02em; }
   .st-ativa     { background: rgba(176,201,52,0.18); color: #5D6E1C; border: 1px solid rgba(176,201,52,0.4); }
   .st-agendada  { background: rgba(0,174,238,0.14); color: #005290;  border: 1px solid rgba(0,174,238,0.35); }
@@ -63,14 +64,21 @@ tailwind.config = {
   .st-revogada  { background: rgba(220,38,38,0.10); color: #B91C1C;  border: 1px solid rgba(220,38,38,0.30); }
   .st-dot { width: 7px; height: 7px; border-radius: 999px; display: inline-block; }
 
+  /* Tipo badges (NOVO v2) */
+  .tp-deleg { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .tp-completa { background: rgba(220,38,38,0.10); color: #B91C1C; border: 1px solid rgba(220,38,38,0.30); }
+  .tp-parcial  { background: rgba(234,179,8,0.14); color: #854D0E; border: 1px solid rgba(234,179,8,0.35); }
+
   .module-pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; }
   .mod-workflow { background: rgba(100,53,133,0.12); color: #643585; }
   .mod-compras  { background: rgba(0,174,238,0.12); color: #005290; }
   .mod-admin    { background: rgba(0,56,108,0.10); color: #00386C; }
   .mod-cadastro { background: rgba(176,201,52,0.18); color: #6B7E20; }
   .mod-profile  { background: rgba(101,100,100,0.12); color: #656464; }
+  .mod-cap      { background: rgba(0,174,238,0.18); color: #005290; }
+  .mod-aprov    { background: rgba(100,53,133,0.16); color: #5C2A78; }
 
-  /* Avatar redondo com iniciais */
+  /* Avatar */
   .avatar { width: 30px; height: 30px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; letter-spacing: 0.02em; }
   .av-1 { background: linear-gradient(135deg, #00386C, #00AEEE); }
   .av-2 { background: linear-gradient(135deg, #643585, #00AEEE); }
@@ -88,20 +96,20 @@ tailwind.config = {
   table.deleg .row-revogada td:not(.col-actions) { opacity: 0.65; }
   table.deleg .row-expirada td:not(.col-actions) { opacity: 0.55; }
 
-  /* Status tabs */
+  /* Tabs */
   .tab-pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all 0.12s ease; background: transparent; }
   .tab-pill:hover { background: #F1F4F7; }
   .tab-pill.active { background: #00386C; color: #fff; }
   .tab-pill.active .tab-count { background: rgba(255,255,255,0.25); color: #fff; }
   .tab-count { background: #E5E7EB; color: #656464; font-size: 10px; padding: 1px 7px; border-radius: 999px; font-weight: 700; min-width: 18px; text-align: center; }
 
-  /* Motivo truncado com tooltip */
+  /* Motivo trunc */
   .motivo-cell { position: relative; max-width: 220px; }
   .motivo-cell .motivo-text { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: help; color: #1A1A1A; }
   .motivo-cell:hover .tip { opacity: 1; pointer-events: auto; }
   .tip { position: absolute; top: 110%; left: 0; z-index: 50; background: #1A1A1A; color: #fff; font-size: 11px; padding: 6px 10px; border-radius: 6px; min-width: 200px; max-width: 320px; box-shadow: 0 8px 20px rgba(0,0,0,.2); opacity: 0; pointer-events: none; transition: opacity .1s ease; font-weight: 400; letter-spacing: 0; text-transform: none; line-height: 1.45; }
 
-  /* Cronologia (modal detalhes) */
+  /* Cronologia */
   .timeline { position: relative; padding-left: 28px; }
   .timeline::before { content: ''; position: absolute; left: 11px; top: 8px; bottom: 8px; width: 2px; background: #E5E7EB; }
   .tl-event { position: relative; padding-bottom: 16px; }
@@ -112,20 +120,66 @@ tailwind.config = {
   .tl-dot.tl-revoked { border-color: #DC2626; background: rgba(220,38,38,0.10); color: #DC2626; }
   .tl-dot.tl-expired { border-color: #656464; background: #F1F1F1; color: #656464; }
 
-  /* Modal Nova Delegação — chips */
-  .chip-perm { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600; border: 1px solid #E5E7EB; cursor: pointer; background: #fff; transition: all 0.12s ease; }
-  .chip-perm:hover { border-color: #00AEEE; }
-  .chip-perm.selected { background: rgba(0,174,238,0.12); border-color: #00AEEE; color: #005290; }
-  .chip-perm .x { display: none; font-weight: 900; color: #DC2626; }
-  .chip-perm.selected .x { display: inline; }
-
   /* Banner cascata */
   .banner-cascade { background: linear-gradient(90deg, #FFFBEB 0%, #FEF3C7 100%); border: 1px solid #FCD34D; border-left: 4px solid #EAB308; }
-
-  /* Empty state */
   .empty-illustr { font-size: 56px; opacity: 0.4; }
 
-  /* Mobile responsive */
+  /* ============ WIZARD (NOVO v2) ============ */
+  .wizard-steps { display: flex; gap: 0; align-items: center; }
+  .wz-step { flex: 1; display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid #E5E7EB; border-right: 0; background: #F8F9FA; font-size: 11.5px; color: #656464; font-weight: 600; position: relative; }
+  .wz-step:first-child { border-radius: 6px 0 0 6px; }
+  .wz-step:last-child { border-right: 1px solid #E5E7EB; border-radius: 0 6px 6px 0; }
+  .wz-step .wz-num { width: 22px; height: 22px; border-radius: 999px; background: #E5E7EB; color: #656464; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11px; flex-shrink: 0; }
+  .wz-step.active { background: #fff; color: #00386C; border-color: #00AEEE; }
+  .wz-step.active .wz-num { background: #00AEEE; color: #fff; }
+  .wz-step.done { background: rgba(176,201,52,0.10); color: #5D6E1C; }
+  .wz-step.done .wz-num { background: #6B7E20; color: #fff; }
+
+  /* Tipo cards (step 0) */
+  .tipo-card { border: 2px solid #E5E7EB; border-radius: 10px; padding: 16px; cursor: pointer; transition: all 0.15s ease; position: relative; }
+  .tipo-card:hover { border-color: #00AEEE; }
+  .tipo-card.selected { border-color: #00AEEE; background: rgba(0,174,238,0.05); box-shadow: 0 0 0 3px rgba(0,174,238,0.10); }
+  .tipo-card .tipo-icon { font-size: 28px; line-height: 1; }
+  .tipo-card.completa.selected { border-color: #DC2626; background: rgba(220,38,38,0.04); box-shadow: 0 0 0 3px rgba(220,38,38,0.08); }
+  .tipo-card.parcial.selected  { border-color: #EAB308; background: rgba(234,179,8,0.06); box-shadow: 0 0 0 3px rgba(234,179,8,0.10); }
+  .tipo-card .check-dot { position: absolute; top: 12px; right: 12px; width: 18px; height: 18px; border-radius: 999px; border: 2px solid #E5E7EB; }
+  .tipo-card.selected .check-dot { background: #00AEEE; border-color: #00AEEE; }
+  .tipo-card.completa.selected .check-dot { background: #DC2626; border-color: #DC2626; }
+  .tipo-card.parcial.selected  .check-dot { background: #EAB308; border-color: #EAB308; }
+  .tipo-card .check-dot::after { content: '✓'; color: #fff; font-size: 12px; font-weight: 900; display: none; line-height: 14px; text-align: center; }
+  .tipo-card.selected .check-dot::after { display: block; }
+
+  /* Perm list (step 1) */
+  .perm-item { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 6px; transition: background 0.1s ease; cursor: pointer; }
+  .perm-item:hover { background: #F8F9FA; }
+  .perm-item input[type=checkbox] { width: 14px; height: 14px; accent-color: #00AEEE; flex-shrink: 0; }
+  .perm-item .perm-name { flex: 1; }
+
+  .bucket { border: 1px solid #E5E7EB; border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+  .bucket-header { background: #F1F4F7; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; font-weight: 700; color: #00386C; font-size: 13px; }
+  .bucket-body { padding: 6px; }
+
+  /* Suggested cards (step 2) */
+  .sug-card { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1.5px solid #E5E7EB; border-radius: 8px; cursor: pointer; transition: all 0.12s ease; background: #fff; min-width: 0; }
+  .sug-card:hover { border-color: #00AEEE; background: rgba(0,174,238,0.03); }
+  .sug-card.selected { border-color: #00AEEE; background: rgba(0,174,238,0.08); box-shadow: 0 0 0 2px rgba(0,174,238,0.15); }
+  .sug-card .sug-info { flex: 1; min-width: 0; }
+  .sug-card .sug-name { font-size: 12.5px; font-weight: 700; color: #00386C; line-height: 1.2; }
+  .sug-card .sug-cargo { font-size: 10.5px; color: #656464; line-height: 1.3; margin-top: 1px; }
+  .badge-sim-cargo { background: rgba(176,201,52,0.20); color: #5D6E1C; border: 1px solid rgba(176,201,52,0.40); font-size: 9px; padding: 1px 5px; border-radius: 3px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+  .badge-sim-area  { background: rgba(0,174,238,0.16); color: #005290; border: 1px solid rgba(0,174,238,0.30); font-size: 9px; padding: 1px 5px; border-radius: 3px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+  .badge-outra     { background: #F1F1F1; color: #656464; border: 1px solid #D6DBE0; font-size: 9px; padding: 1px 5px; border-radius: 3px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* Bucket assign row (step 2 completa) */
+  .assign-row { border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px; margin-bottom: 8px; background: #fff; }
+  .assign-row.missing { border-color: #DC2626; background: rgba(220,38,38,0.04); }
+
+  /* Distribuição multi-delegado (modal Histórico) */
+  .dist-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; background: #F8F9FA; margin-bottom: 6px; font-size: 12px; }
+  .dist-row .dist-mod { flex: 0 0 auto; }
+  .dist-row .dist-arrow { color: #656464; font-weight: 700; }
+
+  /* Mobile */
   @media (max-width: 900px) {
     .deleg-wrapper { overflow-x: auto; }
     table.deleg { min-width: 980px; }
@@ -148,8 +202,8 @@ tailwind.config = {
         <span class="text-dms-mar font-semibold">Delegações por Ausência</span>
       </nav>
       <div class="flex items-center gap-2">
-        <a href="tela85-permission-delegations.html" class="text-[11px] font-semibold text-dms-tecnologia hover:text-dms-mar underline decoration-dotted" title="Outra tela: delegações por cadeia transitiva (governança descentralizada)">
-          ⛓ Ver cadeias →
+        <a href="tela85-permission-delegations.html" class="text-[11px] font-semibold text-dms-tecnologia hover:text-dms-mar underline decoration-dotted" title="Outra tela: cadeias transitivas">
+          ⛓ Cadeias
         </a>
         <button onclick="toggleEmptyDemo()" class="px-3 py-1.5 text-[11px] font-semibold text-dms-tecnologia border border-dashed border-[#E5E7EB] rounded-md hover:text-dms-mar bg-white transition-colors" title="Alterna mock entre lista cheia e estado vazio">
           🧪 Toggle estado vazio
@@ -171,39 +225,45 @@ tailwind.config = {
           <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
           <h1 class="text-[28px] leading-[36px] font-bold text-dms-mar">Delegações por Ausência</h1>
           <span class="badge badge-real">Sprint 1 F1 · A9</span>
-          <span class="badge badge-tbd">Mockup v1</span>
+          <span class="badge badge-tbd">Mockup</span>
         </div>
         <p class="text-sm text-dms-tecnologia max-w-3xl">
-          Ceda temporariamente uma <strong class="text-dms-mar">permissão</strong> ou <strong class="text-dms-mar">role</strong> sua para outro usuário durante <em>ausência</em> (férias, viagem, licença, cobertura).
-          Toda delegação tem <strong>janela de validade</strong>, <strong>motivo auditável</strong> e <strong>cascata por perda de role</strong>: se você perde a role original, as delegações daquela role são auto-revogadas.
-          Veja a matriz oficial em <a href="tela80-permissoes-matriz.html" class="text-dms-ceu hover:underline">Permissões → Matriz</a>.
+          Ceda temporariamente uma <strong class="text-dms-mar">permissão</strong> ou <strong class="text-dms-mar">role</strong> sua para outro usuário durante <em>ausência</em>.
+          A delegação pode ser <strong class="text-[#B91C1C]">Completa</strong> (100% das suas permissões, possivelmente distribuídas entre várias pessoas) ou
+          <strong class="text-[#854D0E]">Parcial</strong> (você escolhe o que delegar).
+          Toda delegação tem janela de validade, motivo auditável e <strong>cascata por perda de role</strong>.
         </p>
         <div class="mt-2 text-[11px] text-dms-tecnologia bg-[#F1F4F7] border border-[#E5E7EB] rounded px-3 py-1.5 inline-block">
-          ℹ️ <strong>Esta tela é diferente de</strong> <a href="tela85-permission-delegations.html" class="text-dms-ceu underline">Delegações por Cadeia</a> — aquela trata de <em>governança descentralizada</em> com sub-delegação transitiva (A→B→C). Aqui é cessão 1:1 por ausência.
+          ℹ️ Wizard de 3 passos no "+ Nova delegação", auto-sugestão por cargo similar, coluna Tipo. Diferente de <a href="tela85-permission-delegations.html" class="text-dms-ceu underline">cadeias transitivas</a>.
         </div>
       </div>
 
       <!-- KPIs -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
         <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
           <div class="caption text-dms-tecnologia flex items-center gap-1.5"><span class="st-dot" style="background:#B0C934;"></span>Ativas</div>
-          <div class="text-2xl mono font-bold text-dms-mar mt-1" id="kpi-ativas">4</div>
-          <div class="text-xs text-dms-tecnologia mt-0.5">em vigor agora</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">5</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">2 Completas · 3 Parciais</div>
         </div>
         <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
           <div class="caption text-dms-tecnologia flex items-center gap-1.5"><span class="st-dot" style="background:#00AEEE;"></span>Agendadas</div>
-          <div class="text-2xl mono font-bold text-dms-mar mt-1" id="kpi-agendadas">2</div>
-          <div class="text-xs text-dms-tecnologia mt-0.5">começam em breve</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">2</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">1 Completa · 1 Parcial</div>
         </div>
         <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
           <div class="caption text-dms-tecnologia flex items-center gap-1.5"><span class="st-dot" style="background:#B8BFC4;"></span>Expiradas (30d)</div>
-          <div class="text-2xl mono font-bold text-dms-mar mt-1" id="kpi-expiradas">2</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">2</div>
           <div class="text-xs text-dms-tecnologia mt-0.5">arquivadas no audit</div>
         </div>
         <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
           <div class="caption text-dms-tecnologia flex items-center gap-1.5"><span class="st-dot" style="background:#DC2626;"></span>Revogadas (30d)</div>
-          <div class="text-2xl mono font-bold text-dms-mar mt-1" id="kpi-revogadas">1</div>
-          <div class="text-xs text-dms-tecnologia mt-0.5">1 manual · 0 cascata</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">1</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">1 manual</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia flex items-center gap-1.5">📊 Cobertura média</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">87%</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">das suas perms ativamente delegadas <!-- TBD v2: definir cálculo exato dessa métrica --></div>
         </div>
       </div>
 
@@ -213,10 +273,8 @@ tailwind.config = {
         <div class="flex-1 min-w-0">
           <p class="text-sm font-bold text-[#854D0E]">3 delegações suas serão auto-revogadas se sua role <span class="mono px-1.5 py-0.5 bg-white rounded text-dms-mar">cmpAdm</span> for removida.</p>
           <p class="text-xs text-[#854D0E] mt-1 leading-relaxed">
-            <strong>Cascata por perda de role:</strong> permissões delegadas dependem da role do delegante. Se você perder <span class="mono">cmpAdm</span>,
-            as delegações para <strong>Mariana Costa</strong>, <strong>Felipe Souza</strong> e <strong>Fernanda Dias</strong> serão revogadas automaticamente e logadas no
-            <a href="tela13-audit-trail.html" class="underline hover:no-underline">audit trail</a> com <span class="mono">reason='cascata_role'</span>.
-            <!-- TBD: backend confirma como detecta perda de role — webhook role_changed? polling? -->
+            <strong>Cascata por perda de role:</strong> <strong>1 Completa</strong> + <strong>2 Parciais</strong> serão revogadas automaticamente com <span class="mono">reason='cascata_role'</span>.
+            Total: 14 permissões espalhadas em 4 delegados retornarão pra você (ou serão bloqueadas no audit).
           </p>
           <div class="mt-2 flex items-center gap-2">
             <button onclick="filtrarPorRole('cmpAdm')" class="text-[11px] font-semibold text-[#854D0E] underline hover:no-underline">Ver as 3 delegações afetadas →</button>
@@ -225,77 +283,71 @@ tailwind.config = {
         <button onclick="this.parentElement.style.display='none'" class="text-[#854D0E] hover:text-[#5C3A0A] text-lg leading-none px-1" title="Dispensar">×</button>
       </div>
 
-      <!-- SEÇÃO: DELEGAÇÕES QUE RECEBI (collapse) -->
+      <!-- DELEGAÇÕES RECEBIDAS -->
       <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md mb-6 overflow-hidden">
         <button onclick="toggleRecebidas()" class="w-full px-5 py-4 flex items-center justify-between hover:bg-[#FAFBFC] transition-colors text-left">
           <div class="flex items-center gap-3">
             <span class="text-xl">📥</span>
             <div>
               <div class="text-sm font-bold text-dms-mar">Delegações que recebi <span class="badge badge-real ml-1">2 ativas</span></div>
-              <div class="text-xs text-dms-tecnologia mt-0.5">Permissões cedidas <strong>a você</strong> por outros usuários durante ausência. Você pode renunciar a qualquer momento.</div>
+              <div class="text-xs text-dms-tecnologia mt-0.5">Permissões cedidas <strong>a você</strong> por outros usuários. Você pode renunciar a qualquer momento.</div>
             </div>
           </div>
           <svg id="ico-recebidas" class="w-5 h-5 text-dms-tecnologia transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="transform:rotate(180deg);"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
         </button>
         <div id="bloco-recebidas" class="border-t border-[#E5E7EB]">
           <div class="grid md:grid-cols-2 gap-3 p-4">
-
-            <!-- Card recebida 1 -->
-            <div class="border border-[#E5E7EB] rounded-md p-3.5 bg-[#FAFBFC] hover:border-dms-ceu transition-colors">
+            <div class="border border-[#E5E7EB] rounded-md p-3.5 bg-[#FAFBFC]">
               <div class="flex items-start justify-between gap-2 mb-2">
                 <div class="flex items-center gap-2">
                   <span class="avatar av-4">BP</span>
                   <div>
                     <div class="text-sm font-semibold text-dms-mar leading-tight">Beatriz Pinto</div>
-                    <div class="text-[10.5px] text-dms-tecnologia">Admin Geral · cedeu para você</div>
+                    <div class="text-[10.5px] text-dms-tecnologia">Diretora Admin · cedeu para você</div>
                   </div>
                 </div>
-                <span class="st-deleg st-ativa"><span class="st-dot" style="background:#5D6E1C;"></span>Ativa</span>
+                <div class="flex flex-col items-end gap-1">
+                  <span class="st-deleg st-ativa"><span class="st-dot" style="background:#5D6E1C;"></span>Ativa</span>
+                  <span class="tp-deleg tp-parcial">🟡 Parcial</span>
+                </div>
               </div>
               <div class="mb-2 flex flex-wrap gap-1.5">
                 <span class="perm-code font-semibold">audit.view_global</span>
                 <span class="module-pill mod-admin">Admin</span>
               </div>
-              <div class="text-[11.5px] text-dms-tecnologia mb-2">
-                <span class="mono">28/05/26 → 11/06/26</span> · <span class="text-[#5D6E1C] font-semibold">9 dias restantes</span>
-              </div>
-              <div class="text-[12px] text-[#1A1A1A] mb-3 leading-relaxed italic border-l-2 border-dms-ceu/40 pl-2">
-                "Cobertura enquanto estou em treinamento externo — precisa investigar logs do incidente de segurança da semana passada."
-              </div>
+              <div class="text-[11.5px] text-dms-tecnologia mb-2"><span class="mono">28/05/26 → 11/06/26</span> · <span class="text-[#5D6E1C] font-semibold">9 dias restantes</span></div>
+              <div class="text-[12px] text-[#1A1A1A] mb-3 leading-relaxed italic border-l-2 border-dms-ceu/40 pl-2">"Cobertura enquanto estou em treinamento externo — investigar logs do incidente."</div>
               <div class="flex items-center gap-2">
                 <button onclick="abrirRenuncia('audit.view_global', 'Beatriz Pinto')" class="text-[11px] font-semibold text-[#B91C1C] border border-[#FCA5A5] rounded px-2.5 py-1 hover:bg-[#FEE2E2]">Renunciar</button>
                 <button onclick="abrirHistorico('rcv-1')" class="text-[11px] font-semibold text-dms-tecnologia hover:text-dms-mar">Ver histórico</button>
               </div>
             </div>
-
-            <!-- Card recebida 2 -->
-            <div class="border border-[#E5E7EB] rounded-md p-3.5 bg-[#FAFBFC] hover:border-dms-ceu transition-colors">
+            <div class="border border-[#E5E7EB] rounded-md p-3.5 bg-[#FAFBFC]">
               <div class="flex items-start justify-between gap-2 mb-2">
                 <div class="flex items-center gap-2">
                   <span class="avatar av-1">PA</span>
                   <div>
                     <div class="text-sm font-semibold text-dms-mar leading-tight">Pedro Alves</div>
-                    <div class="text-[10.5px] text-dms-tecnologia">Aprovador Diretor · cedeu para você</div>
+                    <div class="text-[10.5px] text-dms-tecnologia">Diretor de Aprovação · cedeu para você</div>
                   </div>
                 </div>
-                <span class="st-deleg st-ativa"><span class="st-dot" style="background:#5D6E1C;"></span>Ativa</span>
+                <div class="flex flex-col items-end gap-1">
+                  <span class="st-deleg st-ativa"><span class="st-dot" style="background:#5D6E1C;"></span>Ativa</span>
+                  <span class="tp-deleg tp-completa">🔴 Completa</span>
+                </div>
               </div>
               <div class="mb-2 flex flex-wrap gap-1.5">
                 <span class="perm-code font-semibold">workflow.approve_publication</span>
-                <span class="module-pill mod-workflow">Workflow</span>
+                <span class="module-pill mod-aprov">Aprovação</span>
+                <span class="badge badge-sys ml-1" title="Pedro Alves delegou TUDO; você é 1 de 3 delegados">parte de cobertura completa</span>
               </div>
-              <div class="text-[11.5px] text-dms-tecnologia mb-2">
-                <span class="mono">30/05/26 → 04/06/26</span> · <span class="text-[#854D0E] font-semibold">2 dias restantes</span>
-              </div>
-              <div class="text-[12px] text-[#1A1A1A] mb-3 leading-relaxed italic border-l-2 border-dms-ceu/40 pl-2">
-                "Aprovações urgentes do release Workflow 2.4 enquanto estou em reunião externa com o cliente."
-              </div>
+              <div class="text-[11.5px] text-dms-tecnologia mb-2"><span class="mono">30/05/26 → 04/06/26</span> · <span class="text-[#854D0E] font-semibold">2 dias restantes</span></div>
+              <div class="text-[12px] text-[#1A1A1A] mb-3 leading-relaxed italic border-l-2 border-dms-ceu/40 pl-2">"Reunião externa com cliente — aprovações urgentes do release Workflow 2.4."</div>
               <div class="flex items-center gap-2">
                 <button onclick="abrirRenuncia('workflow.approve_publication', 'Pedro Alves')" class="text-[11px] font-semibold text-[#B91C1C] border border-[#FCA5A5] rounded px-2.5 py-1 hover:bg-[#FEE2E2]">Renunciar</button>
                 <button onclick="abrirHistorico('rcv-2')" class="text-[11px] font-semibold text-dms-tecnologia hover:text-dms-mar">Ver histórico</button>
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -304,42 +356,35 @@ tailwind.config = {
       <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 mb-4 shadow-dms-md">
         <div class="flex items-center gap-2 mb-3 flex-wrap">
           <span class="caption text-dms-tecnologia mr-1">Status:</span>
-          <button class="tab-pill active" data-status="todas" onclick="setStatusTab('todas')">Todas <span class="tab-count" id="ct-todas">9</span></button>
-          <button class="tab-pill" data-status="ativa" onclick="setStatusTab('ativa')"><span class="st-dot" style="background:#B0C934;"></span> Ativas <span class="tab-count" id="ct-ativa">4</span></button>
-          <button class="tab-pill" data-status="agendada" onclick="setStatusTab('agendada')"><span class="st-dot" style="background:#00AEEE;"></span> Agendadas <span class="tab-count" id="ct-agendada">2</span></button>
-          <button class="tab-pill" data-status="expirada" onclick="setStatusTab('expirada')"><span class="st-dot" style="background:#B8BFC4;"></span> Expiradas <span class="tab-count" id="ct-expirada">2</span></button>
-          <button class="tab-pill" data-status="revogada" onclick="setStatusTab('revogada')"><span class="st-dot" style="background:#DC2626;"></span> Revogadas <span class="tab-count" id="ct-revogada">1</span></button>
+          <button class="tab-pill active" data-status="todas" onclick="setStatusTab('todas')">Todas <span class="tab-count">10</span></button>
+          <button class="tab-pill" data-status="ativa" onclick="setStatusTab('ativa')"><span class="st-dot" style="background:#B0C934;"></span> Ativas <span class="tab-count">5</span></button>
+          <button class="tab-pill" data-status="agendada" onclick="setStatusTab('agendada')"><span class="st-dot" style="background:#00AEEE;"></span> Agendadas <span class="tab-count">2</span></button>
+          <button class="tab-pill" data-status="expirada" onclick="setStatusTab('expirada')"><span class="st-dot" style="background:#B8BFC4;"></span> Expiradas <span class="tab-count">2</span></button>
+          <button class="tab-pill" data-status="revogada" onclick="setStatusTab('revogada')"><span class="st-dot" style="background:#DC2626;"></span> Revogadas <span class="tab-count">1</span></button>
+          <span class="ml-4 caption text-dms-tecnologia">Tipo:</span>
+          <button class="tab-pill" data-tipo="todas" onclick="setTipoTab('todas')" id="tab-tipo-todas">Todos</button>
+          <button class="tab-pill" data-tipo="completa" onclick="setTipoTab('completa')"><span class="tp-deleg tp-completa" style="padding:0 4px;font-size:9px;">Completa</span></button>
+          <button class="tab-pill" data-tipo="parcial" onclick="setTipoTab('parcial')"><span class="tp-deleg tp-parcial" style="padding:0 4px;font-size:9px;">Parcial</span></button>
         </div>
 
         <div class="grid grid-cols-12 gap-3 items-end">
-          <div class="col-span-4">
-            <label class="caption text-dms-tecnologia mb-1.5 block">Buscar (delegante, delegado, permissão)</label>
+          <div class="col-span-5">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Buscar (delegante, delegado, permissão, motivo)</label>
             <div class="relative">
               <svg class="w-4 h-4 text-dms-tecnologia absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-              <input id="f-search" type="text" placeholder="ex: Mariana, workflow.publish, nf.aprovar…" oninput="filtrarTabela()" class="w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
+              <input id="f-search" type="text" placeholder="ex: Mariana, workflow.publish, férias…" oninput="filtrarTabela()" class="w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
             </div>
           </div>
           <div class="col-span-3">
-            <label class="caption text-dms-tecnologia mb-1.5 block">Role / Permissão</label>
-            <select id="f-perm" onchange="filtrarTabela()" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
-              <option value="">Todas</option>
-              <optgroup label="Roles">
-                <option value="role:cmpAdm">cmpAdm — Compras Adm</option>
-                <option value="role:aprDir">aprDir — Aprovador Diretor</option>
-                <option value="role:aprGer">aprGer — Aprovador Gerente</option>
-                <option value="role:capAdm">capAdm — CAP Adm</option>
-              </optgroup>
-              <optgroup label="Permissões individuais">
-                <option value="perm:workflow.publish">workflow.publish</option>
-                <option value="perm:workflow.approve_publication">workflow.approve_publication</option>
-                <option value="perm:workflow.edit_draft">workflow.edit_draft</option>
-                <option value="perm:tag.sync">tag.sync</option>
-                <option value="perm:nf.aprovar">nf.aprovar</option>
-                <option value="perm:requisition.approve">requisition.approve</option>
-                <option value="perm:cotacao.approve">cotacao.approve</option>
-                <option value="perm:role.manage">role.manage</option>
-                <option value="perm:audit.view_global">audit.view_global</option>
-              </optgroup>
+            <label class="caption text-dms-tecnologia mb-1.5 block">Módulo</label>
+            <select id="f-mod" onchange="filtrarTabela()" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option value="">Todos</option>
+              <option value="compras">Compras</option>
+              <option value="cap">CAP</option>
+              <option value="aprov">Aprovação</option>
+              <option value="cadastro">Cadastros</option>
+              <option value="admin">Admin</option>
+              <option value="workflow">Workflow</option>
             </select>
           </div>
           <div class="col-span-2">
@@ -350,24 +395,19 @@ tailwind.config = {
             <label class="caption text-dms-tecnologia mb-1.5 block">Até</label>
             <input type="date" id="f-ate" value="2026-07-31" onchange="filtrarTabela()" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
           </div>
-          <div class="col-span-1">
-            <button onclick="limparFiltros()" class="w-full px-3 py-2 text-xs font-semibold text-dms-tecnologia border border-[#E5E7EB] rounded-md hover:text-dms-mar bg-white">Limpar</button>
-          </div>
         </div>
       </div>
 
-      <!-- TABELA PRINCIPAL -->
+      <!-- TABELA -->
       <div id="bloco-tabela" class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
         <div class="px-5 py-3 border-b border-[#E5E7EB] flex items-center justify-between">
           <div>
             <div class="text-sm font-bold text-dms-mar">Delegações criadas por mim</div>
             <div class="text-xs text-dms-tecnologia mt-0.5">
-              Exibindo <span id="tbl-visiveis">9</span> de <span id="tbl-total">9</span> · ordenado por status + início (mais próximo primeiro)
+              Exibindo <span id="tbl-visiveis">10</span> de <span id="tbl-total">10</span> · ordenado por status + início
             </div>
           </div>
-          <div class="text-xs text-dms-tecnologia">
-            Mostrando últimos 30 dias <!-- TBD: paginação ou scroll infinito? por enquanto mock cabe na tela -->
-          </div>
+          <div class="text-xs text-dms-tecnologia">Mostrando últimos 30 dias</div>
         </div>
 
         <div class="deleg-wrapper" style="overflow-x: auto;">
@@ -375,10 +415,11 @@ tailwind.config = {
             <thead>
               <tr>
                 <th>Delegante</th>
-                <th>Delegado</th>
-                <th>Permissão</th>
+                <th>Delegado(s)</th>
+                <th>Permissão / Escopo</th>
                 <th>Janela</th>
                 <th>Motivo</th>
+                <th>Tipo</th>
                 <th>Status</th>
                 <th class="text-right">Ações</th>
               </tr>
@@ -393,25 +434,18 @@ tailwind.config = {
         </div>
       </div>
 
-      <!-- ESTADO VAZIO (escondido por padrão) -->
+      <!-- EMPTY -->
       <div id="bloco-vazio" class="hidden bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md p-12 text-center">
         <div class="empty-illustr mb-3">🏖️</div>
         <h3 class="text-base font-bold text-dms-mar mb-1">Você ainda não tem delegações por ausência</h3>
-        <p class="text-sm text-dms-tecnologia mb-5 max-w-md mx-auto">
-          Vai entrar de férias, viajar ou se ausentar? Ceda temporariamente uma permissão sua para outro usuário cobrir.
-          A permissão volta automaticamente pra você no final do período.
-        </p>
-        <button onclick="abrirModalNovaDeleg()" class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca">
-          + Criar primeira delegação
-        </button>
-        <p class="text-[11px] text-dms-tecnologia mt-4">
-          Dica: você só pode delegar permissões que <strong>você atualmente tem</strong>. Veja a <a href="tela80-permissoes-matriz.html" class="text-dms-ceu underline">matriz</a> para conferir.
-        </p>
+        <p class="text-sm text-dms-tecnologia mb-5 max-w-md mx-auto">Vai entrar de férias, viajar ou se ausentar? Cobertura <strong>Completa</strong> distribui 100% das suas perms entre uma ou mais pessoas. Cobertura <strong>Parcial</strong> deixa você escolher o que delegar.</p>
+        <button onclick="abrirModalNovaDeleg()" class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca">+ Criar primeira delegação</button>
       </div>
 
-      <!-- RODAPÉ MOCKUP -->
       <div class="mt-6 text-center text-[11px] text-dms-tecnologia">
-        Mockup v1 — 02/06/2026 · Fernando Arruda · A9 Sprint 1 F1 · DP #29 · Paradigma <strong>Usuário→Usuário (ausência)</strong> · Complementa <a href="tela85-permission-delegations.html" class="text-dms-ceu underline">tela85 (cadeias transitivas)</a>
+        Mockup — 02/06/2026 · Fernando Arruda · A9 Sprint 1 F1 · DP #29 ·
+        Paradigma <strong>Usuário→Usuário (ausência)</strong> com tipo Completa/Parcial ·
+        Complementa <a href="tela85-permission-delegations.html" class="text-dms-ceu underline">tela85 (cadeias)</a>
       </div>
 
     </main>
@@ -419,108 +453,161 @@ tailwind.config = {
   </div>
 </div>
 
-<!-- ===== MODAL: NOVA DELEGAÇÃO ===== -->
+<!-- ============================================================================
+     MODAL: NOVA DELEGAÇÃO (WIZARD 3 STEPS — NOVO v2)
+     ============================================================================ -->
 <div id="modal-nova" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,27,76,0.55);">
-  <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto">
-    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3 sticky top-0 bg-white z-10">
+  <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[94vh] flex flex-col">
+    <!-- Header fixo -->
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3 flex-shrink-0">
       <span class="w-10 h-10 rounded-lg bg-dms-mar/10 flex items-center justify-center text-xl">🔗</span>
       <div class="flex-1">
         <h3 class="text-base font-bold text-dms-mar">Nova delegação por ausência</h3>
-        <p class="text-xs text-dms-tecnologia">Você está cedendo uma permissão sua a outro usuário durante um período de ausência. Pode revogar a qualquer momento.</p>
+        <p class="text-xs text-dms-tecnologia">3 passos · você pode voltar a qualquer momento</p>
       </div>
       <button onclick="fecharModalNova()" class="text-dms-tecnologia hover:text-dms-mar text-2xl leading-none">×</button>
     </div>
 
-    <div class="p-6 space-y-4 text-sm">
+    <!-- Wizard steps bar -->
+    <div class="px-6 pt-4 pb-2 flex-shrink-0">
+      <div class="wizard-steps">
+        <div id="wz-s1" class="wz-step active"><span class="wz-num">1</span><span>Tipo da cobertura</span></div>
+        <div id="wz-s2" class="wz-step"><span class="wz-num">2</span><span>Itens a delegar</span></div>
+        <div id="wz-s3" class="wz-step"><span class="wz-num">3</span><span>Delegados &amp; período</span></div>
+      </div>
+    </div>
 
-      <!-- Delegante (você) -->
-      <div>
-        <label class="caption text-dms-tecnologia mb-1.5 block">Delegante (você)</label>
-        <div class="flex items-center gap-3 p-2.5 bg-[#F1F4F7] rounded border border-[#E5E7EB]">
-          <span class="avatar av-me">FA</span>
-          <div class="flex-1">
-            <div class="text-sm font-semibold text-dms-mar">Fernando Arruda</div>
-            <div class="text-[11px] text-dms-tecnologia">fernando.arruda@dmslog.com · roles: <span class="mono">cmpAdm</span>, <span class="mono">aprGer</span></div>
+    <!-- Body scrollable -->
+    <div class="flex-1 overflow-y-auto px-6 py-4">
+
+      <!-- ============ STEP 1: TIPO ============ -->
+      <div id="step-1" class="space-y-4">
+        <div>
+          <label class="caption text-dms-tecnologia mb-1.5 block">Delegante (você)</label>
+          <div class="flex items-center gap-3 p-2.5 bg-[#F1F4F7] rounded border border-[#E5E7EB]">
+            <span class="avatar av-me">FA</span>
+            <div class="flex-1">
+              <div class="text-sm font-semibold text-dms-mar">Fernando Arruda</div>
+              <div class="text-[11px] text-dms-tecnologia">fernando.arruda@dmslog.com · <strong>Gerente de Compras</strong> · roles: <span class="mono">cmpAdm</span>, <span class="mono">aprGer</span> · 23 permissões delegáveis</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="caption text-dms-tecnologia mb-2 block">Tipo da cobertura <span class="text-[#B91C1C]">*</span></label>
+          <div class="grid grid-cols-2 gap-3">
+            <div id="tipo-completa" class="tipo-card completa selected" onclick="selecionarTipo('completa')">
+              <div class="check-dot"></div>
+              <div class="tipo-icon">🔴</div>
+              <div class="mt-2">
+                <div class="font-bold text-dms-mar text-sm">Completa</div>
+                <div class="text-[11.5px] text-dms-tecnologia mt-0.5 leading-snug">100% das suas 23 permissões serão delegadas, agrupadas por módulo. Você pode distribuir <strong>entre várias pessoas</strong> (ex: Compras → fulano, CAP → ciclano).</div>
+                <div class="mt-2 text-[10.5px] text-[#854D0E] bg-amber-50 border border-amber-200 rounded px-2 py-1 inline-block">
+                  Validação: todo bucket precisa de delegado.
+                </div>
+              </div>
+            </div>
+            <div id="tipo-parcial" class="tipo-card parcial" onclick="selecionarTipo('parcial')">
+              <div class="check-dot"></div>
+              <div class="tipo-icon">🟡</div>
+              <div class="mt-2">
+                <div class="font-bold text-dms-mar text-sm">Parcial</div>
+                <div class="text-[11.5px] text-dms-tecnologia mt-0.5 leading-snug">Você escolhe quais permissões delegar (1 ou várias). Pode atribuir tudo a uma pessoa só ou distribuir. Restante fica com você.</div>
+                <div class="mt-2 text-[10.5px] text-[#5D6E1C] bg-emerald-50 border border-emerald-200 rounded px-2 py-1 inline-block">
+                  Útil pra coberturas pontuais.
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Delegado -->
-      <div>
-        <label class="caption text-dms-tecnologia mb-1.5 block">Delegar para <span class="text-[#B91C1C]">*</span></label>
-        <div class="relative">
-          <input id="nv-delegado" type="text" placeholder="Busque por nome ou email da tenant…" oninput="acDelegado(event)" class="w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20" autocomplete="off">
-          <svg class="w-4 h-4 text-dms-tecnologia absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <div id="ac-list" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-[#E5E7EB] rounded-md shadow-dms-md max-h-60 overflow-y-auto z-30"></div>
+      <!-- ============ STEP 2: ITENS ============ -->
+      <div id="step-2" class="hidden space-y-4">
+
+        <!-- Modo COMPLETA — buckets agrupados -->
+        <div id="step2-completa">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h4 class="text-sm font-bold text-dms-mar">Buckets a delegar (cobertura completa)</h4>
+              <p class="text-[11px] text-dms-tecnologia">Todas as 23 permissões serão delegadas, agrupadas por módulo. Você atribui um delegado por bucket no próximo passo.</p>
+            </div>
+            <span class="badge badge-real">100% pré-selecionado</span>
+          </div>
+          <div id="buckets-render"></div>
         </div>
-        <p class="text-[11px] text-dms-tecnologia mt-1">Você não pode delegar a si mesmo. <!-- TBD: permitir delegação para múltiplos delegados em batch? Atual = 1:1. --></p>
+
+        <!-- Modo PARCIAL — checklist flat -->
+        <div id="step2-parcial" class="hidden">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h4 class="text-sm font-bold text-dms-mar">Escolha quais permissões delegar</h4>
+              <p class="text-[11px] text-dms-tecnologia">Lista mostra as 23 permissões que você possui. Marque uma ou mais. <span id="parcial-count" class="font-semibold text-dms-mar">0 selecionada(s)</span></p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="marcarTodasParcial(true)" class="text-[11px] font-semibold text-dms-ceu hover:underline">Marcar todas</button>
+              <span class="text-dms-tecnologia">·</span>
+              <button onclick="marcarTodasParcial(false)" class="text-[11px] font-semibold text-dms-tecnologia hover:text-dms-mar">Desmarcar todas</button>
+            </div>
+          </div>
+          <div id="parcial-list" class="border border-[#E5E7EB] rounded-md p-3 max-h-[420px] overflow-y-auto"></div>
+        </div>
       </div>
 
-      <!-- Permissões a delegar -->
-      <div>
-        <label class="caption text-dms-tecnologia mb-1.5 block">Permissão(ões) a delegar <span class="text-[#B91C1C]">*</span></label>
-        <p class="text-[11px] text-dms-tecnologia mb-2">Lista mostra apenas permissões que <strong>você atualmente possui</strong>. Marque uma ou mais.</p>
-        <div class="flex flex-wrap gap-2" id="chip-list">
-          <span class="chip-perm" onclick="this.classList.toggle('selected')">workflow.create_draft <span class="x">✕</span></span>
-          <span class="chip-perm" onclick="this.classList.toggle('selected')">workflow.edit_draft <span class="x">✕</span></span>
-          <span class="chip-perm selected" onclick="this.classList.toggle('selected')">workflow.publish <span class="x">✕</span></span>
-          <span class="chip-perm" onclick="this.classList.toggle('selected')">workflow.clone <span class="x">✕</span></span>
-          <span class="chip-perm" onclick="this.classList.toggle('selected')">stage.edit <span class="x">✕</span></span>
-          <span class="chip-perm" onclick="this.classList.toggle('selected')">procedure.edit <span class="x">✕</span></span>
-          <span class="chip-perm" onclick="this.classList.toggle('selected')">tag.sync <span class="x">✕</span></span>
-          <span class="chip-perm" onclick="this.classList.toggle('selected')">cotacao.approve <span class="x">✕</span></span>
-          <span class="chip-perm" onclick="this.classList.toggle('selected')">requisition.approve <span class="x">✕</span></span>
-          <!-- TBD: backend retorna lista dinâmica via GET /me/grantable-permissions. UI aqui é mock. -->
-        </div>
-      </div>
+      <!-- ============ STEP 3: DELEGADOS + PERÍODO ============ -->
+      <div id="step-3" class="hidden space-y-4">
 
-      <!-- Datas -->
-      <div class="grid grid-cols-2 gap-3">
+        <!-- Datas + motivo -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="caption text-dms-tecnologia mb-1.5 block">Início <span class="text-[#B91C1C]">*</span></label>
+            <input id="nv-inicio" type="date" value="2026-06-10" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          </div>
+          <div>
+            <label class="caption text-dms-tecnologia mb-1.5 block">Fim <span class="text-[#B91C1C]">*</span></label>
+            <input id="nv-fim" type="date" value="2026-06-25" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          </div>
+        </div>
         <div>
-          <label class="caption text-dms-tecnologia mb-1.5 block">Início <span class="text-[#B91C1C]">*</span></label>
-          <input id="nv-inicio" type="date" value="2026-06-02" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          <label class="caption text-dms-tecnologia mb-1.5 block">Motivo da ausência <span class="text-[#B91C1C]">*</span></label>
+          <textarea id="nv-motivo" rows="2" placeholder="ex: Férias 10-25/jun." class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none focus:outline-none focus:border-dms-ceu">Férias programadas de 10 a 25 de junho — cobertura distribuída por módulo.</textarea>
         </div>
+
+        <hr class="border-[#E5E7EB]">
+
+        <!-- Atribuição de delegados -->
         <div>
-          <label class="caption text-dms-tecnologia mb-1.5 block">Fim <span class="text-[#B91C1C]">*</span></label>
-          <input id="nv-fim" type="date" value="2026-06-15" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          <h4 class="text-sm font-bold text-dms-mar mb-1">Atribuir delegado(s)</h4>
+          <p class="text-[11px] text-dms-tecnologia mb-3">
+            <strong>Sugestões automáticas</strong> ordenadas por cargo similar ao seu (Gerente de Compras). Use a busca para escolher outros usuários.
+            <!-- TBD v2: ranking real depende de DP #30 Estrutura Organizacional (backend Cargos). Mock heurístico aqui. -->
+          </p>
+          <div id="assign-render"></div>
         </div>
-      </div>
-      <div class="text-[11px] text-dms-tecnologia -mt-2">
-        Início ≥ hoje. Fim &gt; início. <!-- TBD: permitir delegação indefinida (sem fim)? Compliance pediu sempre exigir data fim. -->
-      </div>
 
-      <!-- Motivo -->
-      <div>
-        <label class="caption text-dms-tecnologia mb-1.5 block">Motivo da ausência <span class="text-[#B91C1C]">*</span></label>
-        <textarea id="nv-motivo" rows="3" placeholder="ex: Ausência por férias de 10 a 25 de junho — cobertura de aprovações de workflow." class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20"></textarea>
-        <p class="text-[11px] text-dms-tecnologia mt-1">Aparece no audit trail e na notificação para o delegado. Min. 10 caracteres.</p>
-      </div>
+        <!-- Summary / validation -->
+        <div id="step3-summary" class="bg-[#F1F4F7] border border-[#E5E7EB] rounded-md p-3 text-[12px]"></div>
 
-      <!-- Notificações -->
-      <div class="bg-[#F1F4F7] rounded-md p-3 border border-[#E5E7EB]">
-        <div class="caption text-dms-tecnologia mb-2">Ao confirmar, o sistema:</div>
-        <ul class="text-[12px] text-dms-tecnologia space-y-1">
-          <li class="flex items-start gap-2"><span class="text-[#5D6E1C]">✓</span> Cria entry imutável em <span class="mono text-dms-mar">audit_log</span> (ação <span class="mono">delegation.created</span>)</li>
-          <li class="flex items-start gap-2"><span class="text-[#5D6E1C]">✓</span> Notifica o delegado por email + cockpit</li>
-          <li class="flex items-start gap-2"><span class="text-[#5D6E1C]">✓</span> Ativa a permissão na data de início (se futura) ou imediatamente</li>
-          <li class="flex items-start gap-2"><span class="text-[#5D6E1C]">✓</span> Auto-revoga no fim do período ou se sua role original mudar (cascata_role)</li>
-        </ul>
-      </div>
-
-      <div class="bg-amber-50 border border-amber-200 rounded p-2.5 text-[11px] text-amber-800">
-        ⚠️ Mock visual — produção valida via <span class="mono">require_permission('delegation.create')</span> + checagem de ownership.
       </div>
 
     </div>
 
-    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2 sticky bottom-0 bg-white">
-      <button onclick="fecharModalNova()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Cancelar</button>
-      <button onclick="confirmarNovaDeleg()" class="text-sm font-semibold text-white px-4 py-2 bg-dms-mar rounded hover:bg-dms-confianca">Criar delegação</button>
+    <!-- Footer fixo -->
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-between gap-2 flex-shrink-0 bg-white">
+      <button id="btn-voltar" onclick="wizardVoltar()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded hidden">← Voltar</button>
+      <div class="text-[11px] text-dms-tecnologia" id="wz-hint">Escolha o tipo da cobertura para continuar.</div>
+      <div class="flex gap-2 ml-auto">
+        <button onclick="fecharModalNova()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Cancelar</button>
+        <button id="btn-avancar" onclick="wizardAvancar()" class="text-sm font-semibold text-white px-4 py-2 bg-dms-mar rounded hover:bg-dms-confianca">Avançar →</button>
+        <button id="btn-confirmar" onclick="confirmarNovaDeleg()" class="text-sm font-semibold text-white px-4 py-2 bg-[#5D6E1C] rounded hover:bg-[#4A580F] hidden">✓ Criar delegação</button>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ===== MODAL: HISTÓRICO / DETALHES ===== -->
+<!-- ============================================================================
+     MODAL: HISTÓRICO (com distribuição multi-delegado)
+     ============================================================================ -->
 <div id="modal-historico" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,27,76,0.55);">
   <div class="bg-white rounded-lg shadow-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto">
     <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
@@ -535,21 +622,28 @@ tailwind.config = {
 
       <div class="grid grid-cols-2 gap-3 text-xs">
         <div class="bg-[#F1F4F7] rounded p-2.5">
-          <div class="caption text-dms-tecnologia mb-1">Delegante → Delegado</div>
-          <div id="hist-pair" class="text-dms-mar font-semibold">—</div>
+          <div class="caption text-dms-tecnologia mb-1">Delegante</div>
+          <div id="hist-delegante" class="text-dms-mar font-semibold">—</div>
         </div>
         <div class="bg-[#F1F4F7] rounded p-2.5">
-          <div class="caption text-dms-tecnologia mb-1">Permissão</div>
-          <div id="hist-perm" class="mono text-dms-mar font-semibold">—</div>
+          <div class="caption text-dms-tecnologia mb-1">Tipo</div>
+          <div id="hist-tipo">—</div>
         </div>
         <div class="bg-[#F1F4F7] rounded p-2.5">
           <div class="caption text-dms-tecnologia mb-1">Janela</div>
           <div id="hist-window" class="mono text-dms-mar font-semibold">—</div>
         </div>
         <div class="bg-[#F1F4F7] rounded p-2.5">
-          <div class="caption text-dms-tecnologia mb-1">Status atual</div>
+          <div class="caption text-dms-tecnologia mb-1">Status</div>
           <div id="hist-status">—</div>
         </div>
+      </div>
+
+      <!-- Distribuição multi-delegado (NOVO v2) -->
+      <div id="hist-dist-block">
+        <div class="caption text-dms-tecnologia mb-2">Distribuição</div>
+        <div id="hist-dist"></div>
+        <div id="hist-dist-total" class="text-[11px] text-dms-tecnologia mt-1.5"></div>
       </div>
 
       <div>
@@ -558,8 +652,7 @@ tailwind.config = {
       </div>
 
       <div class="text-[11px] text-dms-tecnologia border-t border-[#F1F4F7] pt-3">
-        Eventos completos em <a href="tela13-audit-trail.html?filter=delegation" class="text-dms-ceu underline">Audit Trail → filtro "delegation"</a>.
-        Hash do log: <span class="mono">sha256:b9e2…</span>
+        Eventos completos em <a href="tela13-audit-trail.html?filter=delegation" class="text-dms-ceu underline">Audit Trail</a>. Hash: <span class="mono">sha256:b9e2…</span>
       </div>
 
     </div>
@@ -570,7 +663,7 @@ tailwind.config = {
   </div>
 </div>
 
-<!-- ===== MODAL: REVOGAR / RENUNCIAR ===== -->
+<!-- MODAL REVOGAR -->
 <div id="modal-revogar" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,27,76,0.55);">
   <div class="bg-white rounded-lg shadow-2xl max-w-md w-full">
     <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3 bg-[#FEF2F2]">
@@ -581,13 +674,11 @@ tailwind.config = {
       </div>
     </div>
     <div class="p-6 space-y-3 text-sm">
-      <p class="text-[13px] text-[#1A1A1A]">
-        A delegação será encerrada <strong>imediatamente</strong>. O delegado perde a permissão e recebe notificação. Esta ação é <strong>imutável</strong> no audit trail.
-      </p>
+      <p class="text-[13px]">A delegação será encerrada <strong>imediatamente</strong>. Delegado(s) perde(m) a permissão e recebe(m) notificação. Ação imutável no audit trail.</p>
+      <div id="rev-multi-warn" class="hidden bg-amber-50 border border-amber-200 rounded p-2.5 text-[11.5px] text-[#854D0E]"></div>
       <div>
         <label class="caption text-dms-tecnologia mb-1.5 block">Motivo da revogação <span class="text-[#B91C1C]">*</span></label>
         <textarea id="rev-motivo" rows="3" placeholder="ex: Retornei das férias antes do previsto." class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
-        <!-- TBD: motivo de revogação obrigatório? Compliance pediu sim; UX pode achar fricção. -->
       </div>
     </div>
     <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
@@ -598,160 +689,225 @@ tailwind.config = {
 </div>
 
 <script>
-// ============ DADOS MOCK ============
-// 9 delegações onde Fernando Arruda é delegante.
+// ============================================================================
+// DADOS MOCK
+// ============================================================================
+
+// 23 permissões do delegante (Fernando Arruda, Gerente de Compras)
+// organizadas em 4 buckets/módulos
+const MEU_CATALOGO = {
+  compras:  { label: 'Compras',   pill: 'mod-compras',  perms: ['cotacao.approve','cotacao.create','cotacao.edit','requisition.approve','requisition.create','pedido.create','pedido.approve','contrato.view'] },
+  cap:      { label: 'CAP',       pill: 'mod-cap',      perms: ['nf.aprovar','nf.lancar','nf.cancelar','cap.view','cap.report'] },
+  aprov:    { label: 'Aprovação', pill: 'mod-aprov',    perms: ['workflow.approve_publication','workflow.publish','workflow.deprecate','alcada.consume'] },
+  cadastro: { label: 'Cadastros', pill: 'mod-cadastro', perms: ['tag.create','tag.edit','tag.sync','supplier.edit','supplier.create','contact.edit'] },
+};
+// total = 8+5+4+6 = 23 ✓
+
+// Cargo do delegante (mock)
+const MEU_CARGO = 'Gerente de Compras';
+const MINHA_AREA = 'compras';
+
+// Usuários da tenant — cada um com cargo + área
+const USUARIOS_TENANT = [
+  { nome: 'Mariana Costa',    email: 'mariana.costa@dmslog.com',    cargo: 'Analista de Compras Sr',   area: 'compras',  av: 'av-2', initials: 'MC' },
+  { nome: 'Felipe Souza',     email: 'felipe.souza@dmslog.com',     cargo: 'Coordenador de Compras',   area: 'compras',  av: 'av-3', initials: 'FS' },
+  { nome: 'Marcos Carvalho',  email: 'marcos.carvalho@dmslog.com',  cargo: 'Gerente de Compras Regional', area: 'compras', av: 'av-3', initials: 'MC' },
+  { nome: 'Rafael Lima',      email: 'rafael.lima@dmslog.com',      cargo: 'Coordenador de Compras',   area: 'compras',  av: 'av-4', initials: 'RL' },
+  { nome: 'Fernanda Dias',    email: 'fernanda.dias@dmslog.com',    cargo: 'Analista de Compras',      area: 'compras',  av: 'av-5', initials: 'FD' },
+  { nome: 'Bruno Almeida',    email: 'bruno.almeida@dmslog.com',    cargo: 'Comprador Júnior',         area: 'compras',  av: 'av-1', initials: 'BA' },
+  // CAP
+  { nome: 'Juliana Pereira',  email: 'juliana.pereira@dmslog.com',  cargo: 'Analista CAP',             area: 'cap',      av: 'av-3', initials: 'JP' },
+  { nome: 'Roberto Oliveira', email: 'roberto.oliveira@dmslog.com', cargo: 'Coordenador CAP',          area: 'cap',      av: 'av-3', initials: 'RO' },
+  // Aprovação
+  { nome: 'Patrícia Santos',  email: 'patricia.santos@dmslog.com',  cargo: 'Gerente de Aprovação',     area: 'aprov',    av: 'av-6', initials: 'PS' },
+  { nome: 'Lucas Ferreira',   email: 'lucas.ferreira@dmslog.com',   cargo: 'Aprovador Gerente',        area: 'aprov',    av: 'av-1', initials: 'LF' },
+  { nome: 'Camila Rocha',     email: 'camila.rocha@dmslog.com',     cargo: 'Aprovador Pleno',          area: 'aprov',    av: 'av-5', initials: 'CR' },
+  { nome: 'Carlos Mendes',    email: 'carlos.mendes@dmslog.com',    cargo: 'Diretor de Aprovação',     area: 'aprov',    av: 'av-4', initials: 'CM' },
+  // Cadastros
+  { nome: 'Gustavo Nunes',    email: 'gustavo.nunes@dmslog.com',    cargo: 'Coordenador de Cadastros', area: 'cadastro', av: 'av-2', initials: 'GN' },
+  // Admin / outros
+  { nome: 'Beatriz Pinto',    email: 'beatriz.pinto@dmslog.com',    cargo: 'Diretora Admin',           area: 'admin',    av: 'av-4', initials: 'BP' },
+  { nome: 'Ana Beatriz',      email: 'ana.beatriz@dmslog.com',      cargo: 'Admin Sistemas',           area: 'admin',    av: 'av-2', initials: 'AB' },
+  { nome: 'Pedro Alves',      email: 'pedro.alves@dmslog.com',      cargo: 'Diretor de Aprovação',     area: 'aprov',    av: 'av-1', initials: 'PA' },
+];
+
+// Heurística de cargo similar (mock — DP #30 vai trazer real)
+function rankUsuariosParaBucket(bucketArea) {
+  // ordena: mesmo cargo > mesma área > outras
+  return USUARIOS_TENANT.map(u => {
+    let score = 0;
+    let badge = 'badge-outra';
+    let badgeTxt = 'outra área';
+    if (u.cargo === MEU_CARGO) { score = 100; badge = 'badge-sim-cargo'; badgeTxt = 'mesmo cargo'; }
+    else if (u.area === MINHA_AREA && u.cargo.toLowerCase().includes('gerente')) { score = 90; badge = 'badge-sim-cargo'; badgeTxt = 'cargo similar'; }
+    else if (u.area === MINHA_AREA && u.cargo.toLowerCase().includes('coordenador')) { score = 80; badge = 'badge-sim-cargo'; badgeTxt = 'cargo similar'; }
+    else if (u.area === bucketArea) { score = 70; badge = 'badge-sim-area'; badgeTxt = 'mesma área'; }
+    else if (u.area === MINHA_AREA) { score = 50; badge = 'badge-sim-area'; badgeTxt = 'área do delegante'; }
+    return { ...u, score, badge, badgeTxt };
+  }).sort((a, b) => b.score - a.score);
+}
+
+// ============================================================================
+// DELEGAÇÕES MOCK (incluindo COMPLETAS multi-delegado)
+// ============================================================================
 const DELEGACOES = [
+  // 1. COMPLETA agendada com distribuição multi-delegado (caso destaque do brief)
   {
-    id: 'dl-001',
-    delegante: { nome: 'Fernando Arruda', role: 'cmpAdm', av: 'av-me', initials: 'FA', isMe: true },
-    delegado:  { nome: 'Mariana Costa',   role: 'cmpOp',  av: 'av-2',  initials: 'MC' },
-    permissao: 'workflow.publish', permModulo: 'workflow',
+    id: 'dl-c01',
+    tipo: 'completa',
+    delegante: { nome: 'Fernando Arruda', cargo: 'Gerente de Compras', av: 'av-me', initials: 'FA', isMe: true },
+    distribuicao: [
+      { bucket: 'compras',  bucketLabel: 'Compras',   pillCls: 'mod-compras',  qtd: 8, delegado: { nome: 'Felipe Souza',    cargo: 'Coordenador de Compras', av: 'av-3', initials: 'FS' } },
+      { bucket: 'cap',      bucketLabel: 'CAP',       pillCls: 'mod-cap',      qtd: 5, delegado: { nome: 'Roberto Oliveira', cargo: 'Coordenador CAP',        av: 'av-3', initials: 'RO' } },
+      { bucket: 'aprov',    bucketLabel: 'Aprovação', pillCls: 'mod-aprov',    qtd: 4, delegado: { nome: 'Lucas Ferreira',   cargo: 'Aprovador Gerente',      av: 'av-1', initials: 'LF' } },
+      { bucket: 'cadastro', bucketLabel: 'Cadastros', pillCls: 'mod-cadastro', qtd: 6, delegado: { nome: 'Gustavo Nunes',    cargo: 'Coordenador de Cadastros', av: 'av-2', initials: 'GN' } },
+    ],
+    inicio: '10/06/26', fim: '25/06/26',
+    motivo: 'Férias programadas de 10 a 25 de junho — cobertura completa distribuída por módulo.',
+    status: 'agendada', diasRest: null,
+    cronologia: [{ tipo: 'created', ts: '02/06/26 09:15', autor: 'Fernando Arruda', desc: 'Delegação Completa criada (4 buckets / 4 delegados / 23 perms).' }],
+  },
+  // 2. PARCIAL ativa — 1 perm, 1 delegado
+  {
+    id: 'dl-p01',
+    tipo: 'parcial',
+    delegante: { nome: 'Fernando Arruda', cargo: 'Gerente de Compras', av: 'av-me', initials: 'FA', isMe: true },
+    distribuicao: [{ bucket: 'compras', bucketLabel: 'Compras', pillCls: 'mod-compras', qtd: 1, perm: 'cotacao.approve', delegado: { nome: 'Mariana Costa', cargo: 'Analista de Compras Sr', av: 'av-2', initials: 'MC' } }],
     inicio: '02/06/26', fim: '15/06/26',
-    motivo: 'Ausência por férias de 10 a 25 de junho — cobertura de aprovações de workflow do squad Cotação.',
+    motivo: 'Cobertura semana de offsite — Mariana aprova cotações rotineiras.',
     status: 'ativa', diasRest: 13,
     cronologia: [
-      { tipo: 'created',   ts: '01/06/26 16:42', autor: 'Fernando Arruda', desc: 'Delegação criada.' },
-      { tipo: 'activated', ts: '02/06/26 00:00', autor: 'system',          desc: 'Janela de validade iniciou — permissão ativa para Mariana.' },
+      { tipo: 'created',   ts: '01/06/26 16:42', autor: 'Fernando Arruda', desc: 'Delegação Parcial criada (1 perm → Mariana Costa).' },
+      { tipo: 'activated', ts: '02/06/26 00:00', autor: 'system',          desc: 'Permissão ativada.' },
     ],
   },
+  // 3. PARCIAL ativa — 3 perms, distribuídas em 2 pessoas
   {
-    id: 'dl-002',
-    delegante: { nome: 'Fernando Arruda', role: 'cmpAdm', av: 'av-me', initials: 'FA', isMe: true },
-    delegado:  { nome: 'Felipe Souza',    role: 'cmpAdm', av: 'av-3',  initials: 'FS' },
-    permissao: 'cotacao.approve', permModulo: 'compras',
+    id: 'dl-p02',
+    tipo: 'parcial',
+    delegante: { nome: 'Fernando Arruda', cargo: 'Gerente de Compras', av: 'av-me', initials: 'FA', isMe: true },
+    distribuicao: [
+      { bucket: 'workflow', bucketLabel: 'Workflow', pillCls: 'mod-workflow', qtd: 2, delegado: { nome: 'Fernanda Dias', cargo: 'Analista de Compras', av: 'av-5', initials: 'FD' } },
+      { bucket: 'cadastro', bucketLabel: 'Cadastros', pillCls: 'mod-cadastro', qtd: 1, perm: 'tag.sync', delegado: { nome: 'Marcos Carvalho', cargo: 'Gerente de Compras Regional', av: 'av-3', initials: 'MC' } },
+    ],
+    inicio: '28/05/26', fim: '20/06/26',
+    motivo: 'Licença paternidade — Fernanda edita drafts de workflow e Marcos coordena sync de tags.',
+    status: 'ativa', diasRest: 18,
+    cronologia: [
+      { tipo: 'created',   ts: '27/05/26 10:00', autor: 'Fernando Arruda', desc: 'Delegação Parcial criada (3 perms / 2 delegados).' },
+      { tipo: 'activated', ts: '28/05/26 00:00', autor: 'system',          desc: 'Permissões ativadas.' },
+    ],
+  },
+  // 4. PARCIAL ativa — 1 perm grande aprovação
+  {
+    id: 'dl-p03',
+    tipo: 'parcial',
+    delegante: { nome: 'Fernando Arruda', cargo: 'Gerente de Compras', av: 'av-me', initials: 'FA', isMe: true },
+    distribuicao: [{ bucket: 'aprov', bucketLabel: 'Aprovação', pillCls: 'mod-aprov', qtd: 1, perm: 'workflow.approve_publication', delegado: { nome: 'Patrícia Santos', cargo: 'Gerente de Aprovação', av: 'av-6', initials: 'PS' } }],
     inicio: '01/06/26', fim: '07/06/26',
-    motivo: 'Cobertura de fim de semana — feriado prolongado de Corpus Christi.',
+    motivo: 'Feriado prolongado Corpus Christi — Patrícia cobre aprovações de publicação.',
     status: 'ativa', diasRest: 5,
     cronologia: [
-      { tipo: 'created',   ts: '30/05/26 14:11', autor: 'Fernando Arruda', desc: 'Delegação criada.' },
+      { tipo: 'created',   ts: '30/05/26 14:11', autor: 'Fernando Arruda', desc: 'Delegação Parcial criada.' },
       { tipo: 'activated', ts: '01/06/26 00:00', autor: 'system',          desc: 'Permissão ativada.' },
     ],
   },
+  // 5. PARCIAL agendada — 1 perm
   {
-    id: 'dl-003',
-    delegante: { nome: 'Fernando Arruda', role: 'cmpAdm', av: 'av-me', initials: 'FA', isMe: true },
-    delegado:  { nome: 'Fernanda Dias',   role: 'cmpOp',  av: 'av-5',  initials: 'FD' },
-    permissao: 'workflow.edit_draft', permModulo: 'workflow',
-    inicio: '25/05/26', fim: '05/06/26',
-    motivo: 'Sprint extra de revisão dos templates da matriz CAP — Fernanda assume edição enquanto reviso.',
-    status: 'ativa', diasRest: 3,
-    cronologia: [
-      { tipo: 'created',   ts: '24/05/26 09:30', autor: 'Fernando Arruda', desc: 'Delegação criada.' },
-      { tipo: 'activated', ts: '25/05/26 00:00', autor: 'system',          desc: 'Permissão ativada.' },
-    ],
-  },
-  {
-    id: 'dl-004',
-    delegante: { nome: 'Fernando Arruda', role: 'aprGer', av: 'av-me', initials: 'FA', isMe: true },
-    delegado:  { nome: 'Lucas Ferreira',  role: 'aprGer', av: 'av-1',  initials: 'LF' },
-    permissao: 'requisition.approve', permModulo: 'compras',
+    id: 'dl-p04',
+    tipo: 'parcial',
+    delegante: { nome: 'Fernando Arruda', cargo: 'Gerente de Compras', av: 'av-me', initials: 'FA', isMe: true },
+    distribuicao: [{ bucket: 'compras', bucketLabel: 'Compras', pillCls: 'mod-compras', qtd: 1, perm: 'requisition.approve', delegado: { nome: 'Lucas Ferreira', cargo: 'Aprovador Gerente', av: 'av-1', initials: 'LF' } }],
     inicio: '03/06/26', fim: '17/06/26',
     motivo: 'Viagem técnica DMSLog Curitiba — Lucas aprova requisições rotineiras nesse período.',
     status: 'agendada', diasRest: null,
+    cronologia: [{ tipo: 'created', ts: '01/06/26 11:20', autor: 'Fernando Arruda', desc: 'Delegação Parcial criada (início em 03/06).' }],
+  },
+  // 6. COMPLETA ativa — 1 delegado pra tudo (caso simples)
+  {
+    id: 'dl-c02',
+    tipo: 'completa',
+    delegante: { nome: 'Fernando Arruda', cargo: 'Gerente de Compras', av: 'av-me', initials: 'FA', isMe: true },
+    distribuicao: [
+      { bucket: 'compras',  bucketLabel: 'Compras',   pillCls: 'mod-compras',  qtd: 8, delegado: { nome: 'Marcos Carvalho', cargo: 'Gerente de Compras Regional', av: 'av-3', initials: 'MC' } },
+      { bucket: 'cap',      bucketLabel: 'CAP',       pillCls: 'mod-cap',      qtd: 5, delegado: { nome: 'Marcos Carvalho', cargo: 'Gerente de Compras Regional', av: 'av-3', initials: 'MC' } },
+      { bucket: 'aprov',    bucketLabel: 'Aprovação', pillCls: 'mod-aprov',    qtd: 4, delegado: { nome: 'Marcos Carvalho', cargo: 'Gerente de Compras Regional', av: 'av-3', initials: 'MC' } },
+      { bucket: 'cadastro', bucketLabel: 'Cadastros', pillCls: 'mod-cadastro', qtd: 6, delegado: { nome: 'Marcos Carvalho', cargo: 'Gerente de Compras Regional', av: 'av-3', initials: 'MC' } },
+    ],
+    inicio: '25/05/26', fim: '05/06/26',
+    motivo: 'Sprint de transição — Marcos assume integral por 10 dias enquanto resolvo migração de sistemas.',
+    status: 'ativa', diasRest: 3,
     cronologia: [
-      { tipo: 'created', ts: '01/06/26 11:20', autor: 'Fernando Arruda', desc: 'Delegação criada (início em 03/06).' },
+      { tipo: 'created',   ts: '24/05/26 09:30', autor: 'Fernando Arruda', desc: 'Delegação Completa criada (4 buckets → 1 delegado).' },
+      { tipo: 'activated', ts: '25/05/26 00:00', autor: 'system',          desc: 'Permissões ativadas.' },
     ],
   },
+  // 7. PARCIAL expirada
   {
-    id: 'dl-005',
-    delegante: { nome: 'Fernando Arruda', role: 'aprGer', av: 'av-me', initials: 'FA', isMe: true },
-    delegado:  { nome: 'Patrícia Santos', role: 'aprGer', av: 'av-6',  initials: 'PS' },
-    permissao: 'workflow.approve_publication', permModulo: 'workflow',
-    inicio: '10/06/26', fim: '25/06/26',
-    motivo: 'Viagem internacional cliente — Patrícia cobre aprovações de publicação do builder.',
-    status: 'agendada', diasRest: null,
-    cronologia: [
-      { tipo: 'created', ts: '02/06/26 08:14', autor: 'Fernando Arruda', desc: 'Delegação criada (início em 10/06).' },
-    ],
-  },
-  {
-    id: 'dl-006',
-    delegante: { nome: 'Fernando Arruda', role: 'cmpAdm', av: 'av-me', initials: 'FA', isMe: true },
-    delegado:  { nome: 'Rafael Lima',     role: 'cmpAdm', av: 'av-4',  initials: 'RL' },
-    permissao: 'tag.sync', permModulo: 'cadastro',
+    id: 'dl-p05',
+    tipo: 'parcial',
+    delegante: { nome: 'Fernando Arruda', cargo: 'Gerente de Compras', av: 'av-me', initials: 'FA', isMe: true },
+    distribuicao: [{ bucket: 'cadastro', bucketLabel: 'Cadastros', pillCls: 'mod-cadastro', qtd: 1, perm: 'tag.sync', delegado: { nome: 'Rafael Lima', cargo: 'Coordenador de Compras', av: 'av-4', initials: 'RL' } }],
     inicio: '20/05/26', fim: '01/06/26',
     motivo: 'Migração de tags do schema legacy → V2 enquanto coordeno reunião com TI.',
     status: 'expirada', diasRest: null,
     cronologia: [
-      { tipo: 'created',   ts: '19/05/26 17:05', autor: 'Fernando Arruda', desc: 'Delegação criada.' },
+      { tipo: 'created',   ts: '19/05/26 17:05', autor: 'Fernando Arruda', desc: 'Delegação Parcial criada.' },
       { tipo: 'activated', ts: '20/05/26 00:00', autor: 'system',          desc: 'Permissão ativada.' },
-      { tipo: 'expired',   ts: '02/06/26 00:00', autor: 'system',          desc: 'Janela encerrou — permissão retirada automaticamente.' },
+      { tipo: 'expired',   ts: '02/06/26 00:00', autor: 'system',          desc: 'Janela encerrou.' },
     ],
   },
+  // 8. PARCIAL expirada
   {
-    id: 'dl-007',
-    delegante: { nome: 'Fernando Arruda', role: 'cmpAdm', av: 'av-me', initials: 'FA', isMe: true },
-    delegado:  { nome: 'Gustavo Nunes',   role: 'cmpAdm', av: 'av-2',  initials: 'GN' },
-    permissao: 'role.manage', permModulo: 'admin',
+    id: 'dl-p06',
+    tipo: 'parcial',
+    delegante: { nome: 'Fernando Arruda', cargo: 'Gerente de Compras', av: 'av-me', initials: 'FA', isMe: true },
+    distribuicao: [{ bucket: 'admin', bucketLabel: 'Admin', pillCls: 'mod-admin', qtd: 1, perm: 'role.manage', delegado: { nome: 'Gustavo Nunes', cargo: 'Coordenador de Cadastros', av: 'av-2', initials: 'GN' } }],
     inicio: '10/05/26', fim: '24/05/26',
     motivo: 'Cobertura admin — férias e Gustavo precisou ajustar permissões do squad CAP.',
     status: 'expirada', diasRest: null,
     cronologia: [
-      { tipo: 'created',   ts: '08/05/26 13:50', autor: 'Fernando Arruda', desc: 'Delegação criada.' },
+      { tipo: 'created',   ts: '08/05/26 13:50', autor: 'Fernando Arruda', desc: 'Delegação Parcial criada.' },
       { tipo: 'activated', ts: '10/05/26 00:00', autor: 'system',          desc: 'Permissão ativada.' },
       { tipo: 'expired',   ts: '25/05/26 00:00', autor: 'system',          desc: 'Janela encerrou.' },
     ],
   },
+  // 9. PARCIAL revogada
   {
-    id: 'dl-008',
-    delegante: { nome: 'Fernando Arruda', role: 'capAdm', av: 'av-me', initials: 'FA', isMe: true },
-    delegado:  { nome: 'Juliana Pereira', role: 'capOp',  av: 'av-3',  initials: 'JP' },
-    permissao: 'nf.aprovar', permModulo: 'compras',
+    id: 'dl-p07',
+    tipo: 'parcial',
+    delegante: { nome: 'Fernando Arruda', cargo: 'Gerente de Compras', av: 'av-me', initials: 'FA', isMe: true },
+    distribuicao: [{ bucket: 'cap', bucketLabel: 'CAP', pillCls: 'mod-cap', qtd: 1, perm: 'nf.aprovar', delegado: { nome: 'Juliana Pereira', cargo: 'Analista CAP', av: 'av-3', initials: 'JP' } }],
     inicio: '15/05/26', fim: '30/05/26',
-    motivo: 'Treinamento técnico Juliana — aprovação de NF nos pedidos da matriz logística enquanto eu participo do workshop.',
+    motivo: 'Treinamento técnico Juliana — aprovação de NF nos pedidos da matriz logística.',
     status: 'revogada', diasRest: null,
-    revogadoPor: 'Fernando Arruda',
-    revogadoEm: '22/05/26 10:30',
-    revogadoMotivo: 'Juliana foi alocada em outro projeto antes do fim do treinamento; permissão não era mais necessária.',
+    revogadoPor: 'Fernando Arruda', revogadoEm: '22/05/26 10:30',
+    revogadoMotivo: 'Juliana foi alocada em outro projeto antes do fim do treinamento.',
     cronologia: [
-      { tipo: 'created',   ts: '14/05/26 09:00', autor: 'Fernando Arruda', desc: 'Delegação criada.' },
+      { tipo: 'created',   ts: '14/05/26 09:00', autor: 'Fernando Arruda', desc: 'Delegação Parcial criada.' },
       { tipo: 'activated', ts: '15/05/26 00:00', autor: 'system',          desc: 'Permissão ativada.' },
-      { tipo: 'revoked',   ts: '22/05/26 10:30', autor: 'Fernando Arruda', desc: 'Revogada manualmente. Motivo: "Juliana foi alocada em outro projeto antes do fim do treinamento."' },
+      { tipo: 'revoked',   ts: '22/05/26 10:30', autor: 'Fernando Arruda', desc: 'Revogada manualmente.' },
     ],
   },
-  // 9ª — exemplo ativa com motivo bem realista
+  // 10. COMPLETA ativa — pequena distribuição (2 buckets)
   {
-    id: 'dl-009',
-    delegante: { nome: 'Fernando Arruda', role: 'cmpAdm', av: 'av-me', initials: 'FA', isMe: true },
-    delegado:  { nome: 'Marcos Carvalho', role: 'cmpAdm', av: 'av-3',  initials: 'MC' },
-    permissao: 'tag.sync', permModulo: 'cadastro',
-    inicio: '28/05/26', fim: '20/06/26',
-    motivo: 'Cobertura durante minha licença paternidade — Marcos coordena curadoria de tags.',
-    status: 'ativa', diasRest: 18,
+    id: 'dl-c03',
+    tipo: 'completa',
+    delegante: { nome: 'Fernando Arruda', cargo: 'Gerente de Compras', av: 'av-me', initials: 'FA', isMe: true },
+    distribuicao: [
+      { bucket: 'compras', bucketLabel: 'Compras', pillCls: 'mod-compras', qtd: 8, delegado: { nome: 'Felipe Souza',    cargo: 'Coordenador de Compras',       av: 'av-3', initials: 'FS' } },
+      { bucket: 'cap',     bucketLabel: 'CAP',     pillCls: 'mod-cap',     qtd: 5, delegado: { nome: 'Roberto Oliveira', cargo: 'Coordenador CAP',              av: 'av-3', initials: 'RO' } },
+      { bucket: 'aprov',   bucketLabel: 'Aprovação', pillCls: 'mod-aprov', qtd: 4, delegado: { nome: 'Camila Rocha',     cargo: 'Aprovador Pleno',              av: 'av-5', initials: 'CR' } },
+      { bucket: 'cadastro', bucketLabel: 'Cadastros', pillCls: 'mod-cadastro', qtd: 6, delegado: { nome: 'Gustavo Nunes', cargo: 'Coordenador de Cadastros',   av: 'av-2', initials: 'GN' } },
+    ],
+    inicio: '30/05/26', fim: '12/06/26',
+    motivo: 'Cobertura de viagem treinamento Cisco SF — distribuição por módulo conforme rotina padrão.',
+    status: 'ativa', diasRest: 10,
     cronologia: [
-      { tipo: 'created',   ts: '27/05/26 10:00', autor: 'Fernando Arruda', desc: 'Delegação criada.' },
-      { tipo: 'activated', ts: '28/05/26 00:00', autor: 'system',          desc: 'Permissão ativada.' },
+      { tipo: 'created',   ts: '29/05/26 18:00', autor: 'Fernando Arruda', desc: 'Delegação Completa criada (4 buckets / 4 delegados).' },
+      { tipo: 'activated', ts: '30/05/26 00:00', autor: 'system',          desc: 'Permissões ativadas.' },
     ],
   },
-];
-
-const MOD_LABEL = {
-  workflow: { cls: 'mod-workflow', txt: 'Workflow' },
-  compras:  { cls: 'mod-compras',  txt: 'Compras' },
-  admin:    { cls: 'mod-admin',    txt: 'Admin' },
-  cadastro: { cls: 'mod-cadastro', txt: 'Cadastros' },
-  profile:  { cls: 'mod-profile',  txt: 'Profile' },
-};
-
-const ROLE_LABEL = { admin: 'Admin Geral', cmpAdm: 'Compras Adm', cmpOp: 'Compras Op', capAdm: 'CAP Adm', capOp: 'CAP Op', aprDir: 'Aprov. Diretor', aprGer: 'Aprov. Gerente', viewer: 'Viewer' };
-
-const USUARIOS_TENANT = [
-  { nome: 'Mariana Costa',    email: 'mariana.costa@dmslog.com',    role: 'cmpOp',  av: 'av-2', initials: 'MC' },
-  { nome: 'Carlos Mendes',    email: 'carlos.mendes@dmslog.com',    role: 'aprDir', av: 'av-4', initials: 'CM' },
-  { nome: 'Patrícia Santos',  email: 'patricia.santos@dmslog.com',  role: 'aprGer', av: 'av-6', initials: 'PS' },
-  { nome: 'Rafael Lima',      email: 'rafael.lima@dmslog.com',      role: 'cmpAdm', av: 'av-4', initials: 'RL' },
-  { nome: 'Felipe Souza',     email: 'felipe.souza@dmslog.com',     role: 'cmpAdm', av: 'av-3', initials: 'FS' },
-  { nome: 'Bruno Almeida',    email: 'bruno.almeida@dmslog.com',    role: 'cmpOp',  av: 'av-1', initials: 'BA' },
-  { nome: 'Camila Rocha',     email: 'camila.rocha@dmslog.com',     role: 'aprGer', av: 'av-5', initials: 'CR' },
-  { nome: 'Lucas Ferreira',   email: 'lucas.ferreira@dmslog.com',   role: 'aprGer', av: 'av-1', initials: 'LF' },
-  { nome: 'Marcos Carvalho',  email: 'marcos.carvalho@dmslog.com',  role: 'cmpAdm', av: 'av-3', initials: 'MC' },
-  { nome: 'Fernanda Dias',    email: 'fernanda.dias@dmslog.com',    role: 'cmpOp',  av: 'av-5', initials: 'FD' },
-  { nome: 'Beatriz Pinto',    email: 'beatriz.pinto@dmslog.com',    role: 'admin',  av: 'av-4', initials: 'BP' },
-  { nome: 'Gustavo Nunes',    email: 'gustavo.nunes@dmslog.com',    role: 'cmpAdm', av: 'av-2', initials: 'GN' },
-  { nome: 'Roberto Oliveira', email: 'roberto.oliveira@dmslog.com', role: 'capAdm', av: 'av-3', initials: 'RO' },
-  { nome: 'Juliana Pereira',  email: 'juliana.pereira@dmslog.com',  role: 'capOp',  av: 'av-3', initials: 'JP' },
-  { nome: 'Ana Beatriz',      email: 'ana.beatriz@dmslog.com',      role: 'admin',  av: 'av-2', initials: 'AB' },
-  { nome: 'Pedro Alves',      email: 'pedro.alves@dmslog.com',      role: 'aprDir', av: 'av-1', initials: 'PA' },
 ];
 
 const STATUS_LABEL = {
@@ -761,61 +917,97 @@ const STATUS_LABEL = {
   revogada: { cls: 'st-revogada', dot: '#B91C1C', txt: 'Revogada' },
 };
 
-let FILTRO = { status: 'todas', search: '', perm: '', de: '2026-05-01', ate: '2026-07-31' };
+let FILTRO = { status: 'todas', tipo: 'todas', search: '', mod: '', de: '2026-05-01', ate: '2026-07-31' };
 
-// ============ RENDER TABELA ============
+// ============================================================================
+// TABELA
+// ============================================================================
 function rowHtml(d) {
   const st = STATUS_LABEL[d.status];
-  const mod = MOD_LABEL[d.permModulo] || { cls: 'mod-admin', txt: d.permModulo };
-  const janela = `<span class="mono">${d.inicio}</span> <span class="text-dms-tecnologia">→</span> <span class="mono">${d.fim}</span>`;
   const restInfo = d.status === 'ativa' && d.diasRest != null
     ? `<div class="text-[10.5px] text-[#5D6E1C] font-semibold mt-0.5">${d.diasRest} dias restantes</div>`
     : (d.status === 'agendada' ? `<div class="text-[10.5px] text-[#005290] font-semibold mt-0.5">inicia em breve</div>` : '');
+
+  // Delegado(s): se 1 só pessoa única em toda distribuição, mostra avatar dela; se multi, mostra "N delegados" + chips
+  const pessoasUnicas = Array.from(new Set(d.distribuicao.map(x => x.delegado.nome)));
+  let delegadoCell = '';
+  if (pessoasUnicas.length === 1) {
+    const u = d.distribuicao[0].delegado;
+    delegadoCell = `<div class="flex items-center gap-2">
+      <span class="avatar ${u.av}">${u.initials}</span>
+      <div>
+        <div class="text-[12.5px] font-semibold text-dms-mar leading-tight">${u.nome}</div>
+        <div class="text-[10.5px] text-dms-tecnologia">${u.cargo}</div>
+      </div>
+    </div>`;
+  } else {
+    const avatars = pessoasUnicas.slice(0, 3).map(nome => {
+      const u = d.distribuicao.find(x => x.delegado.nome === nome).delegado;
+      return `<span class="avatar ${u.av}" style="margin-left:-6px;border:2px solid #fff;" title="${u.nome}">${u.initials}</span>`;
+    }).join('');
+    const extra = pessoasUnicas.length > 3 ? `<span class="text-[10px] text-dms-tecnologia ml-2">+${pessoasUnicas.length - 3}</span>` : '';
+    delegadoCell = `<div>
+      <div class="flex items-center" style="margin-left:6px;">${avatars}${extra}</div>
+      <div class="text-[11px] text-dms-tecnologia mt-1"><strong>${pessoasUnicas.length}</strong> delegados</div>
+    </div>`;
+  }
+
+  // Escopo
+  let escopoCell = '';
+  if (d.tipo === 'completa') {
+    const totalPerms = d.distribuicao.reduce((s, x) => s + x.qtd, 0);
+    const buckets = d.distribuicao.map(x => `<span class="module-pill ${x.pillCls}">${x.bucketLabel}·${x.qtd}</span>`).join(' ');
+    escopoCell = `<div class="flex flex-col gap-1">
+      <div class="text-[12px] font-semibold text-dms-mar">${totalPerms} permissões · ${d.distribuicao.length} buckets</div>
+      <div class="flex flex-wrap gap-1">${buckets}</div>
+    </div>`;
+  } else {
+    // parcial: lista perms se ≤2, senão summary
+    const totalPerms = d.distribuicao.reduce((s, x) => s + x.qtd, 0);
+    if (totalPerms <= 2) {
+      const codes = d.distribuicao.map(x => x.perm ? `<span class="perm-code">${x.perm}</span>` : `<span class="module-pill ${x.pillCls}">${x.bucketLabel}·${x.qtd}</span>`).join(' ');
+      escopoCell = `<div class="flex flex-col gap-1">${codes}</div>`;
+    } else {
+      const buckets = d.distribuicao.map(x => `<span class="module-pill ${x.pillCls}">${x.bucketLabel}·${x.qtd}</span>`).join(' ');
+      escopoCell = `<div class="flex flex-col gap-1">
+        <div class="text-[12px] font-semibold text-dms-mar">${totalPerms} permissões</div>
+        <div class="flex flex-wrap gap-1">${buckets}</div>
+      </div>`;
+    }
+  }
+
+  const tipoCell = d.tipo === 'completa'
+    ? `<span class="tp-deleg tp-completa">🔴 Completa</span>`
+    : `<span class="tp-deleg tp-parcial">🟡 Parcial</span>`;
+
   const acoesAtiva = (d.status === 'ativa' || d.status === 'agendada')
-    ? `<button onclick="abrirRevogar('${d.id}')" class="text-[11px] font-semibold text-[#B91C1C] hover:underline" title="Revogar agora">Revogar</button>
-       <button onclick="abrirEditar('${d.id}')" class="text-[11px] font-semibold text-dms-tecnologia hover:text-dms-mar" title="Editar (estender prazo ou ajustar motivo)">Editar</button>`
+    ? `<button onclick="abrirRevogar('${d.id}')" class="text-[11px] font-semibold text-[#B91C1C] hover:underline">Revogar</button>
+       <button onclick="abrirEditar('${d.id}')" class="text-[11px] font-semibold text-dms-tecnologia hover:text-dms-mar">Editar</button>`
     : '';
 
-  return `<tr class="row-${d.status}" data-id="${d.id}" data-status="${d.status}" data-perm="${d.permissao}" data-search="${(d.delegante.nome + ' ' + d.delegado.nome + ' ' + d.permissao + ' ' + d.motivo).toLowerCase()}">
+  return `<tr class="row-${d.status}" data-id="${d.id}" data-status="${d.status}" data-tipo="${d.tipo}" data-mod="${d.distribuicao.map(x=>x.bucket).join(',')}" data-search="${(d.delegante.nome + ' ' + pessoasUnicas.join(' ') + ' ' + d.distribuicao.map(x=>x.perm||x.bucketLabel).join(' ') + ' ' + d.motivo).toLowerCase()}">
     <td>
       <div class="flex items-center gap-2">
         <span class="avatar ${d.delegante.av}">${d.delegante.initials}</span>
         <div>
           <div class="text-[12.5px] font-semibold text-dms-mar leading-tight">${d.delegante.nome}${d.delegante.isMe ? ' <span class="text-[9px] text-dms-ceu font-bold ml-0.5">(você)</span>' : ''}</div>
-          <div class="text-[10.5px] text-dms-tecnologia">${ROLE_LABEL[d.delegante.role] || d.delegante.role}</div>
+          <div class="text-[10.5px] text-dms-tecnologia">${d.delegante.cargo}</div>
         </div>
       </div>
     </td>
-    <td>
-      <div class="flex items-center gap-2">
-        <span class="avatar ${d.delegado.av}">${d.delegado.initials}</span>
-        <div>
-          <div class="text-[12.5px] font-semibold text-dms-mar leading-tight">${d.delegado.nome}</div>
-          <div class="text-[10.5px] text-dms-tecnologia">${ROLE_LABEL[d.delegado.role] || d.delegado.role}</div>
-        </div>
-      </div>
-    </td>
-    <td>
-      <div class="flex flex-col gap-1">
-        <span class="perm-code font-semibold">${d.permissao}</span>
-        <span class="module-pill ${mod.cls} self-start">${mod.txt}</span>
-      </div>
-    </td>
-    <td>
-      ${janela}
-      ${restInfo}
-    </td>
+    <td>${delegadoCell}</td>
+    <td>${escopoCell}</td>
+    <td><span class="mono">${d.inicio}</span> <span class="text-dms-tecnologia">→</span> <span class="mono">${d.fim}</span>${restInfo}</td>
     <td class="motivo-cell">
       <span class="motivo-text">${d.motivo}</span>
       <span class="tip">${d.motivo}${d.revogadoMotivo ? '<br><br><strong>Revogação:</strong> ' + d.revogadoMotivo : ''}</span>
     </td>
-    <td>
-      <span class="st-deleg ${st.cls}"><span class="st-dot" style="background:${st.dot};"></span>${st.txt}</span>
-    </td>
+    <td>${tipoCell}</td>
+    <td><span class="st-deleg ${st.cls}"><span class="st-dot" style="background:${st.dot};"></span>${st.txt}</span></td>
     <td class="col-actions text-right">
       <div class="flex items-center justify-end gap-2.5">
         ${acoesAtiva}
-        <button onclick="abrirHistorico('${d.id}')" class="text-[11px] font-semibold text-dms-ceu hover:underline" title="Ver histórico completo">Histórico</button>
+        <button onclick="abrirHistorico('${d.id}')" class="text-[11px] font-semibold text-dms-ceu hover:underline">Histórico</button>
       </div>
     </td>
   </tr>`;
@@ -829,45 +1021,26 @@ function renderTabela() {
 
 function filtrarTabela() {
   FILTRO.search = (document.getElementById('f-search').value || '').toLowerCase().trim();
-  FILTRO.perm   = document.getElementById('f-perm').value;
-  FILTRO.de     = document.getElementById('f-de').value;
-  FILTRO.ate    = document.getElementById('f-ate').value;
-
+  FILTRO.mod    = document.getElementById('f-mod').value;
   let visiveis = 0;
   document.querySelectorAll('#tbl-body tr').forEach(tr => {
     const okStatus = FILTRO.status === 'todas' || tr.dataset.status === FILTRO.status;
+    const okTipo   = FILTRO.tipo === 'todas' || tr.dataset.tipo === FILTRO.tipo;
     const okSearch = !FILTRO.search || (tr.dataset.search || '').includes(FILTRO.search);
-    let okPerm = true;
-    if (FILTRO.perm.startsWith('perm:')) okPerm = tr.dataset.perm === FILTRO.perm.slice(5);
-    const show = okStatus && okSearch && okPerm;
+    const okMod    = !FILTRO.mod || (tr.dataset.mod || '').includes(FILTRO.mod);
+    const show = okStatus && okTipo && okSearch && okMod;
     tr.style.display = show ? '' : 'none';
     if (show) visiveis++;
   });
   document.getElementById('tbl-visiveis').textContent = visiveis;
 }
+function setStatusTab(s) { FILTRO.status = s; document.querySelectorAll('.tab-pill[data-status]').forEach(b => b.classList.toggle('active', b.dataset.status === s)); filtrarTabela(); }
+function setTipoTab(t)   { FILTRO.tipo = t;   document.querySelectorAll('.tab-pill[data-tipo]').forEach(b => b.classList.toggle('active', b.dataset.tipo === t));     filtrarTabela(); }
+function filtrarPorRole(role) { setStatusTab('ativa'); toast(`Filtrando delegações afetadas pela cascata de ${role}.`); }
 
-function setStatusTab(s) {
-  FILTRO.status = s;
-  document.querySelectorAll('.tab-pill').forEach(b => b.classList.toggle('active', b.dataset.status === s));
-  filtrarTabela();
-}
-
-function limparFiltros() {
-  document.getElementById('f-search').value = '';
-  document.getElementById('f-perm').value = '';
-  document.getElementById('f-de').value = '2026-05-01';
-  document.getElementById('f-ate').value = '2026-07-31';
-  setStatusTab('todas');
-}
-
-function filtrarPorRole(role) {
-  document.getElementById('f-search').value = '';
-  document.getElementById('f-perm').value = '';
-  setStatusTab('ativa');
-  toast(`Filtrando delegações afetadas pela cascata da role ${role}.`);
-}
-
-// ============ COLLAPSE RECEBIDAS ============
+// ============================================================================
+// COLLAPSE + EMPTY DEMO
+// ============================================================================
 function toggleRecebidas() {
   const bloco = document.getElementById('bloco-recebidas');
   const ico = document.getElementById('ico-recebidas');
@@ -875,101 +1048,382 @@ function toggleRecebidas() {
   bloco.style.display = hidden ? '' : 'none';
   ico.style.transform = hidden ? 'rotate(180deg)' : 'rotate(0deg)';
 }
-
-// ============ TOGGLE ESTADO VAZIO (demo) ============
 function toggleEmptyDemo() {
   const tab = document.getElementById('bloco-tabela');
   const vaz = document.getElementById('bloco-vazio');
-  if (tab.classList.contains('hidden')) {
-    tab.classList.remove('hidden'); vaz.classList.add('hidden');
-    toast('Voltou ao estado com lista cheia.');
-  } else {
-    tab.classList.add('hidden'); vaz.classList.remove('hidden');
-    toast('Demo: estado vazio (primeira vez que o usuário acessa).');
-  }
+  if (tab.classList.contains('hidden')) { tab.classList.remove('hidden'); vaz.classList.add('hidden'); toast('Voltou pra lista cheia.'); }
+  else { tab.classList.add('hidden'); vaz.classList.remove('hidden'); toast('Demo: estado vazio.'); }
 }
 
-// ============ MODAL NOVA DELEGAÇÃO ============
+// ============================================================================
+// WIZARD (novo v2)
+// ============================================================================
+let WZ = {
+  step: 1,
+  tipo: 'completa',     // 'completa' | 'parcial'
+  selParcial: new Set(), // perm codes selecionadas (modo parcial)
+  bucketDelegado: {},   // { bucket: usuario } (modo completa)
+  itemDelegado: {},     // { permCode: usuario } (modo parcial)
+};
+
 function abrirModalNovaDeleg() {
+  WZ = { step: 1, tipo: 'completa', selParcial: new Set(), bucketDelegado: {}, itemDelegado: {} };
   const m = document.getElementById('modal-nova');
   m.classList.remove('hidden'); m.classList.add('flex');
+  wizardRender();
 }
 function fecharModalNova() {
   const m = document.getElementById('modal-nova');
   m.classList.add('hidden'); m.classList.remove('flex');
 }
-function acDelegado(e) {
-  const q = (e.target.value || '').toLowerCase().trim();
-  const list = document.getElementById('ac-list');
-  if (q.length < 2) { list.classList.add('hidden'); return; }
-  const hits = USUARIOS_TENANT.filter(u => u.nome.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
-  if (!hits.length) {
-    list.innerHTML = '<div class="px-3 py-2 text-xs text-dms-tecnologia">Nenhum usuário encontrado.</div>';
-    list.classList.remove('hidden'); return;
+
+function selecionarTipo(t) {
+  WZ.tipo = t;
+  document.getElementById('tipo-completa').classList.toggle('selected', t === 'completa');
+  document.getElementById('tipo-parcial').classList.toggle('selected', t === 'parcial');
+}
+
+function wizardRender() {
+  // steps bar
+  document.getElementById('wz-s1').className = 'wz-step ' + (WZ.step === 1 ? 'active' : (WZ.step > 1 ? 'done' : ''));
+  document.getElementById('wz-s2').className = 'wz-step ' + (WZ.step === 2 ? 'active' : (WZ.step > 2 ? 'done' : ''));
+  document.getElementById('wz-s3').className = 'wz-step ' + (WZ.step === 3 ? 'active' : '');
+
+  ['step-1','step-2','step-3'].forEach((id, i) => document.getElementById(id).classList.toggle('hidden', WZ.step !== i+1));
+
+  // step 2 sub-mode
+  if (WZ.step === 2) {
+    document.getElementById('step2-completa').classList.toggle('hidden', WZ.tipo !== 'completa');
+    document.getElementById('step2-parcial').classList.toggle('hidden', WZ.tipo !== 'parcial');
+    if (WZ.tipo === 'completa') renderBuckets();
+    else renderParcialList();
   }
-  list.innerHTML = hits.slice(0, 6).map(u => `
-    <button type="button" onclick="selecionarDelegado('${u.nome.replace(/'/g, "\\'")}', '${u.email}')" class="w-full flex items-center gap-2 px-3 py-2 hover:bg-[#F1F4F7] text-left">
-      <span class="avatar ${u.av}">${u.initials}</span>
-      <div class="flex-1 min-w-0">
-        <div class="text-sm font-semibold text-dms-mar truncate">${u.nome}</div>
-        <div class="text-[10.5px] text-dms-tecnologia truncate">${u.email} · ${ROLE_LABEL[u.role] || u.role}</div>
+
+  if (WZ.step === 3) renderAssign();
+
+  // botões
+  document.getElementById('btn-voltar').classList.toggle('hidden', WZ.step === 1);
+  document.getElementById('btn-avancar').classList.toggle('hidden', WZ.step === 3);
+  document.getElementById('btn-confirmar').classList.toggle('hidden', WZ.step !== 3);
+
+  // hint
+  const hints = {
+    1: 'Escolha o tipo da cobertura para continuar.',
+    2: WZ.tipo === 'completa' ? 'Buckets pré-selecionados. Clique em "Avançar →" pra atribuir delegados.' : 'Marque pelo menos 1 permissão pra continuar.',
+    3: WZ.tipo === 'completa' ? 'Atribua um delegado para cada bucket.' : 'Atribua delegado para cada permissão selecionada.',
+  };
+  document.getElementById('wz-hint').textContent = hints[WZ.step];
+}
+
+function wizardAvancar() {
+  if (WZ.step === 2 && WZ.tipo === 'parcial' && WZ.selParcial.size === 0) {
+    toast('Marque ao menos 1 permissão antes de avançar.', true); return;
+  }
+  if (WZ.step < 3) { WZ.step++; wizardRender(); }
+}
+function wizardVoltar() {
+  if (WZ.step > 1) { WZ.step--; wizardRender(); }
+}
+
+// ============ Step 2 — buckets (completa) ============
+function renderBuckets() {
+  const el = document.getElementById('buckets-render');
+  el.innerHTML = Object.entries(MEU_CATALOGO).map(([k, b]) => `
+    <div class="bucket">
+      <div class="bucket-header">
+        <div class="flex items-center gap-2">
+          <span class="module-pill ${b.pill}">${b.label}</span>
+          <span class="text-xs text-dms-tecnologia">(${b.perms.length} perms)</span>
+        </div>
+        <span class="badge badge-real">incluído</span>
       </div>
-    </button>`).join('');
+      <div class="bucket-body">
+        ${b.perms.map(p => `<div class="perm-item" style="cursor:default;"><input type="checkbox" checked disabled><span class="perm-code">${p}</span></div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ============ Step 2 — lista flat (parcial) ============
+function renderParcialList() {
+  const el = document.getElementById('parcial-list');
+  let html = '';
+  Object.entries(MEU_CATALOGO).forEach(([k, b]) => {
+    html += `<div class="text-[10.5px] caption text-dms-tecnologia mt-2 mb-1">${b.label} <span class="text-dms-mar">(${b.perms.length})</span></div>`;
+    b.perms.forEach(p => {
+      const id = `pc-${p.replace(/\W/g,'_')}`;
+      const checked = WZ.selParcial.has(p) ? 'checked' : '';
+      html += `<label class="perm-item" for="${id}">
+        <input type="checkbox" id="${id}" data-perm="${p}" data-bucket="${k}" ${checked} onchange="toggleParcial(this)">
+        <span class="perm-code">${p}</span>
+        <span class="module-pill ${b.pill} ml-auto">${b.label}</span>
+      </label>`;
+    });
+  });
+  el.innerHTML = html;
+  atualizarContagemParcial();
+}
+function toggleParcial(input) {
+  if (input.checked) WZ.selParcial.add(input.dataset.perm);
+  else WZ.selParcial.delete(input.dataset.perm);
+  atualizarContagemParcial();
+}
+function marcarTodasParcial(check) {
+  document.querySelectorAll('#parcial-list input[type=checkbox]').forEach(inp => {
+    inp.checked = check;
+    if (check) WZ.selParcial.add(inp.dataset.perm);
+    else WZ.selParcial.delete(inp.dataset.perm);
+  });
+  atualizarContagemParcial();
+}
+function atualizarContagemParcial() {
+  document.getElementById('parcial-count').textContent = `${WZ.selParcial.size} selecionada(s) de 23`;
+}
+
+// ============ Step 3 — atribuir delegados ============
+function renderAssign() {
+  const el = document.getElementById('assign-render');
+  if (WZ.tipo === 'completa') {
+    el.innerHTML = Object.entries(MEU_CATALOGO).map(([k, b]) => renderAssignBucket(k, b)).join('');
+  } else {
+    // Agrupar selParcial por bucket
+    const groups = {};
+    WZ.selParcial.forEach(perm => {
+      const bucket = Object.entries(MEU_CATALOGO).find(([k, b]) => b.perms.includes(perm))[0];
+      if (!groups[bucket]) groups[bucket] = [];
+      groups[bucket].push(perm);
+    });
+    el.innerHTML = Object.entries(groups).map(([k, perms]) => {
+      const b = MEU_CATALOGO[k];
+      if (perms.length > 5) {
+        // grupo grande: 1 delegado pra todas do bucket
+        return renderAssignParcialGrupo(k, b, perms);
+      } else {
+        // ≤5 perms: 1 delegado por item
+        return perms.map(p => renderAssignParcialItem(k, b, p)).join('');
+      }
+    }).join('');
+  }
+  atualizarSummary();
+}
+
+function renderAssignBucket(bucketKey, b) {
+  const assigned = WZ.bucketDelegado[bucketKey];
+  const missing = !assigned;
+  const ranking = rankUsuariosParaBucket(bucketKey).slice(0, 4);
+  return `
+    <div class="assign-row ${missing ? 'missing' : ''}" data-bucket="${bucketKey}">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="module-pill ${b.pill}">${b.label}</span>
+          <span class="text-[11px] text-dms-tecnologia">${b.perms.length} permissões</span>
+        </div>
+        ${assigned ? `<div class="flex items-center gap-2"><span class="avatar ${assigned.av}" style="width:24px;height:24px;font-size:10px;">${assigned.initials}</span><span class="text-[12px] font-semibold text-dms-mar">${assigned.nome}</span><button onclick="limparAssign('${bucketKey}')" class="text-[11px] text-[#B91C1C] hover:underline ml-2">trocar</button></div>` : `<span class="text-[11px] text-[#B91C1C] font-semibold">⚠️ sem delegado</span>`}
+      </div>
+      ${!assigned ? `
+        <div class="text-[10.5px] caption text-dms-tecnologia mb-1.5">Sugestões (por cargo similar)</div>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          ${ranking.map(u => `
+            <div class="sug-card" onclick='assignBucket("${bucketKey}", ${JSON.stringify(u).replace(/'/g, "\\'")})'>
+              <span class="avatar ${u.av}">${u.initials}</span>
+              <div class="sug-info">
+                <div class="sug-name">${u.nome}</div>
+                <div class="sug-cargo">${u.cargo}</div>
+              </div>
+              <span class="${u.badge}">${u.badgeTxt}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="relative">
+          <input type="text" placeholder="🔍 Buscar outros usuários para ${b.label}…" oninput="searchAssign('${bucketKey}', event)" class="w-full px-3 py-1.5 text-[12px] border border-[#E5E7EB] rounded bg-white focus:outline-none focus:border-dms-ceu">
+          <div id="search-list-${bucketKey}" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-[#E5E7EB] rounded shadow-dms-md max-h-48 overflow-y-auto z-20"></div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function renderAssignParcialItem(bucketKey, b, perm) {
+  const assigned = WZ.itemDelegado[perm];
+  const ranking = rankUsuariosParaBucket(bucketKey).slice(0, 3);
+  return `
+    <div class="assign-row" data-item="${perm}">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="perm-code">${perm}</span>
+          <span class="module-pill ${b.pill}">${b.label}</span>
+        </div>
+        ${assigned ? `<div class="flex items-center gap-2"><span class="avatar ${assigned.av}" style="width:24px;height:24px;font-size:10px;">${assigned.initials}</span><span class="text-[12px] font-semibold text-dms-mar">${assigned.nome}</span><button onclick="limparAssignItem('${perm}')" class="text-[11px] text-[#B91C1C] hover:underline ml-2">trocar</button></div>` : `<span class="text-[11px] text-dms-tecnologia">escolha um delegado →</span>`}
+      </div>
+      ${!assigned ? `
+        <div class="grid grid-cols-3 gap-2">
+          ${ranking.map(u => `
+            <div class="sug-card" onclick='assignItem("${perm}", ${JSON.stringify(u).replace(/'/g, "\\'")})'>
+              <span class="avatar ${u.av}">${u.initials}</span>
+              <div class="sug-info"><div class="sug-name">${u.nome}</div><div class="sug-cargo">${u.cargo}</div></div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function renderAssignParcialGrupo(bucketKey, b, perms) {
+  // mesma UI de assign bucket mas só pras perms selecionadas
+  const assigned = WZ.bucketDelegado[bucketKey];
+  const ranking = rankUsuariosParaBucket(bucketKey).slice(0, 4);
+  return `
+    <div class="assign-row ${assigned ? '' : ''}" data-bucket="${bucketKey}">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="module-pill ${b.pill}">${b.label}</span>
+          <span class="text-[11px] text-dms-tecnologia">${perms.length} permissões selecionadas (agrupadas)</span>
+        </div>
+        ${assigned ? `<div class="flex items-center gap-2"><span class="avatar ${assigned.av}" style="width:24px;height:24px;font-size:10px;">${assigned.initials}</span><span class="text-[12px] font-semibold text-dms-mar">${assigned.nome}</span></div>` : ''}
+      </div>
+      ${!assigned ? `
+        <div class="grid grid-cols-2 gap-2">
+          ${ranking.map(u => `
+            <div class="sug-card" onclick='assignBucket("${bucketKey}", ${JSON.stringify(u).replace(/'/g, "\\'")})'>
+              <span class="avatar ${u.av}">${u.initials}</span>
+              <div class="sug-info"><div class="sug-name">${u.nome}</div><div class="sug-cargo">${u.cargo}</div></div>
+              <span class="${u.badge}">${u.badgeTxt}</span>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function assignBucket(bucket, u) { WZ.bucketDelegado[bucket] = u; renderAssign(); }
+function assignItem(perm, u)     { WZ.itemDelegado[perm] = u; renderAssign(); }
+function limparAssign(bucket)    { delete WZ.bucketDelegado[bucket]; renderAssign(); }
+function limparAssignItem(perm)  { delete WZ.itemDelegado[perm]; renderAssign(); }
+
+function searchAssign(bucket, e) {
+  const q = e.target.value.toLowerCase().trim();
+  const list = document.getElementById('search-list-' + bucket);
+  if (q.length < 2) { list.classList.add('hidden'); return; }
+  const hits = USUARIOS_TENANT.filter(u => u.nome.toLowerCase().includes(q) || u.cargo.toLowerCase().includes(q));
+  if (!hits.length) { list.innerHTML = '<div class="px-3 py-2 text-xs text-dms-tecnologia">Nenhum usuário.</div>'; list.classList.remove('hidden'); return; }
+  list.innerHTML = hits.slice(0, 6).map(u => `<button type="button" class="w-full flex items-center gap-2 px-3 py-2 hover:bg-[#F1F4F7] text-left" onclick='assignBucket("${bucket}", ${JSON.stringify(u).replace(/'/g, "\\'")});document.getElementById("search-list-${bucket}").classList.add("hidden")'>
+    <span class="avatar ${u.av}">${u.initials}</span>
+    <div class="flex-1 min-w-0"><div class="text-sm font-semibold text-dms-mar truncate">${u.nome}</div><div class="text-[10.5px] text-dms-tecnologia truncate">${u.cargo}</div></div>
+  </button>`).join('');
   list.classList.remove('hidden');
 }
-function selecionarDelegado(nome, email) {
-  document.getElementById('nv-delegado').value = `${nome} <${email}>`;
-  document.getElementById('ac-list').classList.add('hidden');
+
+function atualizarSummary() {
+  const sumEl = document.getElementById('step3-summary');
+  if (WZ.tipo === 'completa') {
+    const total = Object.keys(MEU_CATALOGO).length;
+    const atrib = Object.keys(WZ.bucketDelegado).length;
+    const missing = total - atrib;
+    if (missing > 0) {
+      sumEl.innerHTML = `<strong class="text-[#B91C1C]">⚠️ ${missing} bucket(s) sem delegado.</strong> Cobertura Completa exige delegado em todos os ${total} buckets antes de criar.`;
+      sumEl.style.background = 'rgba(220,38,38,0.06)';
+      sumEl.style.borderColor = 'rgba(220,38,38,0.3)';
+    } else {
+      const totalPerms = Object.values(MEU_CATALOGO).reduce((s, b) => s + b.perms.length, 0);
+      const pessoasUnicas = new Set(Object.values(WZ.bucketDelegado).map(u => u.nome)).size;
+      sumEl.innerHTML = `<strong class="text-[#5D6E1C]">✓ Pronto:</strong> ${totalPerms} permissões distribuídas em <strong>${pessoasUnicas}</strong> pessoa(s) através de ${total} buckets.`;
+      sumEl.style.background = 'rgba(176,201,52,0.10)';
+      sumEl.style.borderColor = 'rgba(176,201,52,0.40)';
+    }
+  } else {
+    const tot = WZ.selParcial.size;
+    const atribBuckets = Object.keys(WZ.bucketDelegado).length;
+    const atribItens = Object.keys(WZ.itemDelegado).length;
+    sumEl.innerHTML = `Você está delegando <strong>${tot} de 23 permissões</strong>. As outras <strong>${23 - tot}</strong> ficarão com você (ou serão bloqueadas no audit quando você estiver ausente). ${atribItens + atribBuckets > 0 ? '· Já atribuídos: <strong>'+(atribItens+atribBuckets)+'</strong>' : ''}`;
+    sumEl.style.background = '#F1F4F7';
+    sumEl.style.borderColor = '#E5E7EB';
+  }
 }
+
 function confirmarNovaDeleg() {
-  const delegado = document.getElementById('nv-delegado').value;
-  const motivo = document.getElementById('nv-motivo').value;
+  const motivo = document.getElementById('nv-motivo').value.trim();
   const inicio = document.getElementById('nv-inicio').value;
   const fim = document.getElementById('nv-fim').value;
-  const selecionadas = Array.from(document.querySelectorAll('.chip-perm.selected')).map(el => el.textContent.replace('✕', '').trim());
 
-  if (!delegado) { toast('Selecione um delegado.', true); return; }
-  if (selecionadas.length === 0) { toast('Selecione ao menos uma permissão.', true); return; }
   if (!motivo || motivo.length < 10) { toast('Motivo precisa ter pelo menos 10 caracteres.', true); return; }
   if (new Date(fim) <= new Date(inicio)) { toast('Data fim deve ser após data início.', true); return; }
 
-  fecharModalNova();
-  toast(`Delegação criada (mockup): ${selecionadas.length} permissão(ões) → ${delegado.split('<')[0].trim()} de ${inicio} a ${fim}.`);
+  if (WZ.tipo === 'completa') {
+    const missing = Object.keys(MEU_CATALOGO).filter(k => !WZ.bucketDelegado[k]);
+    if (missing.length > 0) {
+      toast(`⚠️ ${missing.length} bucket(s) sem delegado. Cobertura Completa exige todos atribuídos.`, true);
+      return;
+    }
+    const totalPerms = Object.values(MEU_CATALOGO).reduce((s, b) => s + b.perms.length, 0);
+    const pessoasUnicas = new Set(Object.values(WZ.bucketDelegado).map(u => u.nome)).size;
+    fecharModalNova();
+    toast(`✓ Delegação Completa criada (mockup): ${totalPerms} permissões → ${pessoasUnicas} delegado(s) de ${inicio} a ${fim}.`);
+  } else {
+    if (WZ.selParcial.size === 0) { toast('Selecione ao menos 1 permissão.', true); return; }
+    const totalAtrib = Object.keys(WZ.itemDelegado).length + Array.from(WZ.selParcial).filter(p => {
+      const bucket = Object.entries(MEU_CATALOGO).find(([k, b]) => b.perms.includes(p))[0];
+      return WZ.bucketDelegado[bucket];
+    }).length;
+    // simplificação — Parcial não bloqueia se faltou, apenas avisa
+    fecharModalNova();
+    toast(`✓ Delegação Parcial criada (mockup): ${WZ.selParcial.size} permissões.`);
+  }
 }
 
-// ============ MODAL HISTÓRICO ============
+// ============================================================================
+// HISTÓRICO (com distribuição)
+// ============================================================================
 function abrirHistorico(id) {
   let d = DELEGACOES.find(x => x.id === id);
   if (id === 'rcv-1') d = {
-    delegante: { nome: 'Beatriz Pinto', role: 'admin' },
-    delegado:  { nome: 'Fernando Arruda', role: 'cmpAdm' },
-    permissao: 'audit.view_global',
-    inicio: '28/05/26', fim: '11/06/26',
-    status: 'ativa',
+    delegante: { nome: 'Beatriz Pinto', cargo: 'Diretora Admin' },
+    tipo: 'parcial',
+    distribuicao: [{ bucket: 'admin', bucketLabel: 'Admin', pillCls: 'mod-admin', qtd: 1, perm: 'audit.view_global', delegado: { nome: 'Fernando Arruda', av: 'av-me', initials: 'FA' } }],
+    inicio: '28/05/26', fim: '11/06/26', status: 'ativa',
     cronologia: [
-      { tipo: 'created',   ts: '27/05/26 18:00', autor: 'Beatriz Pinto', desc: 'Delegação criada por Beatriz Pinto.' },
-      { tipo: 'activated', ts: '28/05/26 00:00', autor: 'system',        desc: 'Permissão ativada para Fernando Arruda.' },
+      { tipo: 'created',   ts: '27/05/26 18:00', autor: 'Beatriz Pinto', desc: 'Delegação Parcial criada.' },
+      { tipo: 'activated', ts: '28/05/26 00:00', autor: 'system',        desc: 'Permissão ativada.' },
     ],
   };
   if (id === 'rcv-2') d = {
-    delegante: { nome: 'Pedro Alves', role: 'aprDir' },
-    delegado:  { nome: 'Fernando Arruda', role: 'cmpAdm' },
-    permissao: 'workflow.approve_publication',
-    inicio: '30/05/26', fim: '04/06/26',
-    status: 'ativa',
+    delegante: { nome: 'Pedro Alves', cargo: 'Diretor de Aprovação' },
+    tipo: 'completa',
+    distribuicao: [
+      { bucket: 'aprov', bucketLabel: 'Aprovação', pillCls: 'mod-aprov', qtd: 4, delegado: { nome: 'Fernando Arruda', av: 'av-me', initials: 'FA' } },
+      { bucket: 'workflow', bucketLabel: 'Workflow', pillCls: 'mod-workflow', qtd: 3, delegado: { nome: 'Camila Rocha', av: 'av-5', initials: 'CR' } },
+      { bucket: 'cap', bucketLabel: 'CAP', pillCls: 'mod-cap', qtd: 2, delegado: { nome: 'Roberto Oliveira', av: 'av-3', initials: 'RO' } },
+    ],
+    inicio: '30/05/26', fim: '04/06/26', status: 'ativa',
     cronologia: [
-      { tipo: 'created',   ts: '29/05/26 22:15', autor: 'Pedro Alves',   desc: 'Delegação criada por Pedro Alves.' },
-      { tipo: 'activated', ts: '30/05/26 00:00', autor: 'system',        desc: 'Permissão ativada para Fernando Arruda.' },
+      { tipo: 'created',   ts: '29/05/26 22:15', autor: 'Pedro Alves',   desc: 'Delegação Completa criada (3 buckets / 3 delegados).' },
+      { tipo: 'activated', ts: '30/05/26 00:00', autor: 'system',        desc: 'Permissões ativadas.' },
     ],
   };
 
   if (!d) return;
   const st = STATUS_LABEL[d.status];
-  document.getElementById('hist-resumo').textContent = `Detalhes e cronologia completa desta delegação.`;
-  document.getElementById('hist-pair').textContent = `${d.delegante.nome} → ${d.delegado.nome}`;
-  document.getElementById('hist-perm').textContent = d.permissao;
+  document.getElementById('hist-resumo').textContent = `Detalhes e distribuição da cobertura ${d.tipo}.`;
+  document.getElementById('hist-delegante').innerHTML = `${d.delegante.nome}<br><span class="text-[10px] text-dms-tecnologia font-normal">${d.delegante.cargo || ''}</span>`;
+  document.getElementById('hist-tipo').innerHTML = d.tipo === 'completa' ? '<span class="tp-deleg tp-completa">🔴 Completa</span>' : '<span class="tp-deleg tp-parcial">🟡 Parcial</span>';
   document.getElementById('hist-window').textContent = `${d.inicio} → ${d.fim}`;
   document.getElementById('hist-status').innerHTML = `<span class="st-deleg ${st.cls}"><span class="st-dot" style="background:${st.dot};"></span>${st.txt}</span>`;
+
+  // Distribuição
+  const distEl = document.getElementById('hist-dist');
+  distEl.innerHTML = d.distribuicao.map(x => `
+    <div class="dist-row">
+      <span class="module-pill ${x.pillCls} dist-mod">${x.bucketLabel}${x.perm ? '' : ' · '+x.qtd+' perms'}</span>
+      ${x.perm ? `<span class="perm-code">${x.perm}</span>` : ''}
+      <span class="dist-arrow">→</span>
+      <span class="avatar ${x.delegado.av}" style="width:22px;height:22px;font-size:9px;">${x.delegado.initials}</span>
+      <span class="text-dms-mar font-semibold">${x.delegado.nome}</span>
+    </div>
+  `).join('');
+  const totalPerms = d.distribuicao.reduce((s, x) => s + x.qtd, 0);
+  const pessoas = new Set(d.distribuicao.map(x => x.delegado.nome)).size;
+  document.getElementById('hist-dist-total').innerHTML = `<strong>Total:</strong> ${totalPerms} permissão(ões) delegada(s) para ${pessoas} pessoa(s).`;
 
   const tlIconMap = { created: '➕', activated: '✓', revoked: '✕', expired: '⌛' };
   const tlClsMap = { created: 'tl-created', activated: 'tl-activated', revoked: 'tl-revoked', expired: 'tl-expired' };
@@ -983,34 +1437,36 @@ function abrirHistorico(id) {
     </div>`).join('');
 
   const btnRev = document.getElementById('hist-btn-revogar');
-  if (d.status === 'ativa' || d.status === 'agendada') {
-    btnRev.classList.remove('hidden');
-    btnRev.dataset.id = id;
-  } else {
-    btnRev.classList.add('hidden');
-  }
+  if (d.status === 'ativa' || d.status === 'agendada') { btnRev.classList.remove('hidden'); btnRev.dataset.id = id; }
+  else { btnRev.classList.add('hidden'); }
 
   const m = document.getElementById('modal-historico');
   m.classList.remove('hidden'); m.classList.add('flex');
 }
-function fecharHistorico() {
-  const m = document.getElementById('modal-historico');
-  m.classList.add('hidden'); m.classList.remove('flex');
-}
-function revogarFromHist() {
-  const id = document.getElementById('hist-btn-revogar').dataset.id;
-  fecharHistorico();
-  abrirRevogar(id);
-}
+function fecharHistorico() { const m = document.getElementById('modal-historico'); m.classList.add('hidden'); m.classList.remove('flex'); }
+function revogarFromHist() { const id = document.getElementById('hist-btn-revogar').dataset.id; fecharHistorico(); abrirRevogar(id); }
 
-// ============ MODAL REVOGAR / RENUNCIAR ============
+// ============================================================================
+// REVOGAR
+// ============================================================================
 let REV_CTX = { id: null, isRenuncia: false };
 function abrirRevogar(id) {
   REV_CTX = { id, isRenuncia: false };
   const d = DELEGACOES.find(x => x.id === id);
   document.getElementById('rev-titulo').textContent = 'Revogar delegação?';
-  document.getElementById('rev-subtitulo').textContent = d ? `${d.permissao} → ${d.delegado.nome}` : '';
+  document.getElementById('rev-subtitulo').textContent = d ? `${d.tipo === 'completa' ? 'Cobertura Completa' : 'Cobertura Parcial'} · ${d.distribuicao.length} bucket(s)` : '';
   document.getElementById('rev-motivo').value = '';
+
+  // Aviso multi-delegado
+  const warn = document.getElementById('rev-multi-warn');
+  if (d && d.distribuicao.length > 1) {
+    const pessoas = new Set(d.distribuicao.map(x => x.delegado.nome)).size;
+    warn.innerHTML = `⚠️ Esta delegação afeta <strong>${pessoas}</strong> delegado(s) em <strong>${d.distribuicao.length}</strong> bucket(s). Todos perderão acesso imediato.`;
+    warn.classList.remove('hidden');
+  } else {
+    warn.classList.add('hidden');
+  }
+
   const m = document.getElementById('modal-revogar');
   m.classList.remove('hidden'); m.classList.add('flex');
 }
@@ -1019,31 +1475,28 @@ function abrirRenuncia(perm, delegante) {
   document.getElementById('rev-titulo').textContent = 'Renunciar a esta delegação?';
   document.getElementById('rev-subtitulo').textContent = `${perm} (cedida por ${delegante})`;
   document.getElementById('rev-motivo').value = '';
+  document.getElementById('rev-multi-warn').classList.add('hidden');
   const m = document.getElementById('modal-revogar');
   m.classList.remove('hidden'); m.classList.add('flex');
 }
-function fecharRevogar() {
-  const m = document.getElementById('modal-revogar');
-  m.classList.add('hidden'); m.classList.remove('flex');
-}
+function fecharRevogar() { const m = document.getElementById('modal-revogar'); m.classList.add('hidden'); m.classList.remove('flex'); }
 function confirmarRevogar() {
   const motivo = document.getElementById('rev-motivo').value.trim();
   if (motivo.length < 5) { toast('Informe o motivo (mín. 5 caracteres).', true); return; }
   fecharRevogar();
-  toast(REV_CTX.isRenuncia ? 'Renúncia registrada (mockup). Delegante foi notificado.' : 'Delegação revogada (mockup). Delegado foi notificado.');
+  toast(REV_CTX.isRenuncia ? 'Renúncia registrada (mockup).' : 'Delegação revogada (mockup). Delegado(s) notificado(s).');
 }
-
 function abrirEditar(id) {
-  // TBD: tela de edição completa OU permitir só estender prazo? Mock por enquanto = só toast.
-  toast(`Editar delegação ${id} — TBD: backend permite estender prazo/motivo, não trocar delegado/permissão.`);
+  // TBD v2: edição de Completa permite trocar delegado de bucket? estender prazo? Só motivo?
+  toast(`Editar delegação ${id} — TBD v2: definir escopo da edição (estender prazo? trocar delegado por bucket?).`);
 }
 
 // ============ TOAST ============
 function toast(msg, isErr) {
-  let t = document.getElementById('toast-tela85b');
+  let t = document.getElementById('toast-tela85bv2');
   if (!t) {
     t = document.createElement('div');
-    t.id = 'toast-tela85b';
+    t.id = 'toast-tela85bv2';
     t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;box-shadow:0 8px 24px -4px rgba(0,0,0,.3);z-index:9999;opacity:0;transition:opacity .2s ease;pointer-events:none;max-width:90vw;text-align:center;';
     document.body.appendChild(t);
   }
@@ -1051,16 +1504,11 @@ function toast(msg, isErr) {
   t.style.background = isErr ? '#B91C1C' : '#1A1A1A';
   t.style.opacity = '1';
   clearTimeout(t._h);
-  t._h = setTimeout(() => { t.style.opacity = '0'; }, 2800);
+  t._h = setTimeout(() => { t.style.opacity = '0'; }, 3000);
 }
 
 // ============ INIT ============
 renderTabela();
-
-document.addEventListener('click', (e) => {
-  const ac = document.getElementById('ac-list');
-  if (ac && !e.target.closest('#nv-delegado') && !e.target.closest('#ac-list')) ac.classList.add('hidden');
-});
 </script>
 
 <!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
