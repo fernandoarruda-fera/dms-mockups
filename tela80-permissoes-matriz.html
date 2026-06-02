@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1280">
-<title>DMS — Permissões (Matriz Role × Tela × Ação)</title>
+<title>DMS — Permissões (Matriz Permission × Role)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +12,7 @@
 tailwind.config = {
   corePlugins: { preflight: true },
   theme: { extend: {
-    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' } },
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464', warning: '#EAB308', danger: '#DC2626' } },
     fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
     boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)' },
   } },
@@ -23,34 +23,69 @@ tailwind.config = {
   .tilt-accent { transform: skewX(-16.5deg); }
   .caption { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
   .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+
   /* Matrix table */
-  table.matrix { border-collapse: separate; border-spacing: 0; }
-  table.matrix th, table.matrix td { border-right: 1px solid #E5E7EB; border-bottom: 1px solid #E5E7EB; padding: 6px 8px; font-size: 12px; }
-  table.matrix thead th { background: #F8F9FA; position: sticky; top: 0; z-index: 5; }
-  table.matrix .sticky-col { position: sticky; left: 0; background: #fff; z-index: 4; }
-  table.matrix thead th.sticky-col { z-index: 6; background: #F8F9FA; }
-  table.matrix .role-name { font-weight: 600; color: #00386C; min-width: 180px; }
-  table.matrix .cat-header td { background: #EFF2F5; color: #00386C; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.06em; }
-  table.matrix .action-cell { text-align: center; width: 52px; }
-  table.matrix .action-cell:hover { background: rgba(0,174,238,0.06); }
-  /* Check */
-  .perm-check { display: inline-flex; align-items:center; justify-content:center; width:18px; height:18px; border-radius:3px; cursor:pointer; }
-  .perm-check.on { background: #B0C934; color: #fff; }
-  .perm-check.off { background: #fff; border: 1.5px solid #E5E7EB; }
-  .perm-check.disabled { background: #F1F1F1; color: #B8BFC4; border: 1.5px solid #E5E7EB; cursor: not-allowed; }
-  .col-group-head { background: rgba(0,56,108,0.04); color: #00386C; font-weight:700; font-size: 11px; text-align: center; }
-  .col-action-head { background: #F8F9FA; color: #656464; font-weight:600; font-size: 10px; text-align:center; }
-  .col-hover:hover { background: rgba(0,174,238,0.04); }
-  /* Dirty state */
-  tr.row-dirty td.sticky-col.role-name { box-shadow: inset 3px 0 0 #EAB308; }
-  .perm-check { transition: transform .08s ease; }
-  .perm-check:not(.disabled):hover { transform: scale(1.15); }
-  .perm-check.dirty { outline: 2px solid #EAB308; outline-offset: 1px; }
-  /* Drawer */
-  #drw-delegar { position: fixed; top:0; right:0; height:100vh; width:480px; max-width:96vw; background:#fff; z-index:60; transform: translateX(105%); transition: transform .22s ease; box-shadow: -8px 0 24px rgba(0,0,0,.10); display:flex; flex-direction:column; }
-  #drw-delegar.open { transform: translateX(0); }
-  #drw-back { position: fixed; inset:0; background: rgba(15,27,76,.5); z-index:55; display:none; }
-  #drw-back.open { display:block; }
+  table.matrix { border-collapse: separate; border-spacing: 0; width: 100%; }
+  table.matrix th, table.matrix td { border-right: 1px solid #E5E7EB; border-bottom: 1px solid #E5E7EB; padding: 8px 10px; font-size: 12px; vertical-align: middle; }
+  table.matrix thead th { background: #F1F4F7; position: sticky; top: 0; z-index: 5; color: #00386C; font-weight: 700; }
+  table.matrix .sticky-col { position: sticky; background: #fff; z-index: 4; }
+  table.matrix .sticky-col-1 { left: 0; min-width: 200px; }
+  table.matrix .sticky-col-2 { left: 200px; min-width: 96px; }
+  table.matrix .sticky-col-3 { left: 296px; min-width: 240px; border-right: 2px solid #D6DBE0; }
+  table.matrix thead th.sticky-col { z-index: 6; background: #F1F4F7; }
+  table.matrix .cat-row td { background: #EFF2F5; color: #00386C; font-weight: 700; text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.07em; padding: 6px 12px; }
+  table.matrix .cat-row td.sticky-col { background: #EFF2F5 !important; left: 0 !important; }
+  table.matrix tbody tr:hover td { background: #FAFBFC; }
+  table.matrix tbody tr:hover td.sticky-col { background: #FAFBFC; }
+  table.matrix .role-cell { text-align: center; min-width: 80px; cursor: pointer; }
+  table.matrix .role-cell:hover { background: rgba(0,174,238,0.07); }
+  table.matrix th.role-th { text-align: center; padding: 10px 6px; font-size: 11px; }
+  table.matrix th.role-th .role-sub { font-size: 9px; font-weight: 500; color: #656464; letter-spacing: 0; text-transform: none; display: block; }
+  table.matrix th.role-th.highlight-col { background: #E0F2FE !important; }
+  table.matrix td.highlight-col { background: rgba(0,174,238,0.05); }
+
+  /* State icons */
+  .st-icon { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 4px; font-size: 13px; font-weight: 700; }
+  .st-on { background: rgba(176,201,52,0.15); color: #6B7E20; }
+  .st-off { background: #F1F1F1; color: #B8BFC4; }
+  .st-deleg { background: rgba(0,174,238,0.18); color: #005290; }
+  .st-lock { background: rgba(101,100,100,0.12); color: #656464; }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.02em; }
+  .badge-tbd { background: rgba(234,179,8,0.12); color: #854D0E; border: 1px solid rgba(234,179,8,0.3); }
+  .badge-real { background: rgba(176,201,52,0.15); color: #6B7E20; border: 1px solid rgba(176,201,52,0.35); }
+  .badge-sys { background: rgba(101,100,100,0.12); color: #656464; border: 1px solid rgba(101,100,100,0.25); }
+
+  .module-pill { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; }
+  .mod-workflow { background: rgba(100,53,133,0.12); color: #643585; }
+  .mod-compras  { background: rgba(0,174,238,0.12); color: #005290; }
+  .mod-admin    { background: rgba(0,56,108,0.10); color: #00386C; }
+  .mod-cadastro { background: rgba(176,201,52,0.18); color: #6B7E20; }
+  .mod-profile  { background: rgba(101,100,100,0.12); color: #656464; }
+
+  /* Tooltip */
+  .perm-name { position: relative; cursor: help; }
+  .perm-name:hover .tip { opacity: 1; pointer-events: auto; }
+  .tip { position: absolute; top: 110%; left: 0; z-index: 50; background: #1A1A1A; color: #fff; font-size: 11px; padding: 6px 10px; border-radius: 6px; min-width: 240px; max-width: 320px; box-shadow: 0 8px 20px rgba(0,0,0,.2); opacity: 0; pointer-events: none; transition: opacity .1s ease; font-weight: 400; letter-spacing: 0; text-transform: none; }
+
+  /* Drawer comparar */
+  #drw-compare { position: fixed; top: 0; right: 0; height: 100vh; width: 520px; max-width: 96vw; background: #fff; z-index: 60; transform: translateX(105%); transition: transform .22s ease; box-shadow: -8px 0 24px rgba(0,0,0,.10); display: flex; flex-direction: column; }
+  #drw-compare.open { transform: translateX(0); }
+  #drw-back { position: fixed; inset: 0; background: rgba(15,27,76,.5); z-index: 55; display: none; }
+  #drw-back.open { display: block; }
+  .delta-row { display: grid; grid-template-columns: 1fr 36px 36px; align-items: center; gap: 6px; padding: 6px 8px; border-bottom: 1px solid #F1F4F7; font-size: 12px; }
+  .delta-only-a { background: rgba(176,201,52,0.08); }
+  .delta-only-b { background: rgba(0,174,238,0.08); }
+  .delta-both { background: #fff; }
+  .delta-none { background: #F8F9FA; color: #B8BFC4; }
+
+  /* Mobile responsive — abaixo de 900px vira lista */
+  @media (max-width: 900px) {
+    .matrix-mobile-hint { display: block; }
+    .matrix-wrapper { overflow-x: auto; }
+  }
+  .matrix-mobile-hint { display: none; }
 </style>
 <link rel="stylesheet" href="mobile-responsive.css">
 </head>
@@ -64,64 +99,61 @@ tailwind.config = {
       <nav class="flex items-center gap-2 text-sm">
         <span class="text-dms-tecnologia">Admin</span>
         <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
-        <span class="text-dms-mar font-semibold">Permissões</span>
+        <span class="text-dms-mar font-semibold">Permissões — Matriz</span>
       </nav>
-      <div class="flex items-center gap-3">
-        <a href="tela85-permission-delegations.html" class="text-xs font-semibold text-dms-ceu hover:underline flex items-center gap-1">🔗 Ver delegações ativas (23) →</a>
-        <button onclick="abrirDrawerDelegar()" class="px-3 py-2 text-sm font-semibold text-dms-sabedoria border border-dms-sabedoria/30 rounded-md hover:bg-dms-sabedoria/5 bg-white transition-colors">🔗 Delegar permissão específica</button>
-        <button onclick="exportMatriz()" class="px-3 py-2 text-sm font-medium text-dms-tecnologia border border-[#E5E7EB] rounded-md hover:text-dms-mar bg-white transition-colors">Exportar matriz</button>
-        <button onclick="abrirNovaRole()" class="px-4 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">+ Nova Função (Role)</button>
+      <div class="flex items-center gap-2">
+        <a href="tela85-permission-delegations.html" class="text-xs font-semibold text-dms-ceu hover:underline">🔗 Delegações ativas (23) →</a>
+        <button onclick="abrirDrawerCompare()" class="px-3 py-2 text-sm font-semibold text-dms-sabedoria border border-dms-sabedoria/30 rounded-md hover:bg-dms-sabedoria/5 bg-white transition-colors">⇄ Comparar roles</button>
+        <button onclick="abrirModalEditarRole()" class="px-3 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">✎ Editar role</button>
+        <div class="relative">
+          <button onclick="toggleExportMenu()" class="px-3 py-2 text-sm font-medium text-dms-tecnologia border border-[#E5E7EB] rounded-md hover:text-dms-mar bg-white transition-colors flex items-center gap-1">
+            ⬇ Exportar
+            <span class="badge badge-sys" title="admin-only">admin</span>
+          </button>
+          <div id="export-menu" class="hidden absolute right-0 top-full mt-1 bg-white border border-[#E5E7EB] rounded-md shadow-dms-md min-w-[180px] z-30">
+            <button onclick="exportar('csv')" class="w-full text-left px-3 py-2 text-sm hover:bg-[#F8F9FA] text-dms-mar">Matriz como CSV</button>
+            <button onclick="exportar('pdf')" class="w-full text-left px-3 py-2 text-sm hover:bg-[#F8F9FA] text-dms-mar">Snapshot PDF</button>
+          </div>
+        </div>
       </div>
     </header>
 
-    <main class="flex-1 p-8 pb-24 max-w-[1280px] w-full mx-auto">
+    <main class="flex-1 p-8 pb-12 max-w-[1480px] w-full mx-auto">
 
-      <!-- HEADER -->
+      <!-- PageHeader -->
       <div class="mb-6">
         <div class="flex items-center gap-3 mb-2">
           <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
-          <h1 class="text-[28px] leading-[36px] font-bold text-dms-mar">Permissões</h1>
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border bg-violet-50 text-violet-700 border-violet-200">Sprint 2.2 · backend ativo</span>
+          <h1 class="text-[28px] leading-[36px] font-bold text-dms-mar">Permissões — Matriz</h1>
+          <span class="badge badge-real">Sprint 1 F1 · A8</span>
+          <span class="badge badge-sys">Backend ativo</span>
         </div>
-        <p class="text-sm text-dms-tecnologia max-w-3xl">Matriz de permissões por <strong class="text-dms-mar">função (Role)</strong> × <strong class="text-dms-mar">Tela/Módulo</strong> × <strong class="text-dms-mar">Ação</strong>. Cada usuário herda permissões da união das funções que possui (multi-role). Permissão fala sobre <em>capacidade</em>, não sobre escopo — para limitar entidades, ver <a href="tela50-profile.html" class="text-dms-ceu hover:underline">Intervenientes (tela50)</a>.</p>
-      </div>
-
-      <!-- Card: Ações sensíveis ao ownership (mock dispara modais de validação) -->
-      <div class="mb-6 bg-white border-l-4 border-l-amber-500 border border-[#E5E7EB] rounded-lg p-4 shadow-dms-md">
-        <div class="flex items-start justify-between gap-4">
-          <div class="flex-1">
-            <h3 class="text-sm font-bold text-dms-mar mb-1 flex items-center gap-2">🛡️ Ações de gestão que validam ownership <a href="tela82-saude-stages.html" class="text-[11px] font-normal text-dms-ceu hover:underline">(saúde dos stages →)</a></h3>
-            <p class="text-xs text-dms-tecnologia">Cada ação abaixo dispara validação em <a href="docs/concepts/CONCEPT-STAGE-OWNERSHIP-VALIDATION.md" class="text-dms-ceu hover:underline">6 dimensões</a>. Se gerar órfão/conflito, modal de confirmação aparece.</p>
-          </div>
-          <div class="flex items-center gap-2 flex-wrap justify-end">
-            <button onclick="abrirModalOwner('criar-user')" class="text-xs font-semibold text-dms-mar border border-dms-mar px-3 py-1.5 rounded hover:bg-dms-mar hover:text-white transition-colors">+ Criar user (mock)</button>
-            <button onclick="abrirModalOwner('bloquear-user')" class="text-xs font-semibold text-orange-700 border border-orange-300 px-3 py-1.5 rounded hover:bg-orange-50 transition-colors">🚫 Bloquear user (mock)</button>
-            <button onclick="abrirModalOwner('desativar-role')" class="text-xs font-semibold text-red-700 border border-red-300 px-3 py-1.5 rounded hover:bg-red-50 transition-colors">⊘ Desativar role (mock)</button>
-          </div>
-        </div>
+        <p class="text-sm text-dms-tecnologia max-w-3xl">
+          Matriz canônica de <strong class="text-dms-mar">Permission (recurso.acao)</strong> × <strong class="text-dms-mar">Role</strong>. Cada usuário herda permissões pela união das funções atribuídas. Permissão fala sobre <em>capacidade</em>; para limitar <em>em quais entidades</em>, ver <a href="tela50-profile.html" class="text-dms-ceu hover:underline">Profile → Intervenientes</a>.
+        </p>
       </div>
 
       <!-- KPIs -->
-      <div class="grid grid-cols-4 gap-3 mb-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
-          <div class="caption text-dms-tecnologia">Funções cadastradas</div>
-          <div class="text-2xl mono font-bold text-dms-mar mt-1">8</div>
-          <div class="text-xs text-dms-tecnologia mt-0.5">2 de sistema · 6 customizadas</div>
-        </div>
-        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
-          <div class="caption text-dms-tecnologia">Usuários ativos</div>
+          <div class="caption text-dms-tecnologia">Permissões reais</div>
           <div class="text-2xl mono font-bold text-dms-mar mt-1">47</div>
-          <div class="text-xs text-dms-tecnologia mt-0.5">12 com 2+ funções</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">backend <span class="mono">Permission</span> seedado</div>
         </div>
         <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
-          <div class="caption text-dms-tecnologia">Telas/Módulos cobertos</div>
-          <div class="text-2xl mono font-bold text-dms-mar mt-1">79</div>
-          <div class="text-xs text-dms-tecnologia mt-0.5">100% do catálogo</div>
+          <div class="caption text-dms-tecnologia">TBD (planejadas)</div>
+          <div class="text-2xl mono font-bold text-amber-700 mt-1">10</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">Compras / Profile · Sprint 2.3+</div>
         </div>
         <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
-          <div class="caption text-dms-tecnologia">Pontos de permissão</div>
-          <div class="text-2xl mono font-bold text-dms-mar mt-1">~1.500</div>
-          <div class="text-xs text-dms-tecnologia mt-0.5">cells na matriz (telas × ações)</div>
+          <div class="caption text-dms-tecnologia">Roles oficiais</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1">8</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">2 sistema · 6 customizadas</div>
+        </div>
+        <div class="bg-white border border-[#E5E7EB] rounded-lg p-4">
+          <div class="caption text-dms-tecnologia">Concessões ativas</div>
+          <div class="text-2xl mono font-bold text-dms-mar mt-1" id="kpi-grants">—</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">cells ✅ + 🔵</div>
         </div>
       </div>
 
@@ -129,388 +161,618 @@ tailwind.config = {
       <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 mb-4 shadow-dms-md">
         <div class="grid grid-cols-12 gap-3 items-end">
           <div class="col-span-5">
-            <label class="caption text-dms-tecnologia mb-1.5 block">Buscar função/tela</label>
+            <label class="caption text-dms-tecnologia mb-1.5 block">Buscar permissão</label>
             <div class="relative">
               <svg class="w-4 h-4 text-dms-tecnologia absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-              <input type="text" placeholder="ex: Aprovador, Cotações, tela24…" class="w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
+              <input id="f-search" type="text" placeholder="ex: workflow.publish, requisition, sop…" oninput="filtrar()" class="w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
             </div>
           </div>
-          <div class="col-span-4">
-            <label class="caption text-dms-tecnologia mb-1.5 block">Tipo de tela</label>
-            <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
-              <option>Todos</option>
-              <option>Workspace</option>
-              <option>Compras</option>
-              <option>Cadastros</option>
-              <option>Bibliotecas</option>
-              <option>Admin</option>
-              <option>Engine</option>
-              <option>Auxiliares</option>
+          <div class="col-span-3">
+            <label class="caption text-dms-tecnologia mb-1.5 block">Módulo</label>
+            <select id="f-modulo" onchange="filtrar()" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option value="">Todos</option>
+              <option value="workflow">Workflow Builder</option>
+              <option value="compras">Compras</option>
+              <option value="cadastro">Cadastros</option>
+              <option value="profile">Profile</option>
+              <option value="admin">Admin</option>
             </select>
           </div>
           <div class="col-span-3">
-            <label class="caption text-dms-tecnologia mb-1.5 block">Tipo de ação</label>
-            <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
-              <option>Todas</option>
-              <option>Ver</option>
-              <option>Editar</option>
-              <option>Incluir</option>
-              <option>Excluir</option>
-              <option>Aprovar</option>
+            <label class="caption text-dms-tecnologia mb-1.5 block">Destacar role</label>
+            <select id="f-role" onchange="filtrar()" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option value="">Nenhuma</option>
+              <option value="admin">Admin Geral</option>
+              <option value="cmpAdm">Compras Adm</option>
+              <option value="cmpOp">Compras Op</option>
+              <option value="capAdm">CAP Adm</option>
+              <option value="capOp">CAP Op</option>
+              <option value="aprDir">Aprovador Diretor</option>
+              <option value="aprGer">Aprovador Gerente</option>
+              <option value="viewer">Viewer</option>
             </select>
           </div>
+          <div class="col-span-1">
+            <button onclick="limparFiltros()" class="w-full px-3 py-2 text-xs font-semibold text-dms-tecnologia border border-[#E5E7EB] rounded-md hover:text-dms-mar bg-white">Limpar</button>
+          </div>
+        </div>
+        <div class="mt-3 text-xs text-dms-tecnologia flex items-center gap-4 flex-wrap">
+          <span class="flex items-center gap-1"><span class="st-icon st-on">✓</span> Concedida</span>
+          <span class="flex items-center gap-1"><span class="st-icon st-off">·</span> Negada</span>
+          <span class="flex items-center gap-1"><span class="st-icon st-deleg">⇆</span> Delegada</span>
+          <span class="flex items-center gap-1"><span class="st-icon st-lock">⚿</span> Read-only sistema</span>
+          <span class="ml-auto text-dms-tecnologia">⚠️ <strong>Backend Sprint 2.2</strong> só seeded Workflow Builder. Compras/Profile = TBD.</span>
         </div>
       </div>
 
-      <!-- MATRIZ -->
+      <!-- TABELA MATRIZ -->
       <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
         <div class="px-5 py-3 border-b border-[#E5E7EB] flex items-center justify-between">
           <div>
-            <div class="text-sm font-bold text-dms-mar">Matriz de permissões</div>
-            <div class="text-xs text-dms-tecnologia mt-0.5">Linhas: telas agrupadas por categoria · Colunas: 8 funções × 5 ações · Clique nas células para alternar</div>
+            <div class="text-sm font-bold text-dms-mar">Permissões × Roles</div>
+            <div class="text-xs text-dms-tecnologia mt-0.5">
+              <span id="contador-perms">57</span> permissões · 8 roles · clique em uma célula pra ver detalhe
+            </div>
           </div>
-          <div class="flex items-center gap-2 text-xs">
-            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-[rgba(176,201,52,0.15)] text-[#7A8F24]"><span class="w-2 h-2 rounded-full bg-dms-tropicalidade"></span>permitido</span>
-            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-gray-100 text-dms-tecnologia"><span class="w-2 h-2 rounded-full bg-gray-300"></span>negado</span>
-            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-gray-50 text-gray-400"><span class="w-2 h-2 rounded-full bg-gray-200"></span>n/a</span>
+          <div class="text-xs text-dms-tecnologia matrix-mobile-hint">
+            📱 Mobile: deslize horizontalmente
           </div>
         </div>
 
-        <div class="overflow-x-auto" style="max-height: 620px;">
-          <table class="matrix w-full">
+        <div class="matrix-wrapper" style="overflow-x: auto; max-height: 680px;">
+          <table class="matrix">
             <thead>
               <tr>
-                <th class="sticky-col text-left" rowspan="2">
-                  <div class="text-[10px] font-semibold text-dms-tecnologia uppercase tracking-wider">Tela / Módulo</div>
-                </th>
-                <!-- 8 grupos de role -->
-                <th class="col-group-head" colspan="5">Admin Geral <span class="text-[9px] font-normal text-dms-tecnologia">(sistema)</span></th>
-                <th class="col-group-head" colspan="5">Compras Adm</th>
-                <th class="col-group-head" colspan="5">Compras Operacional</th>
-                <th class="col-group-head" colspan="5">Contas a Pagar Adm</th>
-                <th class="col-group-head" colspan="5">Contas a Pagar Op.</th>
-                <th class="col-group-head" colspan="5">Aprovador Diretor</th>
-                <th class="col-group-head" colspan="5">Aprovador Gerente</th>
-                <th class="col-group-head" colspan="5">Viewer <span class="text-[9px] font-normal text-dms-tecnologia">(sistema)</span></th>
-              </tr>
-              <tr>
-                <!-- 5 ações repetidas 8x -->
-                <!-- Admin Geral -->
-                <th class="col-action-head" title="Ver">V</th><th class="col-action-head" title="Editar">E</th><th class="col-action-head" title="Incluir">I</th><th class="col-action-head" title="Excluir">X</th><th class="col-action-head" title="Aprovar">A</th>
-                <!-- Compras Adm -->
-                <th class="col-action-head">V</th><th class="col-action-head">E</th><th class="col-action-head">I</th><th class="col-action-head">X</th><th class="col-action-head">A</th>
-                <!-- Compras Op -->
-                <th class="col-action-head">V</th><th class="col-action-head">E</th><th class="col-action-head">I</th><th class="col-action-head">X</th><th class="col-action-head">A</th>
-                <!-- CAP Adm -->
-                <th class="col-action-head">V</th><th class="col-action-head">E</th><th class="col-action-head">I</th><th class="col-action-head">X</th><th class="col-action-head">A</th>
-                <!-- CAP Op -->
-                <th class="col-action-head">V</th><th class="col-action-head">E</th><th class="col-action-head">I</th><th class="col-action-head">X</th><th class="col-action-head">A</th>
-                <!-- Aprovador Diretor -->
-                <th class="col-action-head">V</th><th class="col-action-head">E</th><th class="col-action-head">I</th><th class="col-action-head">X</th><th class="col-action-head">A</th>
-                <!-- Aprovador Gerente -->
-                <th class="col-action-head">V</th><th class="col-action-head">E</th><th class="col-action-head">I</th><th class="col-action-head">X</th><th class="col-action-head">A</th>
-                <!-- Viewer -->
-                <th class="col-action-head">V</th><th class="col-action-head">E</th><th class="col-action-head">I</th><th class="col-action-head">X</th><th class="col-action-head">A</th>
+                <th class="sticky-col sticky-col-1 text-left">Permissão</th>
+                <th class="sticky-col sticky-col-2 text-left">Módulo</th>
+                <th class="sticky-col sticky-col-3 text-left">Descrição</th>
+                <th class="role-th" data-role="admin">Admin Geral<span class="role-sub">sistema</span></th>
+                <th class="role-th" data-role="cmpAdm">Compras Adm<span class="role-sub">cmpAdm</span></th>
+                <th class="role-th" data-role="cmpOp">Compras Op<span class="role-sub">cmpOp</span></th>
+                <th class="role-th" data-role="capAdm">CAP Adm<span class="role-sub">capAdm</span></th>
+                <th class="role-th" data-role="capOp">CAP Op<span class="role-sub">capOp</span></th>
+                <th class="role-th" data-role="aprDir">Aprov. Diretor<span class="role-sub">aprDir</span></th>
+                <th class="role-th" data-role="aprGer">Aprov. Gerente<span class="role-sub">aprGer</span></th>
+                <th class="role-th" data-role="viewer">Viewer<span class="role-sub">sistema</span></th>
               </tr>
             </thead>
             <tbody id="matrix-body"></tbody>
           </table>
         </div>
-      </div>
 
-      <!-- LEGEND DETALHADA -->
-      <div class="mt-4 bg-white border border-[#E5E7EB] rounded-lg p-4">
-        <div class="caption text-dms-tecnologia mb-3">Legenda das ações</div>
-        <div class="grid grid-cols-5 gap-3 text-xs">
-          <div class="flex items-start gap-2"><span class="mono font-bold text-dms-mar w-5">V</span><div><div class="font-semibold text-dms-mar">Ver</div><div class="text-dms-tecnologia">pode visualizar a tela/listagem</div></div></div>
-          <div class="flex items-start gap-2"><span class="mono font-bold text-dms-mar w-5">E</span><div><div class="font-semibold text-dms-mar">Editar</div><div class="text-dms-tecnologia">pode modificar campos existentes</div></div></div>
-          <div class="flex items-start gap-2"><span class="mono font-bold text-dms-mar w-5">I</span><div><div class="font-semibold text-dms-mar">Incluir</div><div class="text-dms-tecnologia">pode criar novos registros</div></div></div>
-          <div class="flex items-start gap-2"><span class="mono font-bold text-dms-mar w-5">X</span><div><div class="font-semibold text-dms-mar">Excluir</div><div class="text-dms-tecnologia">pode excluir/arquivar registros</div></div></div>
-          <div class="flex items-start gap-2"><span class="mono font-bold text-dms-mar w-5">A</span><div><div class="font-semibold text-dms-mar">Aprovar</div><div class="text-dms-tecnologia">pode aprovar/rejeitar (alçada)</div></div></div>
+        <div class="px-5 py-2 border-t border-[#E5E7EB] bg-[#F8F9FA] text-xs text-dms-tecnologia flex items-center justify-between flex-wrap gap-2">
+          <span>Exibindo <span id="contador-visiveis">57</span> de <span id="contador-total">57</span> permissões.</span>
+          <span>Fonte: <span class="mono">backend/app/services/permission_service.py</span> + concepts MVP.</span>
         </div>
       </div>
 
-      <!-- Aviso integração -->
+      <!-- AVISO -->
       <div class="mt-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-md p-3 flex items-start gap-2">
         <svg class="w-4 h-4 text-[#854D0E] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-        <p class="text-xs text-[#854D0E]">Permissão controla <strong>o que</strong> o usuário pode fazer. Para limitar <strong>em quais entidades</strong> (CCs, vendors, contratos), o usuário precisa também ter scope configurado em <a href="tela50-profile.html" class="underline font-semibold">Profile → Intervenientes</a>. Sem scope, não recebe cards mesmo com permissão correta — exceto Admin Geral e Gestão de Profile, que recebem órfãos.</p>
+        <p class="text-xs text-[#854D0E]">
+          <strong>Mockup A8 Sprint 1 F1</strong> — Backend `Permission` modela <strong>47 permissões reais</strong> (Workflow Builder); 10 permissões de <strong>Compras/Profile estão TBD</strong> (modeladas no Sprint 2.3+). Os 8 roles aqui são os <strong>oficiais DMS</strong> da Fase 1, mapeados pros enums `comprador`, `aprovador`, `financeiro`, `c_level`, `visualizador` do backend.
+        </p>
       </div>
 
     </main>
 
-    <!-- FOOTER FIXO -->
-    <div class="sticky bottom-0 ml-[260px] -mx-8 px-8 py-4 bg-white border-t border-[#E5E7EB] flex items-center justify-between gap-3 z-10 shadow-[0_-2px_8px_rgba(0,0,0,0.04)]" style="margin-left:0;">
-      <div class="flex items-center gap-3 text-xs min-w-0">
-        <span id="dirty-pill" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-100 border border-gray-200 text-dms-tecnologia font-semibold whitespace-nowrap"><span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span><span id="dirty-count">0</span> alterações pendentes</span>
-        <span id="dirty-summary" class="text-dms-tecnologia truncate">Clique nas células da matriz pra ativar/desativar permissões.</span>
-      </div>
-      <div class="flex items-center gap-3">
-        <button id="btn-cancelar" onclick="cancelarMudancas()" class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 border border-[#E5E7EB] rounded-md bg-white disabled:opacity-40 disabled:cursor-not-allowed" disabled>Cancelar</button>
-        <button id="btn-salvar" onclick="abrirModalSalvar()" class="text-sm font-semibold text-white px-5 py-2 bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled>Salvar mudanças (<span id="save-count">0</span>)</button>
+  </div>
+</div>
+
+<!-- ===== MODAL: EDITAR ROLE ===== -->
+<div id="modal-editar-role" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,27,76,0.55);">
+  <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
+      <span class="w-10 h-10 rounded-lg bg-dms-mar/10 flex items-center justify-center text-xl">✎</span>
+      <div>
+        <h3 class="text-base font-bold text-dms-mar">Editar permissões de role</h3>
+        <p class="text-xs text-dms-tecnologia">Requer permissão <span class="mono text-dms-mar">role.manage</span>. Cada mudança gera entry em <a href="tela13-audit-trail.html" class="text-dms-ceu hover:underline">audit trail</a>.</p>
       </div>
     </div>
+    <div class="p-6 space-y-4 text-sm">
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">Role a editar</label>
+        <select id="edit-role-select" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          <option value="cmpAdm">Compras Adm (cmpAdm)</option>
+          <option value="cmpOp">Compras Op (cmpOp)</option>
+          <option value="capAdm">CAP Adm (capAdm)</option>
+          <option value="capOp">CAP Op (capOp)</option>
+          <option value="aprDir">Aprovador Diretor (aprDir)</option>
+          <option value="aprGer">Aprovador Gerente (aprGer)</option>
+        </select>
+        <p class="text-[11px] text-dms-tecnologia mt-1">Roles <strong>admin</strong> e <strong>viewer</strong> são de sistema — não editáveis.</p>
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">Adicionar permissão</label>
+        <select class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+          <option>workflow.publish</option>
+          <option>workflow.deprecate</option>
+          <option>stage.publish</option>
+          <option>role.manage</option>
+          <option>tag.sync</option>
+        </select>
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">Justificativa (audit)</label>
+        <textarea rows="2" placeholder="ex: Promover Compras Adm a publicar workflows de cotação" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
+      </div>
+      <div class="bg-amber-50 border border-amber-200 rounded p-2.5 text-[11px] text-amber-800">
+        ⚠️ Mock visual — produção valida via <span class="mono">require_permission('role.manage')</span> + revalida ownership (tela82).
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
+      <button onclick="fecharModalEditarRole()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Cancelar</button>
+      <button onclick="confirmarEdicaoRole()" class="text-sm font-semibold text-white px-4 py-2 bg-dms-mar rounded hover:bg-dms-confianca">Salvar mudança</button>
+    </div>
+  </div>
+</div>
 
+<!-- ===== DRAWER: COMPARAR ROLES ===== -->
+<div id="drw-back" onclick="fecharDrawerCompare()"></div>
+<aside id="drw-compare">
+  <div class="px-5 py-4 border-b border-[#E5E7EB] flex items-start justify-between gap-3">
+    <div>
+      <h3 class="text-base font-bold text-dms-mar flex items-center gap-2">⇄ Comparar duas roles</h3>
+      <p class="text-[11px] text-dms-tecnologia mt-0.5">Visualize o delta de permissões entre A e B.</p>
+    </div>
+    <button onclick="fecharDrawerCompare()" class="text-dms-tecnologia hover:text-dms-mar text-2xl leading-none">×</button>
+  </div>
+  <div class="px-5 py-4 border-b border-[#E5E7EB] grid grid-cols-2 gap-3">
+    <div>
+      <label class="caption text-dms-tecnologia mb-1.5 block">Role A</label>
+      <select id="cmp-a" onchange="renderCompare()" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+        <option value="cmpAdm">Compras Adm</option>
+        <option value="cmpOp">Compras Op</option>
+        <option value="capAdm">CAP Adm</option>
+        <option value="capOp">CAP Op</option>
+        <option value="aprDir">Aprovador Diretor</option>
+        <option value="aprGer">Aprovador Gerente</option>
+        <option value="admin">Admin Geral</option>
+        <option value="viewer">Viewer</option>
+      </select>
+    </div>
+    <div>
+      <label class="caption text-dms-tecnologia mb-1.5 block">Role B</label>
+      <select id="cmp-b" onchange="renderCompare()" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+        <option value="aprDir">Aprovador Diretor</option>
+        <option value="aprGer">Aprovador Gerente</option>
+        <option value="cmpAdm">Compras Adm</option>
+        <option value="cmpOp">Compras Op</option>
+        <option value="capAdm">CAP Adm</option>
+        <option value="capOp">CAP Op</option>
+        <option value="admin">Admin Geral</option>
+        <option value="viewer">Viewer</option>
+      </select>
+    </div>
+  </div>
+  <div class="px-5 py-3 border-b border-[#E5E7EB] bg-[#F8F9FA] grid grid-cols-3 gap-3 text-xs text-dms-tecnologia">
+    <div><span class="font-bold text-dms-mar" id="cmp-only-a">0</span> só em A</div>
+    <div><span class="font-bold text-dms-mar" id="cmp-both">0</span> em ambos</div>
+    <div><span class="font-bold text-dms-mar" id="cmp-only-b">0</span> só em B</div>
+  </div>
+  <div id="cmp-list" class="flex-1 overflow-y-auto px-2 py-2"></div>
+</aside>
+
+<!-- ===== MODAL: DETALHE PERMISSÃO ===== -->
+<div id="modal-perm-detalhe" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,27,76,0.55);">
+  <div class="bg-white rounded-lg shadow-2xl max-w-lg w-full">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
+      <span class="w-10 h-10 rounded-lg bg-dms-ceu/10 flex items-center justify-center text-xl">ℹ️</span>
+      <div>
+        <h3 id="pd-codigo" class="mono text-base font-bold text-dms-mar">—</h3>
+        <p id="pd-descricao" class="text-xs text-dms-tecnologia">—</p>
+      </div>
+    </div>
+    <div class="p-6 space-y-3 text-sm">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <div class="caption text-dms-tecnologia mb-1">Recurso</div>
+          <div id="pd-recurso" class="mono text-dms-mar font-semibold">—</div>
+        </div>
+        <div>
+          <div class="caption text-dms-tecnologia mb-1">Ação</div>
+          <div id="pd-acao" class="mono text-dms-mar font-semibold">—</div>
+        </div>
+      </div>
+      <div>
+        <div class="caption text-dms-tecnologia mb-1">Roles com esta permissão</div>
+        <div id="pd-roles" class="flex flex-wrap gap-1.5"></div>
+      </div>
+      <div id="pd-status" class="text-xs"></div>
+    </div>
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
+      <button onclick="fecharDetalhePerm()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Fechar</button>
+    </div>
   </div>
 </div>
 
 <script>
-// ============ Matriz: geração das células ============
-const CATEGORIES = [
-  { label: 'Workspace', rows: [
-    { code: 'tela16', name: 'Cockpit Overview' },
-    { code: 'tela18', name: 'Cockpit · Tarefas' },
-    { code: 'tela40', name: 'Aprovações' },
-  ]},
-  { label: 'Compras', rows: [
-    { code: 'tela21', name: 'Requisições' },
-    { code: 'tela24', name: 'Cotações' },
-    { code: 'tela27', name: 'Pedidos (PO)' },
-    { code: 'tela38', name: 'Notas Fiscais' },
-    { code: 'tela44', name: 'Contratos' },
-  ]},
-  { label: 'Cadastros', rows: [
-    { code: 'tela30', name: 'Empresas' },
-    { code: 'tela32', name: 'Centros de Custo' },
-    { code: 'tela34', name: 'Plano de Contas' },
-  ]},
-  { label: 'Bibliotecas', rows: [
-    { code: 'tela04', name: 'Workflows' },
-    { code: 'tela06', name: 'SOPs' },
-    { code: 'tela03', name: 'Procedures' },
-  ]},
-  { label: 'Admin', rows: [
-    { code: 'tela13', name: 'Auditoria Trail' },
-    { code: 'tela60', name: 'Auditoria Global' },
-    { code: 'tela80', name: 'Permissões (esta)' },
-  ]},
+// ============ DATA: 47 permissões REAIS + 10 TBD ============
+// Fonte real: backend/app/services/permission_service.py (linhas 30-86)
+const PERMS = [
+  // ---- WORKFLOW (11 reais) ----
+  { codigo: 'workflow.create_draft',        recurso: 'workflow',  acao: 'create_draft',        modulo: 'workflow', descricao: 'Criar rascunho de workflow', tbd: false },
+  { codigo: 'workflow.edit_draft',          recurso: 'workflow',  acao: 'edit_draft',          modulo: 'workflow', descricao: 'Editar rascunho de workflow', tbd: false },
+  { codigo: 'workflow.delete_draft',        recurso: 'workflow',  acao: 'delete_draft',        modulo: 'workflow', descricao: 'Excluir rascunho de workflow', tbd: false },
+  { codigo: 'workflow.view',                recurso: 'workflow',  acao: 'view',                modulo: 'workflow', descricao: 'Visualizar workflows publicados ou rascunhos', tbd: false },
+  { codigo: 'workflow.simulate',            recurso: 'workflow',  acao: 'simulate',            modulo: 'workflow', descricao: 'Simular execução de workflow sem persistir', tbd: false },
+  { codigo: 'workflow.request_approval',    recurso: 'workflow',  acao: 'request_approval',    modulo: 'workflow', descricao: 'Solicitar aprovação de publicação', tbd: false },
+  { codigo: 'workflow.approve_publication', recurso: 'workflow',  acao: 'approve_publication', modulo: 'workflow', descricao: 'Aprovar publicação de workflow (alçada)', tbd: false },
+  { codigo: 'workflow.publish',             recurso: 'workflow',  acao: 'publish',             modulo: 'workflow', descricao: 'Publicar workflow aprovado em produção', tbd: false },
+  { codigo: 'workflow.deprecate',           recurso: 'workflow',  acao: 'deprecate',           modulo: 'workflow', descricao: 'Obsoletar workflow publicado', tbd: false },
+  { codigo: 'workflow.clone',               recurso: 'workflow',  acao: 'clone',               modulo: 'workflow', descricao: 'Clonar workflow existente', tbd: false },
+  { codigo: 'workflow.create_version',      recurso: 'workflow',  acao: 'create_version',      modulo: 'workflow', descricao: 'Criar nova versão de workflow publicado', tbd: false },
+
+  // ---- STAGE (6 reais) ----
+  { codigo: 'stage.create',                 recurso: 'stage',     acao: 'create',              modulo: 'workflow', descricao: 'Criar stage de workflow', tbd: false },
+  { codigo: 'stage.edit',                   recurso: 'stage',     acao: 'edit',                modulo: 'workflow', descricao: 'Editar stage', tbd: false },
+  { codigo: 'stage.delete',                 recurso: 'stage',     acao: 'delete',              modulo: 'workflow', descricao: 'Excluir stage', tbd: false },
+  { codigo: 'stage.view',                   recurso: 'stage',     acao: 'view',                modulo: 'workflow', descricao: 'Visualizar stages', tbd: false },
+  { codigo: 'stage.publish',                recurso: 'stage',     acao: 'publish',             modulo: 'workflow', descricao: 'Publicar stage', tbd: false },
+  { codigo: 'stage.deprecate',              recurso: 'stage',     acao: 'deprecate',           modulo: 'workflow', descricao: 'Obsoletar stage publicado', tbd: false },
+
+  // ---- PROCEDURE (6 reais) ----
+  { codigo: 'procedure.create',             recurso: 'procedure', acao: 'create',              modulo: 'workflow', descricao: 'Criar procedure', tbd: false },
+  { codigo: 'procedure.edit',               recurso: 'procedure', acao: 'edit',                modulo: 'workflow', descricao: 'Editar procedure', tbd: false },
+  { codigo: 'procedure.delete',             recurso: 'procedure', acao: 'delete',              modulo: 'workflow', descricao: 'Excluir procedure', tbd: false },
+  { codigo: 'procedure.view',               recurso: 'procedure', acao: 'view',                modulo: 'workflow', descricao: 'Visualizar procedures', tbd: false },
+  { codigo: 'procedure.publish',            recurso: 'procedure', acao: 'publish',             modulo: 'workflow', descricao: 'Publicar procedure', tbd: false },
+  { codigo: 'procedure.deprecate',          recurso: 'procedure', acao: 'deprecate',           modulo: 'workflow', descricao: 'Obsoletar procedure', tbd: false },
+
+  // ---- AGENTE (6 reais) ----
+  { codigo: 'agente.create',                recurso: 'agente',    acao: 'create',              modulo: 'workflow', descricao: 'Criar agente IA', tbd: false },
+  { codigo: 'agente.edit',                  recurso: 'agente',    acao: 'edit',                modulo: 'workflow', descricao: 'Editar agente IA', tbd: false },
+  { codigo: 'agente.delete',                recurso: 'agente',    acao: 'delete',              modulo: 'workflow', descricao: 'Excluir agente', tbd: false },
+  { codigo: 'agente.view',                  recurso: 'agente',    acao: 'view',                modulo: 'workflow', descricao: 'Visualizar agentes', tbd: false },
+  { codigo: 'agente.publish',               recurso: 'agente',    acao: 'publish',             modulo: 'workflow', descricao: 'Publicar agente', tbd: false },
+  { codigo: 'agente.deprecate',             recurso: 'agente',    acao: 'deprecate',           modulo: 'workflow', descricao: 'Obsoletar agente', tbd: false },
+
+  // ---- ALERTA (6 reais) ----
+  { codigo: 'alerta.create',                recurso: 'alerta',    acao: 'create',              modulo: 'workflow', descricao: 'Criar alerta', tbd: false },
+  { codigo: 'alerta.edit',                  recurso: 'alerta',    acao: 'edit',                modulo: 'workflow', descricao: 'Editar alerta', tbd: false },
+  { codigo: 'alerta.delete',                recurso: 'alerta',    acao: 'delete',              modulo: 'workflow', descricao: 'Excluir alerta', tbd: false },
+  { codigo: 'alerta.view',                  recurso: 'alerta',    acao: 'view',                modulo: 'workflow', descricao: 'Visualizar alertas', tbd: false },
+  { codigo: 'alerta.publish',               recurso: 'alerta',    acao: 'publish',             modulo: 'workflow', descricao: 'Publicar alerta', tbd: false },
+  { codigo: 'alerta.deprecate',             recurso: 'alerta',    acao: 'deprecate',           modulo: 'workflow', descricao: 'Obsoletar alerta', tbd: false },
+
+  // ---- SOP (6 reais) ----
+  { codigo: 'sop.create',                   recurso: 'sop',       acao: 'create',              modulo: 'workflow', descricao: 'Criar SOP', tbd: false },
+  { codigo: 'sop.edit',                     recurso: 'sop',       acao: 'edit',                modulo: 'workflow', descricao: 'Editar SOP', tbd: false },
+  { codigo: 'sop.delete',                   recurso: 'sop',       acao: 'delete',              modulo: 'workflow', descricao: 'Excluir SOP', tbd: false },
+  { codigo: 'sop.view',                     recurso: 'sop',       acao: 'view',                modulo: 'workflow', descricao: 'Visualizar SOPs', tbd: false },
+  { codigo: 'sop.publish',                  recurso: 'sop',       acao: 'publish',             modulo: 'workflow', descricao: 'Publicar SOP', tbd: false },
+  { codigo: 'sop.deprecate',                recurso: 'sop',       acao: 'deprecate',           modulo: 'workflow', descricao: 'Obsoletar SOP', tbd: false },
+
+  // ---- ROLE (1 real) ----
+  { codigo: 'role.manage',                  recurso: 'role',      acao: 'manage',              modulo: 'admin',    descricao: 'Gerenciar roles e permissões (esta tela)', tbd: false },
+
+  // ---- TAG (5 reais) ----
+  { codigo: 'tag.view',                     recurso: 'tag',       acao: 'view',                modulo: 'cadastro', descricao: 'Visualizar tags', tbd: false },
+  { codigo: 'tag.create',                   recurso: 'tag',       acao: 'create',              modulo: 'cadastro', descricao: 'Criar tag', tbd: false },
+  { codigo: 'tag.edit',                     recurso: 'tag',       acao: 'edit',                modulo: 'cadastro', descricao: 'Editar tag', tbd: false },
+  { codigo: 'tag.delete',                   recurso: 'tag',       acao: 'delete',              modulo: 'cadastro', descricao: 'Excluir tag', tbd: false },
+  { codigo: 'tag.sync',                     recurso: 'tag',       acao: 'sync',                modulo: 'cadastro', descricao: 'Resincronizar schema de tags', tbd: false },
+
+  // ---- TBD: COMPRAS (8 planejadas — Sprint 2.3+) ----
+  { codigo: 'requisition.view',             recurso: 'requisition', acao: 'view',              modulo: 'compras',  descricao: 'Visualizar requisições de compra', tbd: true },
+  { codigo: 'requisition.create',           recurso: 'requisition', acao: 'create',            modulo: 'compras',  descricao: 'Criar requisição de compra', tbd: true },
+  { codigo: 'requisition.approve',          recurso: 'requisition', acao: 'approve',           modulo: 'compras',  descricao: 'Aprovar requisição (alçada)', tbd: true },
+  { codigo: 'cotacao.create',               recurso: 'cotacao',     acao: 'create',            modulo: 'compras',  descricao: 'Criar cotação a partir de requisição', tbd: true },
+  { codigo: 'cotacao.approve',              recurso: 'cotacao',     acao: 'approve',           modulo: 'compras',  descricao: 'Aprovar cotação selecionada', tbd: true },
+  { codigo: 'pedido.create',                recurso: 'pedido',      acao: 'create',            modulo: 'compras',  descricao: 'Emitir pedido de compra (PO)', tbd: true },
+  { codigo: 'nf.aprovar',                   recurso: 'nf',          acao: 'aprovar',           modulo: 'compras',  descricao: 'Aprovar nota fiscal recebida', tbd: true },
+  { codigo: 'contrato.edit',                recurso: 'contrato',    acao: 'edit',              modulo: 'compras',  descricao: 'Editar contrato vigente', tbd: true },
+
+  // ---- TBD: PROFILE/ADMIN (2 planejadas) ----
+  { codigo: 'profile.edit_other',           recurso: 'profile',     acao: 'edit_other',        modulo: 'profile',  descricao: 'Editar profile de outro usuário (admin RH)', tbd: true },
+  { codigo: 'audit.view_global',            recurso: 'audit',       acao: 'view_global',       modulo: 'admin',    descricao: 'Visualizar audit trail global do sistema', tbd: true },
 ];
 
-// 8 roles × 5 ações = 40 cells per row
-// Cada role: [V, E, I, X, A] = 1 permitido, 0 negado, -1 n/a
-const ROLE_DEFAULTS = {
-  // Admin Geral: tudo 1
-  admin:    [1,1,1,1,1],
-  // Compras Adm: ver/editar/incluir tudo, aprovar workflows
-  cmpAdm:   [1,1,1,0,0],
-  // Compras Op: ver/editar/incluir, sem excluir/aprovar
-  cmpOp:    [1,1,1,0,0],
-  // CAP Adm
-  capAdm:   [1,1,1,1,0],
-  // CAP Op
-  capOp:    [1,1,1,0,0],
-  // Aprovador Diretor: ver + aprovar
-  aprDir:   [1,0,0,0,1],
-  // Aprovador Gerente: ver + aprovar (alçada menor)
-  aprGer:   [1,0,0,0,1],
-  // Viewer
-  viewer:   [1,0,0,0,0],
-};
+// 8 roles oficiais DMS (Fase 1)
+const ROLES = ['admin', 'cmpAdm', 'cmpOp', 'capAdm', 'capOp', 'aprDir', 'aprGer', 'viewer'];
+const ROLE_LABEL = { admin: 'Admin Geral', cmpAdm: 'Compras Adm', cmpOp: 'Compras Op', capAdm: 'CAP Adm', capOp: 'CAP Op', aprDir: 'Aprovador Diretor', aprGer: 'Aprovador Gerente', viewer: 'Viewer' };
+const ROLE_SYS = { admin: true, viewer: true }; // sistema = não editável
 
-// Per-screen overrides — semantically more interesting examples
-const ROLE_MATRIX = {
-  // Compras telas: Compras Adm/Op têm full, CAP só vê NF/Contrato, Aprovador só vê e aprova
-  'tela21': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,1,0], cmpOp:[1,1,1,0,0], capAdm:[1,0,0,0,0], capOp:[0,0,0,0,0], aprDir:[1,0,0,0,1], aprGer:[1,0,0,0,1], viewer:[1,0,0,0,0] },
-  'tela24': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,1,1], cmpOp:[1,1,1,0,0], capAdm:[1,0,0,0,0], capOp:[0,0,0,0,0], aprDir:[1,0,0,0,1], aprGer:[1,0,0,0,1], viewer:[1,0,0,0,0] },
-  'tela27': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,1,1], cmpOp:[1,1,1,0,0], capAdm:[1,0,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,1], aprGer:[1,0,0,0,1], viewer:[1,0,0,0,0] },
-  'tela38': { admin:[1,1,1,1,1], cmpAdm:[1,0,0,0,0], cmpOp:[1,0,0,0,0], capAdm:[1,1,1,1,1], capOp:[1,1,1,0,0], aprDir:[1,0,0,0,1], aprGer:[1,0,0,0,1], viewer:[1,0,0,0,0] },
-  'tela44': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,1,1], cmpOp:[1,0,0,0,0], capAdm:[1,0,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,1], aprGer:[1,0,0,0,1], viewer:[1,0,0,0,0] },
-  // Workspace: ver
-  'tela16': { admin:[1,1,1,1,1], cmpAdm:[1,-1,-1,-1,-1], cmpOp:[1,-1,-1,-1,-1], capAdm:[1,-1,-1,-1,-1], capOp:[1,-1,-1,-1,-1], aprDir:[1,-1,-1,-1,-1], aprGer:[1,-1,-1,-1,-1], viewer:[1,-1,-1,-1,-1] },
-  'tela18': { admin:[1,1,1,1,1], cmpAdm:[1,1,-1,-1,-1], cmpOp:[1,1,-1,-1,-1], capAdm:[1,1,-1,-1,-1], capOp:[1,1,-1,-1,-1], aprDir:[1,1,-1,-1,-1], aprGer:[1,1,-1,-1,-1], viewer:[1,0,-1,-1,-1] },
-  'tela40': { admin:[1,1,1,1,1], cmpAdm:[1,0,0,0,0], cmpOp:[1,0,0,0,0], capAdm:[1,0,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,1,0,0,1], aprGer:[1,1,0,0,1], viewer:[1,0,0,0,0] },
-  // Cadastros: só admin
-  'tela30': { admin:[1,1,1,1,1], cmpAdm:[1,1,0,0,0], cmpOp:[1,0,0,0,0], capAdm:[1,0,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,0], aprGer:[1,0,0,0,0], viewer:[1,0,0,0,0] },
-  'tela32': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,0,0], cmpOp:[1,0,0,0,0], capAdm:[1,1,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,0], aprGer:[1,0,0,0,0], viewer:[1,0,0,0,0] },
-  'tela34': { admin:[1,1,1,1,1], cmpAdm:[1,0,0,0,0], cmpOp:[1,0,0,0,0], capAdm:[1,1,1,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,0], aprGer:[1,0,0,0,0], viewer:[1,0,0,0,0] },
-  // Bibliotecas: workflow/SOP = Compras Adm + Admin
-  'tela04': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,1,1], cmpOp:[1,0,0,0,0], capAdm:[1,0,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,0], aprGer:[1,0,0,0,0], viewer:[1,0,0,0,0] },
-  'tela06': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,1,1], cmpOp:[1,0,0,0,0], capAdm:[1,0,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,0], aprGer:[1,0,0,0,0], viewer:[1,0,0,0,0] },
-  'tela03': { admin:[1,1,1,1,1], cmpAdm:[1,1,1,0,0], cmpOp:[1,0,0,0,0], capAdm:[1,0,0,0,0], capOp:[1,0,0,0,0], aprDir:[1,0,0,0,0], aprGer:[1,0,0,0,0], viewer:[1,0,0,0,0] },
-  // Admin: só admin geral
-  'tela13': { admin:[1,1,-1,-1,-1], cmpAdm:[1,0,-1,-1,-1], cmpOp:[0,0,-1,-1,-1], capAdm:[1,0,-1,-1,-1], capOp:[0,0,-1,-1,-1], aprDir:[1,0,-1,-1,-1], aprGer:[0,0,-1,-1,-1], viewer:[0,0,-1,-1,-1] },
-  'tela60': { admin:[1,1,-1,-1,-1], cmpAdm:[0,0,-1,-1,-1], cmpOp:[0,0,-1,-1,-1], capAdm:[0,0,-1,-1,-1], capOp:[0,0,-1,-1,-1], aprDir:[0,0,-1,-1,-1], aprGer:[0,0,-1,-1,-1], viewer:[0,0,-1,-1,-1] },
-  'tela80': { admin:[1,1,1,1,-1], cmpAdm:[0,0,0,0,-1], cmpOp:[0,0,0,0,-1], capAdm:[0,0,0,0,-1], capOp:[0,0,0,0,-1], aprDir:[0,0,0,0,-1], aprGer:[0,0,0,0,-1], viewer:[0,0,0,0,-1] },
-};
+// Estados: 1 = ✅ on, 0 = ❌ off, 2 = 🔵 delegada, 3 = 🔒 read-only sistema
+// Heurística:
+//   admin: tudo 1 (e onde role.manage, marcamos 3 nos demais = read-only)
+//   workflow_designer (= cmpAdm/cmpOp mapeados): rascunhos + edit + clone + view, sem publish/deprecate/delete
+//   cmpAdm: pode mais que cmpOp; cmpOp = view + create_draft + edit_draft + simulate
+//   capAdm/capOp: focados em nf/financeiro — view de workflow, edit/aprovar de nf
+//   aprDir: approve_publication, requisition.approve, cotacao.approve, nf.aprovar
+//   aprGer: subset menor de aprDir (alçada menor)
+//   viewer: só *.view, locked como sistema
 
-const ROLE_ORDER = ['admin','cmpAdm','cmpOp','capAdm','capOp','aprDir','aprGer','viewer'];
+function makeMatrix() {
+  const m = {};
+  PERMS.forEach(p => {
+    m[p.codigo] = {};
+    ROLES.forEach(r => { m[p.codigo][r] = 0; });
 
-const ACTIONS = ['V','E','I','X','A'];
-const ROLE_LABEL = { admin:'Admin Geral', cmpAdm:'Compras Adm', cmpOp:'Compras Op', capAdm:'CAP Adm', capOp:'CAP Op', aprDir:'Aprovador Diretor', aprGer:'Aprovador Gerente', viewer:'Viewer' };
+    // Admin: tudo concedido
+    m[p.codigo].admin = 1;
 
-// Estado mutável: { telaCode: { role: [V,E,I,X,A] } } — clonado de ROLE_MATRIX/DEFAULTS na primeira render
-const STATE = {};
-const BASELINE = {};
-const CHANGES = []; // [{tela, role, action, from, to}]
+    // Viewer: só *.view, lockado
+    if (p.acao === 'view' || p.acao === 'view_global') {
+      m[p.codigo].viewer = 3;
+    }
 
-function cellHtml(state, telaCode, role, actIdx, dirty) {
-  const dirtyCls = dirty ? ' dirty' : '';
-  if (state === -1) {
-    return `<span class="perm-check disabled" title="ação não aplicável">—</span>`;
-  }
-  if (state === 1) {
-    return `<span class="perm-check on${dirtyCls}" title="permitido — clique para negar" data-tela="${telaCode}" data-role="${role}" data-act="${actIdx}" onclick="togglePerm(this)"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>`;
-  }
-  return `<span class="perm-check off${dirtyCls}" title="negado — clique para permitir" data-tela="${telaCode}" data-role="${role}" data-act="${actIdx}" onclick="togglePerm(this)"></span>`;
+    // cmpAdm — Compras Adm: workflow design completo, mas sem publish/deprecate/delete + Compras ops
+    if (['workflow', 'stage', 'procedure', 'agente', 'alerta', 'sop'].includes(p.recurso)) {
+      if (['view', 'create', 'create_draft', 'edit', 'edit_draft', 'clone', 'simulate', 'create_version', 'request_approval'].includes(p.acao)) {
+        m[p.codigo].cmpAdm = 1;
+      }
+    }
+    if (p.recurso === 'tag' && ['view', 'create', 'edit'].includes(p.acao)) m[p.codigo].cmpAdm = 1;
+    if (p.recurso === 'requisition') m[p.codigo].cmpAdm = 1;
+    if (p.recurso === 'cotacao') m[p.codigo].cmpAdm = 1;
+    if (p.recurso === 'pedido') m[p.codigo].cmpAdm = 1;
+    if (p.recurso === 'contrato' && p.acao === 'edit') m[p.codigo].cmpAdm = 1;
+
+    // cmpOp — Compras Op: view + criar requisição/cotação, sem aprovar
+    if (['workflow', 'stage', 'procedure', 'sop'].includes(p.recurso) && p.acao === 'view') m[p.codigo].cmpOp = 1;
+    if (p.recurso === 'requisition' && (p.acao === 'view' || p.acao === 'create')) m[p.codigo].cmpOp = 1;
+    if (p.recurso === 'cotacao' && p.acao === 'create') m[p.codigo].cmpOp = 1;
+    if (p.recurso === 'pedido' && p.acao === 'create') m[p.codigo].cmpOp = 1;
+    if (p.codigo === 'tag.view') m[p.codigo].cmpOp = 1;
+
+    // capAdm — CAP Adm: view workflow + ops em nf/contrato
+    if (['workflow', 'sop'].includes(p.recurso) && p.acao === 'view') m[p.codigo].capAdm = 1;
+    if (p.recurso === 'nf') m[p.codigo].capAdm = 1;
+    if (p.recurso === 'contrato') m[p.codigo].capAdm = 1;
+    if (p.codigo === 'requisition.view') m[p.codigo].capAdm = 1;
+    if (p.codigo === 'cotacao.create') m[p.codigo].capAdm = 0;
+
+    // capOp — CAP Op: subset menor
+    if (p.codigo === 'workflow.view') m[p.codigo].capOp = 1;
+    if (p.codigo === 'sop.view') m[p.codigo].capOp = 1;
+    if (p.codigo === 'requisition.view') m[p.codigo].capOp = 1;
+    if (p.codigo === 'nf.aprovar') m[p.codigo].capOp = 0;
+
+    // aprDir — Aprovador Diretor: view + aprovar tudo
+    if (p.acao === 'view') m[p.codigo].aprDir = 1;
+    if (p.acao === 'approve' || p.acao === 'approve_publication' || p.acao === 'aprovar') m[p.codigo].aprDir = 1;
+    if (p.codigo === 'workflow.request_approval') m[p.codigo].aprDir = 0;
+
+    // aprGer — Aprovador Gerente: subset (alçada menor — não aprova publicação de workflow)
+    if (p.acao === 'view') m[p.codigo].aprGer = 1;
+    if (p.codigo === 'requisition.approve') m[p.codigo].aprGer = 1;
+    if (p.codigo === 'cotacao.approve') m[p.codigo].aprGer = 1;
+    if (p.codigo === 'nf.aprovar') m[p.codigo].aprGer = 1;
+    // não aprova publicação de workflow nem requisições altas
+
+    // role.manage: só admin
+    if (p.codigo === 'role.manage') {
+      ROLES.forEach(r => { if (r !== 'admin') m[p.codigo][r] = 0; });
+    }
+
+    // profile.edit_other: admin only
+    if (p.codigo === 'profile.edit_other') {
+      ROLES.forEach(r => { if (r !== 'admin') m[p.codigo][r] = 0; });
+    }
+
+    // audit.view_global: admin + aprDir (alçada total)
+    if (p.codigo === 'audit.view_global') {
+      m[p.codigo].aprDir = 1;
+      ['cmpAdm', 'cmpOp', 'capAdm', 'capOp', 'aprGer', 'viewer'].forEach(r => { m[p.codigo][r] = 0; });
+    }
+
+    // Exemplo de delegação visual: tag.sync delegada do admin pra cmpAdm (mock)
+    if (p.codigo === 'tag.sync') m[p.codigo].cmpAdm = 2;
+    // Exemplo: aprovação de NF >50k delegada do aprDir pro aprGer (mock)
+    if (p.codigo === 'nf.aprovar' && m[p.codigo].aprGer === 1) m[p.codigo].aprGer = 2;
+  });
+  return m;
 }
 
-function buildMatrix() {
+const MATRIX = makeMatrix();
+
+// ============ RENDER ============
+const ST_ICON = {
+  1: { cls: 'st-icon st-on',     ch: '✓', label: 'concedida' },
+  0: { cls: 'st-icon st-off',    ch: '·', label: 'negada' },
+  2: { cls: 'st-icon st-deleg',  ch: '⇆', label: 'delegada' },
+  3: { cls: 'st-icon st-lock',   ch: '⚿', label: 'read-only sistema' },
+};
+
+const MOD_LABEL = {
+  workflow: { cls: 'mod-workflow', txt: 'Workflow' },
+  compras:  { cls: 'mod-compras',  txt: 'Compras' },
+  admin:    { cls: 'mod-admin',    txt: 'Admin' },
+  cadastro: { cls: 'mod-cadastro', txt: 'Cadastros' },
+  profile:  { cls: 'mod-profile',  txt: 'Profile' },
+};
+
+let CURRENT_FILTER = { search: '', modulo: '', highlightRole: '' };
+
+function rowHtml(p) {
+  const mod = MOD_LABEL[p.modulo] || { cls: '', txt: p.modulo };
+  const tbdBadge = p.tbd ? `<span class="badge badge-tbd ml-1">TBD</span>` : '';
+  const cells = ROLES.map(r => {
+    const st = MATRIX[p.codigo][r];
+    const icon = ST_ICON[st];
+    const hl = CURRENT_FILTER.highlightRole === r ? ' highlight-col' : '';
+    return `<td class="role-cell${hl}" onclick="abrirDetalhePerm('${p.codigo}')" title="${ROLE_LABEL[r]} — ${icon.label}">
+      <span class="${icon.cls}">${icon.ch}</span>
+    </td>`;
+  }).join('');
+
+  return `<tr data-codigo="${p.codigo}" data-modulo="${p.modulo}" data-tbd="${p.tbd ? 1 : 0}">
+    <td class="sticky-col sticky-col-1">
+      <span class="perm-name mono text-[12px] text-dms-mar font-semibold">
+        ${p.codigo}${tbdBadge}
+        <span class="tip"><strong>${p.codigo}</strong><br>${p.descricao}<br><em class="text-[10px]">recurso: ${p.recurso} · acao: ${p.acao}</em></span>
+      </span>
+    </td>
+    <td class="sticky-col sticky-col-2"><span class="module-pill ${mod.cls}">${mod.txt}</span></td>
+    <td class="sticky-col sticky-col-3 text-dms-tecnologia text-[12px]">${p.descricao}</td>
+    ${cells}
+  </tr>`;
+}
+
+function renderMatrix() {
   const body = document.getElementById('matrix-body');
+  // group by módulo
+  const ordem = ['workflow', 'compras', 'cadastro', 'admin', 'profile'];
+  const labelGrupo = { workflow: 'Workflow Builder (47 reais)', compras: 'Compras (TBD — Sprint 2.3+)', cadastro: 'Cadastros · Tags', admin: 'Admin · Roles / Auditoria', profile: 'Profile · Identidade' };
   let html = '';
-  CATEGORIES.forEach(cat => {
-    html += `<tr class="cat-header"><td colspan="${1 + 8*5}" class="sticky-col">${cat.label}</td></tr>`;
-    cat.rows.forEach(row => {
-      const perms = ROLE_MATRIX[row.code] || {};
-      // Hidrata STATE/BASELINE
-      if (!STATE[row.code]) {
-        STATE[row.code] = {};
-        BASELINE[row.code] = {};
-        ROLE_ORDER.forEach(role => {
-          const src = (perms[role] || ROLE_DEFAULTS[role]).slice();
-          STATE[row.code][role] = src.slice();
-          BASELINE[row.code][role] = src.slice();
-        });
-      }
-      html += `<tr id="row-${row.code}" class="hover:bg-[#FAFBFC]">`;
-      html += `<td class="sticky-col role-name"><div class="flex items-center gap-2"><span class="mono text-[10px] text-dms-tecnologia">${row.code}</span><span>${row.name}</span></div></td>`;
-      ROLE_ORDER.forEach(role => {
-        const states = STATE[row.code][role];
-        states.forEach((s, idx) => { html += `<td class="action-cell">${cellHtml(s, row.code, role, idx, false)}</td>`; });
-      });
-      html += `</tr>`;
-    });
+  ordem.forEach(mod => {
+    const perms = PERMS.filter(p => p.modulo === mod);
+    if (perms.length === 0) return;
+    html += `<tr class="cat-row"><td class="sticky-col" colspan="3">${labelGrupo[mod]} · ${perms.length}</td>`;
+    // colunas roles na cat-row: vazias
+    ROLES.forEach(() => html += `<td></td>`);
+    html += `</tr>`;
+    perms.forEach(p => { html += rowHtml(p); });
   });
   body.innerHTML = html;
+  atualizarKpis();
 }
 
-function togglePerm(el) {
-  const tela = el.dataset.tela, role = el.dataset.role, actIdx = parseInt(el.dataset.act, 10);
-  const cur = STATE[tela][role][actIdx];
-  if (cur === -1) return; // n/a
-  const next = cur === 1 ? 0 : 1;
-  STATE[tela][role][actIdx] = next;
-  // Re-renderiza só esta célula
-  const td = el.parentElement;
-  const dirty = next !== BASELINE[tela][role][actIdx];
-  td.innerHTML = cellHtml(next, tela, role, actIdx, dirty);
-  recomputeChanges();
+function atualizarKpis() {
+  let grants = 0;
+  PERMS.forEach(p => ROLES.forEach(r => { if (MATRIX[p.codigo][r] === 1 || MATRIX[p.codigo][r] === 2) grants++; }));
+  document.getElementById('kpi-grants').textContent = grants;
+  document.getElementById('contador-perms').textContent = PERMS.length;
+  document.getElementById('contador-total').textContent = PERMS.length;
 }
 
-function recomputeChanges() {
-  CHANGES.length = 0;
-  Object.keys(STATE).forEach(tela => {
-    Object.keys(STATE[tela]).forEach(role => {
-      STATE[tela][role].forEach((s, i) => {
-        const base = BASELINE[tela][role][i];
-        if (s !== base && base !== -1) {
-          CHANGES.push({ tela, role, action: ACTIONS[i], from: base, to: s });
-        }
-      });
-    });
-    // Marca linha dirty
-    const row = document.getElementById('row-' + tela);
-    if (row) {
-      const rowDirty = ROLE_ORDER.some(r => STATE[tela][r].some((s,i) => s !== BASELINE[tela][r][i] && BASELINE[tela][r][i] !== -1));
-      row.classList.toggle('row-dirty', rowDirty);
-    }
+function filtrar() {
+  CURRENT_FILTER.search = (document.getElementById('f-search').value || '').toLowerCase().trim();
+  CURRENT_FILTER.modulo = document.getElementById('f-modulo').value;
+  CURRENT_FILTER.highlightRole = document.getElementById('f-role').value;
+
+  // Re-render para aplicar destaque de coluna
+  renderMatrix();
+
+  // Aplica filtro de busca/módulo em rows
+  let visiveis = 0;
+  document.querySelectorAll('#matrix-body tr[data-codigo]').forEach(tr => {
+    const cod = tr.dataset.codigo;
+    const mod = tr.dataset.modulo;
+    const okSearch = !CURRENT_FILTER.search || cod.toLowerCase().includes(CURRENT_FILTER.search) || (tr.textContent || '').toLowerCase().includes(CURRENT_FILTER.search);
+    const okMod = !CURRENT_FILTER.modulo || mod === CURRENT_FILTER.modulo;
+    const show = okSearch && okMod;
+    tr.style.display = show ? '' : 'none';
+    if (show) visiveis++;
   });
-  updateFooter();
+
+  // Esconde headers de grupo cujos rows estão todos hidden
+  document.querySelectorAll('#matrix-body tr.cat-row').forEach(catTr => {
+    let next = catTr.nextElementSibling;
+    let anyVisible = false;
+    while (next && !next.classList.contains('cat-row')) {
+      if (next.style.display !== 'none') { anyVisible = true; break; }
+      next = next.nextElementSibling;
+    }
+    catTr.style.display = anyVisible ? '' : 'none';
+  });
+
+  document.getElementById('contador-visiveis').textContent = visiveis;
+
+  // Destaca coluna no header
+  document.querySelectorAll('th.role-th').forEach(th => {
+    th.classList.toggle('highlight-col', th.dataset.role === CURRENT_FILTER.highlightRole);
+  });
 }
 
-function updateFooter() {
-  const n = CHANGES.length;
-  document.getElementById('dirty-count').textContent = n;
-  document.getElementById('save-count').textContent = n;
-  document.getElementById('btn-salvar').disabled = n === 0;
-  document.getElementById('btn-cancelar').disabled = n === 0;
-  const pill = document.getElementById('dirty-pill');
-  pill.classList.toggle('bg-amber-50', n > 0);
-  pill.classList.toggle('border-amber-200', n > 0);
-  pill.classList.toggle('text-amber-700', n > 0);
-  pill.classList.toggle('bg-gray-100', n === 0);
-  pill.classList.toggle('border-gray-200', n === 0);
-  pill.classList.toggle('text-dms-tecnologia', n === 0);
-  pill.querySelector('span:first-child').className = 'w-1.5 h-1.5 rounded-full ' + (n > 0 ? 'bg-amber-500' : 'bg-gray-400');
-  const summary = document.getElementById('dirty-summary');
-  if (n === 0) {
-    summary.textContent = 'Clique nas células da matriz pra ativar/desativar permissões.';
+function limparFiltros() {
+  document.getElementById('f-search').value = '';
+  document.getElementById('f-modulo').value = '';
+  document.getElementById('f-role').value = '';
+  filtrar();
+}
+
+// ============ MODAL: detalhe permissão ============
+function abrirDetalhePerm(codigo) {
+  const p = PERMS.find(x => x.codigo === codigo);
+  if (!p) return;
+  document.getElementById('pd-codigo').textContent = p.codigo;
+  document.getElementById('pd-descricao').textContent = p.descricao;
+  document.getElementById('pd-recurso').textContent = p.recurso;
+  document.getElementById('pd-acao').textContent = p.acao;
+  const rolesEl = document.getElementById('pd-roles');
+  rolesEl.innerHTML = ROLES.map(r => {
+    const st = MATRIX[p.codigo][r];
+    if (st === 0) return '';
+    const icon = ST_ICON[st];
+    const sysCls = ROLE_SYS[r] ? 'badge-sys' : 'badge-real';
+    return `<span class="badge ${sysCls}">${icon.ch} ${ROLE_LABEL[r]}</span>`;
+  }).join('') || '<span class="text-xs text-dms-tecnologia">Nenhuma role tem esta permissão.</span>';
+  const statusEl = document.getElementById('pd-status');
+  if (p.tbd) {
+    statusEl.innerHTML = `<div class="bg-amber-50 border border-amber-200 rounded p-2.5 text-amber-800"><strong>TBD</strong> — Esta permissão será modelada no Sprint 2.3+. Mapeamento atual é provisório.</div>`;
   } else {
-    summary.textContent = CHANGES.slice(0, 3).map(c => `${ROLE_LABEL[c.role]} · ${c.to===1?'+':'-'}${c.tela}.${c.action}`).join(' · ') + (n > 3 ? ` · +${n-3}` : '');
+    statusEl.innerHTML = `<div class="bg-emerald-50 border border-emerald-200 rounded p-2.5 text-emerald-800"><strong>Backend ativo</strong> — Permissão seedada em <span class="mono">permission_service.py</span>.</div>`;
   }
-}
-
-function abrirModalSalvar() {
-  if (!CHANGES.length) return;
-  const grants = CHANGES.filter(c => c.to === 1).length;
-  const revokes = CHANGES.filter(c => c.to === 0).length;
-  document.getElementById('save-grants').textContent = grants;
-  document.getElementById('save-revokes').textContent = revokes;
-  document.getElementById('save-total').textContent = CHANGES.length;
-  // Lista detalhada
-  const ul = document.getElementById('save-list');
-  ul.innerHTML = CHANGES.map(c => `<li class="flex items-center gap-2 py-1 border-b border-[#E5E7EB] last:border-0"><span class="mono text-[10px] px-1.5 py-0.5 rounded ${c.to===1?'bg-emerald-50 text-emerald-700':'bg-red-50 text-red-700'}">${c.to===1?'+':'−'}</span><span class="text-xs text-dms-mar font-semibold">${ROLE_LABEL[c.role]}</span><span class="text-xs text-dms-tecnologia">→</span><span class="mono text-[11px] text-dms-mar">${c.tela}.${c.action}</span></li>`).join('');
-  const m = document.getElementById('modal-salvar');
+  const m = document.getElementById('modal-perm-detalhe');
   m.classList.remove('hidden'); m.classList.add('flex');
 }
-function fecharModalSalvar() {
-  const m = document.getElementById('modal-salvar');
+function fecharDetalhePerm() {
+  const m = document.getElementById('modal-perm-detalhe');
   m.classList.add('hidden'); m.classList.remove('flex');
 }
-function confirmarSalvar() {
-  const n = CHANGES.length;
-  const grants = CHANGES.filter(c => c.to === 1).length;
-  const revokes = CHANGES.filter(c => c.to === 0).length;
-  // Mock-commit: baseline vira novo estado
-  Object.keys(STATE).forEach(t => {
-    Object.keys(STATE[t]).forEach(r => { BASELINE[t][r] = STATE[t][r].slice(); });
-  });
-  CHANGES.length = 0;
-  document.querySelectorAll('tr.row-dirty').forEach(r => r.classList.remove('row-dirty'));
-  document.querySelectorAll('.perm-check.dirty').forEach(c => c.classList.remove('dirty'));
-  fecharModalSalvar();
-  updateFooter();
-  showToast(`Matriz salva (mockup). ${grants} permissões concedidas, ${revokes} revogadas. Total: ${n} delegações geradas.`);
+
+// ============ MODAL: editar role ============
+function abrirModalEditarRole() {
+  const m = document.getElementById('modal-editar-role');
+  m.classList.remove('hidden'); m.classList.add('flex');
+}
+function fecharModalEditarRole() {
+  const m = document.getElementById('modal-editar-role');
+  m.classList.add('hidden'); m.classList.remove('flex');
+}
+function confirmarEdicaoRole() {
+  const r = document.getElementById('edit-role-select').value;
+  fecharModalEditarRole();
+  toast(`Role ${ROLE_LABEL[r]} atualizada (mockup). Em produção: audit + revalida ownership.`);
 }
 
-function cancelarMudancas() {
-  if (!CHANGES.length) return;
-  if (!confirm('Descartar ' + CHANGES.length + ' alteração(ões) não salva(s)?')) return;
-  // Restore from BASELINE
-  Object.keys(STATE).forEach(t => {
-    Object.keys(STATE[t]).forEach(r => { STATE[t][r] = BASELINE[t][r].slice(); });
-  });
-  CHANGES.length = 0;
-  buildMatrix();
-  updateFooter();
-  showToast('Alterações descartadas.');
-}
-
-function abrirNovaRole() { showToast('Nova Função (mockup) — em produção abriria modal com nome + permissions base.'); }
-function exportMatriz() { showToast('Matriz exportada (mockup) — gera CSV com snapshot de roles × telas × ações.'); }
-
-// Drawer delegar
-function abrirDrawerDelegar() {
-  document.getElementById('drw-delegar').classList.add('open');
+// ============ DRAWER: comparar roles ============
+function abrirDrawerCompare() {
+  document.getElementById('drw-compare').classList.add('open');
   document.getElementById('drw-back').classList.add('open');
+  renderCompare();
 }
-function fecharDrawerDelegar() {
-  document.getElementById('drw-delegar').classList.remove('open');
+function fecharDrawerCompare() {
+  document.getElementById('drw-compare').classList.remove('open');
   document.getElementById('drw-back').classList.remove('open');
 }
-function submitDelegar() {
-  const user = (document.getElementById('drw-user').value || '').trim();
-  const perm = document.getElementById('drw-perm').value;
-  if (!user) { showToast('Informe um usuário', true); return; }
-  fecharDrawerDelegar();
-  showToast('Delegação criada (mockup): ' + perm + ' → ' + user + '. Veja em tela85.');
+function renderCompare() {
+  const a = document.getElementById('cmp-a').value;
+  const b = document.getElementById('cmp-b').value;
+  let onlyA = 0, onlyB = 0, both = 0;
+  let html = '';
+  PERMS.forEach(p => {
+    const sa = MATRIX[p.codigo][a];
+    const sb = MATRIX[p.codigo][b];
+    const has = s => s === 1 || s === 2 || s === 3;
+    if (has(sa) && has(sb)) { both++; html += `<div class="delta-row delta-both"><span class="mono text-[11px] text-dms-mar">${p.codigo}</span><span class="${ST_ICON[sa].cls}">${ST_ICON[sa].ch}</span><span class="${ST_ICON[sb].cls}">${ST_ICON[sb].ch}</span></div>`; }
+    else if (has(sa) && !has(sb)) { onlyA++; html += `<div class="delta-row delta-only-a"><span class="mono text-[11px] text-dms-mar">${p.codigo}</span><span class="${ST_ICON[sa].cls}">${ST_ICON[sa].ch}</span><span class="st-icon st-off">·</span></div>`; }
+    else if (!has(sa) && has(sb)) { onlyB++; html += `<div class="delta-row delta-only-b"><span class="mono text-[11px] text-dms-mar">${p.codigo}</span><span class="st-icon st-off">·</span><span class="${ST_ICON[sb].cls}">${ST_ICON[sb].ch}</span></div>`; }
+  });
+  document.getElementById('cmp-only-a').textContent = onlyA;
+  document.getElementById('cmp-only-b').textContent = onlyB;
+  document.getElementById('cmp-both').textContent = both;
+  document.getElementById('cmp-list').innerHTML = html || '<p class="text-xs text-dms-tecnologia p-4">Nenhuma diferença.</p>';
 }
 
-// Toast
-function showToast(msg, isErr) {
+// ============ EXPORT ============
+function toggleExportMenu() {
+  document.getElementById('export-menu').classList.toggle('hidden');
+}
+function exportar(fmt) {
+  toggleExportMenu();
+  toast(`Exportando matriz como ${fmt.toUpperCase()} (mockup). Produção valida ${`'role.manage' OR 'audit.view_global'`}.`);
+}
+
+// ============ TOAST ============
+function toast(msg, isErr) {
   let t = document.getElementById('toast-tela80');
   if (!t) {
     t = document.createElement('div');
     t.id = 'toast-tela80';
-    t.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;box-shadow:0 8px 24px -4px rgba(0,0,0,.3);z-index:9999;opacity:0;transition:opacity .2s ease;pointer-events:none;max-width:90vw;text-align:center;';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;box-shadow:0 8px 24px -4px rgba(0,0,0,.3);z-index:9999;opacity:0;transition:opacity .2s ease;pointer-events:none;max-width:90vw;text-align:center;';
     document.body.appendChild(t);
   }
   t.textContent = msg;
@@ -520,13 +782,14 @@ function showToast(msg, isErr) {
   t._h = setTimeout(() => { t.style.opacity = '0'; }, 2800);
 }
 
-// Confirm leave se dirty
-window.addEventListener('beforeunload', e => {
-  if (CHANGES.length > 0) { e.preventDefault(); e.returnValue = ''; return ''; }
+// ============ INIT ============
+renderMatrix();
+filtrar();
+// Fecha menus ao clicar fora
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('export-menu');
+  if (menu && !menu.classList.contains('hidden') && !e.target.closest('button')) menu.classList.add('hidden');
 });
-
-buildMatrix();
-updateFooter();
 </script>
 
 <!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
@@ -622,7 +885,7 @@ updateFooter();
         <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
         <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
         <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
-        <li><a href="tela80-permissoes-matriz.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔐</span><span class="sb-label">Permissões</span></a></li>
+        <li data-required-perm="role.manage"><a href="tela80-permissoes-matriz.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔐</span><span class="sb-label">Permissões</span></a></li>
         <li><a href="tela81-config-intervenientes-modulo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧩</span><span class="sb-label">Config Intervenientes</span></a></li>
         <li><a href="tela82-saude-stages.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🩺</span><span class="sb-label">Saúde dos Stages</span></a></li>
         <li><a href="tela83-alcadas-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚖️</span><span class="sb-label">Alçadas</span></a></li>
@@ -655,190 +918,6 @@ updateFooter();
   window.addEventListener('resize',r);r();
 })();
 </script>
-<!-- ========== MODAIS DE VALIDAÇÃO OWNERSHIP (dim 3/4/5/6) ========== -->
-<div id="modal-owner-criar-user" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,27,76,0.55);">
-  <div class="bg-white rounded-lg shadow-2xl max-w-xl w-full">
-    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
-      <span class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-xl">🔍</span>
-      <div>
-        <h3 class="text-base font-bold text-dms-mar">Análise de ownership · Novo usuário</h3>
-        <p class="text-xs text-dms-tecnologia">Dimensão 3 — criar user revalida stages que ele cobriria</p>
-      </div>
-    </div>
-    <div class="p-6 space-y-3 text-sm">
-      <p class="text-dms-mar">Criando <strong>Júlia Mendes</strong> com função <strong>Compras Adm</strong> + scope <strong>CC-099, CC-100, V-21</strong>:</p>
-      <div class="bg-emerald-50 border border-emerald-200 rounded p-3 text-xs">
-        <p class="font-bold text-emerald-800 mb-2">✓ Cobertura nova</p>
-        <ul class="list-disc list-inside text-emerald-700 space-y-0.5">
-          <li>Cobre <strong>2 stages órfãos atuais</strong>: "Aprovação CC" (WF-09) · "Lançamento Omie" (WF-09)</li>
-          <li>Cria <strong>0 novos conflitos</strong></li>
-        </ul>
-      </div>
-      <div class="bg-amber-50 border border-amber-200 rounded p-3 text-xs text-amber-800">
-        <strong>2 stages continuam órfãos</strong> após esta criação (precisam de scope diferente). <a href="tela82-saude-stages.html" class="underline font-semibold">Ver tela82</a>.
-      </div>
-    </div>
-    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
-      <button onclick="fecharModalOwner('criar-user')" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Cancelar</button>
-      <button onclick="fecharModalOwner('criar-user')" class="text-sm font-semibold text-white px-4 py-2 bg-emerald-600 rounded hover:bg-emerald-700">Criar usuário</button>
-    </div>
-  </div>
-</div>
-
-<div id="modal-owner-bloquear-user" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,27,76,0.55);">
-  <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full">
-    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
-      <span class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center text-xl">🚫</span>
-      <div>
-        <h3 class="text-base font-bold text-dms-mar">Bloquear usuário — impacto em ownership</h3>
-        <p class="text-xs text-dms-tecnologia">Dimensão 4 — bloqueio revalida todos os stages onde user era elegível</p>
-      </div>
-    </div>
-    <div class="p-6 space-y-3 text-sm">
-      <p class="text-dms-mar">Bloqueando <strong>Pedro Lima</strong>:</p>
-      <div class="bg-red-50 border border-red-200 rounded p-3 text-xs">
-        <p class="font-bold text-red-800 mb-2">⚠️ 3 stages ficarão órfãos</p>
-        <table class="w-full text-[11px]">
-          <thead class="text-red-700 font-bold"><tr><th class="text-left pb-1">Stage</th><th class="text-left pb-1">Workflow</th><th class="text-left pb-1">Função</th></tr></thead>
-          <tbody class="text-red-700">
-            <tr><td>Aprov. NF &gt;50k</td><td>WF-09</td><td>CAP Adm</td></tr>
-            <tr><td>Lançamento Omie</td><td>WF-09</td><td>CAP Adm</td></tr>
-            <tr><td>Conferência</td><td>WF-02</td><td>CAP Adm</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="text-xs text-dms-tecnologia">Workflow default <span class="mono text-dms-mar">WF-DEFAULT-User-Bloqueado-Impacto</span> será disparado e gerará card to-do pro gestor da cadeira.</p>
-    </div>
-    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
-      <button onclick="fecharModalOwner('bloquear-user')" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Cancelar</button>
-      <button onclick="fecharModalOwner('bloquear-user')" class="text-sm font-semibold text-dms-sabedoria border border-dms-sabedoria/40 px-4 py-2 bg-violet-50 rounded">Reatribuir antes de bloquear</button>
-      <button onclick="fecharModalOwner('bloquear-user')" class="text-sm font-semibold text-white px-4 py-2 bg-red-600 rounded hover:bg-red-700">Bloquear mesmo assim</button>
-    </div>
-  </div>
-</div>
-
-<div id="modal-owner-desativar-role" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,27,76,0.55);">
-  <div class="bg-white rounded-lg shadow-2xl max-w-xl w-full">
-    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
-      <span class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center text-xl">⊘</span>
-      <div>
-        <h3 class="text-base font-bold text-dms-mar">Desativar role — impacto em ownership</h3>
-        <p class="text-xs text-dms-tecnologia">Dimensão 5 — desativação cascateia em todos os stages com a role</p>
-      </div>
-    </div>
-    <div class="p-6 space-y-3 text-sm">
-      <p class="text-dms-mar">Desativando role <strong>Aprovador Gerente Jr</strong>:</p>
-      <div class="bg-red-50 border border-red-200 rounded p-3 text-xs text-red-800">
-        <p class="font-bold mb-1">⚠️ 7 stages ficarão sem responsável</p>
-        <p>Stages em <strong>4 workflows</strong> dependem desta role como <span class="mono">funcao_responsavel_id</span>. <a href="tela82-saude-stages.html" class="underline font-semibold">Ver detalhes na tela82</a>.</p>
-      </div>
-      <p class="text-xs text-dms-tecnologia">Workflow default <span class="mono text-dms-mar">WF-DEFAULT-Role-Inativada-Impacto</span> consolidará issues em 1 card pro gestor (evita inundar).</p>
-    </div>
-    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
-      <button onclick="fecharModalOwner('desativar-role')" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Cancelar</button>
-      <button onclick="fecharModalOwner('desativar-role')" class="text-sm font-semibold text-white px-4 py-2 bg-red-600 rounded hover:bg-red-700">Desativar mesmo assim</button>
-    </div>
-  </div>
-</div>
-
-<script>
-function abrirModalOwner(tipo){ var m = document.getElementById('modal-owner-'+tipo); if(m){ m.classList.remove('hidden'); m.classList.add('flex'); } }
-function fecharModalOwner(tipo){ var m = document.getElementById('modal-owner-'+tipo); if(m){ m.classList.add('hidden'); m.classList.remove('flex'); } }
-</script>
-
-<!-- ===== MODAL: PREVIEW SAVE MATRIZ ===== -->
-<div id="modal-salvar" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(15,27,76,0.55);">
-  <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full">
-    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
-      <span class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-xl">💾</span>
-      <div>
-        <h3 class="text-base font-bold text-dms-mar">Salvar matriz de permissões</h3>
-        <p class="text-xs text-dms-tecnologia">Confirme as <span id="save-total" class="font-semibold text-dms-mar">0</span> mudanças. Cada concessão vira <strong>delegação rastreável</strong> em <a href="tela85-permission-delegations.html" class="text-dms-ceu hover:underline">tela85</a>.</p>
-      </div>
-    </div>
-    <div class="p-6 space-y-4">
-      <div class="grid grid-cols-2 gap-3">
-        <div class="bg-emerald-50 border border-emerald-200 rounded p-3">
-          <div class="text-[10px] uppercase tracking-wider font-bold text-emerald-700">Concessões</div>
-          <div class="text-2xl mono font-bold text-emerald-700"><span id="save-grants">0</span></div>
-          <div class="text-[11px] text-emerald-700/80">→ criam delegações em tela85</div>
-        </div>
-        <div class="bg-red-50 border border-red-200 rounded p-3">
-          <div class="text-[10px] uppercase tracking-wider font-bold text-red-700">Revogações</div>
-          <div class="text-2xl mono font-bold text-red-700"><span id="save-revokes">0</span></div>
-          <div class="text-[11px] text-red-700/80">→ revogam delegações existentes</div>
-        </div>
-      </div>
-      <div>
-        <div class="text-[10px] uppercase tracking-wider font-bold text-dms-tecnologia mb-1">Detalhe das mudanças</div>
-        <ul id="save-list" class="max-h-56 overflow-y-auto bg-[#F8F9FA] border border-[#E5E7EB] rounded p-2 list-none"></ul>
-      </div>
-      <div class="bg-amber-50 border border-amber-200 rounded p-2.5 text-[11px] text-amber-800">
-        ⚠️ Mock visual — em produção, salvar dispara: (1) revalidação de ownership (tela82), (2) recálculo de cadeia de delegação (tela85), (3) audit trail (tela13). Users sem scope continuam sem cards mesmo com permissão nova.
-      </div>
-    </div>
-    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
-      <button onclick="fecharModalSalvar()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Voltar</button>
-      <button onclick="confirmarSalvar()" class="text-sm font-semibold text-white px-4 py-2 bg-emerald-600 rounded hover:bg-emerald-700">Confirmar e salvar</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== DRAWER: DELEGAR PERMISSÃO ESPECÍFICA ===== -->
-<div id="drw-back" onclick="fecharDrawerDelegar()"></div>
-<aside id="drw-delegar">
-  <div class="px-5 py-4 border-b border-[#E5E7EB] flex items-start justify-between gap-3">
-    <div>
-      <h3 class="text-base font-bold text-dms-mar flex items-center gap-2">🔗 Delegar permissão específica</h3>
-      <p class="text-[11px] text-dms-tecnologia mt-0.5">Conceda a um usuário 1 permissão pontual sem alterar sua role. Vira entry em <a href="tela85-permission-delegations.html" class="text-dms-ceu hover:underline">permission_delegations</a> com auditoria.</p>
-    </div>
-    <button onclick="fecharDrawerDelegar()" class="text-dms-tecnologia hover:text-dms-mar text-2xl leading-none">×</button>
-  </div>
-  <div class="flex-1 overflow-y-auto p-5 space-y-4">
-    <div>
-      <label class="caption text-dms-tecnologia mb-1.5 block">Usuário <span class="text-red-500">*</span></label>
-      <input id="drw-user" type="text" placeholder="Buscar por nome ou email…" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white" list="drw-users-list">
-      <datalist id="drw-users-list">
-        <option value="Júlia Mendes — julia@dms.com">
-        <option value="Pedro Lima — pedro@dms.com">
-        <option value="Carlos Silva — carlos@dms.com">
-        <option value="Renata Souza — renata@dms.com">
-      </datalist>
-    </div>
-    <div>
-      <label class="caption text-dms-tecnologia mb-1.5 block">Permissão a delegar <span class="text-red-500">*</span></label>
-      <select id="drw-perm" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
-        <option>cotacoes.aprovar</option>
-        <option>pedidos.excluir</option>
-        <option>notas_fiscais.aprovar</option>
-        <option>contratos.editar</option>
-        <option>auditoria.ver</option>
-        <option>permissoes.editar</option>
-      </select>
-    </div>
-    <div class="grid grid-cols-2 gap-3">
-      <div>
-        <label class="caption text-dms-tecnologia mb-1.5 block">Válida a partir de</label>
-        <input type="date" value="2026-05-31" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
-      </div>
-      <div>
-        <label class="caption text-dms-tecnologia mb-1.5 block">Expira em (opcional)</label>
-        <input type="date" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
-      </div>
-    </div>
-    <div>
-      <label class="caption text-dms-tecnologia mb-1.5 block">Justificativa (audit trail)</label>
-      <textarea rows="3" placeholder="ex: Cobertura de férias do Gerente de Compras de 01/06 a 15/06" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none"></textarea>
-    </div>
-    <div class="bg-violet-50 border border-violet-200 rounded p-3 text-[11px] text-violet-800">
-      ℹ️ Delegação respeita scope do usuário em <a href="tela50-profile.html" class="underline font-semibold">Intervenientes</a>. Se o destinatário não tem scope nas entidades onde a permissão se aplica, nada acontece.
-    </div>
-  </div>
-  <div class="px-5 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
-    <button onclick="fecharDrawerDelegar()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 border border-[#E5E7EB] rounded">Cancelar</button>
-    <button onclick="submitDelegar()" class="text-sm font-semibold text-white px-4 py-2 bg-dms-sabedoria rounded hover:opacity-90">Criar delegação</button>
-  </div>
-</aside>
 
 <script src="notes-widget.js" defer></script>
 <script src="i18n-toggle.js" defer></script>
