@@ -1,8 +1,20 @@
 <!DOCTYPE html>
+<!--
+  tela10 Workflow Builder v2 (refeito 2026-06-03)
+
+  Reflete decisão DP #31 Interpretação A:
+  - Workflow é GRAFO de SOPs (1:N), não de stages
+  - Paleta lateral = SOPs (não stages)
+  - Cards no canvas = SOPs com stages aninhados visíveis
+  - Botão "Fixar versão" pra prender SOP em v_n
+  - Editar stages NÃO acontece aqui — abre tela07 com SOP carregada
+
+  Versão anterior (drag de stages soltos) ficou em git history.
+-->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1280">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>DMS — Workflow Builder</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,6 +37,7 @@ tailwind.config = {
       },
       boxShadow: {
         'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+        'dms-lg': '0 10px 25px -5px rgba(0, 56, 108, 0.12), 0 6px 10px -3px rgba(0, 56, 108, 0.06)',
       },
     },
   },
@@ -37,1038 +50,1044 @@ tailwind.config = {
   .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
   .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
   .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
-  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
-  .card-ia { background: linear-gradient(135deg, rgba(100,53,133,0.05), rgba(0,174,238,0.05)); border-color: rgba(100,53,133,0.2); }
 
-  /* Stage card sidebar */
-  .stage-item { transition: all 150ms ease; cursor: pointer; }
-  .stage-item:hover { background: #FAFBFC; }
-  .stage-item.editing { background: rgba(0,174,238,0.05); border-color: #00386C; box-shadow: inset 3px 0 0 #00386C; }
-  .stage-item .reorder-btn { opacity: 0; transition: opacity 150ms ease; }
-  .stage-item:hover .reorder-btn { opacity: 1; }
+  /* Layout grid 3 colunas (paleta + canvas + detalhes) */
+  .builder-grid { display: grid; grid-template-columns: 300px 1fr 350px; gap: 20px; align-items: start; }
+  .sticky-col { position: sticky; top: 88px; max-height: calc(100vh - 110px); display: flex; flex-direction: column; }
+  .sticky-col-scroll { flex: 1; overflow-y: auto; min-height: 0; }
 
-  /* Overflow safety for grid columns — prevent text spilling */
-  .grid > * { min-width: 0; }
-  .grid input, .grid select, .grid textarea { min-width: 0; max-width: 100%; }
-  .grid .truncate { text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
-  .escalation-card { overflow: hidden; min-width: 0; }
-  .escalation-card * { min-width: 0; }
+  /* ===== PALETA DE SOPs (esquerda) ===== */
+  .palette-item {
+    border: 1px solid #E5E7EB; background: #fff; border-radius: 8px; padding: 10px 12px;
+    cursor: grab; transition: all 150ms ease; position: relative;
+  }
+  .palette-item:hover { border-color: #00AEEE; box-shadow: 0 4px 12px -2px rgba(0,174,238,0.15); transform: translateY(-1px); }
+  .palette-item:active { cursor: grabbing; }
+  .palette-item.dragging { opacity: 0.5; }
+  .palette-item .drag-grip { color: #C7CDD3; transition: color 150ms; }
+  .palette-item:hover .drag-grip { color: #00386C; }
+
+  /* Cat badges paleta */
+  .cat-default { background: rgba(0,82,144,0.10); color: #005290; }
+  .cat-especifica { background: rgba(0,174,238,0.12); color: #006491; }
+  .cat-compliance { background: rgba(100,53,133,0.10); color: #643585; }
+
+  /* Mod badges paleta */
+  .mod-pill { background: rgba(176,201,52,0.15); color: #5C7818; font-family: 'JetBrains Mono', monospace; font-size:10px; padding: 1px 6px; border-radius:4px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; }
+
+  /* ===== CANVAS ===== */
+  .canvas {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    min-height: 600px;
+    position: relative;
+    background-image:
+      radial-gradient(circle, rgba(0,56,108,0.06) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-position: 0 0;
+    padding: 28px;
+  }
+  .canvas.drag-over { background-color: rgba(0,174,238,0.04); border-color: #00AEEE; box-shadow: inset 0 0 0 2px rgba(0,174,238,0.25); }
+
+  /* SOP card no canvas */
+  .sop-card {
+    background: #fff; border: 1.5px solid #E5E7EB; border-radius: 12px;
+    box-shadow: 0 4px 8px -2px rgba(0,56,108,0.08);
+    transition: all 200ms ease;
+    position: relative;
+  }
+  .sop-card:hover { box-shadow: 0 8px 20px -4px rgba(0,56,108,0.16); border-color: #00AEEE; }
+  .sop-card.pinned { border-color: #643585; box-shadow: 0 4px 12px -2px rgba(100,53,133,0.18); }
+  .sop-card.pinned::after {
+    content: ""; position: absolute; inset: -1.5px; border-radius: 12px; pointer-events: none;
+    border: 1.5px solid transparent;
+    background: linear-gradient(135deg, rgba(100,53,133,0.15), transparent 30%, transparent 70%, rgba(100,53,133,0.15)) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+  }
+
+  /* Conexão entre cards (seta vertical) */
+  .sop-connector {
+    display: flex; align-items: center; justify-content: center;
+    padding: 4px 0; position: relative;
+  }
+  .sop-connector .line { width: 2px; height: 28px; background: linear-gradient(180deg, #00386C, #00AEEE); border-radius: 2px; }
+  .sop-connector .arrow {
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid #00AEEE;
+  }
+
+  /* Stage mini-row dentro do SOP card */
+  .stage-mini {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px; border-radius: 6px;
+    background: #F8F9FA; border-left: 2px solid #00AEEE;
+    font-size: 12px; color: #00386C;
+  }
+  .stage-mini-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #656464; min-width: 18px; }
 
   /* Tabs */
-  .tab-btn { transition: all 150ms ease; cursor: pointer; }
+  .tab-btn { transition: all 150ms ease; cursor: pointer; padding: 10px 14px; border-bottom: 2px solid transparent; font-size: 12px; font-weight: 600; color: #656464; text-transform: uppercase; letter-spacing: 0.05em; }
   .tab-btn:hover { color: #00386C; }
-  .tab-btn.active { color: #00386C; border-bottom: 2px solid #00AEEE; font-weight: 600; }
+  .tab-btn.active { color: #00386C; border-bottom-color: #00AEEE; }
 
-  /* SLA bar (segmented) */
-  .sla-bar { display: flex; height: 36px; border-radius: 6px; overflow: hidden; border: 1px solid #E5E7EB; }
-  .sla-seg { display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; padding: 0 12px; }
-  .sla-on-time { background: rgba(176,201,52,0.20); color: #5C7818; }
-  .sla-warning { background: rgba(234,179,8,0.25); color: #854D0E; }
-  /* Fix 2026-06-01: textos vazando nas 3 colunas */
-  .grid.grid-cols-12 > * { min-width: 0; }
-  .grid.grid-cols-12 > * * { word-break: break-word; overflow-wrap: anywhere; max-width: 100%; }
-  .grid.grid-cols-12 .truncate { max-width: 100%; }
-  .sla-delay { background: rgba(220,38,38,0.18); color: #991B1B; }
+  /* Workflow SOPs list (right panel) */
+  .wf-sop-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; background: #fff; border: 1px solid #E5E7EB; border-radius: 8px;
+    transition: all 150ms ease;
+  }
+  .wf-sop-item:hover { border-color: #00AEEE; background: #FCFCFD; }
+  .wf-sop-item.is-pinned { border-left: 3px solid #643585; }
 
-  /* Live Preview stage card horizontal */
-  .preview-step { padding: 8px 10px; border-radius: 6px; border: 1px solid #E5E7EB; font-size: 12px; transition: all 150ms ease; }
-  .preview-step.current { border: 2px solid #00386C; background: rgba(0,174,238,0.04); }
-  .preview-arrow { text-align: center; color: #9CA3AF; font-size: 12px; padding: 2px 0; }
+  /* Modal */
+  .modal-backdrop { position:fixed; inset:0; background:rgba(15, 27, 76, 0.55); z-index:90; display:none; align-items:center; justify-content:center; padding:24px; overflow-y:auto; }
+  .modal-backdrop.open { display:flex; }
+  .modal-card { background:#fff; border-radius:12px; max-width:560px; width:100%; max-height: 90vh; overflow-y:auto; box-shadow: 0 30px 60px -15px rgba(0,0,0,.4); }
+  .modal-card-lg { max-width: 760px; }
 
-  /* Escalation card */
-  .escalation-card { border-left: 3px solid #643585; background: rgba(100,53,133,0.03); }
-  .escalation-card .esc-remove { opacity: 0; transition: opacity 150ms ease; }
-  .escalation-card:hover .esc-remove { opacity: 1; }
+  /* TBD pin */
+  .tbd-pin { background:#FEF3C7; color:#854D0E; border:1px dashed #D97706; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:600; }
 
-  .sticky-preview { position: sticky; top: 88px; max-height: calc(100vh - 110px); overflow-y: auto; }
+  /* Toast */
+  .toast { position: fixed; bottom: 70px; right: 24px; z-index: 100; background: #00386C; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,.3); transform: translateY(140%); transition: transform 300ms ease; font-size: 14px; font-weight: 500; max-width: 420px; }
+  .toast.show { transform: translateY(0); }
 
-  /* Placeholder de aba inativa */
-  .tab-placeholder { background: linear-gradient(135deg, rgba(0,174,238,0.03), rgba(0,56,108,0.03)); border: 2px dashed rgba(0,174,238,0.2); }
-  /* Mobile: hide old inline sidebar + add space pra hamburger button */
+  /* Bottom KPI bar */
+  .kpi-bar {
+    position: fixed; left: var(--dms-sb-w, 240px); right: 0; bottom: 0; z-index: 30;
+    background: linear-gradient(180deg, rgba(255,255,255,0.92), #fff);
+    border-top: 1px solid #E5E7EB;
+    padding: 10px 32px;
+    backdrop-filter: blur(8px);
+    transition: left 0.2s ease;
+  }
+  .kpi-item { display: flex; align-items: center; gap: 6px; }
+  .kpi-num { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #00386C; font-size: 15px; }
+  .kpi-label { font-size: 11px; color: #656464; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+
+  /* Empty state canvas */
+  .empty-canvas {
+    border: 2px dashed #E5E7EB; border-radius: 12px;
+    padding: 64px 24px; text-align: center;
+    background: rgba(0,174,238,0.02);
+  }
+
+  /* Pin button */
+  .pin-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600; padding: 3px 8px;
+    border-radius: 6px; border: 1px solid #E5E7EB; background: #fff;
+    color: #656464; cursor: pointer; transition: all 150ms ease;
+  }
+  .pin-btn:hover { border-color: #643585; color: #643585; }
+  .pin-btn.is-pinned { background: rgba(100,53,133,0.10); border-color: #643585; color: #643585; }
+
+  /* Mobile fallback */
+  @media (max-width: 1100px) {
+    .builder-grid { grid-template-columns: 1fr; }
+    .sticky-col { position: static !important; max-height: none !important; }
+    .canvas { background-image: none; }
+    .mobile-hide-on-small { display: none !important; }
+  }
+
+  /* Mobile compact tweaks */
   @media (max-width: 767px) {
-    body > div.flex > aside.fixed.z-30 { display: none !important; }
-    .flex-1.ml-\[260px\] header { padding-left: 64px !important; }
-    .flex-1.ml-\[260px\] main { padding-left: 16px !important; padding-right: 16px !important; }
+    .kpi-bar { left: 0 !important; padding: 8px 12px; overflow-x: auto; }
+    .kpi-bar > div { gap: 14px !important; flex-wrap: nowrap !important; min-width: max-content; }
+    main { padding-bottom: 80px !important; }
   }
 </style>
 <link rel="stylesheet" href="mobile-responsive.css">
-  <script defer src="sidebar-permissions.js"></script>
+<script defer src="sidebar-permissions.js"></script>
 </head>
 <body class="min-h-screen">
 
 <div class="flex min-h-screen">
 
-  <!-- SIDEBAR ESQUERDA (NAV GERAL) -->
+  <!-- SIDEBAR LEGACY (escondida pela CSS consolidada abaixo) -->
   <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
     <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
       <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
         <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
       </div>
-      <div>
-        <div class="font-bold text-base leading-tight">DMS</div>
-        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
-      </div>
-    </div>
-    <nav class="flex-1 py-4 overflow-y-auto">
-      <div class="caption text-white/40 px-6 mb-2">Workflow Builder</div>
-      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-        Catálogo de Tags
-      </a>
-      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        Procedures
-      </a>
-      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        Biblioteca SOP
-      </a>
-      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
-        Catálogo de Workflows
-      </a>
-    </nav>
-    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
-      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">FA</div>
-      <div class="flex-1 min-w-0">
-        <div class="text-sm font-semibold truncate">Fernando Arruda</div>
-        <div class="text-xs text-white/60 truncate">Admin · DMS Log</div>
-      </div>
+      <div><div class="font-bold text-base leading-tight">DMS</div></div>
     </div>
   </aside>
 
-  <!-- MAIN -->
+  <!-- MAIN AREA -->
   <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
 
+    <!-- HEADER -->
     <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
       <nav class="flex items-center gap-2 text-sm">
-        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Workflow Builder</a>
+        <a href="tela16-cockpit-overview.html" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Workflows</a>
         <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
-        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Catálogo de Workflows</a>
+        <a href="tela04-catalogo-workflows.html" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Catálogo</a>
         <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
-        <span class="text-dms-mar font-semibold">Fluxo NF Avulsa Padrão</span>
+        <span class="text-dms-mar font-semibold">Editor de Workflow</span>
       </nav>
+      <div class="flex items-center gap-3">
+        <span class="caption text-dms-tecnologia hidden md:inline">Fernando Arruda</span>
+      </div>
     </header>
 
-    <main class="flex-1 p-8 max-w-[1600px] w-full mx-auto">
+    <!-- CONTENT -->
+    <main class="flex-1 p-8 pb-[80px] max-w-[1600px] w-full mx-auto">
 
-      <!-- PageHeader -->
-      <div class="flex items-start justify-between mb-6 gap-6">
+      <!-- PAGE HEADER -->
+      <div class="flex items-start justify-between mb-5 gap-6 flex-wrap">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-3 mb-2 flex-wrap">
             <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
-            <h1 class="text-[32px] leading-[40px] font-bold text-dms-mar">Workflow Builder</h1>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(0,174,238,0.15)] text-[#005290] ml-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-dms-ceu"></span>
-              Em construção
-            </span>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(100,53,133,0.10)] text-dms-sabedoria mono">v 1.0</span>
+            <h1 class="text-[30px] leading-[38px] font-bold text-dms-mar">Editor de Workflow — <span class="text-dms-confianca">Recepção NFE Compras Diretas</span></h1>
+            <span class="ml-1 mono text-[11px] px-2 py-0.5 rounded-md bg-dms-sabedoria/10 text-dms-sabedoria font-semibold">v2 · DP #31-A</span>
           </div>
-          <div class="flex items-center gap-3 text-sm text-dms-tecnologia">
-            <span class="mono text-dms-mar font-semibold">WF-09</span>
-            <span>·</span>
-            <span><strong class="text-dms-mar">Fluxo NF Avulsa Padrão</strong></span>
-            <span>·</span>
-            <span>Stage selecionado: <strong class="text-dms-mar">3 · Aprovação Diretor</strong></span>
-            <span>·</span>
-            <span>6 stages</span>
+          <div class="flex items-center gap-2 flex-wrap text-sm">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(176,201,52,0.15)] text-[#7A8F24]">
+              <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade"></span>
+              Ativo <span class="mono ml-1">v3.1</span>
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-dms-ceu/15 text-dms-confianca">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              <span class="font-bold mr-1" id="wf-running-count">5</span> instâncias rodando
+            </span>
+            <span class="text-dms-tecnologia text-xs">·</span>
+            <span class="mono text-xs text-dms-tecnologia">wf-038</span>
+            <span class="text-dms-tecnologia text-xs">·</span>
+            <span class="text-xs text-dms-tecnologia">Última edição há 2 dias por Camila Reis</span>
           </div>
         </div>
-        <div class="flex items-center gap-3 flex-shrink-0">
-          <a href="#" class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 transition-colors" data-i18n="btn.cancel">Cancelar</a>
-          <button class="text-sm font-semibold text-dms-tecnologia px-4 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">Salvar rascunho</button>
-          <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-shrink-0 flex-wrap">
+          <button onclick="onSimulate()" class="text-sm font-semibold text-dms-mar px-3 py-2 bg-white border border-[#E5E7EB] rounded-md hover:border-dms-mar transition-colors flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Simular execução
+          </button>
+          <button onclick="onSaveDraft()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">Salvar rascunho</button>
+          <button onclick="openPublishModal()" class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors flex items-center gap-1.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            Aprovar v1.0
+            Publicar v3.2
           </button>
         </div>
       </div>
 
-      <!-- ========== TOPO: IDENTIDADE DO WORKFLOW ========== -->
-      <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md mb-6">
-        <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
-            <h2 class="text-lg font-semibold text-dms-mar">Identidade do Workflow</h2>
-          </div>
-          <div class="flex items-center gap-2 text-xs">
-            <span class="text-dms-tecnologia">Módulo:</span>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(0,56,108,0.08)] text-dms-mar" data-i18n="nav.purchases">Compras</span>
-            <span class="text-dms-tecnologia ml-2">define schema de critérios de match</span>
-          </div>
-        </div>
-        <div class="p-6 space-y-5">
-
-          <div class="grid grid-cols-3 gap-4">
-            <div>
-              <label class="caption text-dms-tecnologia mb-1.5 block">Módulo <span class="text-red-500">*</span></label>
-              <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
-                <option selected data-i18n="nav.purchases">Compras</option>
-                <option disabled>Logística (Sprint futura)</option>
-                <option disabled>Vendas (Sprint futura)</option>
-                <option disabled>Custom via API</option>
-              </select>
-            </div>
-            <div>
-              <label class="caption text-dms-tecnologia mb-1.5 block">Nome <span class="text-red-500">*</span></label>
-              <input type="text" value="Fluxo NF Avulsa Padrão" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
-            </div>
-            <div>
-              <label class="caption text-dms-tecnologia mb-1.5 block">Responsável <span class="text-red-500">*</span></label>
-              <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
-                <option selected>Time Compras</option>
-                <option>Time Fiscal</option>
-                <option>Customer Care</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label class="caption text-dms-tecnologia mb-1.5 block">Objetivo <span class="text-red-500">*</span></label>
-            <textarea rows="2" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none">Padronizar processamento de NFs com validação automática e lançamento Omie em até 5 dias úteis.</textarea>
-          </div>
-
-          <div>
-            <label class="caption text-dms-tecnologia mb-1.5 block">Resultados esperados <span class="text-red-500">*</span></label>
-            <textarea rows="2" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white resize-none">99% NFs validadas automaticamente · SLA total ≤ 5 dias · zero NF perdida.</textarea>
-          </div>
-
-          <!-- Critérios de Match resumo -->
-          <div class="bg-[#F8F9FA] border border-[#E5E7EB] rounded-md p-4">
-            <div class="flex items-center justify-between mb-3">
-              <div class="caption text-dms-confianca flex items-center gap-2">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                Critérios de Match (resumo)
-              </div>
-              <button onclick="openMatchEngineDrawer()" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar transition-colors" type="button">Configurar no Match Engine →</button>
-            </div>
-            <div class="flex flex-wrap gap-2">
-              <span class="mono text-xs px-2 py-1 bg-white border border-[#E5E7EB] rounded text-dms-mar">tipo_compra IN [avulsa, contrato_recorrente]</span>
-              <span class="mono text-xs px-2 py-1 bg-white border border-[#E5E7EB] rounded text-dms-mar">valor_total BETWEEN 0 e 50000</span>
-              <span class="mono text-xs px-2 py-1 bg-white border border-[#E5E7EB] rounded text-dms-mar">tipo_servico IN [TI, Facilities]</span>
-              <span class="mono text-xs px-2 py-1 bg-white border border-[#E5E7EB] rounded text-dms-mar">contrato_id IS NULL</span>
-              <span class="text-xs px-2 py-1 bg-dms-ceu/10 text-dms-confianca rounded">+ 2 outros</span>
-            </div>
-          </div>
-
-          <!-- IA Assistente -->
-          <div class="card-ia border rounded-lg p-4 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3 flex-1">
-              <div class="w-10 h-10 rounded-lg bg-dms-sabedoria/10 flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-              </div>
-              <div class="flex-1 min-w-0">
-                <h3 class="font-semibold text-dms-mar text-sm">Assistente IA — Workflow</h3>
-                <p class="text-xs text-dms-tecnologia">A IA leu objetivo + resultados esperados e pode propor a estrutura completa de stages ou validar o que você montou.</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-2 flex-shrink-0">
-              <button class="flex items-center gap-2 text-sm font-semibold text-dms-sabedoria px-4 py-2 bg-white border border-dms-sabedoria/30 rounded-md hover:bg-dms-sabedoria/5 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                Gerar pela IA
-              </button>
-              <button class="flex items-center gap-2 text-sm font-semibold text-white px-4 py-2 bg-dms-sabedoria rounded-md hover:opacity-90 transition-opacity">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                Validar com IA
-              </button>
-            </div>
-          </div>
-
+      <!-- BANNER FORK DE VERSÃO -->
+      <div class="mb-6 p-4 bg-dms-sabedoria/5 border border-dms-sabedoria/20 rounded-lg flex gap-3">
+        <svg class="w-5 h-5 text-dms-sabedoria flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <div class="text-sm text-dms-mar">
+          <strong>Este workflow está em execução em 5 instâncias.</strong>
+          Salvar alterações <em>forka</em> uma nova versão: <span class="mono">v3.1 → v3.2</span>. As instâncias atuais continuam em <span class="mono">v3.1</span> até concluírem (RN-WF-04). Novas instâncias criadas após "Publicar" usam a <span class="mono">v3.2</span>.
         </div>
       </div>
 
-      <!-- ========== GRID 3 COLUNAS: STAGES + DETAIL + LIVE PREVIEW ========== -->
-      <div class="grid grid-cols-12 gap-6">
+      <!-- ================ BUILDER GRID 3 COLUNAS ================ -->
+      <div class="builder-grid">
 
-        <!-- COLUNA 1: STAGES SIDEBAR -->
-        <aside class="col-span-3">
-          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
-            <div class="px-4 py-3 border-b border-[#E5E7EB] flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <h3 class="caption text-dms-mar font-bold">Stages</h3>
-                <span class="caption text-dms-tecnologia">(6)</span>
-              </div>
-              <button class="flex items-center gap-1 text-xs font-semibold text-white bg-dms-mar px-2.5 py-1 rounded hover:bg-dms-confianca transition-colors">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                Novo
+        <!-- ============ COL ESQUERDA — PALETA DE SOPs ============ -->
+        <aside class="sticky-col">
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md flex flex-col flex-1 min-h-0">
+
+            <div class="px-4 py-3 bg-[#F8F9FA] border-b border-[#E5E7EB] flex items-center gap-2 flex-shrink-0">
+              <div class="w-6 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+              <h2 class="caption text-dms-mar font-semibold flex-1">Paleta de SOPs</h2>
+              <button onclick="openNewSopWindow()" title="Criar nova SOP (abre tela07)" class="text-dms-confianca hover:text-dms-mar p-1 rounded">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
               </button>
             </div>
 
-            <div id="stages-list" class="divide-y divide-[#E5E7EB]"></div>
-
-            <div class="px-4 py-3 bg-[#F8F9FA] border-t border-[#E5E7EB] text-[10px] text-dms-tecnologia italic leading-relaxed">
-              Reorder via botões ↑↓ no hover (MVP). Drag-drop @dnd-kit chega na wave 1.5.
+            <!-- Busca + filtros -->
+            <div class="p-3 space-y-2 border-b border-[#E5E7EB] flex-shrink-0">
+              <div class="relative">
+                <svg class="w-4 h-4 absolute left-2.5 top-2.5 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input id="palette-search" type="text" placeholder="Buscar SOP..." oninput="filterPalette()" class="input-dms w-full pl-8 pr-2 py-1.5 text-sm border border-[#E5E7EB] rounded-md">
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <select id="filter-cat" onchange="filterPalette()" class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                  <option value="">Todas categorias</option>
+                  <option value="default">Default</option>
+                  <option value="especifica">Específica</option>
+                  <option value="compliance">Compliance</option>
+                </select>
+                <select id="filter-mod" onchange="filterPalette()" class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                  <option value="">Todos módulos</option>
+                  <option value="cap">CAP</option>
+                  <option value="compras">Compras</option>
+                  <option value="aprovacao">Aprovação</option>
+                  <option value="cadastros">Cadastros</option>
+                  <option value="sistema">Sistema</option>
+                </select>
+              </div>
             </div>
+
+            <!-- Lista de SOPs draggable -->
+            <div class="sticky-col-scroll p-3 space-y-2" id="palette-list">
+              <!-- preenchido por JS -->
+            </div>
+
+            <!-- Dica drag -->
+            <div class="p-3 border-t border-[#E5E7EB] bg-[#FCFCFD] text-[11px] text-dms-tecnologia flex-shrink-0">
+              <div class="flex items-start gap-1.5">
+                <svg class="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-dms-ceu" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Arraste uma SOP até o canvas para inseri-la no workflow.</span>
+              </div>
+            </div>
+
           </div>
         </aside>
 
-        <!-- COLUNA 2: DETALHE DO STAGE -->
-        <div class="col-span-6">
-          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+        <!-- ============ COL CENTRO — CANVAS ============ -->
+        <section>
+          <div class="canvas" id="canvas"
+               ondragover="onCanvasDragOver(event)"
+               ondragleave="onCanvasDragLeave(event)"
+               ondrop="onCanvasDrop(event)">
 
-            <!-- Header do stage -->
-            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between bg-gradient-to-r from-dms-ceu/5 to-transparent">
-              <div>
-                <div class="caption text-dms-confianca mb-0.5">Stage 3 · editando</div>
-                <h2 class="text-xl font-bold text-dms-mar">Aprovação Diretor</h2>
-              </div>
-              <div class="flex items-center gap-2">
-                <button class="text-sm font-semibold text-dms-tecnologia px-3 py-1.5 hover:text-dms-mar transition-colors" title="Excluir stage">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
-                </button>
-              </div>
+            <div id="canvas-list">
+              <!-- preenchido por JS -->
             </div>
+
+            <!-- Empty state -->
+            <div id="empty-canvas" class="empty-canvas hidden">
+              <svg class="w-12 h-12 text-dms-tecnologia/40 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+              <h3 class="text-base font-bold text-dms-mar mb-1">Workflow vazio</h3>
+              <p class="text-sm text-dms-tecnologia">Arraste uma SOP da paleta esquerda para começar.</p>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ============ COL DIREITA — DETALHES DO WORKFLOW ============ -->
+        <aside class="sticky-col">
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md flex flex-col flex-1 min-h-0">
 
             <!-- Tabs -->
-            <div class="border-b border-[#E5E7EB] flex items-center px-4 overflow-x-auto">
-              <button onclick="selectTab('identidade')" id="tab-identidade" class="tab-btn text-sm text-dms-tecnologia px-4 py-3">Identidade</button>
-              <button onclick="selectTab('sop')" id="tab-sop" class="tab-btn text-sm text-dms-tecnologia px-4 py-3">SOP texto <span class="ml-1 text-xs text-dms-tecnologia">(SOP-001)</span></button>
-              <button onclick="selectTab('procedures')" id="tab-procedures" class="tab-btn text-sm text-dms-tecnologia px-4 py-3">Procedures <span class="ml-1 text-xs text-dms-tecnologia">(2)</span></button>
-              <button onclick="selectTab('alertas')" id="tab-alertas" class="tab-btn text-sm text-dms-tecnologia px-4 py-3">Alertas <span class="ml-1 text-xs text-dms-tecnologia">(1)</span></button>
-              <button onclick="selectTab('agentes')" id="tab-agentes" class="tab-btn text-sm text-dms-tecnologia px-4 py-3">Agentes <span class="ml-1 text-xs text-dms-tecnologia">(2)</span></button>
-              <button onclick="selectTab('sla')" id="tab-sla" class="tab-btn active text-sm px-4 py-3">SLA + Escalation</button>
+            <div class="flex border-b border-[#E5E7EB] flex-shrink-0">
+              <button class="tab-btn active flex-1" data-tab="identidade" onclick="switchTab('identidade')">Identidade</button>
+              <button class="tab-btn flex-1" data-tab="sops" onclick="switchTab('sops')">SOPs</button>
+              <button class="tab-btn flex-1" data-tab="versionamento" onclick="switchTab('versionamento')">Versões</button>
             </div>
 
-            <!-- ========== TAB CONTENT: SLA + ESCALATION (ATIVA) ========== -->
-            <div id="content-sla" class="p-6 space-y-6">
+            <div class="sticky-col-scroll p-4">
 
-              <!-- SLA EXTERNAL -->
-              <div class="border-2 border-dms-tropicalidade/30 rounded-lg p-5">
-                <div class="flex items-start justify-between mb-3">
+              <!-- TAB: IDENTIDADE -->
+              <div id="tab-identidade" class="tab-content space-y-3.5">
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1 block">Nome <span class="text-red-500">*</span></label>
+                  <input type="text" value="Recepção NFE Compras Diretas" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md font-semibold">
+                </div>
+
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1 block">Descrição</label>
+                  <textarea rows="2" class="input-dms w-full px-3 py-2 text-xs border border-[#E5E7EB] rounded-md leading-relaxed">Recepção e baixa de NFE de compras diretas, com validação, aprovação gerencial e liberação de pagamento.</textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
                   <div>
-                    <h4 class="caption text-[#7A8F24] mb-0.5">SLA External (Customer/Vendor)</h4>
-                    <p class="text-xs text-dms-tecnologia">Prazo total acordado · define conclusão</p>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <input type="number" value="48" class="input-dms w-16 px-2 py-1 text-sm border border-[#E5E7EB] rounded text-center">
-                    <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1 cursor-pointer">
-                      <option selected>horas</option>
-                      <option>minutos</option>
-                      <option>dias</option>
-                    </select>
-                    <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1 cursor-pointer">
-                      <option selected>dias úteis</option>
-                      <option>dias corridos</option>
+                    <label class="caption text-dms-tecnologia mb-1 block">Módulo</label>
+                    <select class="input-dms w-full px-2 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                      <option>CAP</option><option>Compras</option><option>Aprovação</option><option>Cadastros</option>
                     </select>
                   </div>
-                </div>
-
-                <p class="text-xs text-dms-mar mb-3">Total: <strong>48 horas</strong> · <strong>2 dias úteis</strong></p>
-
-                <!-- SLA Bar segmentada -->
-                <div class="sla-bar mb-3">
-                  <div class="sla-seg sla-on-time" style="flex: 75">
-                    <span class="flex items-center gap-1.5">
-                      <span class="w-2 h-2 rounded-full bg-dms-tropicalidade"></span>
-                      On Time · 0–36h
-                    </span>
-                  </div>
-                  <div class="sla-seg sla-warning" style="flex: 25">
-                    <span class="flex items-center gap-1.5">
-                      <span class="w-2 h-2 rounded-full bg-[#EAB308]"></span>
-                      Warning · 36–48h
-                    </span>
-                  </div>
-                </div>
-                <div class="sla-bar mb-3" style="height: 24px;">
-                  <div class="sla-seg sla-delay" style="flex: 100">
-                    <span class="flex items-center gap-1.5">
-                      <span class="w-2 h-2 rounded-full bg-red-600"></span>
-                      Delay · após 48h
-                    </span>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-3">
                   <div>
-                    <label class="caption text-dms-tecnologia mb-1 block flex items-center gap-1">
-                      <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade"></span>
-                      On Time até
-                    </label>
-                    <div class="flex items-center gap-1">
-                      <input type="number" value="36" class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded text-center">
-                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer"><option>h</option></select>
-                    </div>
-                  </div>
-                  <div class="rounded-md border border-[#EAB308]/30 bg-[#FFFBEB] px-2.5 py-2 flex items-start gap-1.5 min-w-0">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#EAB308] mt-1.5 flex-shrink-0"></span>
-                    <div class="text-[11px] text-[#854D0E] leading-snug">
-                      <strong>Warning automático</strong>
-                      <p class="text-[#854D0E]/90 mt-0.5">⏱️ Calculado: On Time → SLA Total. Sem qtde horas.</p>
-                    </div>
-                  </div>
-                  <div class="rounded-md border border-red-200 bg-red-50 px-2.5 py-2 flex items-start gap-1.5 min-w-0">
-                    <span class="w-1.5 h-1.5 rounded-full bg-red-600 mt-1.5 flex-shrink-0"></span>
-                    <div class="text-[11px] text-red-800 leading-snug">
-                      <strong>Delay automático</strong>
-                      <p class="text-red-700/90 mt-0.5">⏱️ Inicia assim que o warning expira. Não requer configuração de tempo.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- SLA DMS -->
-              <div class="border-2 border-dms-ceu/30 rounded-lg p-5">
-                <div class="flex items-start justify-between mb-3">
-                  <div>
-                    <h4 class="caption text-dms-confianca mb-0.5">SLA DMS (interno)</h4>
-                    <p class="text-xs text-dms-tecnologia">Não conclui, sinaliza ação interna</p>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <input type="number" value="24" class="input-dms w-16 px-2 py-1 text-sm border border-[#E5E7EB] rounded text-center">
-                    <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1 cursor-pointer"><option>horas</option></select>
-                    <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1 cursor-pointer"><option>dias úteis</option></select>
+                    <label class="caption text-dms-tecnologia mb-1 block">Responsável</label>
+                    <select class="input-dms w-full px-2 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                      <option>Camila Reis</option><option>Fernando Arruda</option><option>Roberta Costa</option>
+                    </select>
                   </div>
                 </div>
 
-                <p class="text-xs text-dms-mar mb-3">Total: <strong>24 horas</strong> · <strong>1 dia útil</strong></p>
-
-                <div class="sla-bar mb-3">
-                  <div class="sla-seg sla-on-time" style="flex: 75">
-                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-dms-tropicalidade"></span>On Time · 0–18h</span>
-                  </div>
-                  <div class="sla-seg sla-warning" style="flex: 25">
-                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-[#EAB308]"></span>Warning · 18–24h</span>
-                  </div>
-                </div>
-                <div class="sla-bar mb-3" style="height: 24px;">
-                  <div class="sla-seg sla-delay" style="flex: 100">
-                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-red-600"></span>Delay · após 24h</span>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-3">
-                  <div>
-                    <label class="caption text-dms-tecnologia mb-1 block">On Time até</label>
-                    <div class="flex items-center gap-1">
-                      <input type="number" value="18" class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded text-center">
-                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer"><option>h</option></select>
-                    </div>
-                  </div>
-                  <div class="rounded-md border border-[#EAB308]/30 bg-[#FFFBEB] px-2.5 py-2 flex items-start gap-1.5 min-w-0">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#EAB308] mt-1.5 flex-shrink-0"></span>
-                    <div class="text-[11px] text-[#854D0E] leading-snug">
-                      <strong>Warning automático</strong>
-                      <p class="text-[#854D0E]/90 mt-0.5">⏱️ Calculado: On Time → SLA Total. Sem qtde horas.</p>
-                    </div>
-                  </div>
-                  <div class="rounded-md border border-red-200 bg-red-50 px-2.5 py-2 flex items-start gap-1.5 min-w-0">
-                    <span class="w-1.5 h-1.5 rounded-full bg-red-600 mt-1.5 flex-shrink-0"></span>
-                    <div class="text-[11px] text-red-800 leading-snug">
-                      <strong>Delay automático</strong>
-                      <p class="text-red-700/90 mt-0.5">⏱️ Inicia assim que o warning expira. Não requer configuração de tempo.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- ESCALATIONS DESTE STAGE -->
-              <div>
-                <div class="flex items-start justify-between mb-3">
-                  <div>
-                    <h4 class="caption text-dms-sabedoria mb-0.5">Escalations deste stage <span class="text-dms-mar">(3)</span></h4>
-                    <p class="text-xs text-dms-tecnologia">Múltiplas regras pra situações diferentes. Sistema bloqueia regras duplicadas (D17).</p>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <input type="text" placeholder="Buscar escalation existente…" class="input-dms text-xs px-2 py-1 border border-[#E5E7EB] rounded-md bg-white w-44" title="Vincular escalation existente da biblioteca">
-                    <a href="tela09-builder-escalation-trigger.html" class="flex items-center gap-1 text-xs font-semibold text-dms-sabedoria px-2.5 py-1 bg-white border border-dms-sabedoria/30 rounded hover:bg-dms-sabedoria/5 transition-colors">
-                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                      Criar nova
-                    </a>
-                  </div>
-                </div>
-
-                <div class="space-y-3">
-                  <!-- Escalation 1 -->
-                  <div class="escalation-card rounded-md p-3">
-                    <div class="flex items-center justify-between mb-2">
-                      <div class="caption text-dms-sabedoria">#1 — Atraso 24h (após Warning)</div>
-                      <button class="esc-remove text-red-600 hover:text-red-700 text-sm" title="Remover">✕</button>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2">
-                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
-                        <option selected>Após Warning</option>
-                        <option>Após Delay</option>
-                      </select>
-                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
-                        <option selected>Adicionar responsável</option>
-                        <option>Redirecionar</option>
-                        <option>Aumentar prioridade</option>
-                      </select>
-                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
-                        <option selected>TL Compras</option>
-                        <option>Head Departamento</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <!-- Escalation 2 -->
-                  <div class="escalation-card rounded-md p-3">
-                    <div class="flex items-center justify-between mb-2">
-                      <div class="caption text-dms-sabedoria">#2 — Delay (SLA estourado)</div>
-                      <button class="esc-remove text-red-600 hover:text-red-700 text-sm" title="Remover">✕</button>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2">
-                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
-                        <option selected>Após Delay</option>
-                      </select>
-                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
-                        <option selected>Redirecionar</option>
-                      </select>
-                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
-                        <option selected>Head Departamento</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <!-- Escalation 3 (MAILIA) -->
-                  <div class="escalation-card rounded-md p-3">
-                    <div class="flex items-center justify-between mb-2">
-                      <div class="caption text-dms-sabedoria">#3 — Reclamação MAILIA</div>
-                      <button class="esc-remove text-red-600 hover:text-red-700 text-sm" title="Remover">✕</button>
-                    </div>
-                    <div class="grid grid-cols-3 gap-2">
-                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
-                        <option selected>Tag MAILIA: complaint</option>
-                      </select>
-                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
-                        <option selected>Aumentar prioridade</option>
-                      </select>
-                      <select class="input-dms text-xs border border-[#E5E7EB] rounded bg-white px-2 py-1.5 cursor-pointer">
-                        <option selected>Customer Care + TL</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Resumo das outras abas -->
-              <div class="bg-dms-ceu/5 border border-dms-ceu/20 rounded-md p-3 flex items-center gap-2">
-                <svg class="w-4 h-4 text-dms-confianca flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                <p class="text-xs text-dms-mar">
-                  <strong>Outras abas (este stage):</strong> Identidade · SOP texto (anexo <span class="mono">SOP-001</span>) · Procedures (2) · Alertas (1) · Agentes (0)
-                </p>
-              </div>
-
-            </div>
-
-            <!-- ========== PLACEHOLDERS PRAS OUTRAS ABAS ========== -->
-            <div id="content-identidade" class="hidden p-6">
-              <div class="tab-placeholder rounded-lg p-8 text-center">
-                <h3 class="text-base font-semibold text-dms-mar mb-2">Aba Identidade</h3>
-                <p class="text-sm text-dms-tecnologia">Nome do stage · Categoria (tarefa_humana/automacao/alerta/validacao) · Responsável role · Cadeiras (executor / observador / destinatária) · Execution mode · Outputs declarados.</p>
-                <p class="text-xs text-dms-tecnologia mt-3 italic">Mockup omite essa aba para foco no SLA + Escalation. UI segue o mesmo padrão de form 2 colunas das telas anteriores.</p>
-              </div>
-            </div>
-
-            <div id="content-sop" class="hidden p-6 space-y-4">
-              <!-- Regra de ouro -->
-              <div class="rounded-md bg-dms-sabedoria/10 border border-dms-sabedoria/30 px-4 py-3 flex items-start gap-2">
-                <span class="text-dms-sabedoria">📌</span>
-                <p class="text-xs text-dms-mar leading-snug"><strong>Regra de ouro:</strong> 1 stage = 1 tarefa. Se a edição da SOP gerar mais de 1 tarefa executável, a IA sugere automaticamente criar um stage adicional para preservar a granularidade.</p>
-              </div>
-
-              <!-- SOP default vinculada -->
-              <div class="bg-white border border-[#E5E7EB] rounded-lg">
-                <div class="px-4 py-2.5 border-b border-[#E5E7EB] flex items-center justify-between bg-[#F8F9FA]">
-                  <div class="flex items-center gap-2">
-                    <span class="caption text-dms-confianca">SOP default vinculada ao stage</span>
-                    <span class="mono text-[10px] px-1.5 py-0.5 bg-white border border-[#E5E7EB] rounded text-dms-mar">SOP-001</span>
-                  </div>
-                  <div class="flex items-center gap-1.5">
-                    <button onclick="sopMode('inline')" class="text-[11px] font-semibold text-dms-confianca px-2.5 py-1 bg-white border border-dms-confianca/40 rounded hover:bg-dms-confianca hover:text-white transition-colors">Editar inline</button>
-                    <button onclick="sopMode('copy')" class="text-[11px] font-semibold text-dms-confianca px-2.5 py-1 bg-white border border-dms-confianca/40 rounded hover:bg-dms-confianca hover:text-white transition-colors">Copiar e editar</button>
-                    <button onclick="sopMode('new')" class="text-[11px] font-semibold text-dms-sabedoria px-2.5 py-1 bg-white border border-dms-sabedoria/40 rounded hover:bg-dms-sabedoria hover:text-white transition-colors">Criar do zero</button>
-                  </div>
-                </div>
-                <div class="p-4">
-                  <div id="sop-mode-banner" class="hidden mb-3 text-[11px] text-dms-confianca italic"></div>
-                  <textarea id="sop-editor" rows="10" class="input-dms w-full text-xs font-mono border border-[#E5E7EB] rounded-md px-3 py-2 bg-white" readonly>1) Receber XML da NF emitida pelo fornecedor
-2) Validar CNPJ, valor total e impostos contra o pedido
-3) Conferir descrição dos itens e quantidades
-4) Aprovar ou solicitar correção
-5) Encaminhar para lançamento contábil</textarea>
-                </div>
-                <div class="px-4 py-2.5 border-t border-[#E5E7EB] bg-[#F8F9FA] flex items-center justify-end gap-2">
-                  <button onclick="sopValidateIA()" class="flex items-center gap-1.5 text-xs font-semibold text-white px-3 py-1.5 bg-dms-sabedoria rounded hover:opacity-90 transition-opacity">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    Validar com IA
-                  </button>
-                </div>
-              </div>
-
-              <!-- Modal placeholder IA -->
-              <div id="sop-ia-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,56,108,0.5);">
-                <div class="bg-white rounded-lg shadow-2xl w-[480px] max-w-[90vw] overflow-hidden">
-                  <div class="px-5 py-3 border-b border-[#E5E7EB] flex items-center justify-between">
-                    <h3 class="text-sm font-bold text-dms-mar">⚙️ IA validou a SOP</h3>
-                    <button onclick="document.getElementById('sop-ia-modal').classList.add('hidden')" class="text-dms-tecnologia hover:text-dms-mar">✕</button>
-                  </div>
-                  <div class="p-5 space-y-3">
-                    <div class="flex items-center gap-2 text-sm text-dms-mar"><span>✅</span><span><strong>0 alertas</strong> · estrutura coerente</span></div>
-                    <div class="flex items-center gap-2 text-sm text-dms-mar"><span>✨</span><span><strong>0 actionIA novas</strong> sugeridas</span></div>
-                    <div class="flex items-center gap-2 text-sm text-dms-mar"><span>📌</span><span><strong>1 stage adicional</strong> sugerido: "Lançamento Contábil" (passo 5 isolado)</span></div>
-                    <p class="text-[11px] text-dms-tecnologia italic">⚙️ IA real chega em F3 (Copilot). Aqui é mock visual.</p>
-                  </div>
-                  <div class="px-5 py-3 bg-[#F8F9FA] border-t border-[#E5E7EB] flex items-center justify-end gap-2">
-                    <button onclick="document.getElementById('sop-ia-modal').classList.add('hidden')" class="text-xs font-semibold text-dms-mar px-3 py-1.5 border border-[#E5E7EB] rounded">Fechar</button>
-                    <button onclick="document.getElementById('sop-ia-modal').classList.add('hidden')" class="text-xs font-semibold text-white px-3 py-1.5 bg-dms-sabedoria rounded">Aplicar sugestões</button>
-                  </div>
-                </div>
-              </div>
-
-              <script>
-              function sopMode(mode){
-                var ed = document.getElementById('sop-editor');
-                var banner = document.getElementById('sop-mode-banner');
-                if(mode==='inline'){ ed.removeAttribute('readonly'); banner.textContent='✏️ Modo: edição inline da SOP default (não cria nova versão)'; }
-                else if(mode==='copy'){ ed.removeAttribute('readonly'); banner.textContent='📑 Modo: copiar e editar (cria SOP-001-v2 específica deste workflow)'; }
-                else { ed.value=''; ed.removeAttribute('readonly'); banner.textContent='🆕 Modo: criar SOP do zero para este stage'; }
-                banner.classList.remove('hidden');
-              }
-              function sopValidateIA(){ document.getElementById('sop-ia-modal').classList.remove('hidden'); }
-              </script>
-            </div>
-
-            <div id="content-procedures" class="hidden p-6 space-y-4">
-              <div class="flex items-start justify-between gap-3">
                 <div>
-                  <h3 class="text-sm font-bold text-dms-mar mb-0.5">Procedures vinculadas ao stage</h3>
-                  <p class="text-xs text-dms-tecnologia">2 procedures associadas · puxa da <a href="tela03-procedures-list.html" class="text-dms-confianca font-semibold hover:underline">Biblioteca de Procedures</a></p>
-                </div>
-                <a href="tela03-procedures-list.html" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar">Ver biblioteca completa →</a>
-              </div>
-
-              <div class="space-y-2">
-                <div class="flex items-center justify-between border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white">
-                  <div class="flex items-center gap-3 min-w-0">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-dms-confianca/10 text-dms-confianca">stage_open</span>
-                    <div class="min-w-0">
-                      <div class="text-sm font-semibold text-dms-mar truncate">Validar XML da NF</div>
-                      <div class="text-[11px] text-dms-tecnologia truncate">SOP-001 · executa ao abrir o stage</div>
-                    </div>
+                  <label class="caption text-dms-tecnologia mb-1 block">Tags</label>
+                  <div class="flex flex-wrap gap-1.5">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-dms-ceu/15 text-dms-confianca">nfe ×</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-dms-ceu/15 text-dms-confianca">compras ×</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-dms-ceu/15 text-dms-confianca">pagamento ×</span>
+                    <input type="text" placeholder="+ tag" class="input-dms px-2 py-0.5 text-[11px] border border-dashed border-[#E5E7EB] rounded-full w-20">
                   </div>
-                  <button onclick="tela10Remove(this)" class="text-xs text-dms-tecnologia hover:text-red-500 whitespace-nowrap">Remover</button>
                 </div>
-                <div class="flex items-center justify-between border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white">
-                  <div class="flex items-center gap-3 min-w-0">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-dms-sabedoria/10 text-dms-sabedoria">stage_close</span>
-                    <div class="min-w-0">
-                      <div class="text-sm font-semibold text-dms-mar truncate">Notificar contábil sobre lançamento</div>
-                      <div class="text-[11px] text-dms-tecnologia truncate">SOP-014 · executa ao fechar o stage</div>
-                    </div>
-                  </div>
-                  <button onclick="tela10Remove(this)" class="text-xs text-dms-tecnologia hover:text-red-500 whitespace-nowrap">Remover</button>
-                </div>
-              </div>
 
-              <div class="border border-dashed border-[#E5E7EB] rounded-md p-3 bg-[#F8F9FA]">
-                <label class="text-xs font-semibold text-dms-mar block mb-1.5">Adicionar procedure existente</label>
-                <div class="flex gap-2">
-                  <input type="text" placeholder="Buscar na biblioteca…" class="input-dms flex-1 text-sm px-3 py-1.5 border border-[#E5E7EB] rounded-md bg-white">
-                  <button onclick="tela10Vincular(this)" class="px-3 py-1.5 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md bg-white hover:bg-sky-50">Vincular</button>
-                </div>
-              </div>
-
-              <a href="tela03-procedures-list.html" class="flex items-center justify-center gap-2 w-full px-3 py-2.5 text-sm font-semibold text-white bg-dms-sabedoria rounded-md hover:opacity-90">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                Criar nova procedure
-              </a>
-            </div>
-
-            <div id="content-alertas" class="hidden p-6 space-y-4">
-              <div class="flex items-start justify-between gap-3">
                 <div>
-                  <h3 class="text-sm font-bold text-dms-mar mb-0.5">Alertas vinculados ao stage</h3>
-                  <p class="text-xs text-dms-tecnologia">1 alerta anexado · puxa da <a href="tela78-alertas-biblioteca.html" class="text-dms-confianca font-semibold hover:underline">Biblioteca de Alertas</a></p>
+                  <label class="caption text-dms-tecnologia mb-1 block flex items-center gap-1.5">
+                    Critérios de Match <span class="tbd-pin">TBD</span>
+                  </label>
+                  <textarea rows="2" placeholder="Ex.: tipo=NFE, origem=webhook, valor<=50000..." class="input-dms w-full px-3 py-2 text-xs border border-[#E5E7EB] rounded-md mono leading-relaxed">tipo == "NFE" AND origem IN ("webhook", "manual") AND empresa.tipo == "direta"</textarea>
+                  <p class="text-[11px] text-dms-tecnologia mt-1 italic">Editor DSL ou builder visual? Ver tela11 Match Engine.</p>
                 </div>
-                <a href="tela78-alertas-biblioteca.html" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar">Ver biblioteca completa →</a>
-              </div>
 
-              <div class="space-y-2">
-                <div class="flex items-center justify-between border border-[#E5E7EB] rounded-md px-3 py-2.5 bg-white">
-                  <div class="flex items-center gap-3">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">Atenção</span>
-                    <div>
-                      <div class="text-sm font-semibold text-dms-mar">SLA em Risco</div>
-                      <div class="text-[11px] text-dms-tecnologia">Stage chegou em 80% do SLA · canais: Email, In-app</div>
-                    </div>
-                  </div>
-                  <button onclick="tela10Remove(this)" class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
-                </div>
-              </div>
-
-              <div class="border border-dashed border-[#E5E7EB] rounded-md p-3 bg-[#F8F9FA]">
-                <label class="text-xs font-semibold text-dms-mar block mb-1.5">Adicionar alerta existente</label>
-                <div class="flex gap-2">
-                  <input type="text" placeholder="Buscar na biblioteca…" class="input-dms flex-1 text-sm px-3 py-1.5 border border-[#E5E7EB] rounded-md bg-white">
-                  <button onclick="tela10Vincular(this)" class="px-3 py-1.5 text-sm font-semibold text-dms-mar border border-dms-ceu rounded-md bg-white hover:bg-sky-50">Vincular</button>
-                </div>
-              </div>
-
-              <a href="tela78-alertas-biblioteca.html" class="flex items-center justify-center gap-2 w-full px-3 py-2.5 text-sm font-semibold text-white bg-dms-sabedoria rounded-md hover:opacity-90">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                Criar novo alerta
-              </a>
-            </div>
-
-            <div id="content-agentes" class="hidden p-6 space-y-4">
-              <div class="flex items-start justify-between gap-3">
                 <div>
-                  <h3 class="text-sm font-bold text-dms-mar mb-0.5">ActionIAs vinculados ao stage</h3>
-                  <p class="text-xs text-dms-tecnologia">2 ActionIAs anexados · puxa da <a href="tela77-actionia-biblioteca.html" class="text-dms-confianca font-semibold hover:underline">Biblioteca ActionIA</a></p>
+                  <label class="caption text-dms-tecnologia mb-1 block">Resultados esperados</label>
+                  <textarea rows="2" placeholder="O que este workflow entrega quando concluído?" class="input-dms w-full px-3 py-2 text-xs border border-[#E5E7EB] rounded-md leading-relaxed">NFE baixada no Omie, pré-lançamento criado, pagamento agendado em D+30 ou em quarentena com motivo.</textarea>
                 </div>
-                <a href="tela77-actionia-biblioteca.html" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar">Ver biblioteca completa →</a>
-              </div>
 
-              <!-- ActionIA 1 — preview expandido -->
-              <div class="border border-[#E5E7EB] rounded-md bg-white overflow-hidden">
-                <div class="flex items-center justify-between px-3 py-2 bg-[#F8FBFE] border-b border-[#E5E7EB]">
-                  <div class="flex items-center gap-2">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-dms-sabedoria/10 text-dms-sabedoria">ActionAI</span>
-                    <div class="text-sm font-bold text-dms-mar">ActionAI Aprovação NF</div>
-                  </div>
-                  <div class="flex items-center gap-3">
-                    <a href="tela77-actionia-biblioteca.html" class="text-[11px] font-semibold text-dms-confianca hover:underline">Editar este ActionIA →</a>
-                    <button onclick="tela10Remove(this)" class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
-                  </div>
-                </div>
-                <div class="p-3 space-y-2">
+                <div class="bg-dms-mar text-white rounded-lg p-3 flex items-center justify-between">
                   <div>
-                    <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Descrição</div>
-                    <div class="text-[11px] text-dms-tecnologia leading-snug">Sugere aprovação/rejeição comparando com pedido + contrato…</div>
+                    <div class="caption text-white/60">Em uso</div>
+                    <div class="text-2xl font-black leading-none mt-0.5"><span id="wf-running-count-b">5</span> instâncias</div>
                   </div>
-                  <div>
-                    <div class="caption text-dms-confianca text-[10px] mb-0.5">🎯 Objetivo</div>
-                    <div class="text-xs text-dms-mar leading-snug">Reduzir tempo de aprovação fiscal sugerindo decisão automaticamente baseada em regras do contrato vigente do fornecedor.</div>
-                  </div>
-                  <div>
-                    <div class="caption text-dms-confianca text-[10px] mb-0.5">📦 Resultado / Entrega</div>
-                    <div class="text-xs text-dms-mar leading-snug">Decisão estruturada (aprovar / rejeitar / revisar) com motivo, score de confiança e referência ao contrato avaliado.</div>
-                  </div>
-                  <div class="grid grid-cols-2 gap-2 pt-1 border-t border-[#E5E7EB]">
-                    <div>
-                      <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Input</div>
-                      <div class="text-[10px] mono text-dms-tecnologia leading-snug">{ nf_id, pedido_id, contrato_id }</div>
-                    </div>
-                    <div>
-                      <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Output</div>
-                      <div class="text-[10px] mono text-dms-tecnologia leading-snug">{ decisao, score, motivo[] }</div>
-                    </div>
-                  </div>
+                  <button onclick="goExecutions()" class="text-xs font-semibold text-white/90 hover:text-white px-2 py-1 bg-white/10 rounded">Ver execuções →</button>
                 </div>
               </div>
 
-              <!-- ActionIA 2 — preview expandido -->
-              <div class="border border-[#E5E7EB] rounded-md bg-white overflow-hidden">
-                <div class="flex items-center justify-between px-3 py-2 bg-[#F8FBFE] border-b border-[#E5E7EB]">
-                  <div class="flex items-center gap-2">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">Validação</span>
-                    <div class="text-sm font-bold text-dms-mar">Detector Divergência Pedido×NF</div>
+              <!-- TAB: SOPs -->
+              <div id="tab-sops" class="tab-content hidden space-y-3">
+                <div class="text-xs text-dms-tecnologia">Lista linear das SOPs no workflow. Arraste pra reordenar ou use as setas.</div>
+                <div id="wf-sops-list" class="space-y-2"></div>
+                <button onclick="openImportSopModal()" class="w-full text-xs font-semibold text-dms-confianca px-3 py-2.5 bg-white border-2 border-dashed border-[#E5E7EB] rounded-md hover:border-dms-confianca hover:bg-dms-ceu/5 transition-colors flex items-center justify-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                  Importar SOP
+                </button>
+              </div>
+
+              <!-- TAB: VERSIONAMENTO -->
+              <div id="tab-versionamento" class="tab-content hidden space-y-2.5">
+                <div class="text-xs text-dms-tecnologia mb-1">Histórico de versões deste workflow.</div>
+
+                <div class="border border-[rgba(176,201,52,0.4)] bg-[rgba(176,201,52,0.06)] rounded-md p-3">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="mono font-bold text-dms-mar">v3.1</span>
+                    <span class="caption text-dms-tropicalidade">atual · 5 instâncias</span>
                   </div>
-                  <div class="flex items-center gap-3">
-                    <a href="tela77-actionia-biblioteca.html" class="text-[11px] font-semibold text-dms-confianca hover:underline">Editar este ActionIA →</a>
-                    <button onclick="tela10Remove(this)" class="text-xs text-dms-tecnologia hover:text-red-500">Remover</button>
-                  </div>
+                  <div class="text-xs text-dms-mar">Adicionada SOP "Liberação Pagamento" v3.0</div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">02/06/2026 · Camila Reis</div>
                 </div>
-                <div class="p-3 space-y-2">
-                  <div>
-                    <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Descrição</div>
-                    <div class="text-[11px] text-dms-tecnologia leading-snug">Compara valores, itens e quantidades entre pedido e NF…</div>
+
+                <div class="border border-[#E5E7EB] rounded-md p-3 hover:border-dms-confianca cursor-pointer" onclick="compareVersions('v3.1','v3.0')">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="mono font-bold text-dms-tecnologia">v3.0</span>
+                    <span class="text-[11px] text-dms-tecnologia">2 instâncias (histórico)</span>
                   </div>
-                  <div>
-                    <div class="caption text-dms-confianca text-[10px] mb-0.5">🎯 Objetivo</div>
-                    <div class="text-xs text-dms-mar leading-snug">Identificar divergências fiscais entre pedido e NF antes de aprovar pagamento, evitando passivos contábeis.</div>
+                  <div class="text-xs text-dms-mar">Pin de SOP "Aprovação Gerencial" em v1.5</div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">20/05/2026 · Fernando Arruda</div>
+                </div>
+
+                <div class="border border-[#E5E7EB] rounded-md p-3 hover:border-dms-confianca cursor-pointer" onclick="compareVersions('v3.0','v2.4')">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="mono font-bold text-dms-tecnologia">v2.4</span>
+                    <span class="text-[11px] text-dms-tecnologia">arquivada</span>
                   </div>
-                  <div>
-                    <div class="caption text-dms-confianca text-[10px] mb-0.5">📦 Resultado / Entrega</div>
-                    <div class="text-xs text-dms-mar leading-snug">Lista de divergências por campo (valor, item, qtd), com severidade (warn / block) e referência ao pedido original.</div>
+                  <div class="text-xs text-dms-mar">Substituição da SOP "Validação Inicial" v1.x → v2.x</div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">10/04/2026 · Camila Reis</div>
+                </div>
+
+                <div class="border border-[#E5E7EB] rounded-md p-3 hover:border-dms-confianca cursor-pointer" onclick="compareVersions('v2.4','v2.0')">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="mono font-bold text-dms-tecnologia">v2.0</span>
+                    <span class="text-[11px] text-dms-tecnologia">arquivada</span>
                   </div>
-                  <div class="grid grid-cols-2 gap-2 pt-1 border-t border-[#E5E7EB]">
-                    <div>
-                      <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Input</div>
-                      <div class="text-[10px] mono text-dms-tecnologia leading-snug">{ pedido_id, nf_payload }</div>
-                    </div>
-                    <div>
-                      <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Output</div>
-                      <div class="text-[10px] mono text-dms-tecnologia leading-snug">{ divergencias[], severidade }</div>
-                    </div>
-                  </div>
+                  <div class="text-xs text-dms-mar">Major: refeito após DP #18 (consolidação CAP)</div>
+                  <div class="text-[11px] text-dms-tecnologia mt-0.5">15/03/2026 · Camila Reis</div>
+                </div>
+
+                <div class="mt-2 p-3 bg-[#FFFBEB] border border-[#FDE68A] rounded-md text-[11px] text-[#854D0E] flex gap-2">
+                  <span class="tbd-pin flex-shrink-0">TBD-D4</span>
+                  Diff entre versões: lista de SOPs add/remove/reorder/pin — visualização ainda por desenhar.
                 </div>
               </div>
 
-              <!-- Adicionar / autocomplete com preview -->
-              <div class="border border-dashed border-[#E5E7EB] rounded-md p-3 bg-[#F8F9FA] space-y-2">
-                <div>
-                  <label class="text-xs font-semibold text-dms-mar block mb-1">Adicionar ActionIA ao stage</label>
-                  <p class="text-[11px] text-dms-tecnologia mb-1.5">Selecione o ActionIA que será acionado neste stage. Você verá uma prévia do que ele faz antes de confirmar.</p>
-                  <div class="flex gap-2">
-                    <input type="text" value="Sugestor Plano de Contas" class="input-dms flex-1 text-sm px-3 py-1.5 border border-dms-ceu rounded-md bg-white">
-                    <button onclick="tela10Vincular(this)" class="px-3 py-1.5 text-sm font-semibold text-white bg-dms-confianca rounded-md hover:opacity-90">Vincular</button>
-                  </div>
-                </div>
-
-                <!-- Card de preview do ActionIA selecionado -->
-                <div class="border border-dms-ceu/40 rounded-md bg-white overflow-hidden">
-                  <div class="flex items-center justify-between px-3 py-2 bg-dms-ceu/5 border-b border-dms-ceu/30">
-                    <div class="flex items-center gap-2">
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-dms-sabedoria/10 text-dms-sabedoria">ActionAI</span>
-                      <div class="text-sm font-bold text-dms-mar">Sugestor Plano de Contas</div>
-                      <span class="text-[10px] font-semibold text-dms-confianca">prévia</span>
-                    </div>
-                    <a href="tela77-actionia-biblioteca.html" class="text-[11px] font-semibold text-dms-confianca hover:underline">Editar este ActionIA →</a>
-                  </div>
-                  <div class="p-3 space-y-2">
-                    <div>
-                      <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Descrição</div>
-                      <div class="text-[11px] text-dms-tecnologia leading-snug">Sugere conta contábil baseado em descrição da NF e histórico…</div>
-                    </div>
-                    <div>
-                      <div class="caption text-dms-confianca text-[10px] mb-0.5">🎯 Objetivo</div>
-                      <div class="text-xs text-dms-mar leading-snug">Automatizar classificação contábil reduzindo trabalho do time financeiro em lançamentos repetitivos.</div>
-                    </div>
-                    <div>
-                      <div class="caption text-dms-confianca text-[10px] mb-0.5">📦 Resultado / Entrega</div>
-                      <div class="text-xs text-dms-mar leading-snug">Conta contábil sugerida (código + nome) com score de confiança e top-3 alternativas, baseado em histórico do fornecedor.</div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 pt-1 border-t border-[#E5E7EB]">
-                      <div>
-                        <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Input</div>
-                        <div class="text-[10px] mono text-dms-tecnologia leading-snug">{ nf_descricao, fornecedor_id }</div>
-                      </div>
-                      <div>
-                        <div class="caption text-dms-tecnologia text-[10px] mb-0.5">Output</div>
-                        <div class="text-[10px] mono text-dms-tecnologia leading-snug">{ conta, score, alternativas[] }</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <a href="tela77-actionia-biblioteca.html" class="flex items-center justify-center gap-2 w-full px-3 py-2.5 text-sm font-semibold text-white bg-dms-sabedoria rounded-md hover:opacity-90">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-                Criar novo ActionIA
-              </a>
             </div>
-
           </div>
-        </div>
-
-        <!-- COLUNA 3: LIVE PREVIEW VERTICAL -->
-        <aside class="col-span-3 sticky-preview self-start">
-          <div class="bg-white border-2 border-dms-sabedoria/30 rounded-lg shadow-dms-md overflow-hidden">
-
-            <div class="px-4 py-3 bg-gradient-to-r from-dms-sabedoria/5 to-dms-ceu/5 border-b border-[#E5E7EB] flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="relative flex h-2.5 w-2.5">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-dms-sabedoria opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-dms-sabedoria"></span>
-                </span>
-                <h3 class="caption text-dms-mar font-semibold">Live Preview</h3>
-              </div>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[rgba(0,174,238,0.15)] text-[#005290]">tempo real</span>
-            </div>
-
-            <div class="p-4 space-y-2">
-              <div class="caption text-dms-tecnologia mb-2">Workflow se construindo</div>
-
-              <!-- Step 1 -->
-              <div class="preview-step">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-dms-ceu/15 text-dms-confianca font-bold text-[10px]">1</span>
-                    <span class="font-semibold text-dms-mar">NF Recebida</span>
-                  </div>
-                  <span class="mono text-xs text-dms-tecnologia">2h</span>
-                </div>
-              </div>
-              <div class="preview-arrow">↓</div>
-
-              <div class="preview-step">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-dms-ceu/15 text-dms-confianca font-bold text-[10px]">2</span>
-                    <span class="font-semibold text-dms-mar">Validação Auto</span>
-                  </div>
-                  <span class="mono text-xs text-dms-tecnologia">5min</span>
-                </div>
-              </div>
-              <div class="preview-arrow">↓</div>
-
-              <!-- Step 3 atual -->
-              <div class="preview-step current">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-dms-mar text-white font-bold text-[10px]">3</span>
-                    <span class="font-semibold text-dms-mar">Aprovação Diretor</span>
-                  </div>
-                  <span class="mono text-xs text-dms-mar font-semibold">48h ✎</span>
-                </div>
-              </div>
-              <div class="preview-arrow">↓ <span class="text-yellow-600">?</span></div>
-
-              <div class="preview-step">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-dms-ceu/15 text-dms-confianca font-bold text-[10px]">4</span>
-                    <div class="flex items-center gap-1">
-                      <span class="font-semibold text-dms-mar">Aprov. C-Level</span>
-                      <span class="text-[10px] uppercase tracking-wider px-1 rounded bg-[#FFFBEB] text-[#854D0E]">condicional</span>
-                    </div>
-                  </div>
-                  <span class="mono text-xs text-dms-tecnologia">72h</span>
-                </div>
-              </div>
-              <div class="preview-arrow">↓</div>
-
-              <div class="preview-step">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-dms-ceu/15 text-dms-confianca font-bold text-[10px]">5</span>
-                    <span class="font-semibold text-dms-mar">Lançamento Omie</span>
-                  </div>
-                  <span class="mono text-xs text-dms-tecnologia">15min</span>
-                </div>
-              </div>
-              <div class="preview-arrow">↓</div>
-
-              <div class="preview-step">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-dms-ceu/15 text-dms-confianca font-bold text-[10px]">6</span>
-                    <span class="font-semibold text-dms-mar">Pagamento</span>
-                  </div>
-                  <span class="mono text-xs text-dms-tecnologia">5d</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- SLA TOTAL -->
-            <div class="bg-dms-ceu/5 border-t border-[#E5E7EB] p-4">
-              <div class="caption text-dms-tecnologia mb-1">SLA Total</div>
-              <div class="text-lg font-bold text-dms-mar">120 horas · 5 dias úteis</div>
-              <div class="text-xs text-dms-tropicalidade mt-1 flex items-center gap-1">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-                Soma compatível
-              </div>
-            </div>
-
-            <!-- Validação -->
-            <div class="p-4 border-t border-[#E5E7EB]">
-              <div class="bg-[rgba(176,201,52,0.10)] border border-dms-tropicalidade/30 rounded-md p-2.5 flex items-start gap-2">
-                <svg class="w-4 h-4 text-[#7A8F24] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
-                <div class="text-xs">
-                  <p class="font-semibold text-[#7A8F24]">Workflow válido</p>
-                  <p class="text-[#7A8F24]/80 mt-0.5">6 stages · 3 escalations · SLA somando 120h</p>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Nota TR-8 -->
-          <p class="text-[10px] text-dms-tecnologia italic mt-2 px-2 leading-relaxed">
-            Live Preview client-side: atualiza ao editar qualquer campo (TR-8).
-          </p>
         </aside>
 
       </div>
 
-      <!-- ========== AVISO SOBRE ESTRATÉGIA DAS ABAS ========== -->
-      <div class="mt-6 p-4 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg flex gap-3">
-        <svg class="w-5 h-5 text-[#EAB308] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <div class="text-sm text-[#854D0E]">
-          <p class="font-semibold mb-1">Estratégia desta tela (decisão consciente):</p>
-          <p class="leading-relaxed">A aba <strong>SLA + Escalation</strong> está renderizada completa (mais densa e específica, segue mockup pg 20). As outras 5 abas têm <strong>placeholders explicativos</strong> que descrevem o conteúdo previsto — clique nelas pra ver. No React, cada aba será um componente próprio reutilizando padrões já validados em A1/A2 (form 2 colunas, badges, etc.). Decisão tomada pra manter este HTML em ~50KB em vez de 120KB+.</p>
-        </div>
-      </div>
+      <!-- TBDs / pendências de design -->
+      <details class="mt-6 bg-white border border-[#E5E7EB] rounded-lg p-5">
+        <summary class="flex items-center gap-3 cursor-pointer">
+          <svg class="chev w-4 h-4 text-dms-tecnologia transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          <span class="font-bold text-dms-mar">TBDs pendentes para Fernando opinar (5)</span>
+        </summary>
+        <ul class="mt-4 space-y-3 text-sm text-dms-mar">
+          <li class="flex gap-2"><span class="tbd-pin">TBD-W1</span> Branching com condições (se X, vai pra SOP A, senão SOP B): F1 ou F2? Por ora workflow é sequencial linear.</li>
+          <li class="flex gap-2"><span class="tbd-pin">TBD-W2</span> Loops: dentro de SOPs (Stage tipo loop) ou no workflow (SOPs em loop até condição)?</li>
+          <li class="flex gap-2"><span class="tbd-pin">TBD-W3</span> Workflow paralelo (várias SOPs simultâneas): F1 ou F2? Esquemas de join (all/any/quorum)?</li>
+          <li class="flex gap-2"><span class="tbd-pin">TBD-W4</span> Editar SOP do workflow (abrir tela07): nova aba (preserva contexto do workflow) ou modal (mais leve)?</li>
+          <li class="flex gap-2"><span class="tbd-pin">TBD-W5</span> Workflow templates pré-prontos (CAP padrão, compras CAPEX, etc.) — lista global + "duplicar"?</li>
+        </ul>
+      </details>
 
     </main>
   </div>
 </div>
 
+<!-- ============ BOTTOM KPI BAR ============ -->
+<div class="kpi-bar">
+  <div class="flex items-center gap-6 flex-wrap max-w-[1600px] mx-auto">
+    <div class="kpi-item">
+      <svg class="w-4 h-4 text-dms-confianca" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+      <span class="kpi-num" id="kpi-sops">3</span>
+      <span class="kpi-label">SOPs</span>
+    </div>
+    <div class="kpi-item">
+      <svg class="w-4 h-4 text-dms-confianca" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <span class="kpi-num" id="kpi-stages">9</span>
+      <span class="kpi-label">Stages totais</span>
+    </div>
+    <div class="kpi-item">
+      <svg class="w-4 h-4 text-dms-confianca" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span class="kpi-num" id="kpi-sla">~46 min</span>
+      <span class="kpi-label">SLA estimado</span>
+    </div>
+    <div class="kpi-item">
+      <svg class="w-4 h-4 text-dms-tropicalidade" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      <span class="kpi-num" id="kpi-running">5</span>
+      <span class="kpi-label">rodando agora</span>
+    </div>
+    <div class="flex-1"></div>
+    <div class="kpi-item mobile-hide-on-small">
+      <span class="text-[11px] text-dms-tecnologia">Última alteração: <strong>agora</strong> · não salva</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============== MODAL: PUBLICAR NOVA VERSÃO ============== -->
+<div id="modal-publish" class="modal-backdrop" onclick="if(event.target===this) closePublishModal()">
+  <div class="modal-card">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-dms-sabedoria/10 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-dms-mar">Publicar nova versão do workflow?</h2>
+          <p class="text-xs text-dms-tecnologia mt-0.5">Esta ação é registrada no audit trail.</p>
+        </div>
+      </div>
+      <button onclick="closePublishModal()" class="text-dms-tecnologia hover:text-dms-mar p-1.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-6 space-y-4">
+      <div class="bg-dms-mar/5 border border-dms-mar/15 rounded-md p-4">
+        <div class="text-sm text-dms-mar leading-relaxed">
+          Este workflow está em execução em <strong>5 instâncias</strong>. Salvar criará a <strong class="mono">v3.2</strong>.
+        </div>
+        <div class="text-sm text-dms-mar leading-relaxed mt-2">
+          As 5 instâncias atuais continuam em <span class="mono">v3.1</span> até concluírem (imutável). Novas instâncias criadas a partir de agora usam a <span class="mono">v3.2</span>.
+        </div>
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">Mensagem da versão <span class="text-red-500">*</span></label>
+        <textarea rows="3" placeholder="Ex.: SOP X removida, ordem ajustada..." class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md">Reorganização da ordem das SOPs e pin da Aprovação Gerencial em v1.5 (compatibilidade com alçadas Q1/26).</textarea>
+      </div>
+      <label class="flex items-start gap-2 text-sm text-dms-mar cursor-pointer">
+        <input type="checkbox" checked class="mt-0.5 accent-dms-mar">
+        <span>Notificar operadores das 5 instâncias ativas (card UPDATE no cockpit · RN-WF-11)</span>
+      </label>
+    </div>
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-3 bg-[#F8F9FA] rounded-b-xl">
+      <button onclick="closePublishModal()" class="px-4 py-2 text-sm text-dms-mar hover:bg-white rounded-md transition-colors">Cancelar</button>
+      <button onclick="confirmPublish()" class="px-5 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        Confirmar publicação
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== MODAL: FIXAR VERSÃO DE SOP ============== -->
+<div id="modal-pin" class="modal-backdrop" onclick="if(event.target===this) closePinModal()">
+  <div class="modal-card">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-dms-sabedoria/10 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-dms-mar">Fixar versão da SOP?</h2>
+          <p class="text-xs text-dms-tecnologia mt-0.5" id="pin-modal-subtitle">SOP — versão</p>
+        </div>
+      </div>
+      <button onclick="closePinModal()" class="text-dms-tecnologia hover:text-dms-mar p-1.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-6 space-y-4">
+      <div class="bg-dms-ceu/5 border border-dms-ceu/30 rounded-md p-4 text-sm text-dms-mar leading-relaxed">
+        <strong>Sem fixar:</strong> quando a SOP evoluir pra v_(n+1), o workflow passa a usar a versão nova nas próximas instâncias.<br>
+        <strong>Fixada:</strong> o workflow continua usando esta versão específica mesmo se a SOP evoluir, até alguém desfixar.
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">Motivo (opcional, fica no audit)</label>
+        <textarea rows="3" placeholder="Ex.: alçadas Q1/26 exigem v1.5 — versão nova quebrou requisito de upload de boleto." class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md"></textarea>
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-3 bg-[#F8F9FA] rounded-b-xl">
+      <button onclick="closePinModal()" class="px-4 py-2 text-sm text-dms-mar hover:bg-white rounded-md transition-colors">Cancelar</button>
+      <button onclick="confirmPin()" class="px-5 py-2 text-sm font-semibold text-white bg-dms-sabedoria rounded-md hover:opacity-90 transition-colors flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+        Confirmar pin
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== MODAL: IMPORTAR SOP ============== -->
+<div id="modal-import" class="modal-backdrop" onclick="if(event.target===this) closeImportSopModal()">
+  <div class="modal-card modal-card-lg">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between sticky top-0 bg-white rounded-t-xl z-10">
+      <div>
+        <h2 class="text-lg font-bold text-dms-mar">Importar SOP do catálogo</h2>
+        <p class="text-xs text-dms-tecnologia mt-0.5">Alternativa ao drag-and-drop da paleta.</p>
+      </div>
+      <button onclick="closeImportSopModal()" class="text-dms-tecnologia hover:text-dms-mar p-1.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-6 space-y-3" id="import-sop-list"></div>
+    <div class="px-6 py-3 border-t border-[#E5E7EB] flex justify-end gap-2 bg-[#F8F9FA] rounded-b-xl">
+      <button onclick="closeImportSopModal()" class="px-4 py-2 text-sm text-dms-mar hover:bg-white rounded-md transition-colors">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- ============== DATA & LOGIC ============== -->
 <script>
-// ========== STAGES SIDEBAR ==========
-const STAGES = [
-  { num: 1, name: 'NF Recebida', conditional: false, editing: false },
-  { num: 2, name: 'Validação Auto', conditional: false, editing: false },
-  { num: 3, name: 'Aprovação Diretor', conditional: false, editing: true },
-  { num: 4, name: 'Aprovação C-Level', conditional: true, editing: false },
-  { num: 5, name: 'Lançamento Omie', conditional: false, editing: false },
-  { num: 6, name: 'Pagamento', conditional: false, editing: false },
+// ============ MOCK DATA — Catálogo de SOPs disponíveis ============
+const SOPS_CATALOG = [
+  { id: 'sop-001', nome: 'Validação Inicial NFE',  categoria: 'default',     modulo: 'cap',       versaoAtual: 'v2.2', stages: 4, sla: 11 },
+  { id: 'sop-002', nome: 'Aprovação Gerencial',    categoria: 'default',     modulo: 'aprovacao', versaoAtual: 'v1.7', stages: 2, sla: 25 },
+  { id: 'sop-003', nome: 'Liberação Pagamento',    categoria: 'default',     modulo: 'cap',       versaoAtual: 'v3.0', stages: 3, sla: 10 },
+  { id: 'sop-004', nome: 'Conferência Fiscal',     categoria: 'compliance',  modulo: 'cap',       versaoAtual: 'v1.2', stages: 5, sla: 18 },
+  { id: 'sop-005', nome: 'Match Cotação × Pedido', categoria: 'default',     modulo: 'compras',   versaoAtual: 'v2.0', stages: 3, sla: 8 },
+  { id: 'sop-006', nome: 'Quarentena Divergências',categoria: 'especifica',  modulo: 'cap',       versaoAtual: 'v1.1', stages: 2, sla: 60 },
+  { id: 'sop-007', nome: 'Atualização Omie',       categoria: 'default',     modulo: 'sistema',   versaoAtual: 'v1.0', stages: 1, sla: 5 },
 ];
 
-function renderStages() {
-  document.getElementById('stages-list').innerHTML = STAGES.map((s, i) => `
-    <div class="stage-item ${s.editing ? 'editing' : ''} p-3 relative">
+// Stages aninhados (renderizados dentro de cada card SOP no canvas)
+const SOP_STAGES = {
+  'sop-001': ['Validar XML (assinatura)', 'Conferir CNPJ fornecedor', 'Confirmar valor × pedido', 'Checar centro de custo'],
+  'sop-002': ['Análise do gestor', 'Aprovação final (alçada)'],
+  'sop-003': ['Validar competência fiscal', 'Atualizar Omie', 'Agendar pagamento (D+30)'],
+  'sop-004': ['Verificar competência', 'Validar CST', 'Confirmar tributos', 'Match SPED', 'Validar XML SEFAZ'],
+  'sop-005': ['Resolver pedido', 'Match valor', 'Match itens'],
+  'sop-006': ['Notificar fornecedor', 'Aguardar retorno (3 dias)'],
+  'sop-007': ['POST /omie/notas/atualizar-status'],
+};
+
+// Versões disponíveis por SOP (pra dropdown)
+const SOP_VERSIONS = {
+  'sop-001': ['v2.2', 'v2.1', 'v2.0', 'v1.5'],
+  'sop-002': ['v1.7', 'v1.6', 'v1.5', 'v1.4', 'v1.0'],
+  'sop-003': ['v3.0', 'v2.5', 'v2.0', 'v1.0'],
+  'sop-004': ['v1.2', 'v1.1', 'v1.0'],
+  'sop-005': ['v2.0', 'v1.0'],
+  'sop-006': ['v1.1', 'v1.0'],
+  'sop-007': ['v1.0'],
+};
+
+// ============ MOCK DATA — Workflow atual ============
+const WORKFLOW = {
+  id: 'wf-038',
+  nome: 'Recepção NFE Compras Diretas',
+  versao: 'v3.1',
+  status: 'ativo',
+  instancias: 5,
+  // SOPs no workflow (em ordem). Cada item referencia o catálogo.
+  sops: [
+    { sopId: 'sop-001', versaoUsada: 'v2.2', fixada: false },
+    { sopId: 'sop-002', versaoUsada: 'v1.5', fixada: true  }, // FIXADA em v1.5 (catálogo está em v1.7)
+    { sopId: 'sop-003', versaoUsada: 'v3.0', fixada: false },
+  ],
+};
+
+const CAT_BADGE_CLASS = {
+  default:    'cat-default',
+  especifica: 'cat-especifica',
+  compliance: 'cat-compliance',
+};
+const CAT_LABEL = {
+  default:    'Default',
+  especifica: 'Específica',
+  compliance: 'Compliance',
+};
+
+function getSop(id) { return SOPS_CATALOG.find(s => s.id === id); }
+function escapeHtml(str) { return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ============ PALETA ============
+function renderPalette() {
+  const list = document.getElementById('palette-list');
+  const q   = (document.getElementById('palette-search').value || '').toLowerCase();
+  const fc  = document.getElementById('filter-cat').value;
+  const fm  = document.getElementById('filter-mod').value;
+
+  const items = SOPS_CATALOG.filter(s => {
+    if (q && !s.nome.toLowerCase().includes(q)) return false;
+    if (fc && s.categoria !== fc) return false;
+    if (fm && s.modulo !== fm) return false;
+    return true;
+  });
+
+  if (!items.length) {
+    list.innerHTML = `<div class="text-xs text-dms-tecnologia italic text-center py-6">Nenhuma SOP encontrada.</div>`;
+    return;
+  }
+
+  list.innerHTML = items.map(s => `
+    <div class="palette-item" draggable="true" data-sop-id="${s.id}"
+         ondragstart="onPaletteDragStart(event, '${s.id}')"
+         ondragend="onPaletteDragEnd(event)">
       <div class="flex items-start gap-2">
-        <div class="flex flex-col items-center gap-0.5 mt-0.5">
-          <button onclick="moveStage(${i}, -1)" class="reorder-btn ${i === 0 ? 'opacity-0 cursor-not-allowed pointer-events-none' : ''} text-dms-tecnologia hover:text-dms-mar text-xs leading-none" title="Mover acima">▲</button>
-          <button onclick="moveStage(${i}, 1)" class="reorder-btn ${i === STAGES.length - 1 ? 'opacity-0 cursor-not-allowed pointer-events-none' : ''} text-dms-tecnologia hover:text-dms-mar text-xs leading-none" title="Mover abaixo">▼</button>
-        </div>
+        <span class="drag-grip flex-shrink-0 mt-0.5" title="Arraste para o canvas">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M7 4a1 1 0 110-2 1 1 0 010 2zm0 4a1 1 0 110-2 1 1 0 010 2zm0 4a1 1 0 110-2 1 1 0 010 2zm0 4a1 1 0 110-2 1 1 0 010 2zm6-12a1 1 0 110-2 1 1 0 010 2zm0 4a1 1 0 110-2 1 1 0 010 2zm0 4a1 1 0 110-2 1 1 0 010 2zm0 4a1 1 0 110-2 1 1 0 010 2z"/></svg>
+        </span>
         <div class="flex-1 min-w-0">
-          <div class="caption text-dms-tecnologia mb-0.5 flex items-center gap-1">
-            <span>Stage ${s.num}</span>
-            ${s.editing ? '<span class="text-dms-confianca font-bold">· editando</span>' : ''}
-            ${s.conditional ? '<span class="text-[#854D0E] font-bold">· condicional</span>' : ''}
+          <div class="font-semibold text-dms-mar text-[13px] leading-tight">${escapeHtml(s.nome)}</div>
+          <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${CAT_BADGE_CLASS[s.categoria]}">${CAT_LABEL[s.categoria]}</span>
+            <span class="mod-pill">${s.modulo}</span>
           </div>
-          <div class="font-semibold text-sm ${s.editing ? 'text-dms-mar' : 'text-dms-mar'}">${s.name}</div>
+          <div class="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-[#F1F3F5]">
+            <select class="text-[11px] border border-[#E5E7EB] rounded px-1.5 py-0.5 bg-white text-dms-mar mono cursor-pointer" onclick="event.stopPropagation()" title="Versão a inserir">
+              ${SOP_VERSIONS[s.id].map((v, i) => `<option value="${v}" ${i===0?'selected':''}>${v}${i===0?' (latest)':''}</option>`).join('')}
+            </select>
+            <span class="text-[10px] text-dms-tecnologia flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
+              <strong class="text-dms-mar">${s.stages}</strong> stages
+            </span>
+          </div>
         </div>
       </div>
     </div>
   `).join('');
 }
 
-function moveStage(idx, delta) {
-  const newIdx = idx + delta;
-  if (newIdx < 0 || newIdx >= STAGES.length) return;
-  [STAGES[idx], STAGES[newIdx]] = [STAGES[newIdx], STAGES[idx]];
-  // renumera
-  STAGES.forEach((s, i) => s.num = i + 1);
-  renderStages();
-}
+function filterPalette() { renderPalette(); }
 
-// ========== TABS ==========
-const ALL_TABS = ['identidade', 'sop', 'procedures', 'alertas', 'agentes', 'sla'];
+// ============ CANVAS RENDER ============
+function renderCanvas() {
+  const list = document.getElementById('canvas-list');
+  const empty = document.getElementById('empty-canvas');
 
-function selectTab(tab) {
-  ALL_TABS.forEach(t => {
-    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
-    document.getElementById('tab-' + t).classList.toggle('text-dms-tecnologia', t !== tab);
-    document.getElementById('content-' + t).classList.toggle('hidden', t !== tab);
-  });
-}
-
-// ========== Wiring buttons das tabs Alertas/Agentes/Procedures (consome tela77/78/03) ==========
-function _t10Toast(msg, isErr){
-  let t = document.getElementById('toast-tela10');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'toast-tela10';
-    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;box-shadow:0 8px 24px -4px rgba(0,0,0,.3);z-index:9999;opacity:0;transition:opacity .2s ease;pointer-events:none;';
-    document.body.appendChild(t);
+  if (!WORKFLOW.sops.length) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+  } else {
+    empty.classList.add('hidden');
+    list.innerHTML = WORKFLOW.sops.map((w, idx) => {
+      const sop = getSop(w.sopId);
+      if (!sop) return '';
+      const stages = SOP_STAGES[w.sopId] || [];
+      const isLast = idx === WORKFLOW.sops.length - 1;
+      const isOutdated = w.fixada && w.versaoUsada !== sop.versaoAtual;
+      return renderSopCard(w, sop, stages, idx) + (isLast ? '' : renderConnector());
+    }).join('');
   }
-  t.textContent = msg;
-  t.style.background = isErr ? '#B91C1C' : '#1A1A1A';
-  t.style.opacity = '1';
-  clearTimeout(t._h);
-  t._h = setTimeout(() => { t.style.opacity = '0'; }, 2400);
-}
-function tela10Remove(btn) {
-  const card = btn.closest('div.flex.items-center.justify-between, .border');
-  const name = card ? (card.querySelector('.font-semibold, .font-bold') || {}).textContent : 'item';
-  if (!confirm('Remover "' + (name || 'item') + '" deste stage?')) return;
-  if (card) card.remove();
-  _t10Toast('Removido do stage (mockup)');
-}
-function tela10Vincular(btn) {
-  const inp = btn.previousElementSibling;
-  const val = inp && inp.value ? inp.value.trim() : '';
-  if (!val) { _t10Toast('Selecione um item para vincular', true); return; }
-  _t10Toast('"' + val + '" vinculado ao stage (mockup)');
+
+  updateKpis();
+  renderWfSopsList();
 }
 
-renderStages();
+function renderSopCard(wfSop, sop, stages, idx) {
+  const fixedClass = wfSop.fixada ? 'pinned' : '';
+  const isOutdated = wfSop.fixada && wfSop.versaoUsada !== sop.versaoAtual;
+  return `
+    <div class="sop-card ${fixedClass}" data-wf-sop-idx="${idx}">
+      <!-- Header -->
+      <div class="px-4 py-3 border-b border-[#E5E7EB] flex items-center gap-3">
+        <div class="flex items-center justify-center w-8 h-8 rounded-full bg-dms-mar text-white mono font-bold text-sm flex-shrink-0">${idx + 1}</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-bold text-dms-mar text-[15px]">${escapeHtml(sop.nome)}</span>
+            ${wfSop.fixada
+              ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-dms-sabedoria/10 text-dms-sabedoria mono">
+                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a3 3 0 013-3h4a3 3 0 013 3v4l1.5 1.5a.5.5 0 01.5.5v1a.5.5 0 01-.5.5H11v6l-1 1-1-1v-6H3.5a.5.5 0 01-.5-.5v-1a.5.5 0 01.5-.5L5 8V4z"/></svg>
+                  FIXADA ${escapeHtml(wfSop.versaoUsada)}
+                </span>`
+              : `<span class="mono text-[12px] px-2 py-0.5 rounded bg-dms-mar/10 text-dms-mar font-bold">${escapeHtml(wfSop.versaoUsada)}</span>`
+            }
+            ${isOutdated ? `<span class="text-[10px] text-dms-tecnologia">latest: <span class="mono text-dms-mar">${sop.versaoAtual}</span></span>` : ''}
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${CAT_BADGE_CLASS[sop.categoria]}">${CAT_LABEL[sop.categoria]}</span>
+            <span class="mod-pill">${sop.modulo}</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1 flex-shrink-0">
+          <button onclick="moveWfSop(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="p-1 text-dms-tecnologia hover:text-dms-mar rounded disabled:opacity-30 disabled:cursor-not-allowed" title="Mover pra cima">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+          </button>
+          <button onclick="moveWfSop(${idx}, 1)" ${idx === WORKFLOW.sops.length - 1 ? 'disabled' : ''} class="p-1 text-dms-tecnologia hover:text-dms-mar rounded disabled:opacity-30 disabled:cursor-not-allowed" title="Mover pra baixo">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <button onclick="removeWfSop(${idx})" class="p-1 text-dms-tecnologia hover:text-red-600 rounded" title="Remover do workflow">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Body: stages aninhados -->
+      <div class="p-4 bg-[#FCFCFD]">
+        <div class="caption text-dms-tecnologia mb-2 flex items-center justify-between">
+          <span>${stages.length} stage${stages.length !== 1 ? 's' : ''} desta SOP</span>
+          <button onclick="openSopInEditor('${sop.id}', '${wfSop.versaoUsada}')" class="text-[11px] text-dms-confianca hover:text-dms-mar font-semibold flex items-center gap-1 normal-case tracking-normal">
+            Editar stages no editor SOP
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          </button>
+        </div>
+        <div class="space-y-1.5">
+          ${stages.slice(0, 3).map((st, si) => `
+            <div class="stage-mini">
+              <span class="stage-mini-num">${si + 1}.</span>
+              <span class="flex-1 truncate">${escapeHtml(st)}</span>
+            </div>
+          `).join('')}
+          ${stages.length > 3 ? `
+            <button onclick="toggleAllStages(${idx})" class="text-[11px] text-dms-confianca hover:text-dms-mar font-semibold pl-2">
+              + ver ${stages.length - 3} stage${stages.length - 3 > 1 ? 's' : ''} restante${stages.length - 3 > 1 ? 's' : ''}
+            </button>
+          ` : ''}
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-4 py-2.5 border-t border-[#E5E7EB] flex items-center justify-between gap-2 bg-white rounded-b-xl">
+        <button onclick="openPinModal(${idx})" class="pin-btn ${wfSop.fixada ? 'is-pinned' : ''}" title="${wfSop.fixada ? 'Desfixar versão' : 'Fixar versão atual'}">
+          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a3 3 0 013-3h4a3 3 0 013 3v4l1.5 1.5a.5.5 0 01.5.5v1a.5.5 0 01-.5.5H11v6l-1 1-1-1v-6H3.5a.5.5 0 01-.5-.5v-1a.5.5 0 01.5-.5L5 8V4z"/></svg>
+          ${wfSop.fixada ? 'Desfixar' : 'Fixar versão'}
+        </button>
+        <button onclick="openSopConfigInWorkflow(${idx})" class="text-[11px] font-semibold text-dms-confianca hover:text-dms-mar px-2 py-1 flex items-center gap-1">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Configurar SOP no workflow
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderConnector() {
+  return `
+    <div class="sop-connector">
+      <div class="line"></div>
+      <div class="arrow"></div>
+    </div>
+  `;
+}
+
+// ============ WF SOPs LIST (right panel tab) ============
+function renderWfSopsList() {
+  const el = document.getElementById('wf-sops-list');
+  if (!WORKFLOW.sops.length) {
+    el.innerHTML = `<div class="text-xs text-dms-tecnologia italic text-center py-4">Workflow vazio. Arraste SOPs da paleta.</div>`;
+    return;
+  }
+  el.innerHTML = WORKFLOW.sops.map((w, idx) => {
+    const sop = getSop(w.sopId);
+    if (!sop) return '';
+    return `
+      <div class="wf-sop-item ${w.fixada ? 'is-pinned' : ''}">
+        <div class="mono font-bold text-[11px] text-dms-tecnologia w-5 text-center">${idx + 1}</div>
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-dms-mar text-[13px] truncate">${escapeHtml(sop.nome)}</div>
+          <div class="flex items-center gap-1.5 mt-0.5">
+            <span class="mono text-[10px] text-dms-tecnologia">${escapeHtml(w.versaoUsada)}</span>
+            ${w.fixada ? '<span class="text-[9px] text-dms-sabedoria font-bold">🔒 FIXADA</span>' : ''}
+          </div>
+        </div>
+        <div class="flex items-center gap-0.5 flex-shrink-0">
+          <button onclick="moveWfSop(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="p-1 text-dms-tecnologia hover:text-dms-mar disabled:opacity-30" title="↑">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+          </button>
+          <button onclick="moveWfSop(${idx}, 1)" ${idx === WORKFLOW.sops.length - 1 ? 'disabled' : ''} class="p-1 text-dms-tecnologia hover:text-dms-mar disabled:opacity-30" title="↓">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <button onclick="openPinModal(${idx})" class="p-1 ${w.fixada ? 'text-dms-sabedoria' : 'text-dms-tecnologia'} hover:text-dms-sabedoria" title="${w.fixada ? 'Desfixar' : 'Fixar versão'}">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M5 4a3 3 0 013-3h4a3 3 0 013 3v4l1.5 1.5a.5.5 0 01.5.5v1a.5.5 0 01-.5.5H11v6l-1 1-1-1v-6H3.5a.5.5 0 01-.5-.5v-1a.5.5 0 01.5-.5L5 8V4z"/></svg>
+          </button>
+          <button onclick="removeWfSop(${idx})" class="p-1 text-dms-tecnologia hover:text-red-600" title="Remover">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============ KPIs ============
+function updateKpis() {
+  let totalStages = 0;
+  let totalSla = 0;
+  WORKFLOW.sops.forEach(w => {
+    const sop = getSop(w.sopId);
+    if (sop) { totalStages += sop.stages; totalSla += sop.sla; }
+  });
+  document.getElementById('kpi-sops').textContent = WORKFLOW.sops.length;
+  document.getElementById('kpi-stages').textContent = totalStages;
+  document.getElementById('kpi-sla').textContent = `~${totalSla} min`;
+  document.getElementById('kpi-running').textContent = WORKFLOW.instancias;
+}
+
+// ============ DRAG FROM PALETTE → CANVAS ============
+let draggedSopId = null;
+function onPaletteDragStart(ev, sopId) {
+  draggedSopId = sopId;
+  ev.dataTransfer.effectAllowed = 'copy';
+  ev.dataTransfer.setData('text/plain', sopId);
+  ev.currentTarget.classList.add('dragging');
+}
+function onPaletteDragEnd(ev) {
+  ev.currentTarget.classList.remove('dragging');
+  draggedSopId = null;
+}
+function onCanvasDragOver(ev) {
+  ev.preventDefault();
+  ev.dataTransfer.dropEffect = 'copy';
+  document.getElementById('canvas').classList.add('drag-over');
+}
+function onCanvasDragLeave(ev) {
+  if (ev.target === document.getElementById('canvas')) {
+    document.getElementById('canvas').classList.remove('drag-over');
+  }
+}
+function onCanvasDrop(ev) {
+  ev.preventDefault();
+  document.getElementById('canvas').classList.remove('drag-over');
+  const sopId = ev.dataTransfer.getData('text/plain') || draggedSopId;
+  if (!sopId) return;
+  const sop = getSop(sopId);
+  if (!sop) return;
+  WORKFLOW.sops.push({ sopId, versaoUsada: sop.versaoAtual, fixada: false });
+  renderCanvas();
+  showToast(`SOP "${sop.nome}" adicionada ao workflow em ${sop.versaoAtual}`);
+}
+
+// ============ WF SOPs CRUD ============
+function moveWfSop(idx, dir) {
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= WORKFLOW.sops.length) return;
+  const [moved] = WORKFLOW.sops.splice(idx, 1);
+  WORKFLOW.sops.splice(newIdx, 0, moved);
+  renderCanvas();
+  const sop = getSop(moved.sopId);
+  showToast(`"${sop.nome}" movida pra posição ${newIdx + 1}`);
+}
+function removeWfSop(idx) {
+  const wfSop = WORKFLOW.sops[idx];
+  const sop = getSop(wfSop.sopId);
+  if (!confirm(`Remover "${sop.nome}" do workflow?`)) return;
+  WORKFLOW.sops.splice(idx, 1);
+  renderCanvas();
+  showToast(`"${sop.nome}" removida do workflow`);
+}
+
+// ============ PIN / UNPIN ============
+let pinCtx = { idx: null };
+function openPinModal(idx) {
+  pinCtx.idx = idx;
+  const wfSop = WORKFLOW.sops[idx];
+  const sop = getSop(wfSop.sopId);
+  document.getElementById('pin-modal-subtitle').textContent = `${sop.nome} — versão atual no workflow: ${wfSop.versaoUsada}`;
+  if (wfSop.fixada) {
+    // Já fixada → confirmar desfixar
+    if (confirm(`Desfixar a versão ${wfSop.versaoUsada} desta SOP? A próxima instância do workflow vai usar a versão latest do catálogo (${sop.versaoAtual}).`)) {
+      wfSop.fixada = false;
+      renderCanvas();
+      showToast(`"${sop.nome}" desfixada · próxima instância usa ${sop.versaoAtual}`);
+    }
+    return;
+  }
+  document.getElementById('modal-pin').classList.add('open');
+}
+function closePinModal() {
+  document.getElementById('modal-pin').classList.remove('open');
+}
+function confirmPin() {
+  if (pinCtx.idx === null) return closePinModal();
+  WORKFLOW.sops[pinCtx.idx].fixada = true;
+  closePinModal();
+  renderCanvas();
+  const sop = getSop(WORKFLOW.sops[pinCtx.idx].sopId);
+  showToast(`"${sop.nome}" fixada em ${WORKFLOW.sops[pinCtx.idx].versaoUsada}`);
+}
+
+// ============ SOP CONFIG NO WORKFLOW ============
+function openSopConfigInWorkflow(idx) {
+  const wfSop = WORKFLOW.sops[idx];
+  const sop = getSop(wfSop.sopId);
+  showToast(`Config da SOP "${sop.nome}" no contexto deste workflow — TBD-W4 (modal vs nova aba)`);
+}
+function openSopInEditor(sopId, versao) {
+  const sop = getSop(sopId);
+  showToast(`Abrindo "${sop.nome}" ${versao} no Editor SOP (tela07) — TBD-W4 (modal vs nova aba)`);
+  // window.open(`tela07-editor-sop.html?sop=${sopId}&v=${versao}`, '_blank');
+}
+function toggleAllStages(idx) {
+  const wfSop = WORKFLOW.sops[idx];
+  const sop = getSop(wfSop.sopId);
+  showToast(`Expansão completa dos ${SOP_STAGES[wfSop.sopId].length} stages — TBD UI inline ou drawer`);
+}
+
+// ============ IMPORT SOP MODAL ============
+function openImportSopModal() {
+  const list = document.getElementById('import-sop-list');
+  list.innerHTML = SOPS_CATALOG.map(s => `
+    <div class="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-md hover:border-dms-confianca">
+      <div class="flex-1 min-w-0">
+        <div class="font-semibold text-dms-mar text-sm">${escapeHtml(s.nome)}</div>
+        <div class="flex items-center gap-2 mt-1 text-[11px] text-dms-tecnologia">
+          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${CAT_BADGE_CLASS[s.categoria]}">${CAT_LABEL[s.categoria]}</span>
+          <span class="mod-pill">${s.modulo}</span>
+          <span class="mono">${s.versaoAtual}</span>
+          <span>· ${s.stages} stages</span>
+        </div>
+      </div>
+      <button onclick="importSop('${s.id}')" class="text-xs font-semibold text-white bg-dms-mar px-3 py-1.5 rounded hover:bg-dms-confianca">+ Adicionar</button>
+    </div>
+  `).join('');
+  document.getElementById('modal-import').classList.add('open');
+}
+function closeImportSopModal() {
+  document.getElementById('modal-import').classList.remove('open');
+}
+function importSop(sopId) {
+  const sop = getSop(sopId);
+  if (!sop) return;
+  WORKFLOW.sops.push({ sopId, versaoUsada: sop.versaoAtual, fixada: false });
+  closeImportSopModal();
+  renderCanvas();
+  showToast(`"${sop.nome}" importada no workflow em ${sop.versaoAtual}`);
+}
+
+// ============ TABS ============
+function switchTab(tabName) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabName));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('hidden', c.id !== `tab-${tabName}`));
+}
+
+// ============ AÇÕES TOPO ============
+function onSimulate()  { showToast('Simulação de execução iniciada · ver tela12 Execution Visibility'); }
+function onSaveDraft() { showToast('Rascunho salvo · v3.1 permanece nas 5 instâncias rodando'); }
+function openPublishModal()  { document.getElementById('modal-publish').classList.add('open'); }
+function closePublishModal() { document.getElementById('modal-publish').classList.remove('open'); }
+function confirmPublish() {
+  closePublishModal();
+  showToast('v3.2 publicada · 5 instâncias seguem em v3.1 (imutável) · novas pegam v3.2');
+}
+function openNewSopWindow() { showToast('Nova SOP — abre tela07 em nova aba (TBD-W4)'); }
+function goExecutions() { showToast('Abrindo tela12 — Execution Visibility (5 instâncias)'); }
+function compareVersions(a, b) { showToast(`TBD-D4 · Diff ${a} vs ${b} — lista SOPs add/remove/reorder/pin`); }
+
+// ============ TOAST ============
+let toastTimeout;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ============ INIT ============
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closePublishModal(); closePinModal(); closeImportSopModal();
+  }
+});
+
+renderPalette();
+renderCanvas();
 </script>
 
 <!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
@@ -1231,50 +1250,6 @@ renderStages();
 <script src="notes-widget.js" defer></script>
 <script src="i18n-toggle.js" defer></script>
 <script src="mockup-handlers.js" defer></script>
-<!-- MatchEngine drawer (Fix 2026-06-01) -->
-<div id="me-drawer" class="hidden fixed inset-0 z-50">
-  <div onclick="closeMatchEngineDrawer()" class="absolute inset-0" style="background: rgba(0,56,108,0.5); backdrop-filter: blur(2px);"></div>
-  <div class="absolute right-0 top-0 h-full w-[560px] max-w-[95vw] bg-white shadow-2xl overflow-y-auto">
-    <div class="px-5 py-4 border-b border-[#E5E7EB] flex items-center justify-between bg-[#F8F9FA]">
-      <div>
-        <h3 class="text-sm font-bold text-dms-mar">Configurar Match Engine</h3>
-        <p class="text-[11px] text-dms-tecnologia">Funções e TAGs que alimentam o motor de match deste workflow</p>
-      </div>
-      <button onclick="closeMatchEngineDrawer()" class="text-dms-tecnologia hover:text-dms-mar">✕</button>
-    </div>
-    <div class="p-5 space-y-5">
-      <div>
-        <div class="caption text-dms-confianca mb-2">Funções disponíveis</div>
-        <div class="space-y-1.5">
-          <label class="flex items-center gap-2 text-xs text-dms-mar"><input type="checkbox" checked> <span class="mono">match.exact(@tag, value)</span></label>
-          <label class="flex items-center gap-2 text-xs text-dms-mar"><input type="checkbox" checked> <span class="mono">match.in(@tag, [list])</span></label>
-          <label class="flex items-center gap-2 text-xs text-dms-mar"><input type="checkbox"> <span class="mono">match.between(@tag, min, max)</span></label>
-          <label class="flex items-center gap-2 text-xs text-dms-mar"><input type="checkbox"> <span class="mono">match.regex(@tag, pattern)</span></label>
-          <label class="flex items-center gap-2 text-xs text-dms-mar"><input type="checkbox"> <span class="mono">match.isNull(@tag)</span></label>
-          <label class="flex items-center gap-2 text-xs text-dms-mar"><input type="checkbox"> <span class="mono">match.gte(@tag, value)</span></label>
-        </div>
-      </div>
-      <div>
-        <div class="caption text-dms-confianca mb-2">TAGs do sistema</div>
-        <div class="flex flex-wrap gap-2">
-          <span class="mono text-[11px] px-2 py-1 bg-dms-ceu/10 text-dms-confianca rounded border border-dms-ceu/30">@tipo_compra</span>
-          <span class="mono text-[11px] px-2 py-1 bg-dms-ceu/10 text-dms-confianca rounded border border-dms-ceu/30">@valor_total</span>
-          <span class="mono text-[11px] px-2 py-1 bg-dms-ceu/10 text-dms-confianca rounded border border-dms-ceu/30">@tipo_servico</span>
-          <span class="mono text-[11px] px-2 py-1 bg-dms-ceu/10 text-dms-confianca rounded border border-dms-ceu/30">@contrato_id</span>
-          <span class="mono text-[11px] px-2 py-1 bg-dms-ceu/10 text-dms-confianca rounded border border-dms-ceu/30">@fornecedor_id</span>
-          <span class="mono text-[11px] px-2 py-1 bg-dms-ceu/10 text-dms-confianca rounded border border-dms-ceu/30">@centro_custo</span>
-          <span class="mono text-[11px] px-2 py-1 bg-dms-ceu/10 text-dms-confianca rounded border border-dms-ceu/30">@cliente_id</span>
-          <span class="mono text-[11px] px-2 py-1 bg-dms-ceu/10 text-dms-confianca rounded border border-dms-ceu/30">@categoria</span>
-        </div>
-        <p class="text-[11px] text-dms-tecnologia italic mt-2">Lista puxa de [[catalogo-tags]] e respeita escopo do workflow.</p>
-      </div>
-      <a href="tela11-match-engine.html" class="block text-center text-xs font-semibold text-dms-confianca hover:underline pt-2 border-t border-[#E5E7EB]">Abrir Match Engine completo →</a>
-    </div>
-  </div>
-</div>
-<script>
-function openMatchEngineDrawer(){ document.getElementById('me-drawer').classList.remove('hidden'); }
-function closeMatchEngineDrawer(){ document.getElementById('me-drawer').classList.add('hidden'); }
-</script>
+<script src="tag-filter.js" defer></script>
 </body>
 </html>
