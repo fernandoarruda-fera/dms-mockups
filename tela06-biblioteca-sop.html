@@ -1,9 +1,21 @@
 <!DOCTYPE html>
+<!--
+  tela06 Biblioteca SOP v2 (refeito 2026-06-03)
+
+  Reflete decisão DP #31 Interpretação A:
+  - SOP é CONTAINER de Stages (1:N)
+  - Stage não existe independente — só dentro de SOP
+  - Editar SOP em uso fork-a nova versão (mantém v_n nos workflows antigos)
+  - Workflow Builder (tela10) vai puxar SOPs como blocos, stages vêm junto
+  - Tela08 vira sub-componente de tela07
+
+  Versão anterior (sob CONCEPT V2 original) ficou em git history.
+-->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1280">
-<title>DMS — Biblioteca SOP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMS — Biblioteca de SOPs</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,6 +37,7 @@ tailwind.config = {
       },
       boxShadow: {
         'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+        'dms-lg': '0 10px 25px -5px rgba(0, 56, 108, 0.12), 0 6px 10px -3px rgba(0, 56, 108, 0.06)',
       },
     },
   },
@@ -37,14 +50,31 @@ tailwind.config = {
   .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
   .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
   .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
-  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
-  tbody tr { transition: background-color 150ms ease; cursor: pointer; }
-  tbody tr:hover { background-color: #FAFBFC; }
-  .row-actions { opacity: 0; transition: opacity 150ms ease; }
-  tbody tr:hover .row-actions { opacity: 1; }
-  .kpi-card { transition: transform 150ms ease, box-shadow 150ms ease; cursor: pointer; }
-  .kpi-card:hover { transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0, 56, 108, 0.10); }
-  .kpi-card.active { box-shadow: inset 0 0 0 2px #00AEEE; }
+  .sop-card { transition: transform 150ms ease, box-shadow 200ms ease, border-color 150ms ease; }
+  .sop-card:hover { transform: translateY(-1px); box-shadow: 0 10px 25px -5px rgba(0, 56, 108, 0.12); border-color: #00AEEE; }
+  .sop-card .card-actions { opacity: 0; transition: opacity 150ms ease; }
+  .sop-card:hover .card-actions { opacity: 1; }
+  .stage-line { display:flex; align-items:center; gap:8px; padding:4px 0; font-size:12px; color:#374151; }
+  .stage-line .stage-num { width:18px; height:18px; border-radius:9999px; background:#F0F4F9; color:#005290; font-weight:700; font-size:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:'JetBrains Mono', monospace; }
+  .filter-chip { cursor:pointer; user-select:none; }
+  .filter-chip input { display:none; }
+  .filter-chip span { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:9999px; font-size:12px; font-weight:500; background:#F0F4F9; color:#005290; border:1px solid transparent; transition: all 150ms; }
+  .filter-chip input:checked + span { background:#00386C; color:#fff; }
+  .filter-chip:hover span { border-color:#00AEEE; }
+  details > summary { list-style:none; cursor:pointer; }
+  details > summary::-webkit-details-marker { display:none; }
+  details[open] .chev { transform: rotate(90deg); }
+  .chev { transition: transform 150ms ease; }
+  .modal-backdrop { position:fixed; inset:0; background:rgba(15, 27, 76, 0.55); z-index:90; display:none; align-items:center; justify-content:center; padding:24px; overflow-y:auto; }
+  .modal-backdrop.open { display:flex; }
+  .modal-card { background:#fff; border-radius:12px; max-width:760px; width:100%; max-height: 90vh; overflow-y:auto; box-shadow: 0 30px 60px -15px rgba(0,0,0,.4); }
+  .drag-handle { cursor:grab; color:#9CA3AF; }
+  .drag-handle:active { cursor:grabbing; }
+  .tbd-pin { background:#FEF3C7; color:#854D0E; border:1px dashed #D97706; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:600; }
+  @media (max-width: 900px) {
+    .layout-grid { grid-template-columns: 1fr !important; }
+    .sticky-filters { position: static !important; max-height: none !important; }
+  }
 </style>
 <link rel="stylesheet" href="mobile-responsive.css">
   <script defer src="sidebar-permissions.js"></script>
@@ -53,42 +83,13 @@ tailwind.config = {
 
 <div class="flex min-h-screen">
 
-  <!-- SIDEBAR -->
+  <!-- SIDEBAR LEGACY (escondida pela CSS consolidada abaixo) -->
   <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
     <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
       <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
         <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
       </div>
-      <div>
-        <div class="font-bold text-base leading-tight">DMS</div>
-        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
-      </div>
-    </div>
-    <nav class="flex-1 py-4 overflow-y-auto">
-      <div class="caption text-white/40 px-6 mb-2">Workflow Builder</div>
-      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-        Catálogo de Tags
-      </a>
-      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        Procedures
-      </a>
-      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        Biblioteca SOP
-      </a>
-      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
-        Catálogo de Workflows
-      </a>
-    </nav>
-    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
-      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">FA</div>
-      <div class="flex-1 min-w-0">
-        <div class="text-sm font-semibold truncate">Fernando Arruda</div>
-        <div class="text-xs text-white/60 truncate">Admin · DMS Log</div>
-      </div>
+      <div><div class="font-bold text-base leading-tight">DMS</div></div>
     </div>
   </aside>
 
@@ -98,9 +99,9 @@ tailwind.config = {
     <!-- HEADER -->
     <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
       <nav class="flex items-center gap-2 text-sm">
-        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Workflow Builder</a>
+        <a href="tela16-cockpit-overview.html" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Workflow Builder</a>
         <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
-        <span class="text-dms-mar font-semibold">Biblioteca SOP</span>
+        <span class="text-dms-mar font-semibold">Biblioteca de SOPs</span>
       </nav>
       <div class="flex items-center gap-3">
         <div class="relative">
@@ -117,258 +118,799 @@ tailwind.config = {
       <div class="mb-6">
         <div class="flex items-center gap-3 mb-2">
           <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
-          <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Biblioteca SOP</h1>
+          <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Biblioteca de SOPs</h1>
+          <span class="ml-2 mono text-[11px] px-2 py-0.5 rounded-md bg-dms-sabedoria/10 text-dms-sabedoria font-semibold">v2 · DP #31-A</span>
         </div>
         <p class="text-sm text-dms-tecnologia max-w-3xl">
-          Instruções textuais padronizadas de "como fazer". Diferente de <em>Procedure</em> (regra automática) e <em>Workflow</em> (sequência). Uma SOP pode ser anexada a múltiplos stages em diferentes workflows. Versionada, com governança via aprovação.
+          <strong>SOP é um container de Stages</strong> — agrupa procedimentos passo-a-passo. Workflows arrastam SOPs como blocos; os stages vêm dentro. Editar uma SOP em uso versiona a SOP inteira (v_n permanece nos workflows antigos).
         </p>
       </div>
 
-      <!-- KPI CARDS (5 categorias agrupadas + total) -->
-      <!-- Nota: CONCEPT-sop-v2 §1.3.1 define 8 categorias enum FECHADO. Aqui agrupei nos 4 grupos principais pra caber em 5 KPIs (igual padrão das outras telas). Filtro completo de 8 está no select. -->
-      <div class="grid grid-cols-5 gap-4 mb-6" id="kpi-row">
-        <button data-filter="todas" class="kpi-card active text-left bg-dms-mar text-white p-3 rounded-lg">
-          <div class="text-[22px] leading-none font-black">38</div>
-          <div class="caption text-white/80 mt-2">Todas</div>
-        </button>
-        <button data-filter="aprovacao" class="kpi-card text-left bg-white border border-[#E5E7EB] p-3 rounded-lg">
-          <div class="text-[22px] leading-none font-black text-dms-mar">12</div>
-          <div class="caption text-dms-tecnologia mt-2">Aprovação</div>
-        </button>
-        <button data-filter="operacao" class="kpi-card text-left bg-white border border-[#E5E7EB] p-3 rounded-lg">
-          <div class="text-[22px] leading-none font-black text-dms-mar">9</div>
-          <div class="caption text-dms-tecnologia mt-2">Operação</div>
-        </button>
-        <button data-filter="financeiro" class="kpi-card text-left bg-white border border-[#E5E7EB] p-3 rounded-lg">
-          <div class="text-[22px] leading-none font-black text-dms-mar">8</div>
-          <div class="caption text-dms-tecnologia mt-2">Financeiro/Fiscal</div>
-        </button>
-        <button data-filter="governanca" class="kpi-card text-left bg-white border border-[#E5E7EB] p-3 rounded-lg">
-          <div class="text-[22px] leading-none font-black text-dms-mar">9</div>
-          <div class="caption text-dms-tecnologia mt-2">Governança/Compliance</div>
-        </button>
+      <!-- BANNER IMUTABILIDADE -->
+      <div class="mb-6 p-4 bg-dms-sabedoria/5 border border-dms-sabedoria/20 rounded-lg flex gap-3">
+        <svg class="w-5 h-5 text-dms-sabedoria flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        <div class="text-sm text-dms-mar">
+          <strong>SOPs em uso são imutáveis.</strong>
+          Editar uma SOP referenciada por workflows ativos <em>forka</em> uma nova versão (v_n → v_(n+1)). A v_n original continua viva nos workflows que já a usavam, garantindo execuções históricas reprodutíveis. Use <strong>Versionar</strong> para evoluir; use <strong>Arquivar</strong> só quando nenhum workflow ativo depender da SOP.
+        </div>
       </div>
 
       <!-- TOOLBAR -->
-      <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+      <div class="flex items-center justify-between gap-3 mb-5 flex-wrap">
         <div class="flex items-center gap-3 flex-1">
           <div class="relative flex-1 max-w-md">
             <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input id="search-input" type="text" placeholder="Buscar por código, título, subtítulo..." class="input-dms w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+            <input id="search-input" type="text" placeholder="Buscar SOP, stage ou tag..." class="input-dms w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
           </div>
-          <select id="filter-category" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
-            <option value="">Todas as categorias</option>
-            <optgroup label="Operacional">
-              <option value="operacao_documento">Operação · Documento</option>
-              <option value="operacao_fisica">Operação · Física</option>
-              <option value="operacao_comunicacao">Operação · Comunicação</option>
-            </optgroup>
-            <optgroup label="Governança">
-              <option value="aprovacao">Aprovação</option>
-              <option value="compliance">Compliance</option>
-              <option value="auditoria" data-i18n="nav.audit">Auditoria</option>
-            </optgroup>
-            <optgroup label="Financeiro/Fiscal">
-              <option value="financeiro">Financeiro</option>
-              <option value="fiscal_tributario">Fiscal/Tributário</option>
-            </optgroup>
-          </select>
-          <select id="filter-status" class="input-dms text-sm border border-[#E5E7EB] rounded-md bg-white px-3 py-2 cursor-pointer">
-            <option value="">Todos os status</option>
-            <option value="ativo">Ativo</option>
-            <option value="em_revisao">Em revisão</option>
-            <option value="rascunho">Rascunho</option>
-            <option value="deprecated">Deprecated</option>
-          </select>
         </div>
-
-        <div class="flex items-center gap-3">
-          <button class="flex items-center gap-2 text-sm font-semibold text-dms-mar px-4 py-2 bg-white border border-dms-mar rounded-md hover:bg-dms-mar hover:text-white transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-            Clonar
+        <div class="flex items-center gap-2">
+          <button onclick="onImport()" class="flex items-center gap-2 text-sm font-medium text-dms-mar px-3 py-2 bg-white border border-[#E5E7EB] rounded-md hover:border-dms-mar transition-colors" title="Importar SOPs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Importar
           </button>
-          <a href="tela07-editor-sop.html" class="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
+          <button onclick="onExport()" class="flex items-center gap-2 text-sm font-medium text-dms-mar px-3 py-2 bg-white border border-[#E5E7EB] rounded-md hover:border-dms-mar transition-colors" title="Exportar biblioteca">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            Exportar
+          </button>
+          <button onclick="openNovaSopModal()" class="flex items-center gap-2 text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Nova SOP
-          </a>
+          </button>
         </div>
       </div>
 
-      <!-- TABELA -->
-      <div class="bg-white border border-[#E5E7EB] rounded-lg overflow-hidden shadow-dms-md">
-        <div id="empty-state" class="hidden p-16 text-center">
-          <div class="w-16 h-16 bg-[#F8F9FA] rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      <!-- LAYOUT GRID: filtros + lista -->
+      <div class="layout-grid grid gap-6" style="grid-template-columns: 260px 1fr;">
+
+        <!-- FILTROS LATERAIS -->
+        <aside class="sticky-filters" style="position:sticky; top:88px; max-height: calc(100vh - 110px); overflow-y:auto;">
+          <div class="bg-white border border-[#E5E7EB] rounded-lg p-4 shadow-dms-md">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-bold text-dms-mar">Filtros</h3>
+              <button onclick="resetFilters()" class="text-xs text-dms-confianca hover:underline">Limpar</button>
+            </div>
+
+            <!-- Categoria -->
+            <div class="mb-5">
+              <div class="caption text-dms-tecnologia mb-2">Categoria</div>
+              <div class="flex flex-wrap gap-1.5">
+                <label class="filter-chip"><input type="checkbox" data-filter="categoria" value="default"><span>Default</span></label>
+                <label class="filter-chip"><input type="checkbox" data-filter="categoria" value="especifica"><span>Específica</span></label>
+                <label class="filter-chip"><input type="checkbox" data-filter="categoria" value="compliance"><span>Compliance</span></label>
+              </div>
+            </div>
+
+            <!-- Módulo -->
+            <div class="mb-5">
+              <div class="caption text-dms-tecnologia mb-2">Módulo</div>
+              <div class="flex flex-wrap gap-1.5">
+                <label class="filter-chip"><input type="checkbox" data-filter="modulo" value="compras"><span>Compras</span></label>
+                <label class="filter-chip"><input type="checkbox" data-filter="modulo" value="cap"><span>CAP</span></label>
+                <label class="filter-chip"><input type="checkbox" data-filter="modulo" value="aprovacao"><span>Aprovação</span></label>
+                <label class="filter-chip"><input type="checkbox" data-filter="modulo" value="cadastros"><span>Cadastros</span></label>
+                <label class="filter-chip"><input type="checkbox" data-filter="modulo" value="sistema"><span>Sistema</span></label>
+              </div>
+            </div>
+
+            <!-- Tags -->
+            <div class="mb-5">
+              <div class="caption text-dms-tecnologia mb-2">Tags</div>
+              <div id="tag-filter-list" class="flex flex-wrap gap-1.5"></div>
+            </div>
+
+            <!-- Status -->
+            <div class="mb-5">
+              <div class="caption text-dms-tecnologia mb-2">Status</div>
+              <div class="flex flex-col gap-1.5">
+                <label class="flex items-center gap-2 text-sm text-dms-mar cursor-pointer"><input type="checkbox" data-filter="status" value="ativa" class="accent-dms-confianca"> Ativa</label>
+                <label class="flex items-center gap-2 text-sm text-dms-mar cursor-pointer"><input type="checkbox" data-filter="status" value="rascunho" class="accent-dms-confianca"> Em rascunho</label>
+                <label class="flex items-center gap-2 text-sm text-dms-mar cursor-pointer"><input type="checkbox" data-filter="status" value="versionada" class="accent-dms-confianca"> Versionada</label>
+                <label class="flex items-center gap-2 text-sm text-dms-mar cursor-pointer"><input type="checkbox" data-filter="status" value="arquivada" class="accent-dms-confianca"> Arquivada</label>
+              </div>
+            </div>
+
+            <!-- Versão -->
+            <div class="mb-5">
+              <div class="caption text-dms-tecnologia mb-2">Versão</div>
+              <div class="flex flex-col gap-1.5">
+                <label class="flex items-center gap-2 text-sm text-dms-mar cursor-pointer"><input type="radio" name="versao-filter" value="atual" checked class="accent-dms-confianca"> Apenas versão atual</label>
+                <label class="flex items-center gap-2 text-sm text-dms-mar cursor-pointer"><input type="radio" name="versao-filter" value="todas" class="accent-dms-confianca"> Todas as versões</label>
+              </div>
+            </div>
+
+            <!-- Workflows que usam -->
+            <div class="mb-2">
+              <div class="caption text-dms-tecnologia mb-2">Uso</div>
+              <div class="flex flex-col gap-1.5">
+                <label class="flex items-center gap-2 text-sm text-dms-mar cursor-pointer"><input type="checkbox" id="filter-sem-uso" class="accent-dms-confianca"> SOPs sem uso</label>
+                <label class="flex items-center gap-2 text-sm text-dms-mar cursor-pointer"><input type="checkbox" id="filter-em-uso" class="accent-dms-confianca"> Apenas em uso ativo</label>
+              </div>
+              <p class="text-[11px] text-dms-tecnologia mt-2 italic flex items-start gap-1">
+                <span class="tbd-pin">TBD</span>
+                Filtro avançado por workflow específico — UI ideal?
+              </p>
+            </div>
           </div>
-          <h3 class="text-lg font-semibold text-dms-mar mb-2">Nenhuma SOP encontrada</h3>
-          <p class="text-sm text-dms-tecnologia mb-6 max-w-sm mx-auto">Não há SOPs que correspondam aos filtros. Tente ajustar a busca, ou crie uma nova SOP.</p>
-          <a href="tela07-editor-sop.html" class="inline-flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Nova SOP
-          </a>
-        </div>
 
-        <table data-customizable="true" id="sop-table" class="w-full text-sm">
-          <thead class="bg-[#F8F9FA] border-b border-[#E5E7EB]">
-            <tr>
-              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-24" data-i18n="label.code">Código</th>
-              <th class="text-left caption text-dms-tecnologia px-4 py-3">Título</th>
-              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-40" data-i18n="label.category">Categoria</th>
-              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-32">Última edição</th>
-              <th class="text-center caption text-dms-tecnologia px-4 py-3 w-32">Stages que usam</th>
-              <th class="text-left caption text-dms-tecnologia px-4 py-3 w-36" data-i18n="label.version">Versão</th>
-              <th class="text-right caption text-dms-tecnologia px-4 py-3 w-20"><span data-i18n="label.actions">Ações</span></th>
-            </tr>
-          </thead>
-          <tbody id="sop-tbody" class="divide-y divide-[#E5E7EB]"></tbody>
-        </table>
-
-        <div class="px-4 py-3 border-t border-[#E5E7EB] flex items-center justify-between text-sm text-dms-tecnologia">
-          <div>Mostrando <span class="font-semibold text-dms-mar" id="row-count">7</span> de <span class="font-semibold text-dms-mar">38</span> registros</div>
-          <div class="flex items-center gap-1">
-            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors disabled:opacity-30" disabled>‹ Anterior</button>
-            <button class="px-3 py-1 text-white bg-dms-mar rounded">1</button>
-            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">2</button>
-            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">3</button>
-            <span class="px-2">...</span>
-            <button class="px-3 py-1 text-dms-tecnologia hover:text-dms-mar transition-colors">Próximo ›</button>
+          <!-- Resumo -->
+          <div class="mt-4 bg-dms-mar text-white rounded-lg p-4">
+            <div class="caption text-white/70 mb-1">Total</div>
+            <div class="text-2xl font-black"><span id="result-count">12</span> SOPs</div>
+            <div class="text-xs text-white/70 mt-1">+ <span id="result-stage-count">76</span> stages catalogados</div>
           </div>
-        </div>
+        </aside>
+
+        <!-- LISTA DE SOPs -->
+        <section id="sop-list" class="flex flex-col gap-3"></section>
       </div>
 
-      <!-- Nota sobre categorias enum FECHADO -->
-      <div class="mt-4 p-4 bg-dms-ceu/5 border border-dms-ceu/20 rounded-lg flex gap-3">
-        <svg class="w-5 h-5 text-dms-confianca flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <div class="text-sm text-dms-mar">
-          <strong>Categorias enum FECHADO</strong> (CONCEPT-sop-v2 §1.3.1, drift 2026-05-10): 8 valores oficiais — operacao_documento, operacao_fisica, operacao_comunicacao, aprovacao, compliance, auditoria, financeiro, fiscal_tributario. <strong>"Outros" não existe</strong> — se nenhuma se encaixar, abrir DP.
-        </div>
-      </div>
+      <!-- TBDs SECTION -->
+      <details class="mt-10 bg-white border border-[#E5E7EB] rounded-lg p-5">
+        <summary class="flex items-center gap-3">
+          <svg class="chev w-4 h-4 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          <span class="font-bold text-dms-mar">TBDs pendentes para Fernando opinar (5)</span>
+        </summary>
+        <ul class="mt-4 space-y-3 text-sm text-dms-mar">
+          <li class="flex gap-2"><span class="tbd-pin">TBD-1</span> Visualização do fork de versão — lista chapada de versões ou timeline temporal? (cards atuais usam dropdown simples)</li>
+          <li class="flex gap-2"><span class="tbd-pin">TBD-2</span> Como sinalizar "SOP travada por uso ativo" ao tentar editar? Modal pré-edição, badge no botão, ou toast?</li>
+          <li class="flex gap-2"><span class="tbd-pin">TBD-3</span> Filtro "Workflows que usam" — drill-down por nome de workflow vs filtro binário em-uso/sem-uso?</li>
+          <li class="flex gap-2"><span class="tbd-pin">TBD-4</span> Importar SOPs em massa do Drive — escopo F1 ou F2? (botão Importar existe mas é placeholder)</li>
+          <li class="flex gap-2"><span class="tbd-pin">TBD-5</span> Exibir conteúdo markdown completo dos stages — accordion inline no card ou modal separado?</li>
+        </ul>
+      </details>
 
     </main>
   </div>
 </div>
 
-<script>
-const MOCK_SOPS = [
-  { code: 'SOP-001', title: 'Como aprovar uma requisição como Diretor', subtitle: 'Checklist de validação financeira + carimbo de aprovação', category: 'aprovacao', categoryLabel: 'Aprovação', lastEdit: 'há 3 dias', stages: 7, version: '2.1', status: 'ativo' },
-  { code: 'SOP-002', title: 'Como aprovar como C-Level (estouro de orçamento)', subtitle: 'Análise de impacto financeiro + decisão documentada', category: 'aprovacao', categoryLabel: 'Aprovação', lastEdit: 'há 1 semana', stages: 3, version: '1.4', status: 'ativo' },
-  { code: 'SOP-003', title: 'Como receber e validar uma NF (6 critérios)', subtitle: 'Validação CNPJ, fornecedor, PO, valor, competência, duplicidade', category: 'operacao_documento', categoryLabel: 'Operação · Documento', lastEdit: 'há 12 dias', stages: 2, version: '3.0', status: 'ativo' },
-  { code: 'SOP-004', title: 'Como tratar NF em quarentena', subtitle: 'Análise da divergência + decisão devolver/corrigir + e-mail fornecedor', category: 'operacao_comunicacao', categoryLabel: 'Operação · Comunicação', lastEdit: 'há 2 semanas', stages: 1, version: '1.0', status: 'ativo' },
-  { code: 'SOP-005', title: 'Como solicitar e analisar 3 cotações', subtitle: 'Envio de convite, validação de propostas, análise comparativa', category: 'operacao_comunicacao', categoryLabel: 'Operação · Comunicação', lastEdit: 'há 5 dias', stages: 4, version: '2.0', status: 'ativo' },
-  { code: 'SOP-006', title: 'Como conferir pagamento na conciliação Omie', subtitle: 'Verificação webhook + baixa da parcela + atualização orçamento', category: 'financeiro', categoryLabel: 'Financeiro', lastEdit: 'há 1 mês', stages: 5, version: '1.2', status: 'ativo' },
-  { code: 'SOP-007', title: 'Como negociar renovação de contrato (D-90)', subtitle: 'Análise reajuste + benchmark + decisão + assinatura digital', category: 'aprovacao', categoryLabel: 'Aprovação', lastEdit: 'há 2 semanas', stages: 2, version: '1.0', status: 'em_revisao' },
-];
+<!-- ============== MODAL: NOVA SOP ============== -->
+<div id="modal-nova-sop" class="modal-backdrop" onclick="if(event.target===this) closeNovaSopModal()">
+  <div class="modal-card">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between sticky top-0 bg-white rounded-t-xl z-10">
+      <div>
+        <h2 class="text-lg font-bold text-dms-mar">Nova SOP</h2>
+        <p class="text-xs text-dms-tecnologia mt-0.5">Defina nome, categoria, módulo, tags e ao menos 1 stage antes de salvar.</p>
+      </div>
+      <button onclick="closeNovaSopModal()" class="text-dms-tecnologia hover:text-dms-mar p-1.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-6 space-y-5">
+      <!-- Metadados -->
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="caption text-dms-tecnologia mb-1.5 block">Nome da SOP <span class="text-red-500">*</span></label>
+          <input id="sop-nome" type="text" placeholder="Ex.: Recepção NFE" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md">
+        </div>
+        <div>
+          <label class="caption text-dms-tecnologia mb-1.5 block">Categoria <span class="text-red-500">*</span></label>
+          <select id="sop-categoria" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+            <option value="default">Default (template global)</option>
+            <option value="especifica">Específica (vinculada a workflow)</option>
+            <option value="compliance">Compliance</option>
+          </select>
+        </div>
+        <div>
+          <label class="caption text-dms-tecnologia mb-1.5 block">Módulo <span class="text-red-500">*</span></label>
+          <select id="sop-modulo" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+            <option value="compras">Compras</option>
+            <option value="cap">CAP</option>
+            <option value="aprovacao">Aprovação</option>
+            <option value="cadastros">Cadastros</option>
+            <option value="sistema">Sistema</option>
+          </select>
+        </div>
+        <div>
+          <label class="caption text-dms-tecnologia mb-1.5 block">Tags</label>
+          <input id="sop-tags" type="text" placeholder="separadas por vírgula" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md">
+        </div>
+      </div>
 
-// Cores por categoria — alinhadas ao DS v1.1 (paleta DMS)
-const categoryColor = {
-  aprovacao: 'bg-[rgba(0,174,238,0.15)] text-[#005290]',         // ceu/confianca — governança
-  compliance: 'bg-[rgba(100,53,133,0.10)] text-dms-sabedoria',    // sabedoria — regulatório
-  auditoria: 'bg-[rgba(100,53,133,0.10)] text-dms-sabedoria',
-  operacao_documento: 'bg-[rgba(0,56,108,0.08)] text-dms-mar',    // mar — operacional
-  operacao_fisica: 'bg-[rgba(0,56,108,0.08)] text-dms-mar',
-  operacao_comunicacao: 'bg-[rgba(0,56,108,0.08)] text-dms-mar',
-  financeiro: 'bg-[rgba(176,201,52,0.15)] text-[#7A8F24]',         // tropicalidade — financeiro
-  fiscal_tributario: 'bg-[rgba(176,201,52,0.15)] text-[#7A8F24]',
-};
+      <!-- Markdown -->
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">Descrição (Markdown)</label>
+        <textarea id="sop-md" rows="3" placeholder="Contexto geral, links, anexos. Cada stage é definido individualmente abaixo." class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md mono"></textarea>
+      </div>
 
-// Agrupamento pros KPIs
-const categoryGroup = {
-  aprovacao: 'aprovacao',
-  compliance: 'governanca',
-  auditoria: 'governanca',
-  operacao_documento: 'operacao',
-  operacao_fisica: 'operacao',
-  operacao_comunicacao: 'operacao',
-  financeiro: 'financeiro',
-  fiscal_tributario: 'financeiro',
-};
-
-let activeFilter = 'todas';
-let searchQuery = '';
-let categoryFilter = '';
-let statusFilter = '';
-
-function renderRows() {
-  const tbody = document.getElementById('sop-tbody');
-  let rows = MOCK_SOPS;
-
-  if (activeFilter !== 'todas') rows = rows.filter(s => categoryGroup[s.category] === activeFilter);
-  if (categoryFilter) rows = rows.filter(s => s.category === categoryFilter);
-  if (statusFilter) rows = rows.filter(s => s.status === statusFilter);
-  if (searchQuery) {
-    const q = searchQuery.toLowerCase();
-    rows = rows.filter(s => s.code.toLowerCase().includes(q) || s.title.toLowerCase().includes(q) || s.subtitle.toLowerCase().includes(q));
-  }
-
-  tbody.innerHTML = rows.map(s => {
-    // Badge de versão muda conforme status
-    let versionBadge;
-    if (s.status === 'ativo') {
-      versionBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(176,201,52,0.15)] text-[#7A8F24] font-mono">v ${s.version}</span>`;
-    } else if (s.status === 'em_revisao') {
-      versionBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(234,179,8,0.15)] text-[#854D0E]"><span class="w-1.5 h-1.5 rounded-full bg-[#EAB308]"></span><span class="mono">v ${s.version}</span> · em revisão</span>`;
-    } else if (s.status === 'rascunho') {
-      versionBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(0,174,238,0.15)] text-[#005290]"><span class="w-1.5 h-1.5 rounded-full bg-dms-ceu"></span><span class="mono">v ${s.version}</span> · rascunho</span>`;
-    } else {
-      versionBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#E5E7EB] text-[#6B7280]"><span class="w-1.5 h-1.5 rounded-full bg-[#9CA3AF]"></span><span class="mono">v ${s.version}</span> · deprecated</span>`;
-    }
-
-    return `
-    <tr>
-      <td class="px-4 py-3">
-        <span class="mono text-dms-mar font-semibold text-xs">${s.code}</span>
-      </td>
-      <td class="px-4 py-3">
-        <div class="font-semibold text-dms-mar">${s.title}</div>
-        <div class="text-xs text-dms-tecnologia mt-0.5">${s.subtitle}</div>
-      </td>
-      <td class="px-4 py-3">
-        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${categoryColor[s.category]}">${s.categoryLabel}</span>
-      </td>
-      <td class="px-4 py-3 text-xs text-dms-tecnologia">${s.lastEdit}</td>
-      <td class="px-4 py-3 text-center">
-        ${s.stages > 0
-          ? `<a href="#" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-dms-ceu/10 text-dms-confianca font-semibold text-[10px] hover:bg-dms-ceu/20 transition-colors" title="Ver stages que usam">${s.stages}</a>`
-          : `<span class="text-dms-tecnologia text-xs">0</span>`
-        }
-      </td>
-      <td class="px-4 py-3">${versionBadge}</td>
-      <td class="px-4 py-3 text-right">
-        <div class="row-actions inline-flex items-center gap-1">
-          <button class="p-1.5 text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] rounded transition-colors" title="Editar">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+      <!-- Stages -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="caption text-dms-tecnologia">Stages da SOP <span class="text-red-500">*</span></label>
+          <button onclick="addStage()" class="flex items-center gap-1.5 text-xs font-semibold text-dms-confianca hover:text-dms-mar">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            Adicionar stage
           </button>
         </div>
-      </td>
-    </tr>
-    `;
-  }).join('');
+        <div id="stage-builder" class="border border-dashed border-[#E5E7EB] rounded-md p-3 space-y-2 min-h-[80px] bg-[#FAFBFC]">
+          <p id="stage-empty" class="text-xs text-dms-tecnologia italic text-center py-4">Nenhum stage ainda. SOPs precisam de pelo menos 1 stage para serem salvas.</p>
+        </div>
+      </div>
+    </div>
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-3 sticky bottom-0 bg-white rounded-b-xl">
+      <button onclick="closeNovaSopModal()" class="px-4 py-2 text-sm text-dms-mar hover:bg-[#F8F9FA] rounded-md transition-colors">Cancelar</button>
+      <button onclick="saveSopMock()" class="px-5 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Salvar SOP</button>
+    </div>
+  </div>
+</div>
 
-  document.getElementById('row-count').textContent = rows.length;
+<!-- ============== MODAL: WORKFLOWS USANDO ============== -->
+<div id="modal-workflows" class="modal-backdrop" onclick="if(event.target===this) closeWorkflowsModal()">
+  <div class="modal-card" style="max-width:540px;">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+      <div>
+        <h2 class="text-lg font-bold text-dms-mar">Workflows que usam esta SOP</h2>
+        <p class="text-xs text-dms-tecnologia mt-0.5" id="modal-workflows-sop"></p>
+      </div>
+      <button onclick="closeWorkflowsModal()" class="text-dms-tecnologia hover:text-dms-mar p-1.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="p-6">
+      <ul id="modal-workflows-list" class="space-y-2"></ul>
+    </div>
+  </div>
+</div>
 
-  if (rows.length === 0) {
-    document.getElementById('sop-table').style.display = 'none';
-    document.getElementById('empty-state').classList.remove('hidden');
-  } else {
-    document.getElementById('sop-table').style.display = '';
-    document.getElementById('empty-state').classList.add('hidden');
-  }
+<!-- ============== DATA & LOGIC ============== -->
+<script>
+// === Mock data ===
+const MODULO_LABEL = { compras:'Compras', cap:'CAP', aprovacao:'Aprovação', cadastros:'Cadastros', sistema:'Sistema' };
+const CATEGORIA_LABEL = { default:'Default', especifica:'Específica', compliance:'Compliance' };
+const CATEGORIA_COLOR = {
+  default:    'bg-dms-mar/8 text-dms-mar',
+  especifica: 'bg-dms-ceu/15 text-[#005290]',
+  compliance: 'bg-dms-sabedoria/10 text-dms-sabedoria',
+};
+const MODULO_COLOR = {
+  compras:   'bg-[#FEF3C7] text-[#854D0E]',
+  cap:       'bg-dms-tropicalidade/15 text-[#7A8F24]',
+  aprovacao: 'bg-dms-ceu/15 text-[#005290]',
+  cadastros: 'bg-[#E0E7FF] text-[#3730A3]',
+  sistema:   'bg-[#E5E7EB] text-[#374151]',
+};
+
+const SOPS = [
+  {
+    id:'sop-001', nome:'Recepção NFE', categoria:'cap', mod:'cap', cat:'default',
+    versaoAtual:'v2.3', versoes:['v2.3','v2.2','v2.1','v2.0','v1.0'],
+    status:'ativa', tags:['nfe','validação','xml','sefaz'], autor:'Camila Reis', ultimaAtualizacao:'2026-05-28',
+    workflows:[
+      {id:'wf-cap-01', nome:'CAP — Recepção e baixa de NFE'},
+      {id:'wf-cap-04', nome:'CAP — Reprocessar NFE em quarentena'},
+      {id:'wf-cap-07', nome:'CAP — NFE com divergência fiscal'},
+      {id:'wf-com-12', nome:'Compras — Conferir NFE x Pedido'},
+      {id:'wf-aud-02', nome:'Auditoria — Trilha NFE 2026-Q1'},
+    ],
+    stages:[
+      'Validar XML (assinatura, schema, SEFAZ)',
+      'Conferir dados do fornecedor (CNPJ x cadastro)',
+      'Confirmar valor com pedido vinculado',
+      'Checar centro de custo e plano de contas',
+      'Validar competência fiscal',
+      'Detectar duplicidade (chave de acesso)',
+      'Atualizar status no Omie',
+      'Liberar para pagamento (D+N)',
+    ],
+  },
+  {
+    id:'sop-002', nome:'Aprovação Diretor (até R$ 50k)', categoria:'aprovacao', mod:'aprovacao', cat:'default',
+    versaoAtual:'v1.4', versoes:['v1.4','v1.3','v1.2','v1.0'],
+    status:'ativa', tags:['aprovação','alçada','diretor'], autor:'Fernando Arruda', ultimaAtualizacao:'2026-05-22',
+    workflows:[
+      {id:'wf-aprov-01', nome:'Aprovação — Requisição até R$ 50k'},
+      {id:'wf-aprov-03', nome:'Aprovação — Pedido até R$ 50k'},
+      {id:'wf-cap-09',   nome:'CAP — Pagamento até R$ 50k'},
+    ],
+    stages:[
+      'Validar checklist financeiro',
+      'Verificar verba do centro de custo',
+      'Decidir: aprovar / devolver / escalar',
+      'Carimbar aprovação com assinatura digital',
+    ],
+  },
+  {
+    id:'sop-003', nome:'Aprovação C-Level (estouro orçamento)', categoria:'aprovacao', mod:'aprovacao', cat:'compliance',
+    versaoAtual:'v2.0', versoes:['v2.0','v1.4','v1.0'],
+    status:'ativa', tags:['aprovação','c-level','compliance','SOX'], autor:'Marcos Pinheiro', ultimaAtualizacao:'2026-05-30',
+    workflows:[
+      {id:'wf-aprov-05', nome:'Aprovação — Estouro de orçamento'},
+      {id:'wf-aprov-08', nome:'Aprovação — Investimento acima de R$ 200k'},
+    ],
+    stages:[
+      'Análise de impacto financeiro',
+      'Reunião comitê (registrar ata)',
+      'Decisão documentada com justificativa',
+      'Atualizar previsão orçamentária',
+      'Carimbar com assinatura múltipla',
+      'Notificar área de compliance',
+    ],
+  },
+  {
+    id:'sop-004', nome:'3 Cotações + Análise comparativa', categoria:'compras', mod:'compras', cat:'default',
+    versaoAtual:'v2.0', versoes:['v2.0','v1.3','v1.0'],
+    status:'ativa', tags:['cotação','fornecedor','compras'], autor:'Patrícia Lemos', ultimaAtualizacao:'2026-05-15',
+    workflows:[
+      {id:'wf-com-02', nome:'Compras — Requisição com cotação'},
+      {id:'wf-com-04', nome:'Compras — Reposição estoque crítico'},
+      {id:'wf-com-06', nome:'Compras — Cotação dispensada (urgência)'},
+      {id:'wf-com-11', nome:'Compras — Renovação contrato anual'},
+    ],
+    stages:[
+      'Definir critérios de avaliação',
+      'Enviar convite cotação (3 fornecedores)',
+      'Acompanhar prazo de resposta (D+5)',
+      'Validar propostas recebidas',
+      'Análise comparativa (qualidade x preço x prazo)',
+      'Selecionar fornecedor vencedor',
+    ],
+  },
+  {
+    id:'sop-005', nome:'Quarentena de NFE divergente', categoria:'cap', mod:'cap', cat:'especifica',
+    versaoAtual:'v1.0', versoes:['v1.0'],
+    status:'ativa', tags:['nfe','quarentena','divergência'], autor:'Camila Reis', ultimaAtualizacao:'2026-05-10',
+    workflows:[
+      {id:'wf-cap-04', nome:'CAP — Reprocessar NFE em quarentena'},
+      {id:'wf-cap-07', nome:'CAP — NFE com divergência fiscal'},
+    ],
+    stages:[
+      'Identificar tipo da divergência',
+      'Decidir devolver vs corrigir',
+      'Comunicar fornecedor (template e-mail)',
+      'Registrar decisão no audit trail',
+    ],
+  },
+  {
+    id:'sop-006', nome:'Conciliação bancária Omie', categoria:'cap', mod:'cap', cat:'default',
+    versaoAtual:'v1.2', versoes:['v1.2','v1.1','v1.0'],
+    status:'ativa', tags:['conciliação','omie','pagamento'], autor:'Roberta Costa', ultimaAtualizacao:'2026-04-29',
+    workflows:[
+      {id:'wf-cap-15', nome:'CAP — Conciliação bancária diária'},
+    ],
+    stages:[
+      'Verificar webhook Omie do dia',
+      'Conciliar com pré-lançamentos',
+      'Baixar parcelas confirmadas',
+      'Tratar exceções (valor/data divergente)',
+      'Atualizar orçamento executado',
+    ],
+  },
+  {
+    id:'sop-007', nome:'Renovação de contrato (D-90)', categoria:'compras', mod:'compras', cat:'default',
+    versaoAtual:'v1.0', versoes:['v1.0'],
+    status:'rascunho', tags:['contrato','renovação','D-90'], autor:'Fernando Arruda', ultimaAtualizacao:'2026-06-02',
+    workflows:[],
+    stages:[
+      'Notificar gestor do contrato (D-90)',
+      'Analisar reajuste contratual proposto',
+      'Benchmark de mercado',
+      'Decisão renovar / renegociar / encerrar',
+      'Assinatura digital + arquivo no Drive',
+    ],
+  },
+  {
+    id:'sop-008', nome:'Onboarding de fornecedor', categoria:'cadastros', mod:'cadastros', cat:'compliance',
+    versaoAtual:'v3.0', versoes:['v3.0','v2.1','v2.0','v1.0'],
+    status:'ativa', tags:['fornecedor','cadastro','compliance','due diligence'], autor:'Patrícia Lemos', ultimaAtualizacao:'2026-05-20',
+    workflows:[
+      {id:'wf-cad-01', nome:'Cadastros — Onboarding fornecedor novo'},
+      {id:'wf-cad-03', nome:'Cadastros — Re-onboarding anual'},
+    ],
+    stages:[
+      'Coletar CNPJ + razão social',
+      'Validar Receita Federal + SINTEGRA',
+      'Consultar lista de impedidos (CEIS/CNJ)',
+      'Solicitar certidões (CND federal, FGTS, INSS)',
+      'Análise reputacional (mídia adversa)',
+      'Aprovar cadastro e atribuir nível de risco',
+    ],
+  },
+  {
+    id:'sop-009', nome:'Cadastro de centro de custo', categoria:'cadastros', mod:'cadastros', cat:'default',
+    versaoAtual:'v1.1', versoes:['v1.1','v1.0'],
+    status:'ativa', tags:['centro-de-custo','plano-de-contas'], autor:'Roberta Costa', ultimaAtualizacao:'2026-03-12',
+    workflows:[
+      {id:'wf-cad-06', nome:'Cadastros — Novo centro de custo'},
+    ],
+    stages:[
+      'Validar hierarquia proposta',
+      'Verificar nomenclatura padrão',
+      'Atribuir gestor responsável',
+      'Definir orçamento inicial',
+    ],
+  },
+  {
+    id:'sop-010', nome:'Configuração de alçadas por cargo', categoria:'sistema', mod:'sistema', cat:'especifica',
+    versaoAtual:'v1.0', versoes:['v1.0'],
+    status:'rascunho', tags:['alçada','permissão','RBAC'], autor:'Fernando Arruda', ultimaAtualizacao:'2026-05-25',
+    workflows:[],
+    stages:[
+      'Mapear cargo x permissão atual',
+      'Definir limites monetários por nível',
+      'Validar com auditoria interna',
+      'Aplicar nova matriz de alçadas',
+    ],
+  },
+  {
+    id:'sop-011', nome:'Auditoria mensal LGPD', categoria:'sistema', mod:'sistema', cat:'compliance',
+    versaoAtual:'v2.2', versoes:['v2.2','v2.1','v2.0','v1.0'],
+    status:'ativa', tags:['LGPD','auditoria','compliance','privacidade'], autor:'Marcos Pinheiro', ultimaAtualizacao:'2026-05-31',
+    workflows:[
+      {id:'wf-aud-08', nome:'Auditoria — LGPD mensal'},
+      {id:'wf-aud-09', nome:'Auditoria — Resposta a titular LGPD'},
+    ],
+    stages:[
+      'Levantar acessos do mês a dados pessoais',
+      'Validar consentimentos vigentes',
+      'Revisar logs de exportação',
+      'Identificar acessos anômalos',
+      'Gerar relatório executivo',
+    ],
+  },
+  {
+    id:'sop-012', nome:'Convite a fornecedor — RFP', categoria:'compras', mod:'compras', cat:'especifica',
+    versaoAtual:'v1.0', versoes:['v1.0'],
+    status:'arquivada', tags:['RFP','convite','fornecedor'], autor:'Patrícia Lemos', ultimaAtualizacao:'2025-11-04',
+    workflows:[],
+    stages:[
+      'Montar template RFP',
+      'Selecionar fornecedores convidados',
+      'Disparar convite (template e-mail)',
+      'Acompanhar confirmação de interesse',
+    ],
+  },
+];
+
+// === Tags universo (derivado) ===
+const ALL_TAGS = [...new Set(SOPS.flatMap(s => s.tags))].sort();
+
+// === Filtros runtime ===
+const STATE = {
+  search:'',
+  categoria: new Set(),
+  modulo: new Set(),
+  tags: new Set(),
+  status: new Set(),
+  versao: 'atual',
+  semUso: false,
+  emUso: false,
+};
+
+// === Render lista ===
+function applyFilters(list) {
+  return list.filter(s => {
+    if (STATE.categoria.size && !STATE.categoria.has(s.cat)) return false;
+    if (STATE.modulo.size && !STATE.modulo.has(s.mod)) return false;
+    if (STATE.status.size && !STATE.status.has(s.status)) return false;
+    if (STATE.tags.size && !s.tags.some(t => STATE.tags.has(t))) return false;
+    if (STATE.semUso && s.workflows.length > 0) return false;
+    if (STATE.emUso && s.workflows.length === 0) return false;
+    if (STATE.search) {
+      const q = STATE.search.toLowerCase();
+      const haystack = (s.nome + ' ' + s.stages.join(' ') + ' ' + s.tags.join(' ')).toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
 }
 
-document.getElementById('kpi-row').addEventListener('click', (e) => {
-  const card = e.target.closest('[data-filter]');
-  if (!card) return;
-  document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active'));
-  card.classList.add('active');
-  activeFilter = card.dataset.filter;
-  renderRows();
-});
+function statusBadge(status) {
+  const map = {
+    ativa:      ['bg-dms-tropicalidade/15 text-[#7A8F24]', '● Ativa'],
+    rascunho:   ['bg-dms-ceu/15 text-[#005290]',           '✎ Rascunho'],
+    versionada: ['bg-dms-sabedoria/10 text-dms-sabedoria', '⎘ Versionada'],
+    arquivada:  ['bg-[#E5E7EB] text-[#6B7280]',            '▢ Arquivada'],
+  };
+  const [cls, label] = map[status] || ['bg-gray-100 text-gray-500', status];
+  return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${cls}">${label}</span>`;
+}
 
-document.getElementById('search-input').addEventListener('input', (e) => { searchQuery = e.target.value; renderRows(); });
-document.getElementById('filter-category').addEventListener('change', (e) => { categoryFilter = e.target.value; renderRows(); });
-document.getElementById('filter-status').addEventListener('change', (e) => { statusFilter = e.target.value; renderRows(); });
+function renderCard(s) {
+  const usoLabel = s.workflows.length === 0
+    ? `<span class="inline-flex items-center gap-1 text-[11px] text-dms-tecnologia italic">sem uso · candidato a arquivar</span>`
+    : `<button onclick="event.stopPropagation(); abrirWorkflowsUsando('${s.id}')" class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-dms-confianca hover:underline">
+         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+         usado em ${s.workflows.length} workflow${s.workflows.length>1?'s':''}
+       </button>`;
 
-renderRows();
+  const stagesPreview = s.stages.slice(0, Math.min(3, s.stages.length)).map((st, i) => `
+    <div class="stage-line"><span class="stage-num">${i+1}</span><span class="truncate">${st}</span></div>
+  `).join('');
+  const stagesRestantes = s.stages.length > 3 ? `<div class="stage-line text-dms-tecnologia italic"><span class="stage-num">…</span> + ${s.stages.length - 3} stages</div>` : '';
+  const stagesAll = s.stages.map((st, i) => `
+    <div class="stage-line"><span class="stage-num">${i+1}</span><span>${st}</span></div>
+  `).join('');
+
+  const versionDropdown = s.versoes.length > 1
+    ? `<details class="relative inline-block">
+         <summary class="inline-flex items-center gap-1 mono text-xs px-2 py-0.5 rounded-md bg-white border border-[#E5E7EB] text-dms-mar cursor-pointer hover:border-dms-ceu">
+           ${s.versaoAtual}
+           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+         </summary>
+         <div class="absolute right-0 mt-1 bg-white border border-[#E5E7EB] rounded-md shadow-dms-lg z-10 min-w-[180px] py-1">
+           ${s.versoes.map((v,i)=>`
+             <button onclick="event.stopPropagation(); toast('Carregando ${v} de ${s.nome} (mockup).')" class="w-full text-left text-xs px-3 py-1.5 hover:bg-[#F8F9FA] flex items-center justify-between">
+               <span class="mono">${v}</span>
+               ${i===0 ? '<span class="text-[10px] text-dms-tropicalidade font-semibold">atual</span>' : ''}
+             </button>
+           `).join('')}
+         </div>
+       </details>`
+    : `<span class="mono text-xs px-2 py-0.5 rounded-md bg-white border border-[#E5E7EB] text-dms-mar">${s.versaoAtual}</span>`;
+
+  const tagsHtml = s.tags.map(t=>`<span class="text-[11px] px-2 py-0.5 rounded bg-[#F0F4F9] text-dms-mar">#${t}</span>`).join('');
+
+  const lockedBadge = s.workflows.length > 0 && s.status === 'ativa'
+    ? `<span class="inline-flex items-center gap-1 text-[10px] text-dms-sabedoria" title="SOP em uso — editar forka v_(n+1)">
+         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+         travada
+       </span>`
+    : '';
+
+  return `
+    <div class="sop-card bg-white border border-[#E5E7EB] rounded-lg p-5 cursor-pointer" onclick="abrirEditor('${s.id}')">
+      <div class="flex items-start justify-between gap-4 mb-3">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <h3 class="text-base font-bold text-dms-mar">${s.nome}</h3>
+            ${versionDropdown}
+            ${lockedBadge}
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${CATEGORIA_COLOR[s.cat]}">${CATEGORIA_LABEL[s.cat]}</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${MODULO_COLOR[s.mod]}">${MODULO_LABEL[s.mod]}</span>
+            ${statusBadge(s.status)}
+          </div>
+        </div>
+        <div class="flex items-center gap-3 flex-shrink-0">
+          <!-- Stage count badge — destaque -->
+          <div class="text-center px-3 py-2 rounded-lg bg-dms-mar text-white min-w-[64px]">
+            <div class="text-xl font-black leading-none">${s.stages.length}</div>
+            <div class="text-[10px] uppercase tracking-wider mt-0.5 text-white/80">stages</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview stages -->
+      <details class="bg-[#FAFBFC] border border-[#E5E7EB] rounded-md p-3 mb-3" onclick="event.stopPropagation()">
+        <summary class="flex items-center gap-2 text-xs font-semibold text-dms-mar">
+          <svg class="chev w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+          Stages dentro desta SOP
+        </summary>
+        <div class="mt-3 pl-2 border-l-2 border-dms-ceu/30 ml-1 hidden-preview-target">
+          <div class="preview-3">${stagesPreview}${stagesRestantes}</div>
+          <div class="preview-all hidden">${stagesAll}</div>
+          ${s.stages.length > 3 ? `<button onclick="event.stopPropagation(); togglePreview(this)" class="mt-2 text-[11px] font-semibold text-dms-confianca hover:underline">Ver stages completos →</button>` : ''}
+        </div>
+      </details>
+
+      <!-- Footer -->
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div class="flex items-center gap-2 flex-wrap">${tagsHtml}</div>
+        ${usoLabel}
+      </div>
+      <div class="mt-3 pt-3 border-t border-[#F0F4F9] flex items-center justify-between flex-wrap gap-2">
+        <div class="text-[11px] text-dms-tecnologia">
+          Atualizada em <strong class="text-dms-mar">${s.ultimaAtualizacao}</strong> por <strong class="text-dms-mar">${s.autor}</strong>
+        </div>
+        <div class="card-actions flex items-center gap-1">
+          <button onclick="event.stopPropagation(); abrirEditor('${s.id}')" class="p-1.5 text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] rounded transition-colors" title="Ver/Editar">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </button>
+          <button onclick="event.stopPropagation(); duplicar('${s.id}')" class="p-1.5 text-dms-tecnologia hover:text-dms-mar hover:bg-[#F8F9FA] rounded transition-colors" title="Duplicar">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          </button>
+          <button onclick="event.stopPropagation(); versionar('${s.id}')" class="p-1.5 text-dms-tecnologia hover:text-dms-sabedoria hover:bg-[#F8F9FA] rounded transition-colors" title="Versionar (fork v_n+1)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
+          </button>
+          <button onclick="event.stopPropagation(); arquivar('${s.id}')" class="p-1.5 text-dms-tecnologia hover:text-red-600 hover:bg-[#F8F9FA] rounded transition-colors" title="Arquivar">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function render() {
+  const filtered = applyFilters(SOPS);
+  const target = document.getElementById('sop-list');
+  if (filtered.length === 0) {
+    target.innerHTML = `
+      <div class="bg-white border border-dashed border-[#E5E7EB] rounded-lg p-12 text-center">
+        <div class="w-16 h-16 bg-[#F8F9FA] rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-dms-mar mb-2">Nenhuma SOP encontrada</h3>
+        <p class="text-sm text-dms-tecnologia mb-6 max-w-sm mx-auto">Ajuste os filtros ou crie uma nova SOP.</p>
+        <button onclick="openNovaSopModal()" class="inline-flex items-center gap-2 text-sm font-semibold text-white px-5 py-2.5 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">+ Nova SOP</button>
+      </div>`;
+  } else {
+    target.innerHTML = filtered.map(renderCard).join('');
+  }
+  document.getElementById('result-count').textContent = filtered.length;
+  document.getElementById('result-stage-count').textContent = filtered.reduce((acc, s) => acc + s.stages.length, 0);
+}
+
+function togglePreview(btn) {
+  const wrap = btn.parentElement;
+  wrap.querySelector('.preview-3').classList.toggle('hidden');
+  wrap.querySelector('.preview-all').classList.toggle('hidden');
+  btn.textContent = wrap.querySelector('.preview-3').classList.contains('hidden')
+    ? '← Recolher stages'
+    : 'Ver stages completos →';
+}
+
+// === Tag chip filter ===
+function renderTagFilter() {
+  const container = document.getElementById('tag-filter-list');
+  container.innerHTML = ALL_TAGS.map(t => `
+    <label class="filter-chip"><input type="checkbox" data-filter="tags" value="${t}"><span>#${t}</span></label>
+  `).join('');
+}
+
+// === Filter wiring ===
+function wireFilters() {
+  document.querySelectorAll('input[data-filter]').forEach(el => {
+    el.addEventListener('change', () => {
+      const k = el.dataset.filter;
+      const v = el.value;
+      if (el.checked) STATE[k].add(v); else STATE[k].delete(v);
+      render();
+    });
+  });
+  document.querySelectorAll('input[name=versao-filter]').forEach(el => {
+    el.addEventListener('change', () => { STATE.versao = el.value; render(); });
+  });
+  document.getElementById('filter-sem-uso').addEventListener('change', e => { STATE.semUso = e.target.checked; render(); });
+  document.getElementById('filter-em-uso').addEventListener('change', e => { STATE.emUso = e.target.checked; render(); });
+  document.getElementById('search-input').addEventListener('input', e => { STATE.search = e.target.value; render(); });
+}
+
+function resetFilters() {
+  STATE.categoria.clear(); STATE.modulo.clear(); STATE.tags.clear(); STATE.status.clear();
+  STATE.semUso = false; STATE.emUso = false; STATE.search = ''; STATE.versao = 'atual';
+  document.querySelectorAll('input[data-filter], #filter-sem-uso, #filter-em-uso').forEach(el => el.checked = false);
+  document.querySelector('input[name=versao-filter][value=atual]').checked = true;
+  document.getElementById('search-input').value = '';
+  render();
+  toast('Filtros limpos.');
+}
+
+// === Modal Workflows usando ===
+function abrirWorkflowsUsando(sopId) {
+  const s = SOPS.find(x => x.id === sopId);
+  if (!s) return;
+  document.getElementById('modal-workflows-sop').textContent = `${s.nome} · ${s.versaoAtual}`;
+  document.getElementById('modal-workflows-list').innerHTML = s.workflows.length === 0
+    ? `<li class="text-sm text-dms-tecnologia italic">Nenhum workflow usa esta SOP — candidata a arquivamento.</li>`
+    : s.workflows.map(w => `
+        <li class="flex items-center justify-between px-3 py-2 border border-[#E5E7EB] rounded-md hover:bg-[#FAFBFC]">
+          <div>
+            <div class="font-semibold text-sm text-dms-mar">${w.nome}</div>
+            <div class="mono text-[11px] text-dms-tecnologia">${w.id}</div>
+          </div>
+          <a href="tela10-workflow-builder.html" class="text-xs font-semibold text-dms-confianca hover:underline">abrir →</a>
+        </li>
+      `).join('');
+  document.getElementById('modal-workflows').classList.add('open');
+}
+function closeWorkflowsModal() { document.getElementById('modal-workflows').classList.remove('open'); }
+
+// === Modal Nova SOP ===
+let stageDraft = [];
+function openNovaSopModal() {
+  stageDraft = [];
+  document.getElementById('sop-nome').value = '';
+  document.getElementById('sop-tags').value = '';
+  document.getElementById('sop-md').value = '';
+  document.getElementById('sop-categoria').value = 'default';
+  document.getElementById('sop-modulo').value = 'compras';
+  renderStageBuilder();
+  document.getElementById('modal-nova-sop').classList.add('open');
+}
+function closeNovaSopModal() { document.getElementById('modal-nova-sop').classList.remove('open'); }
+
+function addStage() {
+  stageDraft.push({ nome:'', tipo:'default' });
+  renderStageBuilder();
+}
+function removeStage(i) { stageDraft.splice(i,1); renderStageBuilder(); }
+function moveStage(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= stageDraft.length) return;
+  [stageDraft[i], stageDraft[j]] = [stageDraft[j], stageDraft[i]];
+  renderStageBuilder();
+}
+function renderStageBuilder() {
+  const box = document.getElementById('stage-builder');
+  const empty = document.getElementById('stage-empty');
+  if (stageDraft.length === 0) {
+    empty.style.display = '';
+    box.innerHTML = '';
+    box.appendChild(empty);
+    return;
+  }
+  empty.style.display = 'none';
+  box.innerHTML = stageDraft.map((st, i) => `
+    <div class="flex items-center gap-2 bg-white border border-[#E5E7EB] rounded-md p-2">
+      <span class="drag-handle" title="Reordenar (drag visual)">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </span>
+      <span class="mono text-xs text-dms-tecnologia w-6">${i+1}.</span>
+      <input value="${st.nome}" onchange="stageDraft[${i}].nome=this.value" placeholder="Nome do stage" class="input-dms flex-1 px-2 py-1 text-sm border border-[#E5E7EB] rounded">
+      <select onchange="stageDraft[${i}].tipo=this.value" class="input-dms text-xs px-2 py-1 border border-[#E5E7EB] rounded bg-white cursor-pointer">
+        <option value="default" ${st.tipo==='default'?'selected':''}>default</option>
+        <option value="condicional" ${st.tipo==='condicional'?'selected':''}>condicional</option>
+        <option value="loop" ${st.tipo==='loop'?'selected':''}>loop</option>
+      </select>
+      <div class="flex flex-col">
+        <button onclick="moveStage(${i},-1)" class="text-dms-tecnologia hover:text-dms-mar" title="Subir">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"/></svg>
+        </button>
+        <button onclick="moveStage(${i},1)" class="text-dms-tecnologia hover:text-dms-mar" title="Descer">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+      </div>
+      <button onclick="removeStage(${i})" class="text-dms-tecnologia hover:text-red-600" title="Remover">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
+      </button>
+    </div>
+  `).join('');
+}
+
+function saveSopMock() {
+  const nome = document.getElementById('sop-nome').value.trim();
+  if (!nome) { toast('Nome obrigatório.', true); return; }
+  if (stageDraft.length === 0) { toast('SOP precisa de pelo menos 1 stage antes de salvar.', true); return; }
+  if (stageDraft.some(s => !s.nome.trim())) { toast('Todos os stages precisam de nome.', true); return; }
+  toast(`✓ "${nome}" criada (mockup) com ${stageDraft.length} stage${stageDraft.length>1?'s':''}.`);
+  closeNovaSopModal();
+}
+
+// === Ações dos cards ===
+function abrirEditor(id) { toast(`Abrir editor da SOP ${id} (tela07).`); }
+function duplicar(id) { toast(`SOP ${id} duplicada (mockup).`); }
+function versionar(id) {
+  const s = SOPS.find(x => x.id === id);
+  if (!s) return;
+  if (s.workflows.length > 0) {
+    toast(`Forking ${s.versaoAtual} → próxima versão. ${s.workflows.length} workflow(s) continuam em ${s.versaoAtual}.`);
+  } else {
+    toast(`SOP ${id} versionada (mockup).`);
+  }
+}
+function arquivar(id) {
+  const s = SOPS.find(x => x.id === id);
+  if (!s) return;
+  if (s.workflows.length > 0) {
+    toast(`Não dá: ${s.workflows.length} workflow(s) ativo(s) dependem de "${s.nome}".`, true);
+    return;
+  }
+  toast(`SOP ${id} arquivada (mockup).`);
+}
+function onImport() { toast('Importar SOPs em massa — TBD-4 (escopo F1 ou F2?).'); }
+function onExport() { toast('Exportar biblioteca (mockup): JSON com 12 SOPs e 76 stages.'); }
+
+// === Toast ===
+function toast(msg, isErr) {
+  let t = document.getElementById('toast-tela06v2');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast-tela06v2';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:12px 18px;border-radius:8px;font-size:13px;box-shadow:0 8px 24px -4px rgba(0,0,0,.3);z-index:9999;opacity:0;transition:opacity .2s ease;pointer-events:none;max-width:90vw;text-align:center;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.background = isErr ? '#B91C1C' : '#1A1A1A';
+  t.style.opacity = '1';
+  clearTimeout(t._h);
+  t._h = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+}
+
+// === Init ===
+renderTagFilter();
+wireFilters();
+render();
 </script>
 
 <!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
@@ -426,18 +968,18 @@ renderRows();
   <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
     <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label" data-i18n="nav.cockpit">Cockpit</span></a></li>
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
         <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
-        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label" data-i18n="nav.tasks">Tarefas</span></a></li>
-        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label" data-i18n="nav.followup">Follow-up</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
         <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
       </ul>
     </div>
-    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.purchases">Compras</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label" data-i18n="nav.requisitions">Requisições</span></a></li>
-        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label" data-i18n="nav.quotes">Cotações</span></a></li>
-        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label" data-i18n="nav.orders">Pedidos</span></a></li>
+        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
         <li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
         <li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
         <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
@@ -449,21 +991,21 @@ renderRows();
         <li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
       </ul>
     </div>
-    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.registrations">Cadastros</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Cadastros</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
         <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
         <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
         <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
       </ul>
     </div>
-    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.libraries">Bibliotecas</p>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Bibliotecas</p>
       <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
-        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label" data-i18n="label.tags">Tags</span></a></li>
+        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label">Tags</span></a></li>
         <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
         <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
         <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
         <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
-        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label" data-i18n="nav.audit">Auditoria</span></a></li>
+        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Auditoria</span></a></li>
       </ul>
     </div>
     <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
@@ -476,7 +1018,7 @@ renderRows();
         <li><a href="tela82-saude-stages.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🩺</span><span class="sb-label">Saúde dos Stages</span></a></li>
         <li><a href="tela83-alcadas-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚖️</span><span class="sb-label">Alçadas</span></a></li>
         <li><a href="tela84-users-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👥</span><span class="sb-label">Usuários</span></a></li>
-        <li><a href="tela85-permission-delegations.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔗</span><span class="sb-label">Delegações</span></a></li>
+        <li><a href="tela85b-permission-delegations-ausencia.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔗</span><span class="sb-label">Delegações</span></a></li>
         <li><a href="tela86-fornecedores-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏭</span><span class="sb-label">Fornecedores</span></a></li>
         <li><a href="tela87-times-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Times</span></a></li>
       </ul>
