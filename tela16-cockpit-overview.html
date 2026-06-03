@@ -1,9 +1,16 @@
 <!DOCTYPE html>
 <!--
-  tela16 Cockpit Overview v2 (refeita 2026-06-02)
+  tela16 Cockpit Overview v3 — Grid 2x2 (2026-06-02)
 
-  Substitui versão anterior (1.230 linhas) que tinha botões sem onClick.
-  Baseada no CONCEPT-cockpit.md decisão Fernando 2026-05-04 (opção D).
+  Substitui v2 (que usava ABAS — paradigma errado, apesar de Fernando ter aprovado v2 inicialmente).
+  Paradigma correto: Cockpit Overview é "visão consolidada simultânea" dos 4 tipos de card.
+  Grid 2x2 = EMAIL · TO DO · FOLLOW UP · UPDATE lado a lado (não em abas).
+  Operador vê TUDO de uma vez e dá drill-down clicando "Ver tudo →" nas telas 17/18/19/71.
+
+  Histórico curto:
+    v1 (1.230 linhas) — botões sem onClick, descartada.
+    v2 (992 linhas)   — abas + toggle 3 modos (Stage/SOP/Workflow). Paradigma errado.
+    v3 (esta)         — grid 2x2 cross-tipo. Toggle 3 modos sai daqui (vai pras telas internas).
 
   IMPORTANTE: Em produção real, sem Workflow Instances ativos e sem MAILIA conectada,
   TO DO/FOLLOW UP/UPDATE ficam vazios. EMAIL depende de MAILIA (Sprint 5 DP #29).
@@ -58,19 +65,6 @@ tailwind.config = {
   .av-4 { background: linear-gradient(135deg, #00386C, #643585); }
   .av-5 { background: linear-gradient(135deg, #B0C934, #005290); }
   .av-me { background: linear-gradient(135deg, #00AEEE, #B0C934); }
-
-  /* Tabs pill */
-  .tab-pill { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all 0.12s ease; background: transparent; color: #1A1A1A; }
-  .tab-pill:hover { background: #F1F4F7; }
-  .tab-pill.active { background: #00386C; color: #fff; }
-  .tab-pill.active .tab-count { background: rgba(255,255,255,0.25); color: #fff; }
-  .tab-count { background: #E5E7EB; color: #656464; font-size: 10px; padding: 1px 7px; border-radius: 999px; font-weight: 700; min-width: 18px; text-align: center; }
-
-  /* Mode toggle (Stage / SOP / Workflow) */
-  .mode-toggle { display: inline-flex; padding: 3px; background: #F1F4F7; border-radius: 999px; gap: 2px; }
-  .mode-btn { padding: 5px 14px; border-radius: 999px; font-size: 11.5px; font-weight: 600; color: #656464; cursor: pointer; border: 0; background: transparent; transition: all 0.12s ease; letter-spacing: 0.02em; }
-  .mode-btn:hover { color: #00386C; }
-  .mode-btn.active { background: #fff; color: #00386C; box-shadow: 0 1px 2px rgba(0,56,108,0.08); }
 
   /* View source toggle (mock-rico ↔ vazio) */
   .src-toggle { display: inline-flex; padding: 2px; background: #F1F4F7; border-radius: 6px; gap: 2px; }
@@ -146,19 +140,40 @@ tailwind.config = {
   .empty-state { padding: 60px 40px; text-align: center; background: #fff; border: 1px dashed #E5E7EB; border-radius: 12px; }
   .empty-illustr { font-size: 64px; line-height: 1; opacity: 0.5; }
 
-  /* Indicador extra (SOP/Workflow) */
-  .extra-ind { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 4px; background: rgba(0,56,108,0.06); color: #00386C; font-size: 11px; font-weight: 600; }
+  /* ===== Section cards (grid 2x2) ===== */
+  .sec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 1100px) { .sec-grid { grid-template-columns: 1fr; } }
 
-  /* Hide initially based on mode */
-  .extra-sop, .extra-workflow { display: none; }
-  body[data-mode="sop"] .extra-sop { display: inline-flex; }
-  body[data-mode="workflow"] .extra-sop,
-  body[data-mode="workflow"] .extra-workflow { display: inline-flex; }
+  .sec-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; min-height: 380px; box-shadow: 0 4px 6px -1px rgba(0,56,108,.06), 0 2px 4px -1px rgba(0,56,108,.03); }
+  .sec-card .sec-header { padding: 12px 16px; border-bottom: 1px solid #F1F4F7; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .sec-card .sec-title { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; color: #00386C; letter-spacing: 0.01em; }
+  .sec-card .sec-title .sec-ico { font-size: 18px; line-height: 1; }
+  .sec-card .sec-count { background: #F1F4F7; color: #00386C; font-size: 11px; font-weight: 800; padding: 1px 8px; border-radius: 999px; min-width: 22px; text-align: center; }
+  .sec-card .sec-see  { font-size: 11.5px; font-weight: 700; color: #00AEEE; cursor: pointer; border: 0; background: transparent; padding: 4px 8px; border-radius: 6px; transition: all 0.12s ease; display: inline-flex; align-items: center; gap: 4px; }
+  .sec-card .sec-see:hover { background: rgba(0,174,238,0.08); color: #00386C; }
+  .sec-card .sec-body { padding: 8px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
 
-  /* Visibility helpers for tabs/sources */
-  .ck-tab-panel { display: none; }
-  .ck-tab-panel.active { display: block; }
+  /* Top borders por tipo */
+  .sec-card.sec-email    { border-top: 3px solid #656464; }
+  .sec-card.sec-todo     { border-top: 3px solid #00AEEE; }
+  .sec-card.sec-followup { border-top: 3px solid #643585; }
+  .sec-card.sec-update   { border-top: 3px solid #B0C934; }
 
+  /* Items dentro do section card */
+  .sec-item { padding: 9px 10px; border-radius: 8px; display: flex; gap: 10px; align-items: flex-start; cursor: pointer; transition: background 0.12s ease; border: 1px solid transparent; }
+  .sec-item:hover { background: #FAFBFC; border-color: #E5E7EB; }
+  .sec-item .sec-dot { width: 6px; height: 6px; border-radius: 999px; margin-top: 6px; flex-shrink: 0; }
+  .sec-dot-late { background: #DC2626; }
+  .sec-dot-warn { background: #EAB308; }
+  .sec-dot-ok   { background: #B0C934; }
+  .sec-dot-info { background: #00AEEE; }
+  .sec-item .sec-main { flex: 1; min-width: 0; }
+  .sec-item .sec-row1 { font-size: 12.5px; font-weight: 700; color: #00386C; line-height: 1.25; }
+  .sec-item .sec-row2 { font-size: 10.5px; color: #656464; margin-top: 1px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sec-item .sec-meta { font-size: 10.5px; font-weight: 700; flex-shrink: 0; white-space: nowrap; padding-left: 6px; padding-top: 1px; }
+  .sec-item .em-reply-pill { display: inline-flex; align-items: center; gap: 3px; padding: 1px 6px; border-radius: 999px; background: rgba(0,174,238,0.10); color: #005290; font-size: 9.5px; font-weight: 800; margin-left: 4px; }
+
+  /* Visibility helpers para source toggle */
   body[data-source="empty"] .src-rich-only { display: none !important; }
   body[data-source="rich"]  .src-empty-only { display: none !important; }
 
@@ -169,7 +184,7 @@ tailwind.config = {
 </style>
 <link rel="stylesheet" href="mobile-responsive.css">
 </head>
-<body class="min-h-screen" data-mode="stage" data-source="rich">
+<body class="min-h-screen" data-source="rich">
 
 <!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
 <style id="dms-cs-style">
@@ -343,7 +358,7 @@ tailwind.config = {
         <div class="flex items-center gap-3 mb-1.5 flex-wrap">
           <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
           <h1 class="text-[26px] leading-[34px] font-bold text-dms-mar">Cockpit</h1>
-          <span class="badge badge-real">v2 · refeita 2026-06-02</span>
+          <span class="badge badge-real">v3 · grid 2x2 · 2026-06-02</span>
           <span class="badge badge-sys">CONCEPT-cockpit § 1.5</span>
         </div>
         <p class="text-[13px] text-dms-tecnologia max-w-3xl">
@@ -534,329 +549,263 @@ tailwind.config = {
             </div>
           </div>
 
-          <!-- 3. CARTÃO ABAS + TOGGLE MODO + TOGGLE SOURCE -->
-          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
-
-            <!-- Header da área de abas -->
-            <div class="px-4 py-3 border-b border-[#E5E7EB] flex items-center justify-between flex-wrap gap-2">
-              <div class="flex items-center gap-2 flex-wrap">
-                <button class="tab-pill active" data-tab="todo" onclick="setTab('todo', this)">
-                  📋 TO DO <span class="tab-count" id="cnt-todo">2</span>
-                </button>
-                <button class="tab-pill" data-tab="followup" onclick="setTab('followup', this)">
-                  👁️ FOLLOW UP <span class="tab-count" id="cnt-followup">2</span>
-                </button>
-                <button class="tab-pill" data-tab="update" onclick="setTab('update', this)">
-                  🔔 UPDATE <span class="tab-count" id="cnt-update">2</span>
-                </button>
-                <button class="tab-pill" data-tab="email" onclick="setTab('email', this)">
-                  📧 EMAIL <span class="tab-count" id="cnt-email">4</span>
-                </button>
-              </div>
-
-              <div class="flex items-center gap-3 flex-wrap">
-                <!-- Mode toggle -->
-                <div class="flex items-center gap-2">
-                  <span class="text-[10.5px] caption text-dms-tecnologia">Zoom:</span>
-                  <div class="mode-toggle" role="tablist">
-                    <button class="mode-btn active" data-mode="stage"    onclick="setMode('stage', this)">Stage</button>
-                    <button class="mode-btn"        data-mode="sop"      onclick="setMode('sop', this)">SOP</button>
-                    <button class="mode-btn"        data-mode="workflow" onclick="setMode('workflow', this)">Workflow</button>
-                  </div>
-                </div>
-                <!-- Source toggle -->
-                <div class="flex items-center gap-2">
-                  <span class="text-[10.5px] caption text-dms-tecnologia">Ver:</span>
-                  <div class="src-toggle">
-                    <button class="src-btn active" data-source="rich"  onclick="setSource('rich', this)">Mock rico</button>
-                    <button class="src-btn"        data-source="empty" onclick="setSource('empty', this)">Estado vazio</button>
-                  </div>
-                </div>
+          <!-- 3. CABEÇALHO DA VISÃO + TOGGLE SOURCE -->
+          <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <div>
+              <h2 class="text-[15px] font-bold text-dms-mar leading-tight">Visão consolidada</h2>
+              <p class="text-[11.5px] text-dms-tecnologia">Os 4 tipos de card lado a lado — clique no item ou em "Ver tudo →" para abrir a tela detalhada.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10.5px] caption text-dms-tecnologia">Ver:</span>
+              <div class="src-toggle">
+                <button class="src-btn active" data-source="rich"  onclick="setSource('rich', this)">Mock rico</button>
+                <button class="src-btn"        data-source="empty" onclick="setSource('empty', this)">Estado vazio</button>
               </div>
             </div>
+          </div>
 
-            <!-- Conteúdo: estado RICO ou VAZIO -->
-            <div class="src-rich-only">
+          <!-- Conteúdo RICO: GRID 2x2 -->
+          <div class="src-rich-only">
+            <div class="sec-grid">
 
-              <!-- ====== PANEL TO DO ====== -->
-              <div class="ck-tab-panel active" data-panel="todo">
-                <div class="p-4 flex flex-col gap-3">
-
-                  <!-- Card 1 — Validar XML (overdue) -->
-                  <div class="ck-card overdue">
-                    <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <span class="ct ct-todo">TO DO</span>
-                        <span class="badge badge-sys">🔧 Sistema</span>
-                        <span class="ck-meta">Embarques · WF "Embarque MIA-GIG Libbs FCA"</span>
-                      </div>
-                      <span class="ck-prazo-late text-[12px]">⏰ Atrasado 1h12m</span>
-                    </div>
-                    <div class="ck-title mb-1">Validar XML da NFE 12345</div>
-                    <div class="ck-context mb-2">Cliente: <strong>Libbs Farmacêutica</strong> · Embarque #001 · valor R$ 89.420</div>
-                    <div class="flex items-center gap-2 flex-wrap mb-3">
-                      <span class="extra-ind extra-sop">📊 3 de 8 stages restantes · SOP "Recepção"</span>
-                      <span class="extra-ind extra-workflow">🔀 2 de 6 SOPs restantes · 14 stages totais</span>
-                    </div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <button onclick="event.preventDefault();notice('✅ Stage concluído (mock). Função real registra cockpit_action_log.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Concluir</button>
-                      <button onclick="event.preventDefault();notice('💬 Modal de comentário abre aqui.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Comentar</button>
-                      <button onclick="event.preventDefault();notice('⭐ Card marcado como urgente.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Marcar</button>
-                      <button onclick="event.preventDefault();location.href='tela38-notas-fiscais-list.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir tela operacional →</button>
-                    </div>
+              <!-- ====== EMAIL ====== -->
+              <div class="sec-card sec-email">
+                <div class="sec-header">
+                  <div class="sec-title">
+                    <span class="sec-ico">📧</span>
+                    <span>EMAIL</span>
+                    <span class="sec-count">5</span>
                   </div>
-
-                  <!-- Card 2 — Aprovar pedido (urgent) -->
-                  <div class="ck-card urgent">
-                    <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <span class="ct ct-todo">TO DO</span>
-                        <span class="badge" style="background:rgba(220,38,38,0.10);color:#B91C1C;border:1px solid rgba(220,38,38,0.30);">🔺 Urgente</span>
-                        <span class="ck-meta">Aprovações · WF "Pedido &gt; 50k"</span>
-                      </div>
-                      <span class="ck-prazo-warn text-[12px]">⏰ Vence em 2h</span>
+                  <button class="sec-see" onclick="event.preventDefault();location.href='tela17-cockpit-email.html';">Ver Cockpit Email →</button>
+                </div>
+                <div class="sec-body">
+                  <div class="sec-item" onclick="location.href='tela17-cockpit-email.html'">
+                    <span class="sec-dot sec-dot-warn"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">RE: Cotação Q2 — antecipar embarque MIA-GRU<span class="em-reply-pill">↳ 4</span></div>
+                      <div class="sec-row2">compras@ems.com.br · WF-Cot-2580 · há 1h</div>
                     </div>
-                    <div class="ck-title mb-1">Aprovar Pedido #PED-2614 — R$ 184.300</div>
-                    <div class="ck-context mb-2">Fornecedor: <strong>Cargolux Brasil</strong> · solicitado por João Mendes · alçada Gerência</div>
-                    <div class="flex items-center gap-2 flex-wrap mb-3">
-                      <span class="extra-ind extra-sop">📊 1 de 3 stages restantes · SOP "Aprovação alçada"</span>
-                      <span class="extra-ind extra-workflow">🔀 1 de 2 SOPs restantes · 5 stages totais</span>
-                    </div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <button onclick="event.preventDefault();notice('✅ Pedido aprovado (mock).');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Concluir</button>
-                      <button onclick="event.preventDefault();notice('💬 Comentário interno.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Comentar</button>
-                      <button onclick="event.preventDefault();notice('⭐ Marcado.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Marcar</button>
-                      <button onclick="event.preventDefault();location.href='tela41-aprovacao-detalhe.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir tela operacional →</button>
-                    </div>
+                    <span class="sec-meta ck-prazo-warn">SLA 4h</span>
                   </div>
-
+                  <div class="sec-item" onclick="location.href='tela17-cockpit-email.html'">
+                    <span class="sec-dot sec-dot-warn"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Ajuste de preço PED-2580 — valor divergente<span class="em-reply-pill">↳ 3</span></div>
+                      <div class="sec-row2">fiscal@libbs.com.br · 🤖 IA Triage sem vínculo · há 3h</div>
+                    </div>
+                    <span class="sec-meta ck-prazo-warn">SLA 8h</span>
+                  </div>
+                  <div class="sec-item" onclick="location.href='tela17-cockpit-email.html'">
+                    <span class="sec-dot sec-dot-info"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Booking confirmado MIA-GIG 03/06 voo CV 7521<span class="em-reply-pill">↳ 2</span></div>
+                      <div class="sec-row2">booking@cargolux.com · WF-Emb-001 · há 25min</div>
+                    </div>
+                    <span class="sec-meta text-dms-tecnologia">Sem SLA</span>
+                  </div>
+                  <div class="sec-item" onclick="location.href='tela17-cockpit-email.html'">
+                    <span class="sec-dot sec-dot-ok"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">POD assinado — embarque GRU-MIA Eurofarma OK<span class="em-reply-pill">↳ 2</span></div>
+                      <div class="sec-row2">logistica@eurofarma.com.br · WF-Emb-007 · ontem 17:42</div>
+                    </div>
+                    <span class="sec-meta ck-prazo-ok">Resolvido</span>
+                  </div>
+                  <div class="sec-item" onclick="location.href='tela17-cockpit-email.html'">
+                    <span class="sec-dot sec-dot-info"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Tabela tarifária Q3 — versão draft<span class="em-reply-pill">↳ 1</span></div>
+                      <div class="sec-row2">comercial@aché.com.br · WF-Cot-Q3 · há 5h</div>
+                    </div>
+                    <span class="sec-meta text-dms-tecnologia">Sem SLA</span>
+                  </div>
                 </div>
               </div>
 
-              <!-- ====== PANEL FOLLOW UP ====== -->
-              <div class="ck-tab-panel" data-panel="followup">
-                <div class="p-4 flex flex-col gap-3">
-
-                  <div class="ck-card">
-                    <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <span class="ct ct-followup">FOLLOW UP</span>
-                        <span class="ck-meta">Embarques · WF "Aéreo Eurofarma JFK-GRU"</span>
-                      </div>
-                      <span class="ck-prazo-ok text-[12px]">⏰ Hoje 18h</span>
-                    </div>
-                    <div class="ck-title mb-1">Rastreio AWB 071-2389 — em trânsito</div>
-                    <div class="ck-context mb-2">Cliente: <strong>Eurofarma</strong> · executor: Paula Reis · você é observador (cadeira_observador)</div>
-                    <div class="flex items-center gap-2 flex-wrap mb-3">
-                      <span class="extra-ind extra-sop">📊 4 de 7 stages restantes · SOP "Aéreo internacional"</span>
-                      <span class="extra-ind extra-workflow">🔀 3 de 5 SOPs restantes · 12 stages totais</span>
-                    </div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <button onclick="event.preventDefault();notice('👁️ Marcado como visto.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Marcar visto</button>
-                      <button onclick="event.preventDefault();notice('💬 Comentário interno (notifica executor).');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Comentar</button>
-                      <button onclick="event.preventDefault();notice('🔺 Escalado pro executor com aviso urgente.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Escalar</button>
-                      <button onclick="event.preventDefault();location.href='tela12-execution-visibility.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir tela operacional →</button>
-                    </div>
+              <!-- ====== TO DO ====== -->
+              <div class="sec-card sec-todo">
+                <div class="sec-header">
+                  <div class="sec-title">
+                    <span class="sec-ico">📋</span>
+                    <span>TO DO</span>
+                    <span class="sec-count">5</span>
                   </div>
-
-                  <div class="ck-card">
-                    <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <span class="ct ct-followup">FOLLOW UP</span>
-                        <span class="ck-meta">Cotações · WF "Cotação Trimestral Q2"</span>
-                      </div>
-                      <span class="ck-prazo-warn text-[12px]">⏰ Amanhã 12h</span>
+                  <button class="sec-see" onclick="event.preventDefault();location.href='tela18-cockpit-todo.html';">Ver Cockpit Todo →</button>
+                </div>
+                <div class="sec-body">
+                  <div class="sec-item" onclick="location.href='tela41-aprovacao-detalhe.html'">
+                    <span class="sec-dot sec-dot-late"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Aprovar Pedido #PED-2614 — R$ 184.300</div>
+                      <div class="sec-row2">Cargolux Brasil · WF "Pedido &gt; 50k" · alçada Gerência</div>
                     </div>
-                    <div class="ck-title mb-1">Cotação cliente EMS — aguardando resposta fornecedor</div>
-                    <div class="ck-context mb-2">Cliente: <strong>EMS Pharma</strong> · executor: Bruno Lima · 3 fornecedores cotando</div>
-                    <div class="flex items-center gap-2 flex-wrap mb-3">
-                      <span class="extra-ind extra-sop">📊 2 de 4 stages restantes · SOP "Cotação 3-way"</span>
-                      <span class="extra-ind extra-workflow">🔀 1 de 3 SOPs restantes · 8 stages totais</span>
-                    </div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <button onclick="event.preventDefault();notice('👁️ Marcado como visto.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Marcar visto</button>
-                      <button onclick="event.preventDefault();notice('💬 Comentário interno.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Comentar</button>
-                      <button onclick="event.preventDefault();notice('🔺 Escalado.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Escalar</button>
-                      <button onclick="event.preventDefault();location.href='tela26-cotacao-detalhe.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir tela operacional →</button>
-                    </div>
+                    <span class="sec-meta ck-prazo-late">Atrasado 6h</span>
                   </div>
-
+                  <div class="sec-item" onclick="location.href='tela38-notas-fiscais-list.html'">
+                    <span class="sec-dot sec-dot-warn"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Validar XML da NFE 12345</div>
+                      <div class="sec-row2">Libbs · Embarque #001 · R$ 89.420</div>
+                    </div>
+                    <span class="sec-meta ck-prazo-warn">Vence 2h</span>
+                  </div>
+                  <div class="sec-item" onclick="location.href='tela23-requisicao-detalhe.html'">
+                    <span class="sec-dot sec-dot-warn"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Revisar Requisição #REQ-318 — divergência item B-7720</div>
+                      <div class="sec-row2">Libbs · WF "Recepção" · solicitante João Mendes</div>
+                    </div>
+                    <span class="sec-meta ck-prazo-warn">Hoje 16h</span>
+                  </div>
+                  <div class="sec-item" onclick="location.href='tela25-cotacao-form.html'">
+                    <span class="sec-dot sec-dot-info"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Enviar cotação Aché Q3 (3 fornecedores)</div>
+                      <div class="sec-row2">Aché · WF "Cotação 3-way" · stage 2 de 4</div>
+                    </div>
+                    <span class="sec-meta text-dms-tecnologia">Amanhã 10h</span>
+                  </div>
+                  <div class="sec-item" onclick="location.href='tela29-pedido-detalhe.html'">
+                    <span class="sec-dot sec-dot-info"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Confirmar entrega Pedido #PED-2599 com fornecedor</div>
+                      <div class="sec-row2">Eurofarma · WF "Aéreo internacional" · Paula Reis</div>
+                    </div>
+                    <span class="sec-meta text-dms-tecnologia">Quinta 14h</span>
+                  </div>
                 </div>
               </div>
 
-              <!-- ====== PANEL UPDATE ====== -->
-              <div class="ck-tab-panel" data-panel="update">
-                <div class="p-4 flex flex-col gap-3">
-
-                  <div class="ck-card">
-                    <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <span class="ct ct-update">UPDATE</span>
-                        <span class="ck-meta">Workflow Engine · WF "Cotação Aché Q2"</span>
-                      </div>
-                      <span class="text-[12px] text-dms-tecnologia">há 2h</span>
-                    </div>
-                    <div class="ck-title mb-1">Workflow aprovado: WF-Cot-2614 encerrado com sucesso</div>
-                    <div class="ck-context mb-2">Pedro Alves (Diretor) aprovou. Próximo passo: emissão de PO automática.</div>
-                    <div class="flex items-center gap-2 flex-wrap mb-3">
-                      <span class="extra-ind extra-sop">📊 SOP "Aprovação Q2" finalizada</span>
-                      <span class="extra-ind extra-workflow">🔀 Workflow encerrado · 0 SOPs restantes</span>
-                    </div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <button onclick="event.preventDefault();notice('📥 Marcado como lido.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Marcar lido</button>
-                      <button onclick="event.preventDefault();notice('📦 Arquivado.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Arquivar</button>
-                      <button onclick="event.preventDefault();notice('⭐ Marcado importante.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Importante</button>
-                      <button onclick="event.preventDefault();location.href='tela29-pedido-detalhe.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir tela operacional →</button>
-                    </div>
+              <!-- ====== FOLLOW UP ====== -->
+              <div class="sec-card sec-followup">
+                <div class="sec-header">
+                  <div class="sec-title">
+                    <span class="sec-ico">👁️</span>
+                    <span>FOLLOW UP</span>
+                    <span class="sec-count">5</span>
                   </div>
-
-                  <div class="ck-card">
-                    <div class="flex items-start justify-between gap-3 mb-2 flex-wrap">
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <span class="ct ct-update">UPDATE</span>
-                        <span class="ck-meta">NF Eletrônica · WF "Recepção Libbs"</span>
-                      </div>
-                      <span class="text-[12px] text-dms-tecnologia">há 35min</span>
+                  <button class="sec-see" onclick="event.preventDefault();location.href='tela19-cockpit-followup.html';">Ver Cockpit Followup →</button>
+                </div>
+                <div class="sec-body">
+                  <div class="sec-item" onclick="location.href='tela12-execution-visibility.html'">
+                    <span class="sec-dot sec-dot-info"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Rastreio AWB 071-2389 — em trânsito</div>
+                      <div class="sec-row2">Eurofarma · executor Paula Reis · cadeira observador</div>
                     </div>
-                    <div class="ck-title mb-1">NF 67890 recebida e classificada automaticamente</div>
-                    <div class="ck-context mb-2">Match Engine vinculou ao Pedido #PED-2580 (97% confiança). Aguardando sua revisão.</div>
-                    <div class="flex items-center gap-2 flex-wrap mb-3">
-                      <span class="extra-ind extra-sop">📊 SOP "Match NF→Pedido" · stage 1 de 3</span>
-                      <span class="extra-ind extra-workflow">🔀 2 de 3 SOPs restantes · 6 stages totais</span>
-                    </div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <button onclick="event.preventDefault();notice('📥 Marcado como lido.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Marcar lido</button>
-                      <button onclick="event.preventDefault();notice('📦 Arquivado.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Arquivar</button>
-                      <button onclick="event.preventDefault();notice('⭐ Importante.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Importante</button>
-                      <button onclick="event.preventDefault();location.href='tela39-nota-fiscal-detalhe.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir tela operacional →</button>
-                    </div>
+                    <span class="sec-meta ck-prazo-ok">Hoje 18h</span>
                   </div>
-
+                  <div class="sec-item" onclick="location.href='tela26-cotacao-detalhe.html'">
+                    <span class="sec-dot sec-dot-warn"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Cotação EMS — aguardando resposta fornecedor</div>
+                      <div class="sec-row2">EMS Pharma · executor Bruno Lima · 3 fornecedores cotando</div>
+                    </div>
+                    <span class="sec-meta ck-prazo-warn">Amanhã 12h</span>
+                  </div>
+                  <div class="sec-item" onclick="location.href='tela12-execution-visibility.html'">
+                    <span class="sec-dot sec-dot-info"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Embarque MIA-GIG aguardando despacho aduaneiro</div>
+                      <div class="sec-row2">Libbs · executor Carlos Souza · WF-Emb-001</div>
+                    </div>
+                    <span class="sec-meta text-dms-tecnologia">Sex 09h</span>
+                  </div>
+                  <div class="sec-item" onclick="location.href='tela46-contrato-detalhe.html'">
+                    <span class="sec-dot sec-dot-info"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Renovação contrato Aché — em revisão jurídica</div>
+                      <div class="sec-row2">Aché · executor Renata Lima · prazo expira 30/06</div>
+                    </div>
+                    <span class="sec-meta text-dms-tecnologia">28 dias</span>
+                  </div>
+                  <div class="sec-item" onclick="location.href='tela12-execution-visibility.html'">
+                    <span class="sec-dot sec-dot-ok"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Auditoria interna Q2 — coleta de evidências</div>
+                      <div class="sec-row2">DMS Compliance · executor Eduardo Pinto · WF "Compliance Q2"</div>
+                    </div>
+                    <span class="sec-meta ck-prazo-ok">Próx. semana</span>
+                  </div>
                 </div>
               </div>
 
-              <!-- ====== PANEL EMAIL ====== -->
-              <div class="ck-tab-panel" data-panel="email">
-                <div class="p-4 flex flex-col gap-3">
-
-                  <!-- Email 1 — Cliente EMS dúvida cotação -->
-                  <div class="email-card">
-                    <div class="flex items-start justify-between gap-3 mb-1 flex-wrap">
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <span class="ct ct-email">EMAIL</span>
-                        <span class="badge badge-sys">🔗 Vinculado WF-Cot-2580</span>
-                        <span class="em-replies">↳ 4 respostas</span>
-                      </div>
-                      <span class="ck-prazo-warn text-[12px]">SLA resposta: 4h</span>
-                    </div>
-                    <div class="em-subj mb-1">RE: Cotação trimestral Q2 — dúvida sobre lead time MIA-GRU</div>
-                    <div class="em-meta">De: <strong>compras@ems.com.br</strong> (Carla Vieira) · para: maria.costa@dms.com.br · há 1h</div>
-                    <div class="em-body">"Maria, conseguimos antecipar o embarque para a primeira semana de junho? Precisamos do produto antes do lançamento. Aguardo retorno até hoje 17h."</div>
-                    <div class="flex items-center gap-2 flex-wrap mt-3">
-                      <span class="extra-ind extra-sop">📊 SOP "Atendimento cotação" · stage 2 de 4</span>
-                      <span class="extra-ind extra-workflow">🔀 1 de 2 SOPs restantes</span>
-                    </div>
-                    <div class="flex items-center gap-2 flex-wrap mt-3">
-                      <button onclick="event.preventDefault();notice('✉️ Composer abre (TBD — DP-CKP-06).');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Responder</button>
-                      <button onclick="event.preventDefault();notice('↪️ Encaminhar.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Encaminhar</button>
-                      <button onclick="event.preventDefault();notice('📥 TO DO criado a partir deste email.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Criar TO DO</button>
-                      <button onclick="event.preventDefault();location.href='tela17-cockpit-email.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir thread completa →</button>
-                    </div>
+              <!-- ====== UPDATE ====== -->
+              <div class="sec-card sec-update">
+                <div class="sec-header">
+                  <div class="sec-title">
+                    <span class="sec-ico">🔔</span>
+                    <span>UPDATE</span>
+                    <span class="sec-count">5</span>
                   </div>
-
-                  <!-- Email 2 — Cargolux confirmação reserva -->
-                  <div class="email-card">
-                    <div class="flex items-start justify-between gap-3 mb-1 flex-wrap">
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <span class="ct ct-email">EMAIL</span>
-                        <span class="badge badge-sys">🔗 Vinculado WF-Emb-001</span>
-                        <span class="em-replies">↳ 2 respostas</span>
-                      </div>
-                      <span class="ck-prazo-ok text-[12px]">Sem SLA</span>
+                  <button class="sec-see" onclick="event.preventDefault();location.href='tela71-notificacoes-centro.html';">Ver Notificações →</button>
+                </div>
+                <div class="sec-body">
+                  <div class="sec-item" onclick="location.href='tela39-nota-fiscal-detalhe.html'">
+                    <span class="sec-dot sec-dot-ok"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">NF 67890 recebida e classificada automaticamente</div>
+                      <div class="sec-row2">Match Engine vinculou ao Pedido #PED-2580 (97% confiança)</div>
                     </div>
-                    <div class="em-subj mb-1">Booking confirmado — MIA-GIG 03/06 voo CV 7521</div>
-                    <div class="em-meta">De: <strong>booking@cargolux.com</strong> · para: maria.costa@dms.com.br · há 25min</div>
-                    <div class="em-body">"Confirmamos reserva CV 7521 saindo MIA 03/06 às 22:15 com chegada GIG 04/06 09:30. AWB 071-2389 emitido. Tarifa USD 4.20/kg conforme tabela."</div>
-                    <div class="flex items-center gap-2 flex-wrap mt-3">
-                      <span class="extra-ind extra-sop">📊 SOP "Booking aéreo" · stage 3 de 5</span>
-                      <span class="extra-ind extra-workflow">🔀 2 de 4 SOPs restantes</span>
-                    </div>
-                    <div class="flex items-center gap-2 flex-wrap mt-3">
-                      <button onclick="event.preventDefault();notice('✉️ Composer.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Responder</button>
-                      <button onclick="event.preventDefault();notice('↪️ Encaminhar.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Encaminhar</button>
-                      <button onclick="event.preventDefault();notice('📦 Arquivado.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Arquivar</button>
-                      <button onclick="event.preventDefault();location.href='tela17-cockpit-email.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir thread completa →</button>
-                    </div>
+                    <span class="sec-meta text-dms-tecnologia">há 35min</span>
                   </div>
-
-                  <!-- Email 3 — Libbs ajuste valor -->
-                  <div class="email-card">
-                    <div class="flex items-start justify-between gap-3 mb-1 flex-wrap">
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <span class="ct ct-email">EMAIL</span>
-                        <span class="badge" style="background:rgba(234,179,8,0.14);color:#854D0E;border:1px solid rgba(234,179,8,0.35);">🤖 IA Triage — sem vínculo</span>
-                        <span class="em-replies">↳ 3 respostas</span>
-                      </div>
-                      <span class="ck-prazo-warn text-[12px]">SLA 8h</span>
+                  <div class="sec-item" onclick="location.href='tela29-pedido-detalhe.html'">
+                    <span class="sec-dot sec-dot-ok"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Workflow WF-Cot-2614 encerrado com sucesso</div>
+                      <div class="sec-row2">Pedro Alves (Diretor) aprovou · próximo passo: emissão PO</div>
                     </div>
-                    <div class="em-subj mb-1">Ajuste de preço pedido PED-2580 — valor unitário divergente</div>
-                    <div class="em-meta">De: <strong>fiscal@libbs.com.br</strong> (Renata Tavares) · para: maria.costa@dms.com.br · há 3h</div>
-                    <div class="em-body">"Identificamos divergência no valor unitário do item B-7720 entre o pedido e a nota fiscal. Item está R$ 12.40 mas o contrato é R$ 11.80. Podem revisar e emitir correção?"</div>
-                    <div class="flex items-center gap-2 flex-wrap mt-3">
-                      <button onclick="event.preventDefault();notice('✉️ Composer.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Responder</button>
-                      <button onclick="event.preventDefault();notice('🔗 Modal de vínculo manual abre — MAILIA falhou em classificar.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Vincular Workflow</button>
-                      <button onclick="event.preventDefault();notice('📥 TO DO criado.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Criar TO DO</button>
-                      <button onclick="event.preventDefault();location.href='tela17-cockpit-email.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir thread completa →</button>
-                    </div>
+                    <span class="sec-meta text-dms-tecnologia">há 2h</span>
                   </div>
-
-                  <!-- Email 4 — Eurofarma confirmação POD -->
-                  <div class="email-card">
-                    <div class="flex items-start justify-between gap-3 mb-1 flex-wrap">
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <span class="ct ct-email">EMAIL</span>
-                        <span class="badge badge-sys">🔗 Vinculado WF-Emb-007</span>
-                        <span class="em-replies">↳ 2 respostas</span>
-                      </div>
-                      <span class="ck-prazo-ok text-[12px]">Resolvido</span>
+                  <div class="sec-item" onclick="location.href='tela13-audit-trail.html'">
+                    <span class="sec-dot sec-dot-info"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Permissão "audit.view_global" delegada a você</div>
+                      <div class="sec-row2">Beatriz Pinto cedeu temporariamente · expira 11/06</div>
                     </div>
-                    <div class="em-subj mb-1">POD assinado — embarque GRU-MIA Eurofarma OK</div>
-                    <div class="em-meta">De: <strong>logistica@eurofarma.com.br</strong> · para: maria.costa@dms.com.br · ontem 17:42</div>
-                    <div class="em-body">"Maria, POD foi assinado pelo recebedor às 14h05 sem ressalvas. Anexamos cópia digitalizada. Embarque pode ser encerrado no sistema."</div>
-                    <div class="flex items-center gap-2 flex-wrap mt-3">
-                      <button onclick="event.preventDefault();notice('✉️ Composer.');" class="text-[11.5px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Responder</button>
-                      <button onclick="event.preventDefault();notice('📦 Arquivado.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Arquivar</button>
-                      <button onclick="event.preventDefault();notice('⭐ Importante.');" class="text-[11.5px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-2.5 py-1.5 hover:text-dms-mar">Importante</button>
-                      <button onclick="event.preventDefault();location.href='tela17-cockpit-email.html';" class="ml-auto text-[11.5px] font-semibold text-dms-ceu hover:text-dms-mar flex items-center gap-1">Abrir thread completa →</button>
-                    </div>
+                    <span class="sec-meta text-dms-tecnologia">há 4h</span>
                   </div>
-
+                  <div class="sec-item" onclick="location.href='tela11-match-engine.html'">
+                    <span class="sec-dot sec-dot-warn"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Match inexistente: NF 71234 não casa com pedidos abertos</div>
+                      <div class="sec-row2">Workflow de sistema (P19) gerado — requer triagem manual</div>
+                    </div>
+                    <span class="sec-meta ck-prazo-warn">há 6h</span>
+                  </div>
+                  <div class="sec-item" onclick="location.href='tela83-alcadas-cadastro.html'">
+                    <span class="sec-dot sec-dot-info"></span>
+                    <div class="sec-main">
+                      <div class="sec-row1">Alçada de aprovação atualizada para Gerentes</div>
+                      <div class="sec-row2">Compliance · novo teto R$ 250k (era R$ 200k) · vigor 03/06</div>
+                    </div>
+                    <span class="sec-meta text-dms-tecnologia">ontem</span>
+                  </div>
                 </div>
               </div>
 
             </div>
+          </div>
 
-            <!-- ESTADO VAZIO (toggle) -->
-            <div class="src-empty-only p-4">
-              <div class="empty-state">
-                <div class="empty-illustr mb-3">📭</div>
-                <h3 class="text-lg font-bold text-dms-mar mb-2">Você ainda não tem pendências</h3>
-                <p class="text-[13px] text-dms-tecnologia max-w-md mx-auto mb-5">
-                  Nenhum Workflow Instance ativo gera cards pra você no momento.
-                  Em produção, sem MAILIA conectada e sem WFs default da Sprint 4, esse é o estado real ao logar pela 1ª vez.
-                </p>
-                <div class="flex items-center justify-center gap-2 flex-wrap">
-                  <button onclick="event.preventDefault();location.href='tela22-requisicao-form.html';" class="text-[12px] font-semibold text-white bg-dms-mar rounded px-3.5 py-2 hover:bg-dms-confianca">📋 Crie uma Requisição</button>
-                  <button onclick="event.preventDefault();location.href='tela04-catalogo-workflows.html';" class="text-[12px] font-semibold text-dms-mar border border-[#E5E7EB] bg-white rounded px-3.5 py-2 hover:bg-[#FAFBFC]">🔀 Veja Workflows exemplo</button>
-                  <button onclick="event.preventDefault();location.href='tela15-mailia-admin.html';" class="text-[12px] font-semibold text-dms-mar border border-[#E5E7EB] bg-white rounded px-3.5 py-2 hover:bg-[#FAFBFC]">📨 Configure MAILIA</button>
-                </div>
+          <!-- ESTADO VAZIO (toggle) -->
+          <div class="src-empty-only">
+            <div class="empty-state">
+              <div class="empty-illustr mb-3">📭</div>
+              <h3 class="text-lg font-bold text-dms-mar mb-2">Você ainda não tem pendências</h3>
+              <p class="text-[13px] text-dms-tecnologia max-w-md mx-auto mb-5">
+                Nenhum Workflow Instance ativo gera cards pra você no momento.
+                Em produção, sem MAILIA conectada e sem WFs default da Sprint 4, esse é o estado real ao logar pela 1ª vez.
+              </p>
+              <div class="flex items-center justify-center gap-2 flex-wrap">
+                <button onclick="event.preventDefault();location.href='tela22-requisicao-form.html';" class="text-[12px] font-semibold text-white bg-dms-mar rounded px-3.5 py-2 hover:bg-dms-confianca">📋 Crie uma Requisição</button>
+                <button onclick="event.preventDefault();location.href='tela04-catalogo-workflows.html';" class="text-[12px] font-semibold text-dms-mar border border-[#E5E7EB] bg-white rounded px-3.5 py-2 hover:bg-[#FAFBFC]">🔀 Veja Workflows exemplo</button>
+                <button onclick="event.preventDefault();location.href='tela15-mailia-admin.html';" class="text-[12px] font-semibold text-dms-mar border border-[#E5E7EB] bg-white rounded px-3.5 py-2 hover:bg-[#FAFBFC]">📨 Configure MAILIA</button>
               </div>
             </div>
-
           </div>
 
           <p class="text-[11px] text-dms-tecnologia mt-4 leading-relaxed max-w-3xl">
-            <strong>Nota MVP:</strong> ordem padrão = atrasados no topo + prazo ascendente (RN-CKP-06). Cards refletem cadeiras do seu profile (executor → TO DO, observador → FOLLOW UP, destinatária → UPDATE). Email Threads são N:M com Workflow Instance (RN-CKP-05). IA Chat e IA View = Future (RN-CKP-15 Fase B/C).
+            <strong>Nota MVP:</strong> grid 2x2 mostra Top 5 de cada tipo (visão consolidada simultânea). Ordem padrão = atrasados no topo + prazo ascendente (RN-CKP-06). Cards refletem cadeiras do seu profile (executor → TO DO, observador → FOLLOW UP, destinatária → UPDATE). Email Threads são N:M com Workflow Instance (RN-CKP-05). Toggle 3 modos (Stage/SOP/Workflow) vive nas telas internas (17/18/19), aqui é só overview. IA Chat e IA View = Future (RN-CKP-15 Fase B/C).
           </p>
         </section>
 
@@ -923,27 +872,11 @@ tailwind.config = {
 <div id="toast-stack" style="position:fixed; bottom:24px; right:24px; z-index:80; display:flex; flex-direction:column; gap:8px; pointer-events:none;"></div>
 
 <script>
-  /* ===== Mode toggle (Stage / SOP / Workflow) ===== */
-  function setMode(mode, btn){
-    document.body.setAttribute('data-mode', mode);
-    document.querySelectorAll('.mode-btn').forEach(function(b){ b.classList.remove('active'); });
-    if(btn) btn.classList.add('active');
-  }
-
   /* ===== Source toggle (rich / empty) ===== */
   function setSource(src, btn){
     document.body.setAttribute('data-source', src);
     document.querySelectorAll('.src-btn').forEach(function(b){ b.classList.remove('active'); });
     if(btn) btn.classList.add('active');
-  }
-
-  /* ===== Tabs (TO DO / FOLLOW UP / UPDATE / EMAIL) ===== */
-  function setTab(tab, btn){
-    document.querySelectorAll('.tab-pill').forEach(function(b){ b.classList.remove('active'); });
-    if(btn) btn.classList.add('active');
-    document.querySelectorAll('.ck-tab-panel').forEach(function(p){ p.classList.remove('active'); });
-    var panel = document.querySelector('.ck-tab-panel[data-panel="'+tab+'"]');
-    if(panel) panel.classList.add('active');
   }
 
   /* ===== Saved views ===== */
