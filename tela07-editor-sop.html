@@ -1,9 +1,20 @@
 <!DOCTYPE html>
+<!--
+  tela07 Editor SOP v2 (refeito 2026-06-03)
+
+  Reflete decisão DP #31 Interpretação A:
+  - SOP é CONTAINER de Stages
+  - Tela07 = editor único que cria SOP + N stages atomicamente
+  - Tela08 (Stage Trigger) foi ABSORVIDA aqui como sub-componente (não tela standalone)
+  - Versionamento visível: editar SOP em uso fork-a v_n → v_(n+1)
+
+  Versão anterior (sob CONCEPT V2 original) ficou em git history.
+-->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1280">
-<title>DMS — Editor SOP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMS — Editor de SOP</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,6 +36,7 @@ tailwind.config = {
       },
       boxShadow: {
         'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)',
+        'dms-lg': '0 10px 25px -5px rgba(0, 56, 108, 0.12), 0 6px 10px -3px rgba(0, 56, 108, 0.06)',
       },
     },
   },
@@ -37,69 +49,77 @@ tailwind.config = {
   .caption { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 18px; }
   .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
   .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
-  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
-  .sticky-sidebar { position: sticky; top: 88px; }
+
+  /* Sticky identidade (col esquerda) */
+  .sticky-identity { position: sticky; top: 88px; max-height: calc(100vh - 110px); overflow-y: auto; }
+
+  /* Stage card */
+  .stage-card { transition: box-shadow 200ms ease, border-color 150ms ease; }
+  .stage-card:hover { box-shadow: 0 6px 14px -4px rgba(0, 56, 108, 0.12); border-color: #00AEEE; }
+  .stage-card.dragging { opacity: 0.5; }
+  .drag-handle { cursor: grab; color: #9CA3AF; touch-action: none; }
+  .drag-handle:active { cursor: grabbing; }
+  .drag-handle:hover { color: #00386C; }
+
+  /* Type badge variants */
+  .badge-default { background: rgba(0,82,144,0.10); color: #005290; }
+  .badge-cond { background: rgba(234,179,8,0.12); color: #854D0E; }
+  .badge-loop { background: rgba(100,53,133,0.10); color: #643585; }
+
+  /* Trigger row */
+  .trigger-row { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; background:#F8F9FA; border:1px solid #E5E7EB; font-size:13px; transition: all 150ms ease; }
+  .trigger-row:hover { border-color: #00AEEE; background:#fff; }
+  .trigger-type-pill { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:9999px; font-size:11px; font-weight:600; font-family:'JetBrains Mono', monospace; }
+  .pill-stage { background: rgba(0,174,238,0.15); color: #005290; }
+  .pill-time { background: rgba(176,201,52,0.15); color: #7A8F24; }
+  .pill-event { background: rgba(100,53,133,0.12); color: #643585; }
+
+  /* Accordion chevron */
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  details[open] > summary .chev { transform: rotate(90deg); }
+  .chev { transition: transform 150ms ease; }
+
   /* Modal */
-  .modal-overlay { background: rgba(0, 56, 108, 0.5); backdrop-filter: blur(2px); }
-  /* Editor markdown */
-  .md-editor { font-family: 'JetBrains Mono', Consolas, monospace; font-size: 14px; line-height: 1.6; }
-  .md-editor:focus { outline: none; }
-  /* Toolbar md botões */
-  .md-btn { padding: 6px 10px; font-size: 13px; color: #656464; border-radius: 4px; transition: all 150ms ease; cursor: pointer; }
-  .md-btn:hover { background: #F8F9FA; color: #00386C; }
-  .md-btn.active { background: #00386C; color: white; }
-  /* Card "IA" gradient */
-  .card-ia { background: linear-gradient(135deg, rgba(100,53,133,0.05), rgba(0,174,238,0.05)); border-color: rgba(100,53,133,0.2); }
-  /* Stage card no modal IA */
-  .stage-card { transition: all 150ms ease; }
-  .stage-card.accepted { background: rgba(176,201,52,0.08); border-color: #B0C934; }
-  .stage-card.rejected { opacity: 0.4; }
-  /* Tag chip (autocomplete @-tag) */
-  .tag-chip { display: inline-block; background: rgba(0,174,238,0.15); color: #005290; padding: 1px 6px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .modal-backdrop { position:fixed; inset:0; background:rgba(15, 27, 76, 0.55); z-index:90; display:none; align-items:center; justify-content:center; padding:24px; overflow-y:auto; }
+  .modal-backdrop.open { display:flex; }
+  .modal-card { background:#fff; border-radius:12px; max-width:680px; width:100%; max-height: 90vh; overflow-y:auto; box-shadow: 0 30px 60px -15px rgba(0,0,0,.4); }
+  .modal-card-lg { max-width: 860px; }
+
+  /* TBD pin */
+  .tbd-pin { background:#FEF3C7; color:#854D0E; border:1px dashed #D97706; font-size:11px; padding:2px 8px; border-radius:6px; font-weight:600; }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 24px; right: 24px; z-index: 100; background: #00386C; color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,.3); transform: translateY(120%); transition: transform 300ms ease; font-size: 14px; font-weight: 500; }
+  .toast.show { transform: translateY(0); }
+
+  /* Version row */
+  .version-row { display:flex; align-items:center; gap:12px; padding:12px; border:1px solid #E5E7EB; border-radius:8px; transition: all 150ms ease; }
+  .version-row:hover { border-color: #00AEEE; background:#F8F9FA; }
+  .version-row.current { background: rgba(176,201,52,0.06); border-color: rgba(176,201,52,0.4); }
+
+  /* Empty state */
+  .empty-state { border: 2px dashed #E5E7EB; border-radius: 12px; padding: 48px 24px; text-align: center; }
+
+  @media (max-width: 900px) {
+    .editor-grid { grid-template-columns: 1fr !important; }
+    .sticky-identity { position: static !important; max-height: none !important; }
+  }
 </style>
 <link rel="stylesheet" href="mobile-responsive.css">
-  <script defer src="sidebar-permissions.js"></script>
+<script defer src="sidebar-permissions.js"></script>
 </head>
 <body class="min-h-screen">
 
 <div class="flex min-h-screen">
 
-  <!-- SIDEBAR -->
+  <!-- SIDEBAR LEGACY (escondida pela CSS consolidada abaixo) -->
   <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
     <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
       <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center">
         <span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span>
       </div>
-      <div>
-        <div class="font-bold text-base leading-tight">DMS</div>
-        <div class="text-xs text-white/70 leading-tight">Workflow Engine</div>
-      </div>
-    </div>
-    <nav class="flex-1 py-4 overflow-y-auto">
-      <div class="caption text-white/40 px-6 mb-2">Workflow Builder</div>
-      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-        Catálogo de Tags
-      </a>
-      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        Procedures
-      </a>
-      <a href="#" class="nav-item-active flex items-center gap-3 px-6 py-2.5 text-white font-semibold text-sm">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        Biblioteca SOP
-      </a>
-      <a href="#" class="flex items-center gap-3 px-6 py-2.5 text-white/70 hover:text-white text-sm transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
-        Catálogo de Workflows
-      </a>
-    </nav>
-    <div class="border-t border-white/10 px-4 py-3 flex items-center gap-3">
-      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold text-sm" style="background: linear-gradient(135deg, #00AEEE, #005290);">FA</div>
-      <div class="flex-1 min-w-0">
-        <div class="text-sm font-semibold truncate">Fernando Arruda</div>
-        <div class="text-xs text-white/60 truncate">Admin · DMS Log</div>
-      </div>
+      <div><div class="font-bold text-base leading-tight">DMS</div></div>
     </div>
   </aside>
 
@@ -109,325 +129,222 @@ tailwind.config = {
     <!-- HEADER -->
     <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-8 sticky top-0 z-20">
       <nav class="flex items-center gap-2 text-sm">
-        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Workflow Builder</a>
+        <a href="tela16-cockpit-overview.html" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Workflow Builder</a>
         <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
-        <a href="#" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Biblioteca SOP</a>
+        <a href="tela06-biblioteca-sop.html" class="text-dms-tecnologia hover:text-dms-mar transition-colors">Biblioteca de SOPs</a>
         <svg class="w-3 h-3 text-dms-tecnologia" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
         <span class="text-dms-mar font-semibold">Editar SOP</span>
       </nav>
+      <div class="flex items-center gap-3">
+        <span class="caption text-dms-tecnologia hidden md:inline">Fernando Arruda</span>
+      </div>
     </header>
 
     <!-- CONTENT -->
-    <main class="flex-1 p-8 max-w-[1440px] w-full mx-auto">
+    <main class="flex-1 p-8 max-w-[1480px] w-full mx-auto">
 
-      <!-- PAGE HEADER + ações -->
-      <div class="flex items-start justify-between mb-6 gap-6">
+      <!-- PAGE HEADER -->
+      <div class="flex items-start justify-between mb-5 gap-6 flex-wrap">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-3 mb-2 flex-wrap">
             <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
-            <h1 class="text-[36px] leading-[44px] font-bold text-dms-mar">Editar SOP</h1>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(176,201,52,0.15)] text-[#7A8F24] ml-2">
+            <h1 class="text-[32px] leading-[40px] font-bold text-dms-mar">Editor de SOP — <span class="text-dms-confianca">Recepção NFE</span></h1>
+            <span class="ml-1 mono text-[11px] px-2 py-0.5 rounded-md bg-dms-sabedoria/10 text-dms-sabedoria font-semibold">v2 · DP #31-A</span>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap text-sm">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(176,201,52,0.15)] text-[#7A8F24]">
               <span class="w-1.5 h-1.5 rounded-full bg-dms-tropicalidade"></span>
-              Ativo
+              Ativa <span class="mono ml-1">v2.2</span>
             </span>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[rgba(176,201,52,0.15)] text-[#7A8F24] mono">v 2.1</span>
-          </div>
-          <div class="flex items-center gap-3 text-sm">
-            <span class="mono text-dms-tecnologia font-semibold">SOP-001</span>
-            <span class="text-dms-tecnologia">·</span>
-            <span class="text-dms-tecnologia">Última edição há 3 dias por Fernando Arruda</span>
-          </div>
-        </div>
-        <div class="flex items-center gap-3 flex-shrink-0">
-          <a href="#" class="text-sm font-semibold text-dms-tecnologia hover:text-dms-mar px-4 py-2 transition-colors" data-i18n="btn.cancel">Cancelar</a>
-          <button class="text-sm font-semibold text-dms-tecnologia px-4 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">Salvar rascunho</button>
-          <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Publicar nova versão</button>
-        </div>
-      </div>
-
-      <!-- ========== CARD IA STAGES (topo) ========== -->
-      <div class="card-ia border rounded-lg p-4 mb-6 flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3 flex-1">
-          <div class="w-10 h-10 rounded-lg bg-dms-sabedoria/10 flex items-center justify-center flex-shrink-0">
-            <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          </div>
-          <div class="flex-1 min-w-0">
-            <h3 class="font-semibold text-dms-mar text-sm">Assistente IA — Stages a partir desta SOP</h3>
-            <p class="text-xs text-dms-tecnologia">A IA analisa o texto da SOP e sugere a cadeia de stages que monta o workflow correspondente. Prompt visível e editável.</p>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-dms-ceu/15 text-dms-confianca">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Em uso por <span class="font-bold mx-1">5</span> workflows
+            </span>
+            <span class="text-dms-tecnologia text-xs">·</span>
+            <span class="text-xs text-dms-tecnologia">Última edição há 6 dias por Camila Reis</span>
           </div>
         </div>
-        <div class="flex items-center gap-2 flex-shrink-0">
-          <button onclick="openIaModal()" class="flex items-center gap-2 text-sm font-semibold text-white px-4 py-2 bg-dms-sabedoria rounded-md hover:opacity-90 transition-opacity">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            IA Stages
+        <div class="flex items-center gap-2 flex-shrink-0 flex-wrap">
+          <button onclick="openHistoryModal()" class="text-sm font-semibold text-dms-mar px-3 py-2 bg-white border border-[#E5E7EB] rounded-md hover:border-dms-mar transition-colors flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Histórico de versões
+          </button>
+          <button onclick="onSaveDraft()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">Salvar rascunho</button>
+          <button onclick="openPublishModal()" class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Publicar v2.3
           </button>
         </div>
       </div>
 
-      <!-- ========== GRID 2 COLUNAS ========== -->
-      <div class="grid grid-cols-12 gap-6">
-
-        <!-- ========== COLUNA PRINCIPAL ========== -->
-        <div class="col-span-7 min-w-0 space-y-6 [&_.bg-white]:overflow-hidden [&_input]:min-w-0 [&_textarea]:break-words">
-
-          <!-- CARD: Identidade -->
-          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
-            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
-              <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
-              <h2 class="text-lg font-semibold text-dms-mar">Identidade</h2>
-            </div>
-            <div class="p-6 space-y-5">
-
-              <div class="grid grid-cols-3 gap-4">
-                <div>
-                  <label class="caption text-dms-tecnologia mb-1.5 block">Código <span class="text-red-500">*</span></label>
-                  <input type="text" value="SOP-001" readonly class="mono input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#F8F9FA] text-dms-mar font-semibold cursor-not-allowed">
-                  <p class="text-xs text-dms-tecnologia mt-1.5">Gerado automaticamente — único.</p>
-                </div>
-                <div class="col-span-2">
-                  <label class="caption text-dms-tecnologia mb-1.5 block">Título <span class="text-red-500">*</span></label>
-                  <input type="text" value="Como aprovar uma requisição como Diretor" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
-                </div>
-              </div>
-
-              <div>
-                <label class="caption text-dms-tecnologia mb-1.5 block">Subtítulo</label>
-                <input type="text" value="Checklist de validação financeira + carimbo de aprovação" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
-                <p class="text-xs text-dms-tecnologia mt-1.5">Descrição operacional curta (aparece na listagem).</p>
-              </div>
-
-              <div class="grid grid-cols-3 gap-4">
-                <div>
-                  <label class="caption text-dms-tecnologia mb-1.5 block">Categoria <span class="text-red-500">*</span></label>
-                  <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
-                    <optgroup label="Operacional">
-                      <option value="operacao_documento">Operação · Documento</option>
-                      <option value="operacao_fisica">Operação · Física</option>
-                      <option value="operacao_comunicacao">Operação · Comunicação</option>
-                    </optgroup>
-                    <optgroup label="Governança">
-                      <option value="aprovacao" selected>Aprovação</option>
-                      <option value="compliance">Compliance</option>
-                      <option value="auditoria" data-i18n="nav.audit">Auditoria</option>
-                    </optgroup>
-                    <optgroup label="Financeiro/Fiscal">
-                      <option value="financeiro">Financeiro</option>
-                      <option value="fiscal_tributario">Fiscal/Tributário</option>
-                    </optgroup>
-                  </select>
-                </div>
-                <div>
-                  <label class="caption text-dms-tecnologia mb-1.5 block">Business Module <span class="text-red-500">*</span></label>
-                  <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
-                    <option selected data-i18n="nav.purchases">Compras</option>
-                    <option data-i18n="nav.workflow">Workflow</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="caption text-dms-tecnologia mb-1.5 block">Tipo SOP <span class="text-red-500">*</span></label>
-                  <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
-                    <option selected>Default</option>
-                    <option>Compliance</option>
-                  </select>
-                  <p class="text-xs text-dms-tecnologia mt-1.5">Específica é criada no Workflow Builder.</p>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- CARD: Conteúdo Textual (editor markdown) -->
-          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
-            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
-                <h2 class="text-lg font-semibold text-dms-mar">Conteúdo textual</h2>
-                <span class="caption text-dms-tecnologia">(markdown · suporta interpolação @-tag)</span>
-              </div>
-              <button class="text-xs font-semibold text-dms-confianca hover:text-dms-mar transition-colors flex items-center gap-1">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                Preview
-              </button>
-            </div>
-
-            <!-- Toolbar markdown -->
-            <div class="flex items-center gap-1 px-3 py-2 border-b border-[#E5E7EB] bg-[#F8F9FA]">
-              <button class="md-btn" title="Negrito (Ctrl+B)"><strong>B</strong></button>
-              <button class="md-btn italic" title="Itálico (Ctrl+I)">I</button>
-              <div class="w-px h-5 bg-[#E5E7EB] mx-1"></div>
-              <button class="md-btn" title="H1"># H1</button>
-              <button class="md-btn" title="H2">## H2</button>
-              <div class="w-px h-5 bg-[#E5E7EB] mx-1"></div>
-              <button class="md-btn" title="Lista">• Lista</button>
-              <button class="md-btn" title="Lista numerada">1. Num</button>
-              <button class="md-btn" title="Checklist">☐ Check</button>
-              <div class="w-px h-5 bg-[#E5E7EB] mx-1"></div>
-              <button class="md-btn" title="Link">🔗 Link</button>
-              <button class="md-btn" title="Código">{ }</button>
-              <div class="w-px h-5 bg-[#E5E7EB] mx-1"></div>
-              <button class="md-btn flex items-center gap-1 text-dms-confianca font-semibold" title="Inserir @-tag">
-                <span class="mono">@</span> Tag
-              </button>
-              <div class="flex-1"></div>
-              <div class="text-xs text-dms-tecnologia">Digite <span class="mono">@</span> para autocomplete de tags</div>
-            </div>
-
-            <!-- Editor -->
-            <div class="p-6">
-              <textarea id="md-editor" class="md-editor w-full h-80 border border-[#E5E7EB] rounded-md p-4 bg-white text-dms-mar focus:border-dms-ceu" placeholder="Escreva o conteúdo textual da SOP em markdown..."># Como aprovar uma requisição como Diretor
-
-## Pré-condições
-- Requisição deve ter status **Aprovada pelo Coordenador**
-- Valor da requisição: @compras_requisition_valor_total
-- Centro de Custo: @compras_requisition_centro_custo
-
-## Checklist obrigatório
-
-1. ☐ Validar saldo orçamentário em @compras_budget_saldo_disponivel
-2. ☐ Conferir justificativa técnica e comercial
-3. ☐ Verificar se fornecedor está homologado (@compras_supplier_status)
-4. ☐ Validar coerência entre objeto e centro de custo
-5. ☐ Conferir alçada de aprovação aplicável
-
-## Decisão
-
-Se todos os itens validados, **aprovar** com carimbo digital.
-
-Se valor exceder alçada (@compras_requisition_valor_total > limite_diretor), **escalar para C-Level** com justificativa.
-
-Se houver pendência, **devolver ao solicitante** com explicação textual.
-
-## Observações
-
-> Toda decisão é registrada no audit_log e fica disponível para SOX por 7 anos.</textarea>
-              <p class="text-xs text-dms-tecnologia mt-2 flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                Tags <span class="tag-chip">@compras_*</span> são resolvidas em runtime pelo Resolver Engine (RN-SOP-16).
-              </p>
-            </div>
-          </div>
-
-          <!-- CARD: Governança / DP-SOP-06 + DP-SOP-09 -->
-          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md">
-            <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center gap-3">
-              <div class="w-8 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
-              <h2 class="text-lg font-semibold text-dms-mar">Governança</h2>
-              <span class="caption text-dms-tecnologia">(DP-SOP-06 + DP-SOP-09 a confirmar)</span>
-            </div>
-            <div class="p-6 space-y-4">
-              <label class="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" checked class="mt-1 w-4 h-4 text-dms-mar rounded border-[#E5E7EB] focus:ring-dms-ceu">
-                <div class="flex-1">
-                  <div class="text-sm font-semibold text-dms-mar">Nova versão exige aprovação antes de publicar</div>
-                  <p class="text-xs text-dms-tecnologia">Cria estado "em revisão" até aprovador com permissão <span class="mono">sop.approve</span> aprovar.</p>
-                </div>
-              </label>
-
-              <label class="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" class="mt-1 w-4 h-4 text-dms-mar rounded border-[#E5E7EB] focus:ring-dms-ceu">
-                <div class="flex-1">
-                  <div class="text-sm font-semibold text-dms-mar">Disparar impact analysis em workflows ativos</div>
-                  <p class="text-xs text-dms-tecnologia">RN-SOP-02. Lista stages afetados antes de publicar.</p>
-                </div>
-              </label>
-
-              <div class="bg-[#FFFBEB] border border-[#FDE68A] rounded-md p-3 flex gap-2 items-start">
-                <svg class="w-4 h-4 text-[#EAB308] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                <p class="text-xs text-[#854D0E]">Publicar nova versão (v 2.2) substitui v 2.1 em <strong>7 workflows ativos</strong>. Operadores recebem card UPDATE pra ciência (RN-SOP-11).</p>
-              </div>
-            </div>
-          </div>
-
+      <!-- BANNER FORK DE VERSÃO -->
+      <div class="mb-6 p-4 bg-dms-sabedoria/5 border border-dms-sabedoria/20 rounded-lg flex gap-3">
+        <svg class="w-5 h-5 text-dms-sabedoria flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <div class="text-sm text-dms-mar">
+          <strong>Esta SOP está em uso por 5 workflows ativos.</strong>
+          Salvar alterações <em>forka</em> uma nova versão: <span class="mono">v2.2 → v2.3</span>. A <span class="mono">v2.2</span> permanece imutável nos workflows que já a usam, garantindo execuções históricas reprodutíveis (RN-SOP-02). Para evoluir sem forkar, use "Salvar rascunho".
         </div>
+      </div>
 
-        <!-- ========== SIDEBAR DIREITA ========== -->
-        <aside class="col-span-5 min-w-0 space-y-5 sticky-sidebar self-start">
+      <!-- LAYOUT GRID: identidade + stages -->
+      <div class="editor-grid grid gap-6" style="grid-template-columns: 350px 1fr;">
 
-          <!-- Versionamento -->
+        <!-- ============ COL ESQUERDA — IDENTIDADE ============ -->
+        <aside class="sticky-identity">
           <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+
             <div class="px-5 py-3 bg-[#F8F9FA] border-b border-[#E5E7EB] flex items-center gap-2">
-              <svg class="w-4 h-4 text-dms-confianca" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              <h3 class="caption text-dms-mar font-semibold">Versionamento</h3>
+              <div class="w-6 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+              <h2 class="caption text-dms-mar font-semibold">Identidade da SOP</h2>
             </div>
-            <div class="p-5 space-y-3">
-              <div class="space-y-2.5">
-                <div class="flex items-center justify-between text-sm">
-                  <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-dms-tropicalidade"></span>
-                    <span class="mono text-dms-mar font-semibold">v 2.1</span>
-                    <span class="caption text-dms-tropicalidade">atual</span>
-                  </div>
-                  <span class="text-xs text-dms-tecnologia">há 3 dias</span>
-                </div>
-                <div class="flex items-center justify-between text-sm pl-4">
-                  <div class="flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 rounded-full bg-dms-tecnologia"></span>
-                    <span class="mono text-dms-tecnologia">v 2.0</span>
-                  </div>
-                  <span class="text-xs text-dms-tecnologia">há 1 mês</span>
-                </div>
-                <div class="flex items-center justify-between text-sm pl-4">
-                  <div class="flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 rounded-full bg-dms-tecnologia"></span>
-                    <span class="mono text-dms-tecnologia">v 1.4</span>
-                  </div>
-                  <span class="text-xs text-dms-tecnologia">há 3 meses</span>
-                </div>
-              </div>
-              <a href="tela13-audit-trail.html?sop=SOP-001&view=history&from=editor-sop" class="w-full text-xs font-semibold text-dms-confianca hover:text-dms-mar transition-colors text-left flex items-center gap-1 pt-2 border-t border-[#E5E7EB]">
-                Ver histórico completo
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-              </a>
-            </div>
-          </div>
 
-          <!-- Reverse Lookup (RN-SOP-25) -->
-          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
-            <div class="px-5 py-3 bg-[#F8F9FA] border-b border-[#E5E7EB] flex items-center gap-2">
-              <svg class="w-4 h-4 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-              <h3 class="caption text-dms-mar font-semibold">Onde está sendo usada</h3>
-            </div>
-            <div class="p-5 space-y-3">
-              <div class="grid grid-cols-2 gap-2 text-center">
-                <div class="border border-[#E5E7EB] rounded-md p-3">
-                  <div class="text-2xl font-black text-dms-mar leading-none">7</div>
-                  <div class="caption text-dms-tecnologia mt-1.5">Stages</div>
+            <div class="p-5 space-y-4">
+
+              <!-- Nome -->
+              <div>
+                <label class="caption text-dms-tecnologia mb-1 block">Nome <span class="text-red-500">*</span></label>
+                <input id="sop-nome" type="text" value="Recepção NFE" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md font-semibold">
+                <p class="text-[11px] text-dms-tecnologia mt-1">Identificador único, exibido no Workflow Builder.</p>
+              </div>
+
+              <!-- Categoria / Módulo -->
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1 block">Categoria <span class="text-red-500">*</span></label>
+                  <select id="sop-cat" class="input-dms w-full px-2.5 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                    <option value="default" selected>Default</option>
+                    <option value="especifica">Específica</option>
+                    <option value="compliance">Compliance</option>
+                  </select>
                 </div>
-                <div class="border border-[#E5E7EB] rounded-md p-3">
-                  <div class="text-2xl font-black text-dms-mar leading-none">5</div>
-                  <div class="caption text-dms-tecnologia mt-1.5">Workflows</div>
-                </div>
-                <div class="border border-[#E5E7EB] rounded-md p-3 col-span-2">
-                  <div class="text-2xl font-black text-dms-mar leading-none">142</div>
-                  <div class="caption text-dms-tecnologia mt-1.5">Processos ativos rodando</div>
+                <div>
+                  <label class="caption text-dms-tecnologia mb-1 block">Módulo <span class="text-red-500">*</span></label>
+                  <select id="sop-mod" class="input-dms w-full px-2.5 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+                    <option value="compras">Compras</option>
+                    <option value="cap" selected>CAP</option>
+                    <option value="aprovacao">Aprovação</option>
+                    <option value="cadastros">Cadastros</option>
+                    <option value="sistema">Sistema</option>
+                  </select>
                 </div>
               </div>
 
-              <a href="tela04-catalogo-workflows.html?sop=SOP-001&view=deps&from=editor-sop" class="block w-full text-sm font-semibold text-dms-confianca px-3 py-2 bg-white border border-dms-confianca rounded-md hover:bg-dms-confianca hover:text-white transition-colors text-center">
-                Ver dependências →
-              </a>
-
-              <div class="pt-2 border-t border-[#E5E7EB] text-xs text-dms-tecnologia">
-                Últimos 30 dias: <span class="font-semibold text-dms-mar">847 execuções</span>
+              <!-- Tags -->
+              <div>
+                <label class="caption text-dms-tecnologia mb-1 block">Tags</label>
+                <div id="tag-chips" class="flex flex-wrap gap-1.5 mb-1.5">
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-dms-ceu/15 text-dms-confianca">nfe <button onclick="removeTag('nfe', event)" class="hover:text-red-600">×</button></span>
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-dms-ceu/15 text-dms-confianca">validação <button onclick="removeTag('validação', event)" class="hover:text-red-600">×</button></span>
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-dms-ceu/15 text-dms-confianca">xml <button onclick="removeTag('xml', event)" class="hover:text-red-600">×</button></span>
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-dms-ceu/15 text-dms-confianca">sefaz <button onclick="removeTag('sefaz', event)" class="hover:text-red-600">×</button></span>
+                </div>
+                <input type="text" placeholder="+ adicionar tag..." onkeydown="addTagInline(event)" class="input-dms w-full px-3 py-1.5 text-xs border border-[#E5E7EB] rounded-md">
               </div>
+
+              <!-- Descrição -->
+              <div>
+                <label class="caption text-dms-tecnologia mb-1 block flex items-center gap-1.5">
+                  Descrição <span class="tbd-pin">TBD</span>
+                </label>
+                <textarea rows="3" class="input-dms w-full px-3 py-2 text-xs border border-[#E5E7EB] rounded-md mono leading-relaxed" placeholder="Markdown opcional...">Recepção, validação e baixa de NFE recebidas via webhook ou import manual. Cobre fluxo padrão + quarentena de divergências.</textarea>
+                <p class="text-[11px] text-dms-tecnologia mt-1 italic">TBD: WYSIWYG ou textarea simples?</p>
+              </div>
+
+              <!-- Versão atual -->
+              <div class="border-t border-[#E5E7EB] pt-4">
+                <label class="caption text-dms-tecnologia mb-1.5 block">Versão atual</label>
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2">
+                    <span class="mono text-base font-bold text-dms-mar">v2.2</span>
+                    <span class="caption text-dms-tropicalidade">ativa</span>
+                  </div>
+                  <button onclick="openHistoryModal()" class="text-xs text-dms-confianca hover:underline flex items-center gap-1">
+                    Ver outras
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Counter de stages -->
+              <div class="bg-dms-mar text-white rounded-lg p-3 flex items-center justify-between">
+                <div>
+                  <div class="caption text-white/60">Esta SOP tem</div>
+                  <div class="text-2xl font-black leading-none mt-0.5"><span id="stage-counter">8</span> stages</div>
+                </div>
+                <svg class="w-8 h-8 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
+              </div>
+
+              <!-- Ações secundárias -->
+              <div class="space-y-2 border-t border-[#E5E7EB] pt-4">
+                <button onclick="onDuplicate()" class="w-full text-sm font-semibold text-dms-mar px-3 py-2 bg-white border border-[#E5E7EB] rounded-md hover:border-dms-mar transition-colors flex items-center justify-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                  Duplicar SOP
+                </button>
+                <button onclick="onArchive()" class="w-full text-sm font-semibold text-red-700 px-3 py-2 bg-white border border-red-200 rounded-md hover:bg-red-50 transition-colors flex items-center justify-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8l-1 9a2 2 0 002 2h12a2 2 0 002-2l-1-9M5 8h14M5 8l1-3h12l1 3M10 12h4"/></svg>
+                  Arquivar
+                </button>
+              </div>
+
             </div>
           </div>
-
-          <!-- Zona de perigo -->
-          <div class="bg-white border border-red-200 rounded-lg overflow-hidden">
-            <div class="px-5 py-3 bg-red-50 border-b border-red-200 flex items-center gap-2">
-              <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              <h3 class="caption text-red-700 font-semibold">Zona de perigo</h3>
-            </div>
-            <div class="p-5 space-y-3">
-              <button class="w-full text-sm font-semibold text-red-700 px-4 py-2 bg-white border border-red-300 rounded-md hover:bg-red-50 transition-colors text-left">
-                Marcar como deprecated
-              </button>
-              <p class="text-xs text-dms-tecnologia">Versão deprecated não aparece em buscas default mas continua disponível para workflows existentes que a referenciam.</p>
-            </div>
-          </div>
-
         </aside>
+
+        <!-- ============ COL DIREITA — STAGES ============ -->
+        <section>
+
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md overflow-hidden">
+            <div class="px-6 py-4 bg-[#F8F9FA] border-b border-[#E5E7EB] flex items-center justify-between gap-3 flex-wrap">
+              <div class="flex items-center gap-2">
+                <div class="w-6 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+                <h2 class="caption text-dms-mar font-semibold">Stages da SOP</h2>
+                <span class="text-xs text-dms-tecnologia">· arraste para reordenar</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="expandAll()" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar">Expandir todos</button>
+                <span class="text-xs text-dms-tecnologia">·</span>
+                <button onclick="collapseAll()" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar">Colapsar todos</button>
+              </div>
+            </div>
+
+            <div class="p-5">
+              <div id="stages-container" class="space-y-3"></div>
+
+              <!-- Empty state (hidden by default since we have stages) -->
+              <div id="empty-state" class="empty-state hidden">
+                <svg class="w-12 h-12 text-dms-tecnologia/40 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                <h3 class="text-base font-bold text-dms-mar mb-1">Sem stages ainda</h3>
+                <p class="text-sm text-dms-tecnologia mb-4">Toda SOP precisa de pelo menos 1 stage para ser publicada.</p>
+                <button onclick="addStage()" class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors inline-flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                  Adicionar primeiro stage
+                </button>
+              </div>
+
+              <!-- Add stage button -->
+              <button id="add-stage-btn" onclick="addStage()" class="mt-3 w-full text-sm font-semibold text-dms-confianca px-4 py-3 bg-white border-2 border-dashed border-[#E5E7EB] rounded-lg hover:border-dms-confianca hover:bg-dms-ceu/5 transition-colors flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                Adicionar stage
+              </button>
+            </div>
+          </div>
+
+          <!-- TBDs -->
+          <details class="mt-6 bg-white border border-[#E5E7EB] rounded-lg p-5">
+            <summary class="flex items-center gap-3">
+              <svg class="chev w-4 h-4 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+              <span class="font-bold text-dms-mar">TBDs pendentes para Fernando opinar (5)</span>
+            </summary>
+            <ul class="mt-4 space-y-3 text-sm text-dms-mar">
+              <li class="flex gap-2"><span class="tbd-pin">TBD-1</span> Editor markdown da descrição: WYSIWYG (rich text) ou textarea com syntax highlight?</li>
+              <li class="flex gap-2"><span class="tbd-pin">TBD-2</span> Procedures / Agentes IA / Alertas — modal dedicado pra adicionar ou inline no card do stage?</li>
+              <li class="flex gap-2"><span class="tbd-pin">TBD-3</span> Sub-rascunho: pode editar e salvar v2.3 enquanto v2.2 ainda está em uso, ou rascunho é exclusivo do autor?</li>
+              <li class="flex gap-2"><span class="tbd-pin">TBD-4</span> Diff entre versões: visualização lado a lado (side-by-side) ou unified diff (estilo git)?</li>
+              <li class="flex gap-2"><span class="tbd-pin">TBD-5</span> Reorder de stages enquanto outra versão está em uso: bloqueia drag até "Publicar v2.3" ou força auto-fork imediato?</li>
+            </ul>
+          </details>
+
+        </section>
 
       </div>
 
@@ -435,147 +352,747 @@ Se houver pendência, **devolver ao solicitante** com explicação textual.
   </div>
 </div>
 
-<!-- ============ MODAL IA STAGES ============ -->
-<div id="ia-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
-  <div class="modal-overlay absolute inset-0" onclick="closeIaModal()"></div>
-
-  <div class="relative bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-
-    <!-- HEADER IA -->
-    <div class="px-6 py-5 border-b border-[#E5E7EB] card-ia">
-      <div class="flex items-start justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-dms-sabedoria/10 flex items-center justify-center">
-            <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          </div>
-          <div>
-            <h3 class="text-lg font-bold text-dms-mar">Assistente IA — Stages a partir desta SOP</h3>
-            <p class="text-xs text-dms-tecnologia mt-0.5">Prompt visível e editável · audit registra cada geração (RN-SOP-21)</p>
-          </div>
-        </div>
-        <button onclick="closeIaModal()" class="p-1 text-dms-tecnologia hover:text-dms-mar hover:bg-white rounded transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
+<!-- ============== MODAL: HISTÓRICO DE VERSÕES ============== -->
+<div id="modal-history" class="modal-backdrop" onclick="if(event.target===this) closeHistoryModal()">
+  <div class="modal-card modal-card-lg">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between sticky top-0 bg-white rounded-t-xl z-10">
+      <div>
+        <h2 class="text-lg font-bold text-dms-mar">Histórico de versões — Recepção NFE</h2>
+        <p class="text-xs text-dms-tecnologia mt-0.5">SOPs publicadas são imutáveis. Cada versão preserva execuções históricas reprodutíveis.</p>
       </div>
+      <button onclick="closeHistoryModal()" class="text-dms-tecnologia hover:text-dms-mar p-1.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
     </div>
 
-    <!-- BODY scrollável -->
-    <div class="overflow-y-auto flex-1 p-6 space-y-5">
+    <div class="p-6 space-y-3">
 
-      <!-- Prompt gerado/editável -->
-      <div>
-        <div class="flex items-center justify-between mb-2">
-          <h4 class="caption text-dms-tecnologia">Prompt gerado pela IA</h4>
-          <span class="caption text-dms-sabedoria">EDITÁVEL</span>
+      <!-- Versão atual: v2.2 -->
+      <div class="version-row current">
+        <div class="flex-shrink-0 w-14 text-center">
+          <div class="mono font-bold text-dms-mar text-lg">v2.2</div>
+          <span class="caption text-dms-tropicalidade">atual</span>
         </div>
-        <textarea class="md-editor w-full h-32 border border-[#E5E7EB] rounded-md p-4 bg-[#F8F9FA] text-dms-mar focus:border-dms-ceu focus:bg-white">Analisar SOP-001 "Como aprovar uma requisição como Diretor":
-- Fluxo de aprovação financeira com checklist obrigatório
-- Validação de saldo orçamentário (@compras_budget_saldo_disponivel)
-- Decisão binária (aprovar/escalar/devolver)
-- Escalation por alçada se valor exceder limite_diretor
-- Audit log perpétuo (SOX 7 anos)
-
-Sugerir stages do catálogo Default + novos stages quando não houver match.</textarea>
-        <div class="flex items-center gap-2 mt-2">
-          <button class="text-xs font-semibold text-dms-confianca hover:text-dms-mar transition-colors">↺ Restaurar prompt original</button>
-          <span class="text-dms-tecnologia text-xs">·</span>
-          <button class="text-xs font-semibold text-dms-sabedoria hover:opacity-80 transition-opacity flex items-center gap-1">
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold text-dms-mar">+1 stage adicionado (Detectar duplicidade)</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">10/05/2026 · Camila Reis · 8 stages</div>
+          <div class="text-xs text-dms-confianca mt-1 flex items-center gap-1">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-            Re-gerar com prompt editado
-          </button>
+            <strong>5 workflows</strong> usando agora
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <button onclick="compareVersions('v2.2', 'v2.1')" class="text-xs font-semibold text-dms-confianca px-3 py-1.5 hover:bg-dms-ceu/10 rounded-md transition-colors">Comparar →</button>
         </div>
       </div>
 
-      <!-- Stages sugeridos -->
-      <div>
-        <h4 class="caption text-dms-tecnologia mb-3">Stages sugeridos <span class="text-dms-mar">(6)</span></h4>
-        <div class="space-y-2" id="stages-list">
-          <!-- gerados via JS -->
+      <!-- v2.1 -->
+      <div class="version-row">
+        <div class="flex-shrink-0 w-14 text-center">
+          <div class="mono font-bold text-dms-tecnologia text-base">v2.1</div>
         </div>
-        <div class="flex items-center gap-2 mt-3 pt-3 border-t border-[#E5E7EB]">
-          <button onclick="acceptAll()" class="text-xs font-semibold text-dms-tropicalidade-dark hover:text-dms-mar transition-colors">✓ Aceitar todos</button>
-          <span class="text-dms-tecnologia text-xs">·</span>
-          <button onclick="rejectAll()" class="text-xs font-semibold text-dms-tecnologia hover:text-red-600 transition-colors">✕ Rejeitar todos</button>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold text-dms-mar">Ajuste no trigger de quarentena</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">22/04/2026 · Fernando Arruda · 7 stages</div>
+          <div class="text-xs text-dms-tecnologia mt-1">
+            <strong>2 workflows</strong> ainda usando (histórico)
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <button onclick="compareVersions('v2.1', 'v2.0')" class="text-xs font-semibold text-dms-confianca px-3 py-1.5 hover:bg-dms-ceu/10 rounded-md transition-colors">Comparar →</button>
         </div>
       </div>
 
-      <!-- Aviso governance -->
-      <div class="bg-[rgba(0,174,238,0.05)] border border-[rgba(0,174,238,0.2)] rounded-lg p-4 flex gap-3">
-        <svg class="w-5 h-5 text-dms-confianca flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <div class="text-sm text-dms-mar leading-relaxed">
-          <strong>Stages "novos sugeridos"</strong> são cadastrados na Biblioteca Default ANTES de entrar em workflow (P12 — Reuse before rebuild). Compliance NUNCA é criada pela IA (governança SOX). Audit log registra cada decisão (RN-SOP-21).
+      <!-- v2.0 -->
+      <div class="version-row">
+        <div class="flex-shrink-0 w-14 text-center">
+          <div class="mono font-bold text-dms-tecnologia text-base">v2.0</div>
         </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold text-dms-mar">Major: integração SEFAZ + assinatura XML</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">15/03/2026 · Camila Reis · 7 stages</div>
+          <div class="text-xs text-dms-tecnologia mt-1">
+            <strong>1 workflow</strong> ainda usando (auditoria 2025)
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <button onclick="compareVersions('v2.0', 'v1.1')" class="text-xs font-semibold text-dms-confianca px-3 py-1.5 hover:bg-dms-ceu/10 rounded-md transition-colors">Comparar →</button>
+        </div>
+      </div>
+
+      <!-- v1.1 -->
+      <div class="version-row">
+        <div class="flex-shrink-0 w-14 text-center">
+          <div class="mono font-bold text-dms-tecnologia text-base">v1.1</div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold text-dms-mar">Refino de validação de CNPJ fornecedor</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">08/02/2026 · Camila Reis · 5 stages</div>
+          <div class="text-xs text-dms-tecnologia mt-1">Sem uso ativo · arquivada</div>
+        </div>
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <button onclick="compareVersions('v1.1', 'v1.0')" class="text-xs font-semibold text-dms-confianca px-3 py-1.5 hover:bg-dms-ceu/10 rounded-md transition-colors">Comparar →</button>
+        </div>
+      </div>
+
+      <!-- v1.0 -->
+      <div class="version-row">
+        <div class="flex-shrink-0 w-14 text-center">
+          <div class="mono font-bold text-dms-tecnologia text-base">v1.0</div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold text-dms-mar">Inicial: recepção manual de NFE</div>
+          <div class="text-xs text-dms-tecnologia mt-0.5">01/01/2026 · Fernando Arruda · 4 stages</div>
+          <div class="text-xs text-dms-tecnologia mt-1">Sem uso ativo · arquivada</div>
+        </div>
+        <div class="flex items-center gap-1.5 flex-shrink-0">
+          <span class="text-xs text-dms-tecnologia px-3 py-1.5">primeira versão</span>
+        </div>
+      </div>
+
+      <!-- Aviso TBD -->
+      <div class="mt-2 p-3 bg-[#FFFBEB] border border-[#FDE68A] rounded-md text-xs text-[#854D0E] flex gap-2">
+        <span class="tbd-pin flex-shrink-0">TBD-4</span>
+        Visualização de diff (Comparar) — lado a lado vs unified diff a definir. Por ora abre toast.
       </div>
 
     </div>
 
-    <!-- FOOTER -->
-    <div class="px-6 py-4 bg-[#F8F9FA] border-t border-[#E5E7EB] flex items-center justify-end gap-3">
-      <button onclick="closeIaModal()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 hover:text-dms-mar transition-colors" data-i18n="btn.cancel">Cancelar</button>
-      <button class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Aplicar stages aceitos</button>
+    <div class="px-6 py-3 border-t border-[#E5E7EB] flex justify-end gap-2 sticky bottom-0 bg-white rounded-b-xl">
+      <button onclick="closeHistoryModal()" class="px-4 py-2 text-sm text-dms-mar hover:bg-[#F8F9FA] rounded-md transition-colors">Fechar</button>
     </div>
-
   </div>
 </div>
 
+<!-- ============== MODAL: PUBLICAR NOVA VERSÃO ============== -->
+<div id="modal-publish" class="modal-backdrop" onclick="if(event.target===this) closePublishModal()">
+  <div class="modal-card" style="max-width:540px;">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-dms-sabedoria/10 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-dms-mar">Publicar nova versão?</h2>
+          <p class="text-xs text-dms-tecnologia mt-0.5">Esta ação é registrada no audit trail.</p>
+        </div>
+      </div>
+      <button onclick="closePublishModal()" class="text-dms-tecnologia hover:text-dms-mar p-1.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-4">
+
+      <div class="bg-dms-mar/5 border border-dms-mar/15 rounded-md p-4">
+        <div class="text-sm text-dms-mar leading-relaxed">
+          Esta ação criará a <strong class="mono">v2.3</strong> da SOP <strong>Recepção NFE</strong>.
+        </div>
+        <div class="text-sm text-dms-mar leading-relaxed mt-2">
+          Os <strong>5 workflows</strong> que usam <span class="mono">v2.2</span> continuam com a <span class="mono">v2.2</span> (imutável).
+          Novos workflows que referenciarem esta SOP vão pegar a <span class="mono">v2.3</span> automaticamente.
+        </div>
+      </div>
+
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">Mensagem da versão <span class="text-red-500">*</span></label>
+        <textarea rows="3" placeholder="Ex.: +1 stage de validação fiscal, ajuste no trigger de quarentena..." class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md">Adicionado stage de detecção de duplicidade por chave de acesso. Refino do trigger de quarentena para incluir divergência de competência.</textarea>
+        <p class="text-[11px] text-dms-tecnologia mt-1">Aparece no histórico de versões e no audit trail.</p>
+      </div>
+
+      <label class="flex items-start gap-2 text-sm text-dms-mar cursor-pointer">
+        <input type="checkbox" checked class="mt-0.5 accent-dms-mar">
+        <span>Notificar operadores dos 5 workflows ativos (card UPDATE no cockpit · RN-SOP-11)</span>
+      </label>
+
+    </div>
+
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-3 bg-[#F8F9FA] rounded-b-xl">
+      <button onclick="closePublishModal()" class="px-4 py-2 text-sm text-dms-mar hover:bg-white rounded-md transition-colors">Cancelar</button>
+      <button onclick="confirmPublish()" class="px-5 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        Confirmar publicação
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== MODAL: STAGE TRIGGER EDITOR (absorvido de tela08) ============== -->
+<div id="modal-trigger" class="modal-backdrop" onclick="if(event.target===this) closeTriggerModal()">
+  <div class="modal-card modal-card-lg">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between sticky top-0 bg-white rounded-t-xl z-10">
+      <div>
+        <h2 class="text-lg font-bold text-dms-mar" id="trigger-modal-title">Configurar trigger</h2>
+        <p class="text-xs text-dms-tecnologia mt-0.5">Sub-componente absorvido da antiga tela08 — agora vive dentro do editor de SOP.</p>
+      </div>
+      <button onclick="closeTriggerModal()" class="text-dms-tecnologia hover:text-dms-mar p-1.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-5">
+
+      <!-- Tipo do trigger -->
+      <div>
+        <label class="caption text-dms-tecnologia mb-2 block">Tipo do trigger <span class="text-red-500">*</span></label>
+        <div class="grid grid-cols-3 gap-2">
+          <label class="border border-[#E5E7EB] rounded-md p-3 cursor-pointer hover:border-dms-confianca transition-colors has-[:checked]:border-dms-confianca has-[:checked]:bg-dms-ceu/5">
+            <input type="radio" name="trigger-type" value="stage" checked class="sr-only">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="trigger-type-pill pill-stage">STAGE</span>
+            </div>
+            <div class="text-xs text-dms-tecnologia">Disparado quando outro stage atinge um status.</div>
+          </label>
+          <label class="border border-[#E5E7EB] rounded-md p-3 cursor-pointer hover:border-dms-confianca transition-colors has-[:checked]:border-dms-confianca has-[:checked]:bg-dms-ceu/5">
+            <input type="radio" name="trigger-type" value="time" class="sr-only">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="trigger-type-pill pill-time">TIME</span>
+            </div>
+            <div class="text-xs text-dms-tecnologia">Cron ou delay relativo (D+N).</div>
+          </label>
+          <label class="border border-[#E5E7EB] rounded-md p-3 cursor-pointer hover:border-dms-confianca transition-colors has-[:checked]:border-dms-confianca has-[:checked]:bg-dms-ceu/5">
+            <input type="radio" name="trigger-type" value="event" class="sr-only">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="trigger-type-pill pill-event">EVENT</span>
+            </div>
+            <div class="text-xs text-dms-tecnologia">Webhook externo ou evento interno.</div>
+          </label>
+        </div>
+      </div>
+
+      <!-- WHEN (condição) -->
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">When (condição)</label>
+        <div class="bg-[#F8F9FA] border-l-[3px] border-dms-ceu rounded-md p-3">
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <select class="input-dms w-full px-2.5 py-1.5 text-sm border border-[#E5E7EB] rounded-md bg-white">
+              <option>Stage: Validar XML</option>
+              <option>Stage: Conferir fornecedor</option>
+              <option>Stage: Confirmar valor</option>
+            </select>
+            <select class="input-dms w-full px-2.5 py-1.5 text-sm border border-[#E5E7EB] rounded-md bg-white">
+              <option>atingir status</option>
+              <option>falhar com</option>
+              <option>exceder SLA</option>
+            </select>
+          </div>
+          <select class="input-dms w-full px-2.5 py-1.5 text-sm border border-[#E5E7EB] rounded-md bg-white">
+            <option>concluído</option>
+            <option>aprovado</option>
+            <option>rejeitado</option>
+            <option>em quarentena</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- THEN (ação) -->
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">Then (ação)</label>
+        <div class="bg-[rgba(176,201,52,0.05)] border-l-[3px] border-dms-tropicalidade rounded-md p-3 space-y-2">
+          <div class="grid grid-cols-2 gap-2">
+            <select class="input-dms w-full px-2.5 py-1.5 text-sm border border-[#E5E7EB] rounded-md bg-white">
+              <option>Start Stage</option>
+              <option>Update</option>
+              <option>Invoke Action</option>
+              <option>Set Tag</option>
+            </select>
+            <select class="input-dms w-full px-2.5 py-1.5 text-sm border border-[#E5E7EB] rounded-md bg-white">
+              <option>Stage: Confirmar valor com pedido</option>
+              <option>Stage: Detectar duplicidade</option>
+              <option>Stage: Atualizar Omie</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview narrativo -->
+      <div class="bg-white border border-[#E5E7EB] rounded-md p-3">
+        <div class="caption text-dms-tecnologia mb-1.5">Preview narrativo</div>
+        <p class="text-sm text-dms-mar leading-relaxed">
+          Quando <strong>Validar XML</strong> atingir status <span class="mono px-1.5 py-0.5 bg-dms-ceu/15 text-dms-confianca rounded">concluído</span>, então <span class="font-semibold text-dms-tropicalidade">iniciar</span> stage <strong>Confirmar valor com pedido</strong>.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="px-6 py-3 border-t border-[#E5E7EB] flex justify-end gap-2 bg-[#F8F9FA] rounded-b-xl">
+      <button onclick="closeTriggerModal()" class="px-4 py-2 text-sm text-dms-mar hover:bg-white rounded-md transition-colors">Cancelar</button>
+      <button onclick="saveTrigger()" class="px-5 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Salvar trigger</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- ============== DATA & LOGIC ============== -->
 <script>
+// ============ MOCK DATA ============
 const STAGES = [
-  { id: 's1', name: 'Receber Requisição', source: 'catalogo', desc: 'Stage existente · usado em 12 workflows', accepted: true },
-  { id: 's2', name: 'Validar Saldo Orçamentário', source: 'catalogo', desc: 'Stage existente · usado em 8 workflows', accepted: true },
-  { id: 's3', name: 'Aprovar como Diretor', source: 'catalogo', desc: 'Stage existente · usado em 5 workflows', accepted: true },
-  { id: 's4', name: 'Devolver com Explicação Textual', source: 'novo', desc: 'Sugerido pela IA · será cadastrado na Biblioteca', accepted: true },
-  { id: 's5', name: 'Escalar para C-Level (alçada excedida)', source: 'catalogo', desc: 'Stage existente · usado em 3 workflows', accepted: true },
-  { id: 's6', name: 'Registrar Decisão no Audit Log', source: 'novo', desc: 'Sugerido pela IA · será cadastrado na Biblioteca', accepted: true },
+  {
+    id: 's1', nome: 'Validar XML (assinatura, schema, SEFAZ)', tipo: 'default',
+    triggers: [
+      { tipo: 'event', when: 'webhook NFE recebido', then: 'Iniciar este stage', target: 'self' },
+    ],
+    procedures: ['Schema validator XML 4.0', 'SEFAZ check digital signature'],
+    agentes: ['NFE-Validator-AI'],
+    alertas: ['Falha de assinatura → Camila Reis'],
+    sla: '5 min',
+  },
+  {
+    id: 's2', nome: 'Conferir dados do fornecedor (CNPJ x cadastro)', tipo: 'default',
+    triggers: [
+      { tipo: 'stage', when: 'Validar XML concluído', then: 'Start Stage', target: 'self' },
+    ],
+    procedures: ['Match CNPJ no cadastro de fornecedores'],
+    agentes: [],
+    alertas: ['CNPJ não cadastrado → quarentena'],
+    sla: '2 min',
+  },
+  {
+    id: 's3', nome: 'Confirmar valor com pedido vinculado', tipo: 'default',
+    triggers: [
+      { tipo: 'stage', when: 'Conferir fornecedor concluído', then: 'Start Stage', target: 'self' },
+      { tipo: 'stage', when: 'Divergência > 5%', then: 'Set Tag', target: 'quarentena' },
+    ],
+    procedures: ['Match valor x pedido (tolerância 5%)'],
+    agentes: [],
+    alertas: [],
+    sla: '3 min',
+  },
+  {
+    id: 's4', nome: 'Checar centro de custo e plano de contas', tipo: 'default',
+    triggers: [
+      { tipo: 'stage', when: 'Confirmar valor concluído', then: 'Start Stage', target: 'self' },
+    ],
+    procedures: ['Resolver CC a partir do pedido'],
+    agentes: [],
+    alertas: [],
+    sla: '1 min',
+  },
+  {
+    id: 's5', nome: 'Validar competência fiscal', tipo: 'condicional',
+    triggers: [
+      { tipo: 'stage', when: 'Checar CC concluído', then: 'Start Stage', target: 'self' },
+      { tipo: 'event', when: 'mês fiscal fechado', then: 'Invoke Action', target: 'rejeitar-competencia' },
+    ],
+    procedures: ['Validar competência vs período aberto'],
+    agentes: [],
+    alertas: ['Competência fechada → Roberta Costa'],
+    sla: '1 min',
+  },
+  {
+    id: 's6', nome: 'Detectar duplicidade (chave de acesso)', tipo: 'default',
+    triggers: [
+      { tipo: 'stage', when: 'Competência válida', then: 'Start Stage', target: 'self' },
+      { tipo: 'stage', when: 'Chave duplicada encontrada', then: 'Set Tag', target: 'duplicada' },
+    ],
+    procedures: ['Buscar chave de 44 dígitos no banco'],
+    agentes: ['Dup-Detector'],
+    alertas: ['Duplicidade → quarentena + e-mail fornecedor'],
+    sla: '30s',
+  },
+  {
+    id: 's7', nome: 'Atualizar status no Omie', tipo: 'default',
+    triggers: [
+      { tipo: 'stage', when: 'Detectar duplicidade concluído sem flag', then: 'Start Stage', target: 'self' },
+    ],
+    procedures: ['POST /omie/notas/atualizar-status'],
+    agentes: [],
+    alertas: ['Erro Omie 5xx → retry x3'],
+    sla: '5 min',
+  },
+  {
+    id: 's8', nome: 'Liberar para pagamento (D+N)', tipo: 'condicional',
+    triggers: [
+      { tipo: 'stage', when: 'Atualizar Omie concluído', then: 'Start Stage', target: 'self' },
+      { tipo: 'time', when: 'D+30 da emissão', then: 'Invoke Action', target: 'agendar-pagamento' },
+    ],
+    procedures: ['Calcular vencimento conforme condição de pagamento'],
+    agentes: [],
+    alertas: ['D-3 do vencimento → Roberta Costa'],
+    sla: '—',
+  },
 ];
 
+const TIPO_BADGE_CLASS = {
+  default: 'badge-default',
+  condicional: 'badge-cond',
+  loop: 'badge-loop',
+};
+const TIPO_LABEL = {
+  default: 'Default',
+  condicional: 'Condicional',
+  loop: 'Loop',
+};
+const TRIGGER_PILL = {
+  stage: { cls: 'pill-stage', label: 'STAGE' },
+  time:  { cls: 'pill-time',  label: 'TIME' },
+  event: { cls: 'pill-event', label: 'EVENT' },
+};
+const TRIGGER_TYPE_LABEL = {
+  stage: 'Stage Trigger',
+  time:  'Time Trigger',
+  event: 'Event Trigger',
+};
+
+// ============ RENDER STAGES ============
 function renderStages() {
-  const list = document.getElementById('stages-list');
-  list.innerHTML = STAGES.map((s, i) => `
-    <div class="stage-card ${s.accepted ? 'accepted' : 'rejected'} border rounded-lg p-3 flex items-center gap-3" id="stage-${s.id}">
-      <div class="flex items-center justify-center w-7 h-7 rounded-full ${s.source === 'novo' ? 'bg-dms-sabedoria/10 text-dms-sabedoria' : 'bg-dms-ceu/10 text-dms-confianca'} font-semibold text-xs mono flex-shrink-0">${i+1}</div>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="font-semibold text-dms-mar text-sm">${s.name}</span>
-          ${s.source === 'novo'
-            ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-dms-sabedoria/15 text-dms-sabedoria">novo</span>`
-            : `<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-dms-ceu/15 text-dms-confianca">catálogo</span>`
-          }
+  const container = document.getElementById('stages-container');
+  const empty = document.getElementById('empty-state');
+  const addBtn = document.getElementById('add-stage-btn');
+
+  if (!STAGES.length) {
+    container.innerHTML = '';
+    empty.classList.remove('hidden');
+    addBtn.classList.add('hidden');
+  } else {
+    empty.classList.add('hidden');
+    addBtn.classList.remove('hidden');
+    container.innerHTML = STAGES.map((s, idx) => renderStageCard(s, idx)).join('');
+    bindDragHandlers();
+  }
+
+  document.getElementById('stage-counter').textContent = STAGES.length;
+}
+
+function renderStageCard(s, idx) {
+  const opened = idx < 2; // primeiros 2 abertos por padrão
+  return `
+    <details class="stage-card bg-white border border-[#E5E7EB] rounded-lg" data-stage-id="${s.id}" ${opened ? 'open' : ''} draggable="true">
+      <summary class="px-4 py-3 flex items-center gap-3">
+        <span class="drag-handle flex-shrink-0" title="Arraste para reordenar">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M7 4a1 1 0 110-2 1 1 0 010 2zm0 4a1 1 0 110-2 1 1 0 010 2zm0 4a1 1 0 110-2 1 1 0 010 2zm0 4a1 1 0 110-2 1 1 0 010 2zm6-12a1 1 0 110-2 1 1 0 010 2zm0 4a1 1 0 110-2 1 1 0 010 2zm0 4a1 1 0 110-2 1 1 0 010 2zm0 4a1 1 0 110-2 1 1 0 010 2z"/></svg>
+        </span>
+        <div class="flex items-center justify-center w-7 h-7 rounded-full bg-dms-mar/10 text-dms-mar mono font-bold text-xs flex-shrink-0">${idx + 1}</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-semibold text-dms-mar text-sm">${s.nome}</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${TIPO_BADGE_CLASS[s.tipo]}">${TIPO_LABEL[s.tipo]}</span>
+            ${s.triggers.length ? `<span class="text-[11px] text-dms-tecnologia">· ${s.triggers.length} trigger${s.triggers.length>1?'s':''}</span>` : ''}
+          </div>
         </div>
-        <div class="text-xs text-dms-tecnologia mt-0.5">${s.desc}</div>
+        <div class="flex items-center gap-1 flex-shrink-0">
+          <button onclick="event.preventDefault(); moveStage('${s.id}', -1)" class="p-1 text-dms-tecnologia hover:text-dms-mar rounded" title="Mover para cima">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+          </button>
+          <button onclick="event.preventDefault(); moveStage('${s.id}', 1)" class="p-1 text-dms-tecnologia hover:text-dms-mar rounded" title="Mover para baixo">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <svg class="chev w-4 h-4 text-dms-tecnologia ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+        </div>
+      </summary>
+
+      <div class="border-t border-[#E5E7EB] p-5 space-y-4 bg-[#FCFCFD]">
+
+        <!-- Nome + Tipo -->
+        <div class="grid grid-cols-3 gap-3">
+          <div class="col-span-2">
+            <label class="caption text-dms-tecnologia mb-1 block">Nome do stage</label>
+            <input type="text" value="${escapeHtml(s.nome)}" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md">
+          </div>
+          <div>
+            <label class="caption text-dms-tecnologia mb-1 block">Tipo</label>
+            <select class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option value="default" ${s.tipo==='default'?'selected':''}>Default</option>
+              <option value="condicional" ${s.tipo==='condicional'?'selected':''}>Condicional</option>
+              <option value="loop" ${s.tipo==='loop'?'selected':''}>Loop</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- TRIGGERS (sub-componente tela08) -->
+        <div class="border border-dms-ceu/30 rounded-md bg-dms-ceu/5 p-3">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-dms-confianca" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              <span class="caption text-dms-mar font-semibold">Triggers</span>
+              <span class="text-[11px] text-dms-tecnologia">(absorvido de tela08)</span>
+            </div>
+            <button onclick="openTriggerModal('${s.id}', null)" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+              Adicionar trigger
+            </button>
+          </div>
+          <div class="space-y-2">
+            ${s.triggers.length ? s.triggers.map((t, ti) => `
+              <div class="trigger-row" onclick="openTriggerModal('${s.id}', ${ti})">
+                <span class="trigger-type-pill ${TRIGGER_PILL[t.tipo].cls}">${TRIGGER_PILL[t.tipo].label}</span>
+                <div class="flex-1 min-w-0 text-dms-mar">
+                  <span class="text-dms-tecnologia text-xs">When:</span> <strong>${escapeHtml(t.when)}</strong>
+                  <span class="text-dms-tecnologia mx-1.5">→</span>
+                  <span class="text-dms-tecnologia text-xs">Then:</span> <strong class="text-dms-tropicalidade">${escapeHtml(t.then)}</strong>
+                  ${t.target !== 'self' ? `<span class="text-dms-tecnologia text-xs ml-1">(${escapeHtml(t.target)})</span>` : ''}
+                </div>
+                <button onclick="event.stopPropagation(); removeTrigger('${s.id}', ${ti})" class="text-dms-tecnologia hover:text-red-600 p-1" title="Remover">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+            `).join('') : `<p class="text-xs text-dms-tecnologia italic text-center py-2">Sem triggers. Clique em "Adicionar trigger" para configurar.</p>`}
+          </div>
+        </div>
+
+        <!-- Procedures + Agentes + Alertas (compacto) -->
+        <div class="grid grid-cols-3 gap-3">
+
+          <div class="border border-[#E5E7EB] rounded-md p-3">
+            <div class="flex items-center justify-between mb-2">
+              <span class="caption text-dms-tecnologia font-semibold">Procedures</span>
+              <button onclick="addProcedure('${s.id}')" class="text-dms-confianca hover:text-dms-mar text-xs">+</button>
+            </div>
+            ${s.procedures.length ? `<ul class="space-y-1">${s.procedures.map(p => `<li class="text-xs text-dms-mar flex items-start gap-1.5"><span class="text-dms-tecnologia">•</span><span>${escapeHtml(p)}</span></li>`).join('')}</ul>` : `<p class="text-[11px] text-dms-tecnologia italic">Sem procedures.</p>`}
+          </div>
+
+          <div class="border border-[#E5E7EB] rounded-md p-3">
+            <div class="flex items-center justify-between mb-2">
+              <span class="caption text-dms-tecnologia font-semibold flex items-center gap-1">
+                <svg class="w-3 h-3 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                Agentes IA
+              </span>
+              <button onclick="addAgente('${s.id}')" class="text-dms-confianca hover:text-dms-mar text-xs">+</button>
+            </div>
+            ${s.agentes.length ? `<ul class="space-y-1">${s.agentes.map(a => `<li class="text-xs text-dms-sabedoria mono flex items-start gap-1.5"><span>🤖</span><span>${escapeHtml(a)}</span></li>`).join('')}</ul>` : `<p class="text-[11px] text-dms-tecnologia italic">Sem agentes.</p>`}
+          </div>
+
+          <div class="border border-[#E5E7EB] rounded-md p-3">
+            <div class="flex items-center justify-between mb-2">
+              <span class="caption text-dms-tecnologia font-semibold flex items-center gap-1">
+                <svg class="w-3 h-3 text-[#EAB308]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                Alertas
+              </span>
+              <button onclick="addAlerta('${s.id}')" class="text-dms-confianca hover:text-dms-mar text-xs">+</button>
+            </div>
+            ${s.alertas.length ? `<ul class="space-y-1">${s.alertas.map(a => `<li class="text-xs text-[#854D0E] flex items-start gap-1.5"><span>⚠</span><span>${escapeHtml(a)}</span></li>`).join('')}</ul>` : `<p class="text-[11px] text-dms-tecnologia italic">Sem alertas.</p>`}
+          </div>
+
+        </div>
+
+        <!-- SLA / Escalation -->
+        <div class="grid grid-cols-2 gap-3 pt-2 border-t border-[#E5E7EB]">
+          <div>
+            <label class="caption text-dms-tecnologia mb-1 block">SLA</label>
+            <input type="text" value="${s.sla}" class="input-dms w-full px-3 py-1.5 text-sm border border-[#E5E7EB] rounded-md">
+          </div>
+          <div>
+            <label class="caption text-dms-tecnologia mb-1 block">Escalation</label>
+            <input type="text" placeholder="ex.: após 2× SLA → gerente" class="input-dms w-full px-3 py-1.5 text-sm border border-[#E5E7EB] rounded-md">
+          </div>
+        </div>
+
+        <!-- Footer ações -->
+        <div class="pt-3 border-t border-[#E5E7EB] flex items-center justify-end gap-2">
+          <button onclick="duplicateStage('${s.id}')" class="text-xs font-semibold text-dms-confianca hover:text-dms-mar px-3 py-1.5 flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            Duplicar stage
+          </button>
+          <button onclick="deleteStage('${s.id}')" class="text-xs font-semibold text-red-700 hover:bg-red-50 px-3 py-1.5 rounded flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Excluir stage
+          </button>
+        </div>
+
       </div>
-      <div class="flex items-center gap-1 flex-shrink-0">
-        <button onclick="toggleStage('${s.id}')" class="p-2 ${s.accepted ? 'text-dms-tropicalidade hover:bg-dms-tropicalidade/10' : 'text-dms-tecnologia hover:bg-[#F8F9FA]'} rounded transition-colors" title="${s.accepted ? 'Aceito — clique pra rejeitar' : 'Rejeitado — clique pra aceitar'}">
-          ${s.accepted
-            ? `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>`
-            : `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`
-          }
-        </button>
-      </div>
-    </div>
-  `).join('');
+    </details>
+  `;
 }
 
-function toggleStage(id) {
-  const s = STAGES.find(x => x.id === id);
-  if (s) { s.accepted = !s.accepted; renderStages(); }
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-function acceptAll() { STAGES.forEach(s => s.accepted = true); renderStages(); }
-function rejectAll() { STAGES.forEach(s => s.accepted = false); renderStages(); }
+// ============ DRAG & DROP REORDER ============
+let dragSrcId = null;
 
-function openIaModal() {
-  document.getElementById('ia-modal').classList.remove('hidden');
-  document.getElementById('ia-modal').classList.add('flex');
-  document.body.style.overflow = 'hidden';
-}
-function closeIaModal() {
-  document.getElementById('ia-modal').classList.add('hidden');
-  document.getElementById('ia-modal').classList.remove('flex');
-  document.body.style.overflow = '';
+function bindDragHandlers() {
+  document.querySelectorAll('details.stage-card').forEach(el => {
+    el.addEventListener('dragstart', (e) => {
+      dragSrcId = el.getAttribute('data-stage-id');
+      el.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    el.addEventListener('dragend', () => {
+      el.classList.remove('dragging');
+      dragSrcId = null;
+    });
+    el.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+    });
+    el.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const targetId = el.getAttribute('data-stage-id');
+      if (dragSrcId && dragSrcId !== targetId) reorderStages(dragSrcId, targetId);
+    });
+  });
 }
 
+function reorderStages(srcId, targetId) {
+  const srcIdx = STAGES.findIndex(s => s.id === srcId);
+  const tgtIdx = STAGES.findIndex(s => s.id === targetId);
+  if (srcIdx < 0 || tgtIdx < 0) return;
+  const [moved] = STAGES.splice(srcIdx, 1);
+  STAGES.splice(tgtIdx, 0, moved);
+  renderStages();
+  showToast(`Stage "${moved.nome}" movido para posição ${tgtIdx + 1}`);
+}
+
+function moveStage(id, dir) {
+  const idx = STAGES.findIndex(s => s.id === id);
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= STAGES.length) return;
+  const [moved] = STAGES.splice(idx, 1);
+  STAGES.splice(newIdx, 0, moved);
+  renderStages();
+  showToast(`Stage movido para posição ${newIdx + 1}`);
+}
+
+// ============ STAGE CRUD ============
+function addStage() {
+  const id = 's' + Date.now();
+  STAGES.push({
+    id, nome: 'Novo stage', tipo: 'default',
+    triggers: [], procedures: [], agentes: [], alertas: [], sla: '—',
+  });
+  renderStages();
+  showToast('Stage adicionado — configure nome, triggers e procedures');
+  // Scrollar até o novo card
+  setTimeout(() => {
+    const el = document.querySelector(`[data-stage-id="${id}"]`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+}
+
+function duplicateStage(id) {
+  const idx = STAGES.findIndex(s => s.id === id);
+  if (idx < 0) return;
+  const orig = STAGES[idx];
+  const clone = JSON.parse(JSON.stringify(orig));
+  clone.id = 's' + Date.now();
+  clone.nome = orig.nome + ' (cópia)';
+  STAGES.splice(idx + 1, 0, clone);
+  renderStages();
+  showToast(`Stage "${orig.nome}" duplicado`);
+}
+
+function deleteStage(id) {
+  const idx = STAGES.findIndex(s => s.id === id);
+  if (idx < 0) return;
+  if (!confirm(`Remover o stage "${STAGES[idx].nome}"?`)) return;
+  const removed = STAGES.splice(idx, 1)[0];
+  renderStages();
+  showToast(`Stage "${removed.nome}" removido`);
+}
+
+function expandAll() {
+  document.querySelectorAll('details.stage-card').forEach(el => el.open = true);
+  showToast('Todos os stages expandidos');
+}
+function collapseAll() {
+  document.querySelectorAll('details.stage-card').forEach(el => el.open = false);
+  showToast('Todos os stages colapsados');
+}
+
+// ============ TRIGGERS ============
+let triggerCtx = { stageId: null, triggerIdx: null };
+
+function openTriggerModal(stageId, triggerIdx) {
+  triggerCtx = { stageId, triggerIdx };
+  const s = STAGES.find(x => x.id === stageId);
+  const title = triggerIdx === null ? `Novo trigger — ${s.nome}` : `Editar trigger — ${s.nome}`;
+  document.getElementById('trigger-modal-title').textContent = title;
+  document.getElementById('modal-trigger').classList.add('open');
+}
+function closeTriggerModal() {
+  document.getElementById('modal-trigger').classList.remove('open');
+}
+function saveTrigger() {
+  const { stageId, triggerIdx } = triggerCtx;
+  const s = STAGES.find(x => x.id === stageId);
+  if (!s) return closeTriggerModal();
+  const fakeTrigger = { tipo: 'stage', when: 'Stage anterior concluído', then: 'Start Stage', target: 'self' };
+  if (triggerIdx === null) s.triggers.push(fakeTrigger);
+  else s.triggers[triggerIdx] = fakeTrigger;
+  closeTriggerModal();
+  renderStages();
+  showToast(triggerIdx === null ? 'Trigger adicionado' : 'Trigger atualizado');
+}
+function removeTrigger(stageId, idx) {
+  const s = STAGES.find(x => x.id === stageId);
+  if (!s) return;
+  s.triggers.splice(idx, 1);
+  renderStages();
+  showToast('Trigger removido');
+}
+
+// ============ PROCEDURES / AGENTES / ALERTAS (placeholders) ============
+function addProcedure(stageId) { showToast('TBD-2 · Adicionar procedure inline ou modal?'); }
+function addAgente(stageId)    { showToast('TBD-2 · Adicionar agente IA inline ou modal?'); }
+function addAlerta(stageId)    { showToast('TBD-2 · Adicionar alerta inline ou modal?'); }
+
+// ============ TAGS ============
+function removeTag(tag, ev) {
+  ev.preventDefault(); ev.stopPropagation();
+  const chip = ev.currentTarget.closest('span');
+  if (chip) chip.remove();
+  showToast(`Tag "${tag}" removida`);
+}
+function addTagInline(ev) {
+  if (ev.key !== 'Enter') return;
+  ev.preventDefault();
+  const val = ev.target.value.trim();
+  if (!val) return;
+  const chips = document.getElementById('tag-chips');
+  const newChip = document.createElement('span');
+  newChip.className = 'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-dms-ceu/15 text-dms-confianca';
+  newChip.innerHTML = `${escapeHtml(val)} <button onclick="removeTag('${escapeHtml(val)}', event)" class="hover:text-red-600">×</button>`;
+  chips.appendChild(newChip);
+  ev.target.value = '';
+  showToast(`Tag "${val}" adicionada`);
+}
+
+// ============ AÇÕES SOP ============
+function onSaveDraft() {
+  showToast('Rascunho salvo · v2.2 permanece ativa nos workflows em uso');
+}
+function onDuplicate() {
+  showToast('SOP duplicada · TBD nome do clone abre modal');
+}
+function onArchive() {
+  if (confirm('Arquivar esta SOP? Workflows ativos continuam usando a v2.2 (imutável). Novos workflows não poderão referenciá-la.')) {
+    showToast('SOP arquivada · 5 workflows existentes continuam operando');
+  }
+}
+
+// ============ HISTÓRICO ============
+function openHistoryModal()  { document.getElementById('modal-history').classList.add('open'); }
+function closeHistoryModal() { document.getElementById('modal-history').classList.remove('open'); }
+function compareVersions(a, b) {
+  showToast(`TBD-4 · Diff ${a} vs ${b} — lado a lado ou unified?`);
+}
+
+// ============ PUBLICAR ============
+function openPublishModal()  { document.getElementById('modal-publish').classList.add('open'); }
+function closePublishModal() { document.getElementById('modal-publish').classList.remove('open'); }
+function confirmPublish() {
+  closePublishModal();
+  showToast('v2.3 publicada · 5 workflows seguem em v2.2 (imutável) · novos pegam v2.3');
+}
+
+// ============ TOAST ============
+let toastTimeout;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ============ INIT ============
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeIaModal();
+  if (e.key === 'Escape') {
+    closeHistoryModal(); closePublishModal(); closeTriggerModal();
+  }
 });
 
 renderStages();
