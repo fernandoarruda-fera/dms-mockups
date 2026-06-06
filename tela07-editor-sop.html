@@ -266,6 +266,11 @@ tailwind.config = {
             <svg class="w-4 h-4 sparkle" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-6.714 2.143L12 21l-2.286-6.857L3 12l6.714-2.143L12 3z"/></svg>
             Gerar Stages com IA
           </button>
+          <!-- IA #2 — paridade tela10 -->
+          <button onclick="openValidator()" class="btn-ai" title="Validar a SOP atual (system agent: sop_validator)">
+            <svg class="w-4 h-4 sparkle" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Validar com IA
+          </button>
           <button onclick="onSaveDraft()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">Salvar rascunho</button>
           <button onclick="openPublishModal()" class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors flex items-center gap-1.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
@@ -846,6 +851,92 @@ tailwind.config = {
     </div>
   </div>
 </div>
+
+<!-- ============== PAINEL SLIDE-IN: VALIDAR COM IA (system agent: sop_validator) ============== -->
+<div id="validator-backdrop" class="ai-panel-backdrop" onclick="closeValidator()"></div>
+<aside id="validator-panel" class="ai-panel" aria-label="Validação por IA">
+  <div class="px-5 py-4 border-b border-[#E5E7EB] flex items-center justify-between flex-shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-dms-sabedoria/10 flex items-center justify-center flex-shrink-0">
+        <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <div>
+        <h2 class="text-base font-bold text-dms-mar">Validação por IA</h2>
+        <p class="text-[11px] text-dms-tecnologia mono">system agent: sop_validator</p>
+      </div>
+    </div>
+    <button onclick="closeValidator()" class="text-dms-tecnologia hover:text-dms-mar p-1.5">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <!-- loading -->
+  <div id="val-loading" class="flex-1 flex flex-col items-center justify-center gap-4 p-12 hidden">
+    <div class="ai-spinner"></div>
+    <p class="text-sm font-semibold text-dms-sabedoria">IA analisando a SOP...</p>
+    <p class="text-xs text-dms-tecnologia text-center max-w-xs">Checando responsáveis, SLAs, cobertura de alertas e comparando com SOPs similares.</p>
+  </div>
+
+  <!-- resultado -->
+  <div id="val-result" class="flex-1 overflow-y-auto p-5 space-y-5 hidden">
+
+    <!-- Score -->
+    <div class="flex items-center gap-4 bg-[#F8F9FA] border border-[#E5E7EB] rounded-lg p-4">
+      <div class="score-ring" id="val-score-ring" style="background: conic-gradient(#EAB308 0% 72%, #E5E7EB 72% 100%);">
+        <div class="w-[72px] h-[72px] rounded-full bg-white flex flex-col items-center justify-center">
+          <span class="mono text-2xl font-black leading-none" id="val-score-num" style="color:#854D0E;">72</span>
+          <span class="text-[9px] text-dms-tecnologia uppercase tracking-wide">/100</span>
+        </div>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-bold text-dms-mar" id="val-score-label">Boa, com ressalvas</div>
+        <p class="text-xs text-dms-tecnologia mt-1 leading-relaxed">A SOP é funcional, mas tem <strong class="text-red-600">1 issue crítica</strong> e <strong class="text-[#854D0E]">2 avisos</strong> que valem ajuste antes de publicar.</p>
+      </div>
+    </div>
+
+    <!-- Issues -->
+    <div>
+      <div class="caption text-dms-mar font-semibold mb-2 flex items-center gap-2">Issues encontradas <span class="text-dms-tecnologia font-normal normal-case">(5)</span></div>
+      <div class="space-y-2.5" id="val-issues"></div>
+    </div>
+
+    <!-- Comparativo SOPs similares -->
+    <div>
+      <div class="caption text-dms-mar font-semibold mb-2">Comparativo com SOPs similares</div>
+      <div class="bg-dms-ceu/5 border border-dms-ceu/30 rounded-lg p-3 space-y-2 text-xs text-dms-mar">
+        <div class="flex items-center justify-between"><span>Outras SOPs de <strong>CAP</strong> (3)</span><span class="mono text-dms-tecnologia">média 5 stages</span></div>
+        <div class="flex items-center justify-between"><span>Esta SOP</span><span class="mono font-bold text-dms-confianca" id="val-cmp-self">8 stages</span></div>
+        <div class="h-px bg-dms-ceu/20"></div>
+        <p class="text-[11px] text-dms-tecnologia leading-relaxed">Esta SOP tem <strong>+60%</strong> de stages vs. a média. Considere consolidar validações automáticas em um único stage para reduzir handoffs.</p>
+      </div>
+    </div>
+
+    <!-- Padrões de mercado -->
+    <div>
+      <div class="caption text-dms-mar font-semibold mb-2">Padrões de mercado</div>
+      <div class="space-y-2">
+        <div class="flex items-start gap-2 text-xs text-dms-mar border border-[#E5E7EB] rounded-lg p-3">
+          <span class="exec-chip exec-aprovacao flex-shrink-0">ISO 9001</span>
+          <span>Sugere <strong>aprovação dupla</strong> em valores acima de R$ 50k. A SOP tem aprovação única no stage de liberação.</span>
+        </div>
+        <div class="flex items-start gap-2 text-xs text-dms-mar border border-[#E5E7EB] rounded-lg p-3">
+          <span class="exec-chip exec-integracao flex-shrink-0">SOX</span>
+          <span>Segregação de funções: quem confere o valor não deveria ser quem libera o pagamento. OK nesta SOP.</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-[11px] text-dms-tecnologia italic">Mockup — score e issues são estáticos e ilustrativos. Em produção, o <span class="mono">sop_validator</span> retorna score + issues + recommendations.</p>
+  </div>
+
+  <div class="px-5 py-3 border-t border-[#E5E7EB] bg-[#FCFCFD] flex justify-between items-center flex-shrink-0">
+    <button onclick="rerunValidator()" class="text-xs font-semibold text-dms-sabedoria hover:underline flex items-center gap-1">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      Revalidar
+    </button>
+    <button onclick="closeValidator()" class="px-4 py-2 text-sm font-semibold text-dms-mar bg-white border border-[#E5E7EB] rounded-md hover:border-dms-mar transition-colors">Fechar</button>
+  </div>
+</aside>
 
 <!-- Toast -->
 <div id="toast" class="toast"></div>
@@ -1585,6 +1676,68 @@ function genMerge() {
 }
 function genDiscard() { closeGenModal(); showToast('Sugestão descartada — nenhuma alteração aplicada'); }
 
+// ============================================================
+// IA #2 — VALIDAR (mockup do system agent: sop_validator)
+// ============================================================
+const VAL_ISSUES = [
+  { sev: 'crit', icon: '🔴', titulo: 'Stage sem responsável atribuído', detalhe: '"Validar competência fiscal" não tem aprovador nem agente — fica órfão se cair em exceção.', fix: 'Atribuir "Analista Fiscal"' },
+  { sev: 'warn', icon: '🟡', titulo: 'SLA alto na etapa de liberação', detalhe: '"Liberar para pagamento (D+N)" não tem SLA definido — sem teto, vira gargalo silencioso.', fix: 'Definir SLA de 1 dia' },
+  { sev: 'warn', icon: '🟡', titulo: 'Muitos stages automáticos em sequência', detalhe: '4 stages automáticos seguidos sem checkpoint humano — risco de propagar erro de dados.', fix: 'Inserir checkpoint' },
+  { sev: 'sugg', icon: '🟢', titulo: 'Adicionar agente IA na revisão', detalhe: 'A etapa de conferência fiscal pode usar um agente para acelerar a checagem de CST/tributos.', fix: 'Sugerir NFE-Validator-AI' },
+  { sev: 'sugg', icon: '🟢', titulo: 'Consolidar validações', detalhe: 'Stages 2–4 podem virar um único stage de validação automática, reduzindo handoffs.', fix: 'Mesclar stages 2–4' },
+];
+
+function renderValIssues() {
+  const sevClass = { crit: 'crit', warn: 'warn', sugg: 'sugg' };
+  document.getElementById('val-issues').innerHTML = VAL_ISSUES.map((it, i) => `
+    <div class="issue-card ${sevClass[it.sev]}" id="val-issue-${i}">
+      <div class="flex items-start gap-2">
+        <span class="text-sm leading-none mt-0.5">${it.icon}</span>
+        <div class="flex-1 min-w-0">
+          <div class="text-xs font-bold text-dms-mar">${escapeHtml(it.titulo)}</div>
+          <p class="text-[11px] text-dms-tecnologia mt-1 leading-relaxed">${escapeHtml(it.detalhe)}</p>
+          <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+            <button class="issue-act primary" onclick="valApplyFix(${i})">Aplicar fix · ${escapeHtml(it.fix)}</button>
+            <button class="issue-act" onclick="valIgnore(${i})">Ignorar</button>
+            <button class="issue-act" onclick="valReview(${i})">Marcar p/ revisão</button>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+  // atualiza comparativo
+  const self = document.getElementById('val-cmp-self');
+  if (self) self.textContent = `${STAGES.length} stages`;
+}
+
+function openValidator() {
+  document.getElementById('validator-backdrop').classList.add('open');
+  document.getElementById('validator-panel').classList.add('open');
+  document.getElementById('val-result').classList.add('hidden');
+  document.getElementById('val-loading').classList.remove('hidden');
+  setTimeout(() => {
+    document.getElementById('val-loading').classList.add('hidden');
+    renderValIssues();
+    document.getElementById('val-result').classList.remove('hidden');
+  }, 1400);
+}
+function closeValidator() {
+  document.getElementById('validator-backdrop').classList.remove('open');
+  document.getElementById('validator-panel').classList.remove('open');
+}
+function rerunValidator() { openValidator(); showToast('Revalidando SOP...'); }
+
+function valApplyFix(i) {
+  const card = document.getElementById('val-issue-' + i);
+  if (card) card.classList.add('resolved');
+  showToast(`Fix aplicado: ${VAL_ISSUES[i].fix}`);
+}
+function valIgnore(i) {
+  const card = document.getElementById('val-issue-' + i);
+  if (card) card.classList.add('resolved');
+  showToast('Issue ignorada');
+}
+function valReview(i) { showToast('Issue marcada para revisão (vai pro cockpit · TODO)'); }
+
 // ============ TOAST ============
 let toastTimeout;
 function showToast(msg) {
@@ -1599,7 +1752,7 @@ function showToast(msg) {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     closeHistoryModal(); closePublishModal(); closeTriggerModal();
-    closeGenModal();
+    closeGenModal(); closeValidator();
   }
 });
 
