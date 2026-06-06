@@ -261,6 +261,11 @@ tailwind.config = {
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             Histórico de versões
           </button>
+          <!-- IA #1 — paridade tela10 -->
+          <button onclick="openGenModal()" class="btn-ai" title="Gerar stages a partir de um objetivo (system agent: sop_generator)">
+            <svg class="w-4 h-4 sparkle" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-6.714 2.143L12 21l-2.286-6.857L3 12l6.714-2.143L12 3z"/></svg>
+            Gerar Stages com IA
+          </button>
           <button onclick="onSaveDraft()" class="text-sm font-semibold text-dms-tecnologia px-4 py-2 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">Salvar rascunho</button>
           <button onclick="openPublishModal()" class="text-sm font-semibold text-white px-5 py-2 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors flex items-center gap-1.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
@@ -756,6 +761,88 @@ tailwind.config = {
     <div class="px-6 py-3 border-t border-[#E5E7EB] flex justify-end gap-2 bg-[#F8F9FA] rounded-b-xl">
       <button onclick="closeTriggerModal()" class="px-4 py-2 text-sm text-dms-mar hover:bg-white rounded-md transition-colors">Cancelar</button>
       <button onclick="saveTrigger()" class="px-5 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Salvar trigger</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== MODAL: GERAR STAGES COM IA (system agent: sop_generator) ============== -->
+<div id="modal-gen" class="modal-backdrop" onclick="if(event.target===this) closeGenModal()">
+  <div class="modal-card modal-card-lg">
+    <div class="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between sticky top-0 bg-white rounded-t-xl z-10">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-dms-sabedoria/10 flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5 text-dms-sabedoria" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-6.714 2.143L12 21l-2.286-6.857L3 12l6.714-2.143L12 3z"/></svg>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-dms-mar">Gerar stages com IA</h2>
+          <p class="text-xs text-dms-tecnologia mt-0.5">Descreva o objetivo e o resultado — a IA propõe os stages. <span class="mono text-dms-sabedoria">system agent: sop_generator</span></p>
+        </div>
+      </div>
+      <button onclick="closeGenModal()" class="text-dms-tecnologia hover:text-dms-mar p-1.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- ETAPA 1: inputs -->
+    <div id="gen-step-input" class="p-6 space-y-4">
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">Objetivo da SOP <span class="text-red-500">*</span></label>
+        <textarea id="gen-objetivo" rows="3" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md leading-relaxed" placeholder="Ex.: Padronizar o processo de cotação com 3 fornecedores para compras diretas acima de R$ 5.000.">Padronizar o processo de cotação com 3 fornecedores para compras diretas, garantindo rastreabilidade e aprovação por alçada.</textarea>
+      </div>
+      <div>
+        <label class="caption text-dms-tecnologia mb-1.5 block">Resultado esperado <span class="text-red-500">*</span></label>
+        <textarea id="gen-resultado" rows="3" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md leading-relaxed" placeholder="Ex.: Selecionar a melhor cotação considerando preço + prazo + qualidade, com pedido emitido e aprovado.">Selecionar a melhor cotação considerando preço, prazo e qualidade, com pedido de compra emitido e aprovado pelo gestor responsável.</textarea>
+      </div>
+      <div class="bg-dms-sabedoria/5 border border-dms-sabedoria/20 rounded-md p-3 text-xs text-dms-mar flex gap-2">
+        <svg class="w-4 h-4 text-dms-sabedoria flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        A IA usa o catálogo de procedures, agentes e alçadas existentes para sugerir stages compatíveis. Você revisa antes de aplicar.
+      </div>
+    </div>
+
+    <!-- ETAPA 2: loading -->
+    <div id="gen-step-loading" class="p-12 flex flex-col items-center justify-center gap-4 hidden">
+      <div class="ai-spinner"></div>
+      <p class="text-sm font-semibold text-dms-sabedoria">IA construindo stages...</p>
+      <p class="text-xs text-dms-tecnologia text-center max-w-xs">Analisando objetivo, resultado esperado e o catálogo de procedures/agentes disponíveis.</p>
+    </div>
+
+    <!-- ETAPA 3: preview lado a lado -->
+    <div id="gen-step-result" class="p-6 space-y-4 hidden">
+      <div class="flex items-center gap-2 text-sm text-dms-mar">
+        <svg class="w-4 h-4 text-dms-tropicalidade" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+        <span><strong>5 stages sugeridos</strong> (3 novos · 2 mantidos). Compare e escolha como aplicar.</span>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="gen-col">
+          <div class="gen-col-head bg-[#F0F1F3] text-dms-tecnologia">SOP atual <span id="gen-cur-count" class="font-normal normal-case">(8 stages)</span></div>
+          <div id="gen-current-list"></div>
+        </div>
+        <div class="gen-col gen-suggested" style="border-color: rgba(176,201,52,0.5);">
+          <div class="gen-col-head bg-[rgba(176,201,52,0.15)] text-[#5C7818]">Sugerido pela IA <span class="font-normal normal-case">(5 stages)</span></div>
+          <div id="gen-suggested-list"></div>
+        </div>
+      </div>
+      <p class="text-[11px] text-dms-tecnologia italic">Mockup — a sugestão é estática e ilustrativa. Em produção, o <span class="mono">sop_generator</span> retorna o array de stages.</p>
+    </div>
+
+    <!-- Footer dinâmico -->
+    <div class="px-6 py-4 border-t border-[#E5E7EB] flex items-center justify-end gap-2 bg-[#F8F9FA] rounded-b-xl flex-wrap">
+      <div id="gen-footer-input">
+        <button onclick="closeGenModal()" class="px-4 py-2 text-sm text-dms-mar hover:bg-white rounded-md transition-colors">Cancelar</button>
+        <button onclick="runGenerate()" class="px-5 py-2 text-sm font-semibold text-white bg-dms-sabedoria rounded-md hover:opacity-90 transition-colors inline-flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-6.714 2.143L12 21l-2.286-6.857L3 12l6.714-2.143L12 3z"/></svg>
+          Gerar
+        </button>
+      </div>
+      <div id="gen-footer-result" class="hidden flex items-center gap-2 flex-wrap justify-end w-full">
+        <button onclick="genDiscard()" class="px-4 py-2 text-sm text-dms-mar hover:bg-white rounded-md transition-colors">Descartar</button>
+        <button onclick="genMerge()" class="px-4 py-2 text-sm font-semibold text-dms-confianca border border-[#E5E7EB] bg-white rounded-md hover:border-dms-confianca transition-colors">Mesclar</button>
+        <button onclick="genAcceptSelected()" class="px-4 py-2 text-sm font-semibold text-dms-confianca border border-[#E5E7EB] bg-white rounded-md hover:border-dms-confianca transition-colors">Aceitar selecionados</button>
+        <button onclick="genAcceptAll()" class="px-5 py-2 text-sm font-semibold text-white bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors inline-flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Aceitar tudo
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -1407,6 +1494,97 @@ function updateStageExec(id, value) {
   renderPreview();
 }
 
+// ============================================================
+// IA #1 — GERAR STAGES (mockup do system agent: sop_generator)
+// ============================================================
+// Stages sugeridos (estáticos). is_new=true são propostas novas; senão "mantido".
+const GEN_SUGGESTED = [
+  { nome: 'Receber requisição de cotação',      tipo: 'manual',     novo: false },
+  { nome: 'Solicitar cotação a 3 fornecedores', tipo: 'integracao', novo: true  },
+  { nome: 'Consolidar propostas recebidas',     tipo: 'automatico', novo: true  },
+  { nome: 'Avaliar preço × prazo × qualidade',  tipo: 'aprovacao',  novo: true  },
+  { nome: 'Emitir pedido para o vencedor',      tipo: 'integracao', novo: false },
+];
+
+function openGenModal() {
+  // reset para etapa 1
+  document.getElementById('gen-step-input').classList.remove('hidden');
+  document.getElementById('gen-step-loading').classList.add('hidden');
+  document.getElementById('gen-step-result').classList.add('hidden');
+  document.getElementById('gen-footer-input').classList.remove('hidden');
+  document.getElementById('gen-footer-result').classList.add('hidden');
+  document.getElementById('modal-gen').classList.add('open');
+}
+function closeGenModal() { document.getElementById('modal-gen').classList.remove('open'); }
+
+function runGenerate() {
+  const obj = document.getElementById('gen-objetivo').value.trim();
+  const res = document.getElementById('gen-resultado').value.trim();
+  if (!obj || !res) { showToast('Preencha objetivo e resultado esperado'); return; }
+  // etapa loading
+  document.getElementById('gen-step-input').classList.add('hidden');
+  document.getElementById('gen-footer-input').classList.add('hidden');
+  document.getElementById('gen-step-loading').classList.remove('hidden');
+  setTimeout(() => {
+    document.getElementById('gen-step-loading').classList.add('hidden');
+    renderGenResult();
+    document.getElementById('gen-step-result').classList.remove('hidden');
+    document.getElementById('gen-footer-result').classList.remove('hidden');
+  }, 1400);
+}
+
+function renderGenResult() {
+  document.getElementById('gen-cur-count').textContent = `(${STAGES.length} stages)`;
+  document.getElementById('gen-current-list').innerHTML = STAGES.map((s, i) => `
+    <div class="gen-stage-row">
+      <span class="mono text-[10px] text-dms-tecnologia w-4">${i + 1}</span>
+      <span class="exec-dot ${EXEC_META[s.execTipo].dot}"></span>
+      <span class="flex-1 min-w-0 truncate">${escapeHtml(s.nome)}</span>
+    </div>`).join('');
+  document.getElementById('gen-suggested-list').innerHTML = GEN_SUGGESTED.map((s, i) => `
+    <div class="gen-stage-row ${s.novo ? 'is-new' : ''}">
+      <label class="flex items-center gap-2 flex-1 min-w-0 cursor-pointer">
+        <input type="checkbox" data-gen-idx="${i}" ${s.novo ? 'checked' : ''} class="accent-dms-sabedoria">
+        <span class="mono text-[10px] text-dms-tecnologia w-4">${i + 1}</span>
+        <span class="exec-dot ${EXEC_META[s.tipo].dot}"></span>
+        <span class="flex-1 min-w-0 truncate">${escapeHtml(s.nome)}</span>
+      </label>
+      ${s.novo ? '<span class="gen-badge-new">novo</span>' : '<span class="text-[10px] text-dms-tecnologia">mantido</span>'}
+    </div>`).join('');
+}
+
+function appendSuggested(list) {
+  list.forEach(g => {
+    STAGES.push({
+      id: 's' + Date.now() + Math.floor(Math.random() * 1000),
+      nome: g.nome, tipo: 'default', execTipo: g.tipo, aprovador: g.tipo === 'aprovacao' ? 'Gestor' : '',
+      triggers: [], procedures: [], agentes: [], alertas: [], sla: '5 min',
+    });
+  });
+  renderStages();
+}
+function genAcceptAll() {
+  appendSuggested(GEN_SUGGESTED);
+  closeGenModal();
+  showToast(`${GEN_SUGGESTED.length} stages aplicados — edite e publique para forkar v2.3`);
+}
+function genAcceptSelected() {
+  const checks = [...document.querySelectorAll('#gen-suggested-list input[type=checkbox]:checked')];
+  const sel = checks.map(c => GEN_SUGGESTED[+c.getAttribute('data-gen-idx')]);
+  if (!sel.length) { showToast('Selecione ao menos um stage sugerido'); return; }
+  appendSuggested(sel);
+  closeGenModal();
+  showToast(`${sel.length} stage(s) selecionado(s) aplicado(s)`);
+}
+function genMerge() {
+  // mescla: só adiciona os "novos", preserva os atuais
+  const novos = GEN_SUGGESTED.filter(g => g.novo);
+  appendSuggested(novos);
+  closeGenModal();
+  showToast(`Mesclado — ${novos.length} stages novos somados aos ${STAGES.length - novos.length} atuais`);
+}
+function genDiscard() { closeGenModal(); showToast('Sugestão descartada — nenhuma alteração aplicada'); }
+
 // ============ TOAST ============
 let toastTimeout;
 function showToast(msg) {
@@ -1421,6 +1599,7 @@ function showToast(msg) {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     closeHistoryModal(); closePublishModal(); closeTriggerModal();
+    closeGenModal();
   }
 });
 
