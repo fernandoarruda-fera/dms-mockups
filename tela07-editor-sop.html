@@ -9,6 +9,24 @@
   - Versionamento visível: editar SOP em uso fork-a v_n → v_(n+1)
 
   Versão anterior (sob CONCEPT V2 original) ficou em git history.
+
+  ──────────────────────────────────────────────────────────────────────────
+  DECISÃO PRODUTO — Fernando Arruda, 05/06/2026 (paridade tela07 ↔ tela10):
+  Tela07 ganha as MESMAS features de IA + live preview que a tela10 (Workflow
+  Builder) tem, por consistência de UX e redução de esforço cognitivo:
+    1) Live Preview da SOP — aside direita, timeline dos stages + métricas
+       agregadas (SLA total, # stages, tipos, quem aprova, gargalo), atualiza
+       em tempo real conforme o usuário edita.
+    2) Botão "Gerar Stages com IA" — wizard (objetivo + resultado) → stages
+       sugeridos com preview lado a lado (system agent: sop_generator).
+    3) Botão "Validar com IA" — painel slide-in com score + issues
+       (críticas/avisos/sugestões) + comparativo + padrões de mercado
+       (system agent: sop_validator).
+  NB: mockup visual — os botões IA abrem modais/painel ESTÁTICOS com exemplos.
+      Nenhuma IA real roda aqui. Endpoints/componentes reais ficam para F4/F5.
+  Decision log: docs/sprint2-5b/DECISIONS_LOG_TELA07_IA.md (Módulo de Compras)
+  Conceito dos system agents: docs/concepts/CONCEPT_AGENT.md
+  ──────────────────────────────────────────────────────────────────────────
 -->
 <html lang="pt-BR">
 <head>
@@ -101,9 +119,83 @@ tailwind.config = {
   /* Empty state */
   .empty-state { border: 2px dashed #E5E7EB; border-radius: 12px; padding: 48px 24px; text-align: center; }
 
-  @media (max-width: 900px) {
+  /* ===================================================================
+     PARIDADE TELA10 — Live Preview + IA (DP Fernando 05/06/2026)
+     =================================================================== */
+
+  /* --- Botões IA (estética sabedoria = "IA" em toda a suíte) --- */
+  .btn-ai {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 6px;
+    color: #643585; background: rgba(100,53,133,0.08);
+    border: 1px solid rgba(100,53,133,0.30); cursor: pointer; transition: all 150ms ease;
+  }
+  .btn-ai:hover { background: rgba(100,53,133,0.14); border-color: #643585; box-shadow: 0 4px 12px -2px rgba(100,53,133,0.20); }
+  .btn-ai .sparkle { color: #643585; }
+
+  /* --- Live Preview aside --- */
+  .sticky-preview { position: sticky; top: 88px; max-height: calc(100vh - 110px); display: flex; flex-direction: column; }
+  .preview-scroll { flex: 1; overflow-y: auto; min-height: 0; }
+
+  /* métrica mini-cards */
+  .pv-metric { background: #F8F9FA; border: 1px solid #E5E7EB; border-radius: 8px; padding: 10px 12px; }
+  .pv-metric .pv-num { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: #00386C; font-size: 20px; line-height: 1; }
+  .pv-metric .pv-lbl { font-size: 10px; color: #656464; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-top: 4px; }
+
+  /* chips de tipo de execução */
+  .exec-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
+  .exec-manual      { background: rgba(0,82,144,0.10);   color: #005290; }
+  .exec-automatico  { background: rgba(176,201,52,0.15); color: #5C7818; }
+  .exec-aprovacao   { background: rgba(100,53,133,0.10); color: #643585; }
+  .exec-integracao  { background: rgba(0,174,238,0.12);  color: #006491; }
+  .exec-dot { width: 8px; height: 8px; border-radius: 9999px; flex-shrink: 0; }
+  .dot-manual { background: #005290; } .dot-automatico { background: #B0C934; }
+  .dot-aprovacao { background: #643585; } .dot-integracao { background: #00AEEE; }
+
+  /* timeline (mesmo idioma visual da tela10) */
+  .tl-item { display: flex; gap: 10px; position: relative; }
+  .tl-rail { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .tl-node { width: 26px; height: 26px; border-radius: 9999px; background: #fff; border: 2px solid #00AEEE; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #00386C; z-index: 1; }
+  .tl-line { width: 2px; flex: 1; min-height: 14px; background: linear-gradient(180deg, #00386C, #00AEEE); margin: 2px 0; }
+  .tl-body { flex: 1; min-width: 0; padding-bottom: 14px; }
+  .tl-card { border: 1px solid #E5E7EB; border-left: 3px solid #00AEEE; border-radius: 8px; padding: 8px 10px; background: #fff; transition: all 150ms ease; }
+  .tl-card:hover { border-color: #00AEEE; box-shadow: 0 4px 10px -3px rgba(0,56,108,0.12); }
+  .tl-card.bottleneck { border-color: #D97706; border-left-color: #D97706; background: #FFFBEB; }
+  .tl-card.bottleneck .tl-node { border-color: #D97706; color: #854D0E; }
+
+  /* --- Validator slide-in panel --- */
+  .ai-panel-backdrop { position: fixed; inset: 0; background: rgba(15,27,76,0.45); z-index: 95; opacity: 0; pointer-events: none; transition: opacity 250ms ease; }
+  .ai-panel-backdrop.open { opacity: 1; pointer-events: auto; }
+  .ai-panel { position: fixed; top: 0; right: 0; height: 100vh; width: 480px; max-width: 92vw; background: #fff; z-index: 96; box-shadow: -20px 0 50px -20px rgba(0,0,0,0.35); transform: translateX(100%); transition: transform 300ms cubic-bezier(0.16,1,0.3,1); display: flex; flex-direction: column; }
+  .ai-panel.open { transform: translateX(0); }
+  .score-ring { width: 96px; height: 96px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .issue-card { border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px; transition: all 150ms ease; }
+  .issue-card.crit { border-left: 3px solid #DC2626; }
+  .issue-card.warn { border-left: 3px solid #EAB308; }
+  .issue-card.sugg { border-left: 3px solid #16A34A; }
+  .issue-act { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 6px; border: 1px solid #E5E7EB; background: #fff; cursor: pointer; transition: all 120ms ease; }
+  .issue-act:hover { border-color: #00386C; color: #00386C; }
+  .issue-act.primary { background: rgba(0,174,238,0.10); border-color: rgba(0,174,238,0.4); color: #006491; }
+  .issue-act.primary:hover { background: rgba(0,174,238,0.18); }
+  .issue-card.resolved { opacity: 0.5; }
+  .issue-card.resolved .issue-act { display: none; }
+
+  /* --- Generator modal: spinner + side-by-side --- */
+  .ai-spinner { width: 40px; height: 40px; border: 3px solid rgba(100,53,133,0.2); border-top-color: #643585; border-radius: 9999px; animation: ai-spin 0.8s linear infinite; }
+  @keyframes ai-spin { to { transform: rotate(360deg); } }
+  .gen-col { border: 1px solid #E5E7EB; border-radius: 8px; background: #F8F9FA; overflow: hidden; }
+  .gen-col-head { padding: 8px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #E5E7EB; }
+  .gen-stage-row { display: flex; align-items: center; gap: 8px; padding: 7px 12px; font-size: 12px; color: #00386C; border-bottom: 1px solid #EEF0F2; }
+  .gen-stage-row:last-child { border-bottom: none; }
+  .gen-suggested .gen-stage-row.is-new { background: rgba(176,201,52,0.10); }
+  .gen-badge-new { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; background: rgba(176,201,52,0.25); color: #5C7818; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  @media (max-width: 1180px) {
     .editor-grid { grid-template-columns: 1fr !important; }
-    .sticky-identity { position: static !important; max-height: none !important; }
+    .sticky-identity, .sticky-preview { position: static !important; max-height: none !important; }
+  }
+  @media (max-width: 520px) {
+    .ai-panel { width: 100vw; }
   }
 </style>
 <link rel="stylesheet" href="mobile-responsive.css">
@@ -186,8 +278,8 @@ tailwind.config = {
         </div>
       </div>
 
-      <!-- LAYOUT GRID: identidade + stages -->
-      <div class="editor-grid grid gap-6" style="grid-template-columns: 350px 1fr;">
+      <!-- LAYOUT GRID: identidade + stages + live preview (paridade tela10) -->
+      <div class="editor-grid grid gap-6" style="grid-template-columns: 330px 1fr 340px;">
 
         <!-- ============ COL ESQUERDA — IDENTIDADE ============ -->
         <aside class="sticky-identity">
@@ -346,6 +438,52 @@ tailwind.config = {
 
         </section>
 
+        <!-- ============ COL DIREITA — LIVE PREVIEW DA SOP (paridade tela10) ============ -->
+        <aside class="sticky-preview">
+          <div class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md flex flex-col flex-1 min-h-0">
+
+            <div class="px-4 py-3 bg-[#F8F9FA] border-b border-[#E5E7EB] flex items-center gap-2 flex-shrink-0">
+              <div class="w-6 h-[2px] bg-dms-ceu tilt-accent rounded-sm"></div>
+              <div class="flex-1 min-w-0">
+                <h2 class="caption text-dms-mar font-semibold flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-dms-ceu" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  Preview da SOP
+                </h2>
+                <p id="pv-subheader" class="text-[11px] text-dms-tecnologia mt-0.5">Total: — · — stages</p>
+              </div>
+              <span class="exec-chip exec-aprovacao flex-shrink-0" title="Atualiza em tempo real conforme você edita">ao vivo</span>
+            </div>
+
+            <div class="preview-scroll p-4 space-y-4" id="sop-preview-body">
+              <!-- preenchido por renderPreview() -->
+            </div>
+
+            <div class="p-3 border-t border-[#E5E7EB] bg-[#FCFCFD] text-[11px] text-dms-tecnologia flex-shrink-0">
+              <div class="flex items-start gap-1.5">
+                <svg class="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-dms-ceu" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Métricas estimadas a partir dos stages. O <strong>gargalo</strong> é o stage de maior SLA.</span>
+              </div>
+            </div>
+
+          </div>
+        </aside>
+
+      </div>
+
+      <!-- ===== ANOTAÇÃO DE APROVAÇÃO (DP Fernando) ===== -->
+      <!--
+        DECISÃO PRODUTO — Fernando Arruda, 05/06/2026.
+        Paridade tela07 ↔ tela10: live preview da SOP + 2 features de IA
+        (Gerar Stages / Validar com IA). Justificativa: consistência de UX e
+        redução de esforço cognitivo entre o editor de SOP e o Workflow Builder.
+        Decision log: docs/sprint2-5b/DECISIONS_LOG_TELA07_IA.md
+        System agents: docs/concepts/CONCEPT_AGENT.md (sop_generator, sop_validator)
+      -->
+      <div class="mt-8 flex items-center justify-center gap-2 text-xs text-dms-tecnologia border-t border-[#E5E7EB] pt-5">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[rgba(176,201,52,0.12)] text-[#5C7818] font-semibold">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+          Aprovado por Fernando 05/06/2026 — paridade com tela10 (live preview + 2 IAs)
+        </span>
       </div>
 
     </main>
@@ -715,6 +853,31 @@ const STAGES = [
   },
 ];
 
+// Enriquecimento p/ live preview (paridade tela10): tipo de execução + aprovador.
+// Em produção isso vem do modelo de Stage; aqui é mock por id.
+const STAGE_EXEC = {
+  s1: { execTipo: 'integracao', aprovador: '' },
+  s2: { execTipo: 'automatico', aprovador: '' },
+  s3: { execTipo: 'aprovacao',  aprovador: 'Comprador' },
+  s4: { execTipo: 'automatico', aprovador: '' },
+  s5: { execTipo: 'manual',     aprovador: 'Analista Fiscal' },
+  s6: { execTipo: 'automatico', aprovador: '' },
+  s7: { execTipo: 'integracao', aprovador: '' },
+  s8: { execTipo: 'aprovacao',  aprovador: 'Gerente Financeiro' },
+};
+STAGES.forEach(s => {
+  const e = STAGE_EXEC[s.id] || { execTipo: 'manual', aprovador: '' };
+  if (s.execTipo == null) s.execTipo = e.execTipo;
+  if (s.aprovador == null) s.aprovador = e.aprovador;
+});
+
+const EXEC_META = {
+  manual:     { label: 'Manual',     chip: 'exec-manual',     dot: 'dot-manual' },
+  automatico: { label: 'Automático', chip: 'exec-automatico', dot: 'dot-automatico' },
+  aprovacao:  { label: 'Aprovação',  chip: 'exec-aprovacao',  dot: 'dot-aprovacao' },
+  integracao: { label: 'Integração', chip: 'exec-integracao', dot: 'dot-integracao' },
+};
+
 const TIPO_BADGE_CLASS = {
   default: 'badge-default',
   condicional: 'badge-cond',
@@ -754,6 +917,7 @@ function renderStages() {
   }
 
   document.getElementById('stage-counter').textContent = STAGES.length;
+  renderPreview();
 }
 
 function renderStageCard(s, idx) {
@@ -767,8 +931,9 @@ function renderStageCard(s, idx) {
         <div class="flex items-center justify-center w-7 h-7 rounded-full bg-dms-mar/10 text-dms-mar mono font-bold text-xs flex-shrink-0">${idx + 1}</div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
-            <span class="font-semibold text-dms-mar text-sm">${s.nome}</span>
+            <span id="sname-${s.id}" class="font-semibold text-dms-mar text-sm">${s.nome}</span>
             <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${TIPO_BADGE_CLASS[s.tipo]}">${TIPO_LABEL[s.tipo]}</span>
+            <span id="exec-chip-${s.id}" class="exec-chip ${EXEC_META[s.execTipo].chip}">${EXEC_META[s.execTipo].label}</span>
             ${s.triggers.length ? `<span class="text-[11px] text-dms-tecnologia">· ${s.triggers.length} trigger${s.triggers.length>1?'s':''}</span>` : ''}
           </div>
         </div>
@@ -789,7 +954,7 @@ function renderStageCard(s, idx) {
         <div class="grid grid-cols-3 gap-3">
           <div class="col-span-2">
             <label class="caption text-dms-tecnologia mb-1 block">Nome do stage</label>
-            <input type="text" value="${escapeHtml(s.nome)}" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md">
+            <input type="text" value="${escapeHtml(s.nome)}" oninput="updateStageName('${s.id}', this.value)" class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md">
           </div>
           <div>
             <label class="caption text-dms-tecnologia mb-1 block">Tipo</label>
@@ -867,11 +1032,24 @@ function renderStageCard(s, idx) {
 
         </div>
 
-        <!-- SLA / Escalation -->
+        <!-- Execução / Aprovador / SLA / Escalation -->
         <div class="grid grid-cols-2 gap-3 pt-2 border-t border-[#E5E7EB]">
           <div>
+            <label class="caption text-dms-tecnologia mb-1 block">Tipo de execução</label>
+            <select onchange="updateStageExec('${s.id}', this.value)" class="input-dms w-full px-3 py-1.5 text-sm border border-[#E5E7EB] rounded-md bg-white cursor-pointer">
+              <option value="manual" ${s.execTipo==='manual'?'selected':''}>Manual</option>
+              <option value="automatico" ${s.execTipo==='automatico'?'selected':''}>Automático</option>
+              <option value="aprovacao" ${s.execTipo==='aprovacao'?'selected':''}>Aprovação</option>
+              <option value="integracao" ${s.execTipo==='integracao'?'selected':''}>Integração</option>
+            </select>
+          </div>
+          <div>
+            <label class="caption text-dms-tecnologia mb-1 block">Aprovador (cargo)</label>
+            <input type="text" value="${escapeHtml(s.aprovador || '')}" oninput="updateStageField('${s.id}', 'aprovador', this.value)" placeholder="ex.: Gerente Financeiro" class="input-dms w-full px-3 py-1.5 text-sm border border-[#E5E7EB] rounded-md">
+          </div>
+          <div>
             <label class="caption text-dms-tecnologia mb-1 block">SLA</label>
-            <input type="text" value="${s.sla}" class="input-dms w-full px-3 py-1.5 text-sm border border-[#E5E7EB] rounded-md">
+            <input type="text" value="${s.sla}" oninput="updateStageField('${s.id}', 'sla', this.value)" placeholder="ex.: 2 min, 4h, 1 dia" class="input-dms w-full px-3 py-1.5 text-sm border border-[#E5E7EB] rounded-md">
           </div>
           <div>
             <label class="caption text-dms-tecnologia mb-1 block">Escalation</label>
@@ -950,7 +1128,7 @@ function moveStage(id, dir) {
 function addStage() {
   const id = 's' + Date.now();
   STAGES.push({
-    id, nome: 'Novo stage', tipo: 'default',
+    id, nome: 'Novo stage', tipo: 'default', execTipo: 'manual', aprovador: '',
     triggers: [], procedures: [], agentes: [], alertas: [], sla: '—',
   });
   renderStages();
@@ -1076,6 +1254,157 @@ function closePublishModal() { document.getElementById('modal-publish').classLis
 function confirmPublish() {
   closePublishModal();
   showToast('v2.3 publicada · 5 workflows seguem em v2.2 (imutável) · novos pegam v2.3');
+}
+
+// ============================================================
+// LIVE PREVIEW DA SOP (paridade tela10) — timeline + métricas
+// ============================================================
+function parseSlaMin(str) {
+  if (str == null) return 0;
+  const s = String(str).toLowerCase().trim();
+  if (s === '' || s === '—' || s === '-') return 0;
+  let total = 0, matched = false;
+  const d = s.match(/(\d+(?:[.,]\d+)?)\s*d(?:ia)?s?\b/);  if (d) { total += parseFloat(d[1].replace(',','.')) * 1440; matched = true; }
+  const h = s.match(/(\d+(?:[.,]\d+)?)\s*h(?:ora)?s?\b/); if (h) { total += parseFloat(h[1].replace(',','.')) * 60;   matched = true; }
+  const m = s.match(/(\d+(?:[.,]\d+)?)\s*min\b/);          if (m) { total += parseFloat(m[1].replace(',','.'));        matched = true; }
+  const sec = s.match(/(\d+(?:[.,]\d+)?)\s*s(?:eg)?\b/);   if (sec && !/min/.test(s)) { total += parseFloat(sec[1].replace(',','.')) / 60; matched = true; }
+  if (!matched) { const n = s.match(/(\d+(?:[.,]\d+)?)/); if (n) total += parseFloat(n[1].replace(',','.')); }
+  return total;
+}
+function formatSlaMin(min) {
+  if (!min || min <= 0) return '—';
+  if (min < 1) return Math.round(min * 60) + 's';
+  if (min < 60) return (Number.isInteger(min) ? min : min.toFixed(1)) + ' min';
+  if (min < 1440) { const h = Math.floor(min / 60), m = Math.round(min % 60); return m ? `${h}h ${m}min` : `${h}h`; }
+  const dd = min / 1440; return (Number.isInteger(dd) ? dd : dd.toFixed(1)) + ' dia' + (dd > 1 ? 's' : '');
+}
+
+function renderPreview() {
+  const body = document.getElementById('sop-preview-body');
+  if (!body) return;
+
+  if (!STAGES.length) {
+    document.getElementById('pv-subheader').textContent = 'Total: — · 0 stages';
+    body.innerHTML = `<div class="empty-state" style="padding:32px 16px;">
+      <p class="text-sm text-dms-tecnologia">Sem stages — adicione um stage para ver o preview.</p></div>`;
+    return;
+  }
+
+  const slas = STAGES.map(s => parseSlaMin(s.sla));
+  const totalMin = slas.reduce((a, b) => a + b, 0);
+  const maxMin = Math.max(...slas);
+  const bottleneckIdx = maxMin > 0 ? slas.indexOf(maxMin) : -1;
+
+  // contagem por tipo de execução
+  const tipoCount = {};
+  STAGES.forEach(s => { tipoCount[s.execTipo] = (tipoCount[s.execTipo] || 0) + 1; });
+
+  // cargos aprovadores únicos
+  const aprovadores = [...new Set(STAGES.filter(s => (s.aprovador || '').trim()).map(s => s.aprovador.trim()))];
+
+  document.getElementById('pv-subheader').textContent = `Total: ${formatSlaMin(totalMin)} · ${STAGES.length} stages`;
+
+  const tipoChips = Object.keys(EXEC_META)
+    .filter(k => tipoCount[k])
+    .map(k => `<span class="exec-chip ${EXEC_META[k].chip}"><span class="exec-dot ${EXEC_META[k].dot}"></span>${EXEC_META[k].label} <strong class="mono">${tipoCount[k]}</strong></span>`)
+    .join('');
+
+  const aprovHtml = aprovadores.length
+    ? aprovadores.map(a => `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-dms-sabedoria/10 text-dms-sabedoria">${escapeHtml(a)}</span>`).join('')
+    : `<span class="text-[11px] text-dms-tecnologia italic">Nenhum cargo aprovador definido</span>`;
+
+  const bottleneck = bottleneckIdx >= 0 ? STAGES[bottleneckIdx] : null;
+
+  const timeline = STAGES.map((s, idx) => {
+    const isLast = idx === STAGES.length - 1;
+    const isBn = idx === bottleneckIdx;
+    const m = EXEC_META[s.execTipo];
+    return `
+      <div class="tl-item">
+        <div class="tl-rail">
+          <div class="tl-node">${idx + 1}</div>
+          ${isLast ? '' : '<div class="tl-line"></div>'}
+        </div>
+        <div class="tl-body">
+          <div class="tl-card ${isBn ? 'bottleneck' : ''}">
+            <div class="flex items-center gap-1.5 mb-1">
+              <span class="exec-dot ${m.dot}"></span>
+              <span class="text-xs font-semibold text-dms-mar flex-1 min-w-0 truncate">${escapeHtml(s.nome)}</span>
+              ${isBn ? '<span class="text-[9px] font-bold uppercase tracking-wide text-[#854D0E] bg-[rgba(217,119,6,0.15)] px-1.5 py-0.5 rounded">gargalo</span>' : ''}
+            </div>
+            <div class="flex items-center gap-2 text-[11px] text-dms-tecnologia">
+              <span class="exec-chip ${m.chip}" style="padding:0 6px;">${m.label}</span>
+              <span class="mono">SLA ${escapeHtml(s.sla || '—')}</span>
+              ${(s.aprovador || '').trim() ? `<span class="truncate">· ${escapeHtml(s.aprovador)}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  body.innerHTML = `
+    <!-- métricas -->
+    <div class="grid grid-cols-2 gap-2.5">
+      <div class="pv-metric">
+        <div class="pv-num">${formatSlaMin(totalMin)}</div>
+        <div class="pv-lbl">SLA total</div>
+      </div>
+      <div class="pv-metric">
+        <div class="pv-num">${STAGES.length}</div>
+        <div class="pv-lbl"># Stages</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="caption text-dms-tecnologia mb-1.5">Tipos</div>
+      <div class="flex flex-wrap gap-1.5">${tipoChips}</div>
+    </div>
+
+    <div>
+      <div class="caption text-dms-tecnologia mb-1.5">Quem aprova</div>
+      <div class="flex flex-wrap gap-1.5">${aprovHtml}</div>
+    </div>
+
+    ${bottleneck ? `
+    <div class="rounded-lg border border-[#FDE68A] bg-[#FFFBEB] p-3">
+      <div class="flex items-center gap-1.5 mb-1">
+        <svg class="w-3.5 h-3.5 text-[#D97706]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span class="caption text-[#854D0E] font-semibold">Gargalo estimado</span>
+      </div>
+      <div class="text-xs text-dms-mar font-semibold truncate">${escapeHtml(bottleneck.nome)}</div>
+      <div class="text-[11px] text-[#854D0E] mono mt-0.5">maior SLA · ${escapeHtml(bottleneck.sla)}</div>
+    </div>` : ''}
+
+    <!-- timeline -->
+    <div>
+      <div class="caption text-dms-tecnologia mb-2">Timeline</div>
+      ${timeline}
+    </div>
+  `;
+}
+
+// edições em tempo real (sem re-render dos cards p/ preservar o foco)
+function updateStageField(id, field, value) {
+  const s = STAGES.find(x => x.id === id);
+  if (!s) return;
+  s[field] = value;
+  renderPreview();
+}
+function updateStageName(id, value) {
+  const s = STAGES.find(x => x.id === id);
+  if (!s) return;
+  s.nome = value;
+  const el = document.getElementById('sname-' + id);
+  if (el) el.textContent = value || '(sem nome)';
+  renderPreview();
+}
+function updateStageExec(id, value) {
+  const s = STAGES.find(x => x.id === id);
+  if (!s) return;
+  s.execTipo = value;
+  const chip = document.getElementById('exec-chip-' + id);
+  if (chip) { const m = EXEC_META[value]; chip.className = 'exec-chip ' + m.chip; chip.textContent = m.label; }
+  renderPreview();
 }
 
 // ============ TOAST ============
