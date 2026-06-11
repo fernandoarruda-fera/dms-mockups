@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<!--
+  tela16b Cockpit Overview v2 (2026-06-11)
+
+  Evolução de tela16 (v4, 4 colunas lado a lado). Mantém a identidade DMSYS V2
+  (CSS, sidebar consolidada M5b, paleta, cards "soltos por essência").
+
+  Novos elementos desta v2:
+    1. Page Layout Switcher (topo) — Clássico vs Mailia-focused (consistente c/ Saved Views).
+    2. Widget E-mail com botão refresh ↻ no header da coluna + indicador "atualizado há Xs"
+       + auto-refresh a cada 30s (mesmo padrão de tela17/tela17b).
+    3. KPIs F5e (runtime de aprovação): stage approvals pendentes, SLA expirado, delegações ativas.
+    4. KPIs Mailia: emails na caixa, classificados/dia, taxa de auto-arquivado (denylist v2 — migration 0054).
+    5. Card-field-customizable (botão "Campos" + drawer de field picker, igual tela17b).
+
+  Em produção sem Workflow Instances ativos, colunas TO DO/FUP/UPDATE ficam vazias.
+  EMAIL depende de MAILIA (Sprint 5 DP #29). KPIs F5e/Mailia mockados — fonte real:
+  stage_approval, delegation_service, mailia_denylist (v2).
+
+  IA Chat Assessor (RAG) e IA Construção de View = Future (F1.5/F2), aqui só ícones com TBD.
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>DMS — Cockpit Overview</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  corePlugins: { preflight: true },
+  theme: { extend: {
+    colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464', warning: '#EAB308', danger: '#DC2626' } },
+    fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] },
+    boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0,56,108,.08), 0 2px 4px -1px rgba(0,56,108,.04)' },
+  } },
+};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+
+  /* Badges genéricos */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.02em; }
+  .badge-tbd { background: rgba(234,179,8,0.12); color: #854D0E; border: 1px solid rgba(234,179,8,0.3); }
+  .badge-real { background: rgba(176,201,52,0.15); color: #6B7E20; border: 1px solid rgba(176,201,52,0.35); }
+  .badge-sys { background: rgba(101,100,100,0.12); color: #656464; border: 1px solid rgba(101,100,100,0.25); }
+  .badge-future { background: rgba(100,53,133,0.10); color: #5C2A78; border: 1px solid rgba(100,53,133,0.30); }
+
+  /* Tipo card badges (TO DO / FOLLOW UP / UPDATE / EMAIL) */
+  .ct { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+  .ct-todo      { background: rgba(0,174,238,0.16);  color: #005290;  border: 1px solid rgba(0,174,238,0.35); }
+  .ct-followup  { background: rgba(100,53,133,0.14); color: #5C2A78;  border: 1px solid rgba(100,53,133,0.30); }
+  .ct-update    { background: rgba(176,201,52,0.18); color: #5D6E1C;  border: 1px solid rgba(176,201,52,0.40); }
+  .ct-email     { background: rgba(101,100,100,0.12); color: #1A1A1A; border: 1px solid rgba(101,100,100,0.30); }
+
+  /* Avatar */
+  .avatar { width: 30px; height: 30px; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; letter-spacing: 0.02em; }
+  .av-1 { background: linear-gradient(135deg, #00386C, #00AEEE); }
+  .av-2 { background: linear-gradient(135deg, #643585, #00AEEE); }
+  .av-3 { background: linear-gradient(135deg, #005290, #6B7E20); }
+  .av-4 { background: linear-gradient(135deg, #00386C, #643585); }
+  .av-5 { background: linear-gradient(135deg, #B0C934, #005290); }
+  .av-me { background: linear-gradient(135deg, #00AEEE, #B0C934); }
+
+  /* View source toggle (mock-rico ↔ vazio) */
+  .src-toggle { display: inline-flex; padding: 2px; background: #F1F4F7; border-radius: 6px; gap: 2px; }
+  .src-btn { padding: 4px 10px; border-radius: 4px; font-size: 10.5px; font-weight: 600; color: #656464; cursor: pointer; border: 0; background: transparent; transition: all 0.12s ease; }
+  .src-btn.active { background: #fff; color: #00386C; box-shadow: 0 1px 2px rgba(0,56,108,0.10); }
+
+  /* Card */
+  .ck-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 10px; padding: 14px 16px; transition: all 0.12s ease; position: relative; }
+  .ck-card:hover { border-color: #00AEEE; box-shadow: 0 4px 8px -2px rgba(0,56,108,0.10); }
+  .ck-card.overdue { border-left: 4px solid #DC2626; }
+  .ck-card.urgent  { border-left: 4px solid #EAB308; }
+  .ck-title { font-size: 14px; font-weight: 700; color: #00386C; line-height: 1.3; }
+  .ck-meta  { font-size: 11.5px; color: #656464; }
+  .ck-context { font-size: 12px; color: #1A1A1A; }
+  .ck-prazo-ok      { color: #5D6E1C; }
+  .ck-prazo-warn    { color: #854D0E; }
+  .ck-prazo-late    { color: #B91C1C; font-weight: 700; }
+
+  /* Sidebar filters */
+  .filter-side { width: 240px; background: #fff; border: 1px solid #E5E7EB; border-radius: 10px; }
+  .filter-block { padding: 14px; border-bottom: 1px solid #F1F4F7; }
+  .filter-block:last-child { border-bottom: 0; }
+  .filter-block h4 { font-size: 11px; font-weight: 700; color: #656464; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .filter-select { width: 100%; padding: 5px 8px; font-size: 12px; border: 1px solid #E5E7EB; border-radius: 6px; background: #fff; cursor: pointer; }
+  .filter-select:focus { outline: none; border-color: #00AEEE; }
+
+  .saved-view { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; font-size: 12px; cursor: pointer; color: #1A1A1A; transition: background 0.1s ease; }
+  .saved-view:hover { background: #F1F4F7; color: #00386C; }
+  .saved-view.active { background: rgba(0,174,238,0.10); color: #00386C; font-weight: 600; }
+  .saved-view .sv-dot { width: 6px; height: 6px; border-radius: 999px; flex-shrink: 0; }
+
+  /* KPI cards */
+  .kpi-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 10px; padding: 12px 14px; }
+  .kpi-card .kpi-num { font-size: 22px; font-weight: 800; line-height: 1; }
+  .kpi-card .kpi-lbl { font-size: 10.5px; font-weight: 600; color: #656464; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .kpi-card .kpi-foot { font-size: 10.5px; color: #656464; margin-top: 4px; }
+  .kpi-ok { color: #5D6E1C; }
+  .kpi-warn { color: #854D0E; }
+  .kpi-late { color: #B91C1C; }
+  .kpi-info { color: #00386C; }
+
+  /* Prioridades agora */
+  .prio-block { background: linear-gradient(135deg, #FFF7ED 0%, #FFF 70%); border: 1px solid #FED7AA; border-left: 4px solid #EA580C; }
+  .prio-item { padding: 10px 12px; background: #fff; border: 1px solid #FED7AA; border-radius: 8px; display: flex; gap: 10px; align-items: flex-start; transition: all 0.12s ease; cursor: pointer; }
+  .prio-item:hover { border-color: #EA580C; box-shadow: 0 2px 6px rgba(234,88,12,0.10); }
+  .prio-rank { width: 22px; height: 22px; border-radius: 999px; background: #EA580C; color: #fff; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  /* Email thread card */
+  .email-card { background: #FAFBFC; border: 1px solid #E5E7EB; border-radius: 10px; padding: 14px 16px; }
+  .email-card .em-subj { font-size: 13.5px; font-weight: 700; color: #00386C; }
+  .email-card .em-body { font-size: 12px; color: #1A1A1A; background: #fff; border: 1px solid #F1F4F7; border-radius: 6px; padding: 8px 10px; margin-top: 6px; line-height: 1.5; }
+  .email-card .em-meta { font-size: 11px; color: #656464; }
+  .email-card .em-replies { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; background: rgba(0,174,238,0.10); color: #005290; font-size: 10.5px; font-weight: 700; }
+
+  /* Drawer / Modal */
+  .ck-drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 50; display: none; }
+  .ck-drawer-overlay.open { display: block; }
+  .ck-drawer { position: fixed; top: 0; right: 0; height: 100vh; width: 420px; background: #fff; border-left: 1px solid #E5E7EB; z-index: 60; transform: translateX(100%); transition: transform 0.25s ease; display: flex; flex-direction: column; box-shadow: -10px 0 40px rgba(0,56,108,0.15); }
+  .ck-drawer.open { transform: translateX(0); }
+  .ck-drawer-header { padding: 16px 20px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: space-between; }
+  .ck-drawer-body { padding: 18px 20px; overflow-y: auto; flex: 1; }
+  .ck-drawer-footer { padding: 14px 20px; border-top: 1px solid #E5E7EB; display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* IA buttons (header) */
+  .ia-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #E5E7EB; background: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; position: relative; transition: all 0.12s ease; color: #00386C; }
+  .ia-btn:hover { border-color: #00AEEE; background: rgba(0,174,238,0.05); }
+  .ia-btn .ia-tbd { position: absolute; bottom: -4px; right: -4px; font-size: 8px; font-weight: 800; background: #EAB308; color: #fff; padding: 1px 4px; border-radius: 3px; letter-spacing: 0.04em; }
+
+  .notif-btn { position: relative; width: 36px; height: 36px; border-radius: 8px; border: 1px solid #E5E7EB; background: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #00386C; }
+  .notif-btn:hover { border-color: #00AEEE; }
+  .notif-badge { position: absolute; top: -4px; right: -4px; background: #DC2626; color: #fff; font-size: 9px; font-weight: 800; min-width: 16px; height: 16px; border-radius: 999px; display: flex; align-items: center; justify-content: center; padding: 0 4px; }
+
+  .empty-state { padding: 60px 40px; text-align: center; background: #fff; border: 1px dashed #E5E7EB; border-radius: 12px; }
+  .empty-illustr { font-size: 64px; line-height: 1; opacity: 0.5; }
+
+  /* ===== Visão consolidada — 4 COLUNAS LADO A LADO (v4, igual tela17) ===== */
+  .ck-cols-wrap { overflow-x: auto; padding-bottom: 4px; }
+  .ck-cols-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; min-width: 1080px; }
+  @media (max-width: 1024px) {
+    .ck-cols-grid { grid-template-columns: repeat(4, 280px); min-width: 1180px; }
+  }
+
+  .kanban-col { background: #fff; border: 1px solid #E5E7EB; border-radius: 10px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,56,108,.06), 0 2px 4px -1px rgba(0,56,108,.03); }
+  .kanban-col.caixa     { border-top: 3px solid #00AEEE; }
+  .kanban-col.todo      { border-top: 3px solid #00386C; }
+  .kanban-col.followup  { border-top: 3px solid #643585; }
+  .kanban-col.update    { border-top: 3px solid #B0C934; }
+  .kanban-col-header { padding: 11px 14px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: space-between; gap: 6px; background: #FAFBFC; }
+  .kanban-col-header .kc-title { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: #00386C; letter-spacing: 0.01em; }
+  .kanban-col-header .kc-title .kc-ico { font-size: 15px; line-height: 1; }
+  .kanban-col-header .kc-count { background: #F1F4F7; color: #00386C; padding: 1px 8px; border-radius: 999px; font-size: 10.5px; font-weight: 800; min-width: 22px; text-align: center; }
+  .kanban-col-body { padding: 10px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  .kanban-col-footer { padding: 10px 12px; border-top: 1px solid #F1F4F7; background: #FAFBFC; display: flex; justify-content: center; }
+  .kanban-col-footer .kc-see { font-size: 11.5px; font-weight: 700; color: #00AEEE; cursor: pointer; border: 1px solid #E5E7EB; background: #fff; padding: 6px 12px; border-radius: 6px; transition: all 0.12s ease; display: inline-flex; align-items: center; gap: 4px; width: 100%; justify-content: center; }
+  .kanban-col-footer .kc-see:hover { background: rgba(0,174,238,0.08); border-color: #00AEEE; color: #00386C; }
+
+  /* Cards "soltos por essência" — visual rico estilo tela17 */
+  .km-card { background: #fff; border: 1px solid #E5E7EB; border-radius: 8px; padding: 11px 12px; cursor: pointer; transition: all 0.15s ease; display: flex; flex-direction: column; gap: 7px; }
+  .km-card:hover { box-shadow: 0 4px 10px -2px rgba(0,56,108,0.12); transform: translateY(-1px); border-color: #00AEEE; }
+  .km-card.reclamacao { border-left: 3px solid #DC2626; }
+  .km-card.documento  { border-left: 3px solid #00AEEE; }
+  .km-card.info       { border-left: 3px solid #B0C934; }
+  .km-card.thread     { border-left: 3px solid #00386C; }
+  .km-card.urgente    { border-left: 3px solid #EAB308; }
+  .km-card.late       { border-left: 3px solid #DC2626; }
+  .km-card .km-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .km-card .km-sender-row { display: flex; align-items: center; gap: 7px; min-width: 0; flex: 1; }
+  .km-card .km-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 10.5px; flex-shrink: 0; letter-spacing: 0.02em; }
+  .km-card .km-sender { font-size: 11.5px; font-weight: 700; color: #00386C; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .km-card .km-time { font-size: 10px; color: #656464; font-weight: 600; flex-shrink: 0; }
+  .km-card .km-title { font-size: 12.5px; font-weight: 700; color: #1A1A1A; line-height: 1.3; }
+  .km-card .km-preview { font-size: 10.5px; color: #656464; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .km-card .km-meta-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; padding-top: 1px; }
+
+  /* Badges dos cards */
+  .km-badge { padding: 1.5px 7px; border-radius: 4px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.02em; }
+  .km-b-reclamacao  { background: rgba(220,38,38,0.10);  color: #991B1B; }
+  .km-b-documento   { background: rgba(0,174,238,0.15);  color: #005290; }
+  .km-b-info        { background: rgba(176,201,52,0.18); color: #5C7818; }
+  .km-b-thread      { background: rgba(0,56,108,0.08);   color: #00386C; }
+  .km-b-process     { background: rgba(100,53,133,0.10); color: #643585; font-family: 'JetBrains Mono', monospace; font-size: 9px; }
+  .km-b-late        { background: rgba(220,38,38,0.10);  color: #991B1B; }
+  .km-b-warn        { background: rgba(234,179,8,0.16);  color: #854D0E; }
+  .km-b-ok          { background: rgba(176,201,52,0.18); color: #5D6E1C; }
+  .km-b-module      { background: #F1F4F7; color: #00386C; }
+  .km-b-cliente     { background: rgba(0,82,144,0.10); color: #00386C; }
+
+  /* Prioridades agora — chips compactos (v4) */
+  .prio-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .prio-chip { display: inline-flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #FED7AA; border-radius: 999px; padding: 5px 10px 5px 5px; font-size: 11.5px; color: #1A1A1A; cursor: pointer; transition: all 0.12s ease; max-width: 100%; }
+  .prio-chip:hover { border-color: #EA580C; box-shadow: 0 2px 6px rgba(234,88,12,0.10); }
+  .prio-chip .prio-rank-pill { width: 18px; height: 18px; border-radius: 999px; background: #EA580C; color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .prio-chip .prio-title { font-weight: 700; color: #00386C; }
+  .prio-chip .prio-sep { color: #C9A074; font-weight: 700; padding: 0 2px; }
+  .prio-chip .prio-deadline { font-weight: 700; font-size: 11px; }
+
+  /* Visibility helpers para source toggle */
+  body[data-source="empty"] .src-rich-only { display: none !important; }
+  body[data-source="rich"]  .src-empty-only { display: none !important; }
+
+  @media (max-width: 980px) {
+    .cockpit-layout { grid-template-columns: 1fr !important; }
+    .filter-side { width: 100% !important; position: static !important; max-height: none !important; }
+  }
+
+  /* ===== v2: Page Layout Switcher (Clássico vs Mailia-focused) ===== */
+  .layout-switch { display: inline-flex; padding: 3px; background: #F1F4F7; border-radius: 8px; gap: 3px; }
+  .layout-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 6px; font-size: 11.5px; font-weight: 600; color: #656464; cursor: pointer; border: 0; background: transparent; transition: all 0.12s ease; white-space: nowrap; }
+  .layout-btn .lb-ico { font-size: 13px; line-height: 1; }
+  .layout-btn.active { background: #fff; color: #00386C; box-shadow: 0 1px 3px rgba(0,56,108,0.12); }
+
+  /* Mailia-focused: realça coluna EMAIL e bloco KPI Mailia, atenua o resto */
+  body[data-layout="mailia"] .kanban-col.caixa { box-shadow: 0 0 0 2px rgba(0,174,238,0.35), 0 6px 14px -4px rgba(0,56,108,0.18); }
+  body[data-layout="mailia"] .ck-cols-grid { grid-template-columns: 1.5fr 1fr 1fr 1fr; }
+  body[data-layout="mailia"] .kpi-mailia-block { box-shadow: 0 0 0 2px rgba(0,174,238,0.30); border-color: #00AEEE; }
+  body[data-layout="mailia"] .layout-hint-mailia { display: inline; }
+  body[data-layout="classico"] .layout-hint-mailia { display: none; }
+
+  /* ===== v2: Refresh button + freshness indicator (consistente tela17/17b) ===== */
+  .refresh-btn { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 6px; border: 1px solid #E5E7EB; background: #fff; color: #00386C; cursor: pointer; transition: all 0.12s ease; flex-shrink: 0; }
+  .refresh-btn:hover { border-color: #00AEEE; background: rgba(0,174,238,0.06); }
+  .refresh-btn svg { width: 13px; height: 13px; }
+  .refresh-btn.spinning svg { animation: dms-spin 0.7s linear; }
+  @keyframes dms-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .freshness { font-size: 9.5px; font-weight: 600; color: #656464; display: inline-flex; align-items: center; gap: 3px; }
+  .freshness .fresh-dot { width: 5px; height: 5px; border-radius: 999px; background: #B0C934; display: inline-block; }
+
+  /* ===== v2: KPI section headers + Mailia/F5e blocks ===== */
+  .kpi-section-title { font-size: 11px; font-weight: 700; color: #656464; text-transform: uppercase; letter-spacing: 0.06em; display: inline-flex; align-items: center; gap: 6px; }
+  .kpi-mailia-block { background: linear-gradient(135deg, rgba(0,174,238,0.04) 0%, #FFF 60%); border: 1px solid #E5E7EB; border-radius: 12px; padding: 14px; transition: all 0.15s ease; }
+  .kpi-f5e-block { background: linear-gradient(135deg, rgba(100,53,133,0.04) 0%, #FFF 60%); border: 1px solid #E5E7EB; border-radius: 12px; padding: 14px; }
+  .kpi-mini { background: #fff; border: 1px solid #E5E7EB; border-radius: 9px; padding: 10px 12px; }
+  .kpi-mini .km-num { font-size: 20px; font-weight: 800; line-height: 1; }
+  .kpi-mini .km-lbl { font-size: 10px; font-weight: 600; color: #656464; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+  .kpi-mini .km-foot { font-size: 10px; color: #656464; margin-top: 4px; }
+  .kpi-purple { color: #5C2A78; }
+
+  /* ===== v2: Field picker drawer (igual tela17b) ===== */
+  .picker-row { display: flex; align-items: center; gap: 8px; padding: 7px 9px; border: 1px solid #E5E7EB; border-radius: 7px; font-size: 12.5px; color: #1A1A1A; background: #fff; }
+  .picker-row.optional { background: #FAFBFC; color: #656464; }
+  .picker-row .drag { color: #C0C7CF; cursor: grab; font-size: 13px; user-select: none; }
+  .picker-row .pr-checkbox { width: 14px; height: 14px; accent-color: #00386C; }
+</style>
+<link rel="stylesheet" href="mobile-responsive.css">
+</head>
+<body class="min-h-screen" data-source="rich" data-layout="classico">
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label, #dms-sidebar.collapsed .sb-section-title, #dms-sidebar.collapsed .sb-brand-text, #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label" data-i18n="nav.cockpit">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label" data-i18n="nav.tasks">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label" data-i18n="nav.followup">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.purchases">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label" data-i18n="nav.requisitions">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label" data-i18n="nav.quotes">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label" data-i18n="nav.orders">Pedidos</span></a></li>
+        <li><a href="tela44-contratos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📝</span><span class="sb-label">Contratos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Financeiro</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela36-pre-lancamentos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💱</span><span class="sb-label">Pré-lançamentos</span></a></li>
+        <li><a href="tela42-orcamento-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📈</span><span class="sb-label">Orçamento</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.registrations">Cadastros</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela30-empresas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Empresas</span></a></li>
+        <li><a href="tela32-centros-custo-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💼</span><span class="sb-label">Centros de Custo</span></a></li>
+        <li><a href="tela34-plano-contas-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📊</span><span class="sb-label">Plano de Contas</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;" data-i18n="nav.libraries">Bibliotecas</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela01-catalogo-tags.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏷️</span><span class="sb-label" data-i18n="label.tags">Tags</span></a></li>
+        <li><a href="tela03-procedures-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📑</span><span class="sb-label">Procedures</span></a></li>
+        <li><a href="tela04-catalogo-workflows.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔀</span><span class="sb-label">Workflows</span></a></li>
+        <li><a href="tela06-biblioteca-sop.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📜</span><span class="sb-label">SOPs</span></a></li>
+        <li><a href="tela12-execution-visibility.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">▶️</span><span class="sb-label">Execuções</span></a></li>
+        <li><a href="tela13-audit-trail.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label" data-i18n="nav.audit">Auditoria</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela11-match-engine.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔧</span><span class="sb-label">Match Engine</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+        <li data-required-perm="role.manage"><a href="tela80-permissoes-matriz.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔐</span><span class="sb-label">Permissões</span></a></li>
+        <li><a href="tela81-config-intervenientes-modulo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧩</span><span class="sb-label">Config Intervenientes</span></a></li>
+        <li><a href="tela82-saude-stages.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🩺</span><span class="sb-label">Saúde dos Stages</span></a></li>
+        <li><a href="tela83-alcadas-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚖️</span><span class="sb-label">Alçadas</span></a></li>
+        <li><a href="tela84-users-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👥</span><span class="sb-label">Usuários</span></a></li>
+        <li><a href="tela85-permission-delegations.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔗</span><span class="sb-label">Delegações</span></a></li>
+        <li><a href="tela86-fornecedores-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏭</span><span class="sb-label">Fornecedores</span></a></li>
+        <li><a href="tela87-times-cadastro.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏢</span><span class="sb-label">Times</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Conta</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela50-profile.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👤</span><span class="sb-label">Meu Perfil</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+<script>
+(function(){
+  var sb=document.getElementById('dms-sidebar'),toggle=document.getElementById('sidebar-toggle'),mobBtn=document.getElementById('dms-sidebar-mobile-btn'),overlay=document.getElementById('dms-sidebar-overlay');
+  if(!sb||!toggle)return; var K='mockup-sidebar-collapsed-v2',c=false; try{c=localStorage.getItem(K)==='1';}catch(e){}
+  function m(){return window.matchMedia('(max-width: 767px)').matches}
+  function r(){if(c&&!m()){sb.classList.add('collapsed');sb.style.width='64px';document.documentElement.style.setProperty('--dms-sb-w','64px');}else{sb.classList.remove('collapsed');sb.style.width=m()?'280px':'240px';document.documentElement.style.setProperty('--dms-sb-w',m()?'0px':'240px');}}
+  toggle.addEventListener('click',function(){c=!c;try{localStorage.setItem(K,c?'1':'0');}catch(e){}r();});
+  function cm(){sb.classList.remove('mobile-open');if(overlay)overlay.classList.remove('show');}
+  if(mobBtn)mobBtn.addEventListener('click',function(){if(sb.classList.contains('mobile-open'))cm();else{sb.classList.add('mobile-open');if(overlay)overlay.classList.add('show');}});
+  if(overlay)overlay.addEventListener('click',cm);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){a.addEventListener('click',function(){if(m())cm();});});
+  var cur=(location.pathname.split('/').pop()||'').toLowerCase();
+  if(cur){sb.querySelectorAll('nav a[href]').forEach(function(a){var h=(a.getAttribute('href')||'').toLowerCase();if(h&&h===cur)a.classList.add('sb-active');});}
+  window.addEventListener('resize',r);r();
+})();
+</script>
+
+<div class="flex min-h-screen">
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30"></aside>
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <!-- ===== HEADER GLOBAL ===== -->
+    <header class="h-16 bg-white border-b border-[#E5E7EB] flex items-center justify-between px-6 sticky top-0 z-20">
+      <div class="flex items-center gap-3 min-w-0">
+        <span class="avatar av-me">MC</span>
+        <div class="min-w-0">
+          <div class="text-sm font-bold text-dms-mar leading-tight">Bom dia, Maria Costa</div>
+          <div class="text-[10.5px] text-dms-tecnologia leading-tight">Gerente de Compras · DMS Logística</div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 flex-1 max-w-xl mx-6">
+        <div class="relative flex-1">
+          <svg class="w-4 h-4 text-dms-tecnologia absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" placeholder="Buscar cards, workflows, clientes, SOPs…" onkeydown="if(event.key==='Enter'){event.preventDefault();notice('Busca global mockada — função real conecta a Vector Search (DP-CKP-08).')}" class="w-full pl-9 pr-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-[#FAFBFC] focus:outline-none focus:border-dms-ceu focus:ring-2 focus:ring-dms-ceu/20">
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button class="ia-btn" onclick="event.preventDefault();notice('🤖 IA Chat Assessor — TBD/Future (Fase B do RAG, CONCEPT-cockpit § 6).');" title="IA Chat Assessor (RAG sobre docs DMS) — Future">
+          🤖
+          <span class="ia-tbd">TBD</span>
+        </button>
+        <button class="ia-btn" onclick="event.preventDefault();notice('🪄 IA Construção de View — TBD/Future (gera Saved View por prompt, Fase 2).');" title="IA Construção de View — Future">
+          🪄
+          <span class="ia-tbd">TBD</span>
+        </button>
+        <button class="ia-btn" onclick="event.preventDefault();openPicker();" title="Configurar campos do card (vale pra qualquer card do sistema)">
+          ⚙️
+        </button>
+        <button class="notif-btn" onclick="event.preventDefault();notice('Centro de notificações — abriria tela71-notificacoes-centro.html');" title="Notificações">
+          🔔
+          <span class="notif-badge">3</span>
+        </button>
+        <button onclick="event.preventDefault();location.href='tela50-profile.html';" class="avatar av-1 hover:opacity-90 transition" title="Meu perfil">MC</button>
+      </div>
+    </header>
+
+    <main class="flex-1 p-6 pb-12 max-w-[1480px] w-full mx-auto">
+
+      <!-- PageHeader -->
+      <div class="mb-5">
+        <div class="flex items-center justify-between gap-3 mb-1.5 flex-wrap">
+          <div class="flex items-center gap-3 flex-wrap">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[26px] leading-[34px] font-bold text-dms-mar">Cockpit</h1>
+            <span class="badge badge-real">v2 · 16b · 2026-06-11</span>
+            <span class="badge badge-sys">CONCEPT-cockpit § 1.5</span>
+          </div>
+
+          <!-- Page Layout Switcher -->
+          <div class="flex items-center gap-2">
+            <span class="caption text-dms-tecnologia">Layout:</span>
+            <div class="layout-switch" role="group" aria-label="Layout da página">
+              <button class="layout-btn active" data-layout="classico" onclick="setLayout('classico', this)" title="Visão equilibrada: 4 colunas com mesmo peso">
+                <span class="lb-ico">🗂️</span> Clássico
+              </button>
+              <button class="layout-btn" data-layout="mailia" onclick="setLayout('mailia', this)" title="Foco na caixa de e-mails triada pela MAILIA">
+                <span class="lb-ico">📧</span> Mailia-focused
+              </button>
+            </div>
+          </div>
+        </div>
+        <p class="text-[13px] text-dms-tecnologia max-w-3xl">
+          Sua única tela de trabalho. <strong class="text-dms-mar">Orquestra</strong> tarefas, acompanhamentos, updates e emails de todos os Workflow Instances em que você participa.
+          Card = Stage Instance (TO DO/FOLLOW UP/UPDATE) ou Email Thread. Clique <strong>"Abrir tela operacional"</strong> para editar dados reais no módulo de domínio.
+          <span class="layout-hint-mailia" style="display:none;"><strong class="text-dms-ceu">Layout Mailia-focused ativo</strong> — coluna de e-mails priorizada.</span>
+        </p>
+      </div>
+
+      <!-- ===== LAYOUT: SIDEBAR FILTROS + AREA PRINCIPAL ===== -->
+      <div class="cockpit-layout grid gap-5" style="grid-template-columns: 240px 1fr;">
+
+        <!-- ====== SIDEBAR FILTROS (sticky) ====== -->
+        <aside class="filter-side self-start sticky top-[88px] max-h-[calc(100vh-104px)] overflow-y-auto shadow-dms-md">
+
+          <div class="filter-block">
+            <h4>Filtros</h4>
+            <div class="flex flex-col gap-2">
+              <div>
+                <label class="text-[10.5px] text-dms-tecnologia block mb-1">Módulo</label>
+                <select class="filter-select" onchange="event.preventDefault();notice('Filtro Módulo aplicado (mock — só visual).');">
+                  <option>Todos</option>
+                  <option>Compras</option>
+                  <option>Embarques</option>
+                  <option>Cotações</option>
+                  <option>Aprovações</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10.5px] text-dms-tecnologia block mb-1">Workflow</label>
+                <select class="filter-select" onchange="event.preventDefault();notice('Filtro Workflow aplicado (mock).');">
+                  <option>Todos</option>
+                  <option>Embarque MIA-GIG Libbs</option>
+                  <option>Cotação Trimestral Q2</option>
+                  <option>Aprovação Pedido &gt; 50k</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10.5px] text-dms-tecnologia block mb-1">Prioridade</label>
+                <select class="filter-select" onchange="event.preventDefault();notice('Filtro Prioridade aplicado (mock).');">
+                  <option>Todas</option>
+                  <option>Urgente</option>
+                  <option>Alta</option>
+                  <option>Normal</option>
+                  <option>Baixa</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10.5px] text-dms-tecnologia block mb-1">Prazo</label>
+                <select class="filter-select" onchange="event.preventDefault();notice('Filtro Prazo aplicado (mock).');">
+                  <option>Qualquer</option>
+                  <option>Hoje</option>
+                  <option>Esta semana</option>
+                  <option>Atrasados</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10.5px] text-dms-tecnologia block mb-1">Cliente</label>
+                <select class="filter-select" onchange="event.preventDefault();notice('Filtro Cliente aplicado (mock).');">
+                  <option>Todos</option>
+                  <option>Libbs Farmacêutica</option>
+                  <option>EMS Pharma</option>
+                  <option>Eurofarma</option>
+                  <option>Aché</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-[10.5px] text-dms-tecnologia block mb-1">Rota</label>
+                <select class="filter-select" onchange="event.preventDefault();notice('Filtro Rota aplicado (mock).');">
+                  <option>Todas</option>
+                  <option>MIA-GIG</option>
+                  <option>JFK-GRU</option>
+                  <option>SHA-VCP</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="filter-block">
+            <h4>Saved Views</h4>
+            <div class="flex flex-col gap-1">
+              <div class="saved-view active" onclick="setSavedView('atrasados', this)">
+                <span class="sv-dot" style="background:#DC2626;"></span>
+                <span class="flex-1">Meus Atrasados</span>
+                <span class="text-[10px] mono text-dms-tecnologia">5</span>
+              </div>
+              <div class="saved-view" onclick="setSavedView('aereos', this)">
+                <span class="sv-dot" style="background:#00AEEE;"></span>
+                <span class="flex-1">Embarques Aéreos</span>
+                <span class="text-[10px] mono text-dms-tecnologia">8</span>
+              </div>
+              <div class="saved-view" onclick="setSavedView('aprov', this)">
+                <span class="sv-dot" style="background:#EAB308;"></span>
+                <span class="flex-1">Aprovações Urgentes</span>
+                <span class="text-[10px] mono text-dms-tecnologia">3</span>
+              </div>
+              <div class="saved-view" onclick="setSavedView('cot', this)">
+                <span class="sv-dot" style="background:#B0C934;"></span>
+                <span class="flex-1">Cotações Hoje</span>
+                <span class="text-[10px] mono text-dms-tecnologia">2</span>
+              </div>
+            </div>
+            <button onclick="event.preventDefault();notice('+ Nova View — modal de configuração (DP-CKP-15). Aqui só visual.');" class="mt-3 w-full text-[11.5px] font-semibold text-dms-mar border border-dashed border-[#E5E7EB] rounded px-2 py-2 hover:bg-[#FAFBFC] flex items-center justify-center gap-1.5">
+              <span class="text-base leading-none">+</span> Nova view
+            </button>
+          </div>
+        </aside>
+
+        <!-- ====== ÁREA PRINCIPAL ====== -->
+        <section class="min-w-0">
+
+          <!-- 1. PRIORIDADES AGORA -->
+          <div class="prio-block rounded-lg p-4 mb-5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xl leading-none">🔥</span>
+                <h2 class="text-[15px] font-bold text-[#9A3412]">Prioridades agora</h2>
+                <span class="text-[11.5px] text-[#9A3412]">· 5 itens consolidados</span>
+              </div>
+              <button onclick="openEditViewDrawer()" class="text-[11.5px] font-semibold text-[#9A3412] border border-[#FED7AA] bg-white rounded px-2.5 py-1 hover:bg-[#FFF7ED] flex items-center gap-1.5">
+                ⚙️ Editar view
+              </button>
+            </div>
+            <div class="prio-chips">
+              <div class="prio-chip" onclick="event.preventDefault();location.href='tela41-aprovacao-detalhe.html'">
+                <span class="prio-rank-pill">1</span>
+                <span class="prio-title">Aprovar PED-2614</span><span class="prio-sep">·</span><span>Libbs R$184k</span><span class="prio-sep">·</span><span class="prio-deadline ck-prazo-late">⏰ Atrasado 6h</span>
+              </div>
+              <div class="prio-chip" onclick="event.preventDefault();location.href='tela38-notas-fiscais-list.html'">
+                <span class="prio-rank-pill">2</span>
+                <span class="prio-title">Validar XML NFE 12345</span><span class="prio-sep">·</span><span>Embarque MIA-GIG</span><span class="prio-sep">·</span><span class="prio-deadline ck-prazo-warn">⏰ 2h</span>
+              </div>
+              <div class="prio-chip" onclick="event.preventDefault();location.href='tela17-cockpit-email.html'">
+                <span class="prio-rank-pill">3</span>
+                <span class="prio-title">📧 EMS: dúvida cotação</span><span class="prio-sep">·</span><span>thread 4 resp.</span><span class="prio-sep">·</span><span class="prio-deadline ck-prazo-warn">⏰ SLA 4h</span>
+              </div>
+              <div class="prio-chip" onclick="event.preventDefault();location.href='tela12-execution-visibility.html'">
+                <span class="prio-rank-pill">4</span>
+                <span class="prio-title">Rastreio AWB 071-2389</span><span class="prio-sep">·</span><span>Eurofarma aéreo</span><span class="prio-sep">·</span><span class="prio-deadline ck-prazo-ok">⏰ Hoje 18h</span>
+              </div>
+              <div class="prio-chip" onclick="event.preventDefault();location.href='tela29-pedido-detalhe.html'">
+                <span class="prio-rank-pill">5</span>
+                <span class="prio-title">WF-Cot-2614 aprovado</span><span class="prio-sep">·</span><span>Aché</span><span class="prio-sep">·</span><span class="prio-deadline ck-prazo-ok">⏰ Hoje</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. KPI CARDS SLA -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <div class="kpi-card">
+              <div class="kpi-lbl">% no prazo</div>
+              <div class="kpi-num kpi-ok">87%</div>
+              <div class="kpi-foot">↑ 4pp vs semana passada</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-lbl">Cards atrasados</div>
+              <div class="kpi-num kpi-late">12</div>
+              <div class="kpi-foot">5 críticos · meus + da equipe</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-lbl">Tempo médio stage</div>
+              <div class="kpi-num kpi-warn">4.2h</div>
+              <div class="kpi-foot">meta 3h · TBD: histograma</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-lbl">SOPs ativas</div>
+              <div class="kpi-num kpi-info">8</div>
+              <div class="kpi-foot">3 em pausa</div>
+            </div>
+          </div>
+
+          <!-- 2b. KPI F5e + MAILIA (v2) -->
+          <div class="grid gap-3 mb-5" style="grid-template-columns: 1fr 1fr;">
+
+            <!-- F5e — Runtime de aprovação -->
+            <div class="kpi-f5e-block">
+              <div class="flex items-center justify-between mb-2.5">
+                <span class="kpi-section-title"><span style="font-size:13px;">⚖️</span> Aprovações (F5e)</span>
+                <span class="badge badge-real">runtime ativo</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2.5">
+                <div class="kpi-mini" style="cursor:pointer;" onclick="event.preventDefault();window.open('tela40-aprovacoes-list.html','_self');">
+                  <div class="km-lbl">Stage approvals pendentes</div>
+                  <div class="km-num kpi-info">7</div>
+                  <div class="km-foot">3 são meus · stage_approval</div>
+                </div>
+                <div class="kpi-mini" style="cursor:pointer;" onclick="event.preventDefault();window.open('tela40-aprovacoes-list.html','_self');">
+                  <div class="km-lbl">SLA expirado</div>
+                  <div class="km-num kpi-late">2</div>
+                  <div class="km-foot">escalado p/ hierarquia</div>
+                </div>
+                <div class="kpi-mini" style="cursor:pointer;" onclick="event.preventDefault();window.open('tela85-permission-delegations.html','_self');">
+                  <div class="km-lbl">Delegações ativas</div>
+                  <div class="km-num kpi-purple">4</div>
+                  <div class="km-foot">1 expira em 2d</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- MAILIA -->
+            <div class="kpi-mailia-block">
+              <div class="flex items-center justify-between mb-2.5">
+                <span class="kpi-section-title"><span style="font-size:13px;">📨</span> MAILIA</span>
+                <div class="flex items-center gap-2">
+                  <span class="freshness" id="mailia-kpi-fresh"><span class="fresh-dot"></span>atualizado há <span id="mailia-kpi-secs">12</span>s</span>
+                  <button class="refresh-btn" id="mailia-kpi-refresh" onclick="event.preventDefault();refreshMailia(this);" title="Atualizar KPIs da MAILIA" aria-label="Atualizar MAILIA">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="grid grid-cols-3 gap-2.5">
+                <div class="kpi-mini" style="cursor:pointer;" onclick="event.preventDefault();window.open('tela17-cockpit-email.html','_self');">
+                  <div class="km-lbl">Emails na caixa</div>
+                  <div class="km-num kpi-info" id="kpi-emails-caixa">23</div>
+                  <div class="km-foot">5 operacionais hoje</div>
+                </div>
+                <div class="kpi-mini" style="cursor:pointer;" onclick="event.preventDefault();window.open('tela15-mailia-admin.html','_self');">
+                  <div class="km-lbl">Classificados / dia</div>
+                  <div class="km-num kpi-ok" id="kpi-classif-dia">148</div>
+                  <div class="km-foot">96% confiança média</div>
+                </div>
+                <div class="kpi-mini" style="cursor:pointer;" onclick="event.preventDefault();window.open('tela15-mailia-admin.html','_self');">
+                  <div class="km-lbl">Auto-arquivado</div>
+                  <div class="km-num kpi-warn" id="kpi-auto-arq">31%</div>
+                  <div class="km-foot">denylist v2 · 0054</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 3. CABEÇALHO DA VISÃO + TOGGLE SOURCE -->
+          <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <div>
+              <h2 class="text-[15px] font-bold text-dms-mar leading-tight">Visão consolidada — 4 colunas</h2>
+              <p class="text-[11.5px] text-dms-tecnologia">Top 5 cards de cada tipo, lado a lado. Click no card abre item; "Ver Cockpit X →" abre tela operacional.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[10.5px] caption text-dms-tecnologia">Ver:</span>
+              <div class="src-toggle">
+                <button class="src-btn active" data-source="rich"  onclick="setSource('rich', this)">Mock rico</button>
+                <button class="src-btn"        data-source="empty" onclick="setSource('empty', this)">Estado vazio</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Conteúdo RICO: 4 COLUNAS LADO A LADO (v4) -->
+          <div class="src-rich-only">
+            <div class="ck-cols-wrap">
+              <div class="ck-cols-grid">
+
+                <!-- ============ COLUNA 1 — EMAIL ============ -->
+                <div class="kanban-col caixa">
+                  <div class="kanban-col-header">
+                    <div class="kc-title"><span class="kc-ico">📧</span><span>EMAIL</span></div>
+                    <div class="flex items-center gap-2">
+                      <span class="freshness" id="email-col-fresh"><span class="fresh-dot"></span>há <span id="email-col-secs">12</span>s</span>
+                      <button class="refresh-btn" id="email-col-refresh" onclick="event.preventDefault();refreshMailia(this);" title="Atualizar caixa de e-mails (MAILIA)" aria-label="Atualizar e-mails">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                      </button>
+                      <span class="kc-count">5</span>
+                    </div>
+                  </div>
+                  <div class="kanban-col-body">
+
+                    <div class="km-card reclamacao" onclick="event.preventDefault();notice('Mock: abrir email reclamação Fornecedor A → REQ-2026-0142');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar" style="background:#DC2626">FA</div><span class="km-sender">Fornecedor A</span></div>
+                        <span class="km-time">12min</span>
+                      </div>
+                      <div class="km-title">atraso URGENTE no pagamento</div>
+                      <div class="km-preview">"Estamos sem o pagamento da NF 0531 há 5 dias além do combinado. Precisamos…"</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-reclamacao">⚠ Reclamação</span>
+                        <span class="km-badge km-b-process">REQ-2026-0142</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card documento" onclick="event.preventDefault();notice('Mock: abrir email NFe Fornecedor B → PO-2026-0089');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar" style="background:#005290">FB</div><span class="km-sender">Fornecedor B</span></div>
+                        <span class="km-time">35min</span>
+                      </div>
+                      <div class="km-title">NF anexa (NFe 8821)</div>
+                      <div class="km-preview">"Segue NF emitida conforme PO-2026-0089. Anexo: NFe_8821.xml + nota.pdf"</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-documento">📄 Documento</span>
+                        <span class="km-badge km-b-process">PO-2026-0089</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card documento" onclick="event.preventDefault();notice('Mock: abrir cotação Fornecedor C → RFQ-0048');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar" style="background:#005290">FC</div><span class="km-sender">Fornecedor C</span></div>
+                        <span class="km-time">3h</span>
+                      </div>
+                      <div class="km-title">Cotação RFQ-0048 — Proposta</div>
+                      <div class="km-preview">"Segue proposta atualizada com 5% de desconto sobre a anterior conforme…"</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-documento">📄 Documento</span>
+                        <span class="km-badge km-b-process">RFQ-0048</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card thread" onclick="event.preventDefault();notice('Mock: abrir thread Carlos Reis → RFQ-0044');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar" style="background:#00386C">CR</div><span class="km-sender">Carlos Reis</span></div>
+                        <span class="km-time">2h</span>
+                      </div>
+                      <div class="km-title">RE: Cotação cláusula avulsa</div>
+                      <div class="km-preview">"Bom dia, segue proposta atualizada com 5% de desconto. Aguardo seu retorno…"</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-thread">💬 Aguardando</span>
+                        <span class="km-badge km-b-process">RFQ-0044</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card info" onclick="event.preventDefault();notice('Mock: abrir confirmação João Silva → PO-2026-0091');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar" style="background:#7A8F24">JS</div><span class="km-sender">João Silva</span></div>
+                        <span class="km-time">1h12</span>
+                      </div>
+                      <div class="km-title">Confirmação data de entrega</div>
+                      <div class="km-preview">"Confirmo entrega para 30/04/2026, conforme combinado. Sem impedimentos…"</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-info">ℹ Info</span>
+                        <span class="km-badge km-b-process">PO-2026-0091</span>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div class="kanban-col-footer">
+                    <button class="kc-see" onclick="event.preventDefault();window.open('tela17-cockpit-email.html','_self');">Ver Cockpit Email →</button>
+                  </div>
+                </div>
+
+                <!-- ============ COLUNA 2 — TO DO ============ -->
+                <div class="kanban-col todo">
+                  <div class="kanban-col-header">
+                    <div class="kc-title"><span class="kc-ico">📋</span><span>TO DO</span></div>
+                    <span class="kc-count">5</span>
+                  </div>
+                  <div class="kanban-col-body">
+
+                    <div class="km-card late" onclick="event.preventDefault();window.open('tela41-aprovacao-detalhe.html','_self');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar av-1">CB</div><span class="km-sender">Cargolux Brasil</span></div>
+                        <span class="km-time">Atras. 6h</span>
+                      </div>
+                      <div class="km-title">Aprovar Pedido #PED-2614 — R$ 184.300</div>
+                      <div class="km-preview">Alçada Gerência. WF "Pedido &gt; 50k", stage 3 de 4. Você é o aprovador final.</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-late">⏰ Atrasado</span>
+                        <span class="km-badge km-b-cliente">Libbs</span>
+                        <span class="km-badge km-b-process">PED-2614</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card urgente" onclick="event.preventDefault();window.open('tela38-notas-fiscais-list.html','_self');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar av-2">LB</div><span class="km-sender">Libbs Farmacêutica</span></div>
+                        <span class="km-time">Vence 2h</span>
+                      </div>
+                      <div class="km-title">Validar XML da NFE 12345</div>
+                      <div class="km-preview">Embarque #001 · R$ 89.420. Divergência fiscal detectada pelo Match Engine.</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-warn">⏱ Urgente</span>
+                        <span class="km-badge km-b-module">Fiscal</span>
+                        <span class="km-badge km-b-process">NFE-12345</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card urgente" onclick="event.preventDefault();window.open('tela23-requisicao-detalhe.html','_self');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar av-3">JM</div><span class="km-sender">João Mendes (Solic.)</span></div>
+                        <span class="km-time">Hoje 16h</span>
+                      </div>
+                      <div class="km-title">Revisar Requisição #REQ-318</div>
+                      <div class="km-preview">Divergência item B-7720: quantidade solicitada 50, em estoque 32. Decidir reposição.</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-warn">⏱ Hoje</span>
+                        <span class="km-badge km-b-cliente">Libbs</span>
+                        <span class="km-badge km-b-process">REQ-318</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card documento" onclick="event.preventDefault();window.open('tela25-cotacao-form.html','_self');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar av-4">AC</div><span class="km-sender">Aché Compras</span></div>
+                        <span class="km-time">Amanhã</span>
+                      </div>
+                      <div class="km-title">Enviar cotação Aché Q3</div>
+                      <div class="km-preview">3 fornecedores selecionados. WF "Cotação 3-way", stage 2 de 4. Prazo amanhã 10h.</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-documento">📄 Cotação</span>
+                        <span class="km-badge km-b-cliente">Aché</span>
+                        <span class="km-badge km-b-process">RFQ-Q3</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card documento" onclick="event.preventDefault();window.open('tela29-pedido-detalhe.html','_self');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar av-5">PR</div><span class="km-sender">Paula Reis (Executor)</span></div>
+                        <span class="km-time">Qui 14h</span>
+                      </div>
+                      <div class="km-title">Confirmar entrega PED-2599 com fornecedor</div>
+                      <div class="km-preview">WF "Aéreo internacional", stage 4. AWB 071-2389. Eurofarma aguarda confirmação.</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-documento">📦 Pedido</span>
+                        <span class="km-badge km-b-cliente">Eurofarma</span>
+                        <span class="km-badge km-b-process">PED-2599</span>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div class="kanban-col-footer">
+                    <button class="kc-see" onclick="event.preventDefault();window.open('tela18-cockpit-todo.html','_self');">Ver Cockpit Todo →</button>
+                  </div>
+                </div>
+
+                <!-- ============ COLUNA 3 — FOLLOW UP ============ -->
+                <div class="kanban-col followup">
+                  <div class="kanban-col-header">
+                    <div class="kc-title"><span class="kc-ico">👁️</span><span>FOLLOW UP</span></div>
+                    <span class="kc-count">5</span>
+                  </div>
+                  <div class="kanban-col-body">
+
+                    <div class="km-card thread" onclick="event.preventDefault();window.open('tela12-execution-visibility.html','_self');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar av-5">PR</div><span class="km-sender">Paula Reis (Exec.)</span></div>
+                        <span class="km-time">Hoje 18h</span>
+                      </div>
+                      <div class="km-title">Rastreio AWB 071-2389 — em trânsito</div>
+                      <div class="km-preview">Voo CV 7521 saiu de MIA 14h32. Cadeira observador. ETA GIG hoje 18h.</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-ok">🛫 Em trânsito</span>
+                        <span class="km-badge km-b-cliente">Eurofarma</span>
+                        <span class="km-badge km-b-process">AWB-071-2389</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card thread" onclick="event.preventDefault();window.open('tela26-cotacao-detalhe.html','_self');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar av-2">BL</div><span class="km-sender">Bruno Lima (Exec.)</span></div>
+                        <span class="km-time">Amanhã</span>
+                      </div>
+                      <div class="km-title">Cotação EMS — aguardando 3 fornecedores</div>
+                      <div class="km-preview">1 respondeu, 2 pendentes. Carlos Reis (FC) já enviou; FA e FB no prazo até amanhã 12h.</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-warn">⏱ 2 pend.</span>
+                        <span class="km-badge km-b-cliente">EMS Pharma</span>
+                        <span class="km-badge km-b-process">RFQ-2026-08</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card thread" onclick="event.preventDefault();window.open('tela12-execution-visibility.html','_self');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar av-1">CS</div><span class="km-sender">Carlos Souza (Exec.)</span></div>
+                        <span class="km-time">Sex 09h</span>
+                      </div>
+                      <div class="km-title">Embarque MIA-GIG — despacho aduaneiro</div>
+                      <div class="km-preview">DI registrada 02/06. Aguardando parametrização canal (verde/amarelo). WF-Emb-001.</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-thread">💬 Aguardando</span>
+                        <span class="km-badge km-b-cliente">Libbs</span>
+                        <span class="km-badge km-b-process">WF-Emb-001</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card thread" onclick="event.preventDefault();window.open('tela46-contrato-detalhe.html','_self');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar av-4">RL</div><span class="km-sender">Renata Lima (Jurídico)</span></div>
+                        <span class="km-time">28 dias</span>
+                      </div>
+                      <div class="km-title">Renovação contrato Aché — revisão jurídica</div>
+                      <div class="km-preview">Cláusulas 4.2 e 7.3 em discussão. Expira 30/06. Cadeira observador (gestão comercial).</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-info">📝 Contrato</span>
+                        <span class="km-badge km-b-cliente">Aché</span>
+                        <span class="km-badge km-b-process">CONT-022</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card info" onclick="event.preventDefault();window.open('tela12-execution-visibility.html','_self');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar av-3">EP</div><span class="km-sender">Eduardo Pinto (Compl.)</span></div>
+                        <span class="km-time">Próx. sem</span>
+                      </div>
+                      <div class="km-title">Auditoria interna Q2 — coleta evidências</div>
+                      <div class="km-preview">WF "Compliance Q2", stage 1 de 3. 12 controles em coleta, 4 já assinados digitalmente.</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-ok">📋 Coleta</span>
+                        <span class="km-badge km-b-module">Compliance</span>
+                        <span class="km-badge km-b-process">WF-COMP-Q2</span>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div class="kanban-col-footer">
+                    <button class="kc-see" onclick="event.preventDefault();window.open('tela19-cockpit-followup.html','_self');">Ver Cockpit Followup →</button>
+                  </div>
+                </div>
+
+                <!-- ============ COLUNA 4 — UPDATE ============ -->
+                <div class="kanban-col update">
+                  <div class="kanban-col-header">
+                    <div class="kc-title"><span class="kc-ico">🔔</span><span>UPDATE</span></div>
+                    <span class="kc-count">5</span>
+                  </div>
+                  <div class="kanban-col-body">
+
+                    <div class="km-card info" onclick="event.preventDefault();window.open('tela39-nota-fiscal-detalhe.html','_self');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar" style="background:#7A8F24">ME</div><span class="km-sender">Match Engine</span></div>
+                        <span class="km-time">35min</span>
+                      </div>
+                      <div class="km-title">NF 67890 recebida e classificada</div>
+                      <div class="km-preview">Vinculada automaticamente ao Pedido #PED-2580 (97% de confiança). Pronta para validação.</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-info">ℹ Auto-match</span>
+                        <span class="km-badge km-b-module">Match Engine</span>
+                        <span class="km-badge km-b-process">NF-67890</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card info" onclick="event.preventDefault();window.open('tela29-pedido-detalhe.html','_self');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar av-4">PA</div><span class="km-sender">Pedro Alves (Diretor)</span></div>
+                        <span class="km-time">2h</span>
+                      </div>
+                      <div class="km-title">Workflow WF-Cot-2614 aprovado</div>
+                      <div class="km-preview">Aprovação final no stage 4. Próximo passo: emissão automática do PO ao fornecedor vencedor.</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-ok">✓ Aprovado</span>
+                        <span class="km-badge km-b-cliente">Aché</span>
+                        <span class="km-badge km-b-process">WF-Cot-2614</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card info" onclick="event.preventDefault();window.open('tela13-audit-trail.html','_self');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar av-2">BP</div><span class="km-sender">Beatriz Pinto</span></div>
+                        <span class="km-time">4h</span>
+                      </div>
+                      <div class="km-title">Permissão delegada: audit.view_global</div>
+                      <div class="km-preview">Beatriz cedeu temporariamente a você. Expira 11/06. Razão: férias planejadas.</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-info">🔐 Delegação</span>
+                        <span class="km-badge km-b-module">Permissões</span>
+                        <span class="km-badge km-b-process">DELEG-218</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card reclamacao" onclick="event.preventDefault();window.open('tela11-match-engine.html','_self');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar" style="background:#7A8F24">SY</div><span class="km-sender">Sistema (P19)</span></div>
+                        <span class="km-time">6h</span>
+                      </div>
+                      <div class="km-title">Match inexistente: NF 71234</div>
+                      <div class="km-preview">Nenhum pedido aberto bate com a NF. WF de sistema (P19) gerado — requer triagem manual.</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-warn">⚠ Manual</span>
+                        <span class="km-badge km-b-module">Match Engine</span>
+                        <span class="km-badge km-b-process">NF-71234</span>
+                      </div>
+                    </div>
+
+                    <div class="km-card info" onclick="event.preventDefault();window.open('tela83-alcadas-cadastro.html','_self');">
+                      <div class="km-head">
+                        <div class="km-sender-row"><div class="km-avatar av-1">CP</div><span class="km-sender">Compliance</span></div>
+                        <span class="km-time">Ontem</span>
+                      </div>
+                      <div class="km-title">Alçada de aprovação atualizada</div>
+                      <div class="km-preview">Novo teto Gerentes: R$ 250k (era R$ 200k). Vigor a partir de 03/06. Afeta seu nível.</div>
+                      <div class="km-meta-row">
+                        <span class="km-badge km-b-info">⚖ Alçada</span>
+                        <span class="km-badge km-b-module">Compliance</span>
+                        <span class="km-badge km-b-process">ALC-G3</span>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div class="kanban-col-footer">
+                    <button class="kc-see" onclick="event.preventDefault();window.open('tela71-notificacoes-centro.html','_self');">Ver Notificações →</button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- ESTADO VAZIO (toggle) -->
+          <div class="src-empty-only">
+            <div class="empty-state">
+              <div class="empty-illustr mb-3">📭</div>
+              <h3 class="text-lg font-bold text-dms-mar mb-2">Você ainda não tem pendências</h3>
+              <p class="text-[13px] text-dms-tecnologia max-w-md mx-auto mb-5">
+                Nenhum Workflow Instance ativo gera cards pra você no momento.
+                Em produção, sem MAILIA conectada e sem WFs default da Sprint 4, esse é o estado real ao logar pela 1ª vez.
+              </p>
+              <div class="flex items-center justify-center gap-2 flex-wrap">
+                <button onclick="event.preventDefault();location.href='tela22-requisicao-form.html';" class="text-[12px] font-semibold text-white bg-dms-mar rounded px-3.5 py-2 hover:bg-dms-confianca">📋 Crie uma Requisição</button>
+                <button onclick="event.preventDefault();location.href='tela04-catalogo-workflows.html';" class="text-[12px] font-semibold text-dms-mar border border-[#E5E7EB] bg-white rounded px-3.5 py-2 hover:bg-[#FAFBFC]">🔀 Veja Workflows exemplo</button>
+                <button onclick="event.preventDefault();location.href='tela15-mailia-admin.html';" class="text-[12px] font-semibold text-dms-mar border border-[#E5E7EB] bg-white rounded px-3.5 py-2 hover:bg-[#FAFBFC]">📨 Configure MAILIA</button>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-[11px] text-dms-tecnologia mt-4 leading-relaxed max-w-3xl">
+            <strong>Nota MVP:</strong> 4 colunas lado a lado mostram Top 5 de cada tipo (visão consolidada simultânea, alinhada com tela17). Ordem padrão = atrasados no topo + prazo ascendente (RN-CKP-06). Cards refletem cadeiras do seu profile (executor → TO DO, observador → FOLLOW UP, destinatária → UPDATE). Email Threads são N:M com Workflow Instance (RN-CKP-05). Em mobile o grid scrolla horizontal. Toggle 3 modos (Stage/SOP/Workflow) vive nas telas internas (17/18/19), aqui é só overview. IA Chat e IA View = Future (RN-CKP-15 Fase B/C).
+          </p>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============ DRAWER: Campos do card (field picker, igual tela17b) ============ -->
+<div id="field-picker" class="ck-drawer-overlay" onclick="if(event.target===this)closePicker()">
+  <div class="ck-drawer open" style="width:420px;" role="dialog" aria-labelledby="picker-title" onclick="event.stopPropagation();">
+    <div class="ck-drawer-header">
+      <div>
+        <h3 id="picker-title" class="text-base font-bold text-dms-mar flex items-center gap-2">⚙️ Campos do card</h3>
+        <p class="text-[11px] text-dms-tecnologia mt-0.5">Vale pra <strong class="text-dms-mar">qualquer card do sistema</strong> (TO DO · FUP · UPDATE · EMAIL)</p>
+      </div>
+      <button onclick="closePicker()" class="text-dms-tecnologia hover:text-dms-mar text-2xl leading-none">×</button>
+    </div>
+    <div class="ck-drawer-body">
+      <div class="mb-5">
+        <div class="caption text-dms-mar mb-2">Campos padrão <span class="text-dms-tecnologia font-normal normal-case">· arraste para reordenar</span></div>
+        <div class="flex flex-col gap-1.5">
+          <div class="picker-row"><span class="drag">⠿</span><input type="checkbox" checked class="pr-checkbox"><span class="flex-1">Remetente / Responsável</span></div>
+          <div class="picker-row"><span class="drag">⠿</span><input type="checkbox" checked class="pr-checkbox"><span class="flex-1">Hora (absoluta + relativa)</span></div>
+          <div class="picker-row"><span class="drag">⠿</span><input type="checkbox" checked class="pr-checkbox"><span class="flex-1">Título / Assunto</span></div>
+          <div class="picker-row"><span class="drag">⠿</span><input type="checkbox" checked class="pr-checkbox"><span class="flex-1">Preview (~150 chars)</span></div>
+          <div class="picker-row"><span class="drag">⠿</span><input type="checkbox" checked class="pr-checkbox"><span class="flex-1">Classificação (triagem Mailia)</span></div>
+          <div class="picker-row"><span class="drag">⠿</span><input type="checkbox" checked class="pr-checkbox"><span class="flex-1">Processo atrelado</span></div>
+        </div>
+      </div>
+      <div class="mb-5">
+        <div class="caption text-dms-mar mb-2">Disponíveis <span class="text-dms-tecnologia font-normal normal-case">· tag scheme</span></div>
+        <div class="flex flex-col gap-1.5">
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="pr-checkbox"><span class="flex-1">Valor (R$)</span></div>
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="pr-checkbox"><span class="flex-1">Cliente / Fornecedor</span></div>
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="pr-checkbox"><span class="flex-1">Empresa / Legal Entity</span></div>
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="pr-checkbox"><span class="flex-1">Centro de custo</span></div>
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="pr-checkbox"><span class="flex-1">SLA / Prazo</span></div>
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="pr-checkbox"><span class="flex-1">Stage do workflow</span></div>
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="pr-checkbox"><span class="flex-1">Confiança IA</span></div>
+        </div>
+      </div>
+      <div class="mb-2 p-3 bg-[#FAFBFC] border border-[#E5E7EB] rounded text-[11px] text-dms-tecnologia leading-relaxed">
+        💡 Em produção, esta preferência persiste por usuário em <code class="mono">user_page_layouts</code> (Card Field Picker — PR #196). Aqui só visual.
+      </div>
+    </div>
+    <div class="ck-drawer-footer" style="justify-content: space-between;">
+      <button onclick="event.preventDefault();notice('↺ Padrão restaurado (mock).');" class="text-[12px] font-semibold text-dms-tecnologia px-3 py-1.5 hover:text-dms-mar">↺ Restaurar padrão</button>
+      <button onclick="event.preventDefault();notice('💾 Preferência de campos salva (mock).');closePicker();" class="text-[12px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Salvar preferência</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DRAWER: Editar View ============ -->
+<div id="drawer-overlay" class="ck-drawer-overlay" onclick="closeEditViewDrawer()"></div>
+<div id="drawer-edit-view" class="ck-drawer" role="dialog" aria-labelledby="drawer-title">
+  <div class="ck-drawer-header">
+    <div>
+      <h3 id="drawer-title" class="text-base font-bold text-dms-mar">⚙️ Editar view "Meus Atrasados"</h3>
+      <p class="text-[11px] text-dms-tecnologia mt-0.5">Reconfigure quais cards entram em Prioridades agora</p>
+    </div>
+    <button onclick="closeEditViewDrawer()" class="text-dms-tecnologia hover:text-dms-mar text-2xl leading-none">×</button>
+  </div>
+  <div class="ck-drawer-body">
+    <div class="mb-5">
+      <label class="caption text-dms-tecnologia mb-1.5 block">Nome da view</label>
+      <input type="text" value="Meus Atrasados" class="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white focus:outline-none focus:border-dms-ceu">
+    </div>
+
+    <div class="mb-5">
+      <label class="caption text-dms-tecnologia mb-2 block">Tipos de card incluídos</label>
+      <div class="flex flex-col gap-2">
+        <label class="flex items-center gap-2 text-[12.5px]"><input type="checkbox" checked class="accent-dms-ceu"> TO DO</label>
+        <label class="flex items-center gap-2 text-[12.5px]"><input type="checkbox" checked class="accent-dms-ceu"> FOLLOW UP</label>
+        <label class="flex items-center gap-2 text-[12.5px]"><input type="checkbox" class="accent-dms-ceu"> UPDATE</label>
+        <label class="flex items-center gap-2 text-[12.5px]"><input type="checkbox" checked class="accent-dms-ceu"> EMAIL (vinculados)</label>
+      </div>
+    </div>
+
+    <div class="mb-5">
+      <label class="caption text-dms-tecnologia mb-1.5 block">Condição de prioridade</label>
+      <select class="filter-select">
+        <option>Atrasados + venc. próx. 4h</option>
+        <option>Atrasados apenas</option>
+        <option>Venc. hoje</option>
+        <option>Urgência manual ≥ Alta</option>
+      </select>
+    </div>
+
+    <div class="mb-5">
+      <label class="caption text-dms-tecnologia mb-1.5 block">Top N</label>
+      <input type="number" value="5" min="3" max="10" class="w-24 px-3 py-2 text-sm border border-[#E5E7EB] rounded-md bg-white">
+      <span class="text-[11px] text-dms-tecnologia ml-2">itens no bloco</span>
+    </div>
+
+    <div class="mb-5 p-3 bg-[#FAFBFC] border border-[#E5E7EB] rounded text-[11px] text-dms-tecnologia leading-relaxed">
+      💡 Em produção, esses critérios viram <code class="mono">cockpit_saved_view.filters</code> (json) — ver CONCEPT-cockpit § 2.6.
+    </div>
+
+    <div class="badge badge-tbd">TBD: persistência real — DP-CKP-14</div>
+  </div>
+  <div class="ck-drawer-footer">
+    <button onclick="closeEditViewDrawer()" class="text-[12px] font-semibold text-dms-tecnologia border border-[#E5E7EB] bg-white rounded px-3 py-1.5 hover:text-dms-mar">Cancelar</button>
+    <button onclick="event.preventDefault();notice('💾 View salva (mock). Função real persiste em cockpit_saved_view.');closeEditViewDrawer();" class="text-[12px] font-semibold text-white bg-dms-mar rounded px-3 py-1.5 hover:bg-dms-confianca">Salvar view</button>
+  </div>
+</div>
+
+<!-- ============ TOAST NOTIFICATIONS ============ -->
+<div id="toast-stack" style="position:fixed; bottom:24px; right:24px; z-index:80; display:flex; flex-direction:column; gap:8px; pointer-events:none;"></div>
+
+<script>
+  /* ===== v2: Page Layout Switcher (Clássico / Mailia-focused) ===== */
+  function setLayout(layout, btn){
+    document.body.setAttribute('data-layout', layout);
+    document.querySelectorAll('.layout-btn').forEach(function(b){ b.classList.remove('active'); });
+    if(btn) btn.classList.add('active');
+    try{ localStorage.setItem('cockpit-layout-v2', layout); }catch(e){}
+    notice(layout === 'mailia'
+      ? '📧 Layout Mailia-focused — caixa de e-mails priorizada.'
+      : '🗂️ Layout Clássico — 4 colunas equilibradas.');
+  }
+
+  /* ===== v2: Refresh MAILIA (botão ↻ + freshness, padrão tela17/17b) ===== */
+  var mailiaSecs = 12;
+  function paintFresh(){
+    var txt = mailiaSecs + '';
+    var a = document.getElementById('mailia-kpi-secs'); if(a) a.textContent = txt;
+    var b = document.getElementById('email-col-secs');  if(b) b.textContent = txt;
+  }
+  function refreshMailia(btn){
+    // spin em ambos os botões (KPI + coluna)
+    ['mailia-kpi-refresh','email-col-refresh'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el){ el.classList.remove('spinning'); void el.offsetWidth; el.classList.add('spinning'); }
+    });
+    mailiaSecs = 0; paintFresh();
+    if(btn !== '__auto'){ notice('↻ MAILIA sincronizada — caixa e classificações atualizadas.'); }
+  }
+
+  /* ===== v2: Field picker (Campos do card) ===== */
+  function openPicker(){ document.getElementById('field-picker').classList.add('open'); }
+  function closePicker(){ document.getElementById('field-picker').classList.remove('open'); }
+
+  /* ===== Source toggle (rich / empty) ===== */
+  function setSource(src, btn){
+    document.body.setAttribute('data-source', src);
+    document.querySelectorAll('.src-btn').forEach(function(b){ b.classList.remove('active'); });
+    if(btn) btn.classList.add('active');
+  }
+
+  /* ===== Saved views ===== */
+  function setSavedView(view, el){
+    document.querySelectorAll('.saved-view').forEach(function(v){ v.classList.remove('active'); });
+    if(el) el.classList.add('active');
+    var label = el ? el.querySelector('span.flex-1').textContent.trim() : view;
+    notice('Saved view "' + label + '" aplicada (mock).');
+  }
+
+  /* ===== Drawer Editar View ===== */
+  function openEditViewDrawer(){
+    document.getElementById('drawer-overlay').classList.add('open');
+    document.getElementById('drawer-edit-view').classList.add('open');
+  }
+  function closeEditViewDrawer(){
+    document.getElementById('drawer-overlay').classList.remove('open');
+    document.getElementById('drawer-edit-view').classList.remove('open');
+  }
+
+  /* ===== Toast notifications ===== */
+  function notice(msg){
+    var stack = document.getElementById('toast-stack');
+    if(!stack) return;
+    var t = document.createElement('div');
+    t.style.cssText = 'background:#00386C; color:#fff; padding:10px 14px; border-radius:8px; font-size:12.5px; font-weight:500; box-shadow:0 6px 20px rgba(0,56,108,0.25); max-width:380px; pointer-events:auto; opacity:0; transform:translateY(10px); transition:all 0.2s ease;';
+    t.textContent = msg;
+    stack.appendChild(t);
+    requestAnimationFrame(function(){ t.style.opacity = '1'; t.style.transform = 'translateY(0)'; });
+    setTimeout(function(){
+      t.style.opacity = '0'; t.style.transform = 'translateY(10px)';
+      setTimeout(function(){ t.remove(); }, 220);
+    }, 2600);
+  }
+
+  /* ===== Esc fecha drawers ===== */
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ closeEditViewDrawer(); closePicker(); }
+  });
+
+  /* ===== v2: restaura layout salvo + ticker de freshness + auto-refresh 30s ===== */
+  (function(){
+    // restaura preferência de layout
+    var saved = null; try{ saved = localStorage.getItem('cockpit-layout-v2'); }catch(e){}
+    if(saved === 'mailia' || saved === 'classico'){
+      document.body.setAttribute('data-layout', saved);
+      document.querySelectorAll('.layout-btn').forEach(function(b){
+        b.classList.toggle('active', b.getAttribute('data-layout') === saved);
+      });
+    }
+    paintFresh();
+    // ticker: incrementa "atualizado há Xs" a cada segundo
+    setInterval(function(){ mailiaSecs += 1; paintFresh(); }, 1000);
+    // auto-refresh a cada 30s (consistente com tela17/tela17b)
+    setInterval(function(){ refreshMailia('__auto'); }, 30000);
+  })();
+</script>
+
+<script src="notes-widget.js" defer></script>
+<script src="i18n-toggle.js" defer></script>
+<script src="sidebar-permissions.js" defer></script>
+</body>
+</html>
