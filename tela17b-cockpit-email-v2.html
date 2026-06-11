@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>DMS — Cockpit · E-mail v2 (triagem 5 + doctype)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = { corePlugins: { preflight: true }, theme: { extend: { colors: { dms: { mar: '#00386C', ceu: '#00AEEE', confianca: '#005290', sabedoria: '#643585', tropicalidade: '#B0C934', tecnologia: '#656464' }}, fontFamily: { sans: ['Montserrat', 'Verdana', 'sans-serif'], mono: ['JetBrains Mono', 'Consolas', 'monospace'] }, boxShadow: { 'dms-md': '0 4px 6px -1px rgba(0, 56, 108, 0.08), 0 2px 4px -1px rgba(0, 56, 108, 0.04)' }}}};
+</script>
+<style>
+  body { font-family: 'Montserrat', Verdana, sans-serif; background: #F8F9FA; color: #1A1A1A; }
+  .tilt-skew-d { transform: skewX(-16.5deg); display: inline-block; }
+  .tilt-accent { transform: skewX(-16.5deg); }
+  .caption { font-size: 11px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; line-height: 16px; }
+  .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+  .input-dms:focus { outline: none; border-color: #00AEEE; box-shadow: 0 0 0 3px rgba(0,174,238,0.2); }
+  .nav-item-active { background-color: #005290; border-left: 3px solid #00AEEE; padding-left: 21px !important; }
+
+  .filter-label { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #00386C; margin-bottom: 6px; display: block; }
+
+  /* ===== TRIAGEM 5 BUCKETS — tokens de cor (DS v1.1) ===== */
+  /* documento=azul ceu · reclamacao=vermelho · info=amarelo #EAB308 · thread=verde · naoop=cinza */
+  .kanban-grid { display: grid; gap: 12px; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
+  .kanban-col { background: white; border: 1px solid #E5E7EB; border-radius: 6px; display: flex; flex-direction: column; overflow: hidden; }
+  .kanban-col-header { padding: 10px 12px; border-bottom: 1px solid #E5E7EB; display: flex; align-items: center; justify-content: space-between; background: #FAFBFC; }
+  .kanban-col.documento   { border-top: 3px solid #00AEEE; }
+  .kanban-col.reclamacao  { border-top: 3px solid #DC2626; }
+  .kanban-col.info        { border-top: 3px solid #EAB308; }
+  .kanban-col.thread      { border-top: 3px solid #16A34A; }
+  .kanban-col.naoop       { border-top: 3px solid #9CA3AF; }
+  .kanban-col-header .title { font-size: 12px; font-weight: 700; color: #00386C; display: flex; align-items: center; gap: 6px; }
+  .kanban-col-header .count { background: #F3F4F6; color: #00386C; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+
+  .email-card { background: white; border: 1px solid #E5E7EB; border-radius: 6px; padding: 10px 12px; cursor: pointer; transition: all 150ms ease; display: flex; flex-direction: column; gap: 6px; }
+  .email-card:hover { box-shadow: 0 2px 6px -1px rgba(0,56,108,0.10); transform: translateY(-1px); border-color: #D1D5DB; }
+  .email-card.reclamacao  { border-left: 3px solid #DC2626; }
+  .email-card.documento   { border-left: 3px solid #00AEEE; }
+  .email-card.info        { border-left: 3px solid #EAB308; }
+  .email-card.thread      { border-left: 3px solid #16A34A; }
+  .email-card.naoop       { border-left: 3px solid #9CA3AF; }
+  .email-card .head { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .email-card .sender-row { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; }
+  .email-card .avatar { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 10px; flex-shrink: 0; }
+  .email-card .sender { font-size: 12px; font-weight: 700; color: #00386C; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .email-card .time { font-size: 10px; color: #656464; font-weight: 600; flex-shrink: 0; text-align: right; line-height: 1.2; }
+  .email-card .subject { font-size: 11.5px; font-weight: 600; color: #1A1A1A; line-height: 1.3; }
+  .email-card .preview { font-size: 10.5px; color: #656464; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .email-card .meta-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .email-card .valnf { font-size: 10.5px; color: #00386C; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+  /* ===== BADGES ===== */
+  .badge-mailia { padding: 1px 6px; border-radius: 3px; font-size: 9px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px; }
+  .badge-reclamacao { background: rgba(220,38,38,0.10); color: #991B1B; }
+  .badge-documento  { background: rgba(0,174,238,0.15); color: #005290; }
+  .badge-informacao { background: rgba(234,179,8,0.16); color: #854D0E; }
+  .badge-thread     { background: rgba(22,163,74,0.12); color: #15803D; }
+  .badge-naoop      { background: #F3F4F6; color: #6B7280; }
+  .badge-process    { background: rgba(100,53,133,0.10); color: #643585; font-family: 'JetBrains Mono', monospace; }
+  /* doctype = badge secundário (sub-categoria) */
+  .badge-doctype    { background: rgba(0,56,108,0.06); color: #00386C; border: 1px dashed rgba(0,56,108,0.22); font-weight: 600; }
+  .badge-conf       { background: rgba(0,56,108,0.04); color: #656464; font-family: 'JetBrains Mono', monospace; }
+  .badge-conf.high  { color: #15803D; }
+  .badge-conf.mid   { color: #854D0E; }
+  .badge-conf.low   { color: #991B1B; }
+
+  /* ===== CARDS EXEMPLO (destaque topo) ===== */
+  .feat-card { background: white; border: 1px solid #E5E7EB; border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 6px -1px rgba(0,56,108,0.08); border-top: 3px solid #00AEEE; }
+  .feat-card.reclamacao { border-top-color: #DC2626; }
+  .feat-card.naoop { border-top-color: #9CA3AF; }
+  .feat-card .fc-field-label { font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #9CA3AF; margin-bottom: 3px; }
+  .feat-card .fc-time-abs { font-size: 18px; font-weight: 800; color: #00386C; line-height: 1; }
+  .feat-card .fc-time-rel { font-size: 11px; color: #656464; font-weight: 600; margin-top: 2px; }
+  .feat-card .fc-preview { font-size: 12.5px; color: #1A1A1A; line-height: 1.45; font-weight: 500; }
+
+  /* ===== DRAWER / MODAL ===== */
+  .drawer-overlay { background: rgba(0, 56, 108, 0.40); backdrop-filter: blur(2px); }
+  .drawer-panel { animation: slideIn 200ms ease-out; }
+  @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  .modal-pop { animation: popIn 160ms ease-out; }
+  @keyframes popIn { from { transform: scale(0.96); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .thread-msg { border-left: 2px solid #E5E7EB; padding-left: 12px; padding-bottom: 12px; }
+  .thread-msg.from-me { border-left-color: #00AEEE; }
+  .composer-toolbar button { padding: 4px; color: #656464; border-radius: 4px; transition: all 120ms; cursor: pointer; background: none; border: none; }
+  .composer-toolbar button:hover { color: #00386C; background: #F8F9FA; }
+
+  /* ===== CARD FIELD PICKER ===== */
+  .picker-row { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border: 1px solid #E5E7EB; border-radius: 6px; background: white; font-size: 12px; transition: all 120ms; }
+  .picker-row:hover { border-color: #00AEEE; background: #F8FBFE; }
+  .picker-row .drag { cursor: grab; color: #9CA3AF; font-size: 13px; user-select: none; }
+  .picker-row.optional { border-style: dashed; background: #FAFBFC; }
+  .deci-opt { display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left; padding: 12px 14px; border: 1px solid #E5E7EB; border-radius: 8px; background: white; cursor: pointer; transition: all 140ms; }
+  .deci-opt:hover { border-color: #00AEEE; background: #F8FBFE; transform: translateY(-1px); box-shadow: 0 2px 6px -1px rgba(0,56,108,0.10); }
+  .deci-opt .deci-key { width: 28px; height: 28px; border-radius: 6px; background: #00386C; color: white; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .deci-opt.danger:hover { border-color: #DC2626; background: #FEF2F2; }
+  .deci-opt.danger .deci-key { background: #DC2626; }
+
+  /* ===== RESPONSIVO / MOBILE (iPhone) ===== */
+  @media (max-width: 1100px) {
+    .kanban-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .feat-grid { grid-template-columns: 1fr !important; }
+    .main-layout { grid-template-columns: 1fr !important; }
+    .kpi-bar { grid-template-columns: repeat(2, 1fr) !important; }
+  }
+  @media (max-width: 640px) {
+    .kanban-grid { grid-template-columns: 1fr; }
+    .feat-card .fc-grid { grid-template-columns: 1fr !important; }
+    .hdr-actions { width: 100%; flex-wrap: wrap; }
+  }
+</style>
+<link rel="stylesheet" href="mobile-responsive.css">
+  <script defer src="sidebar-permissions.js"></script>
+</head>
+<body class="min-h-screen">
+
+<div class="flex min-h-screen">
+
+  <!-- sidebar legada (oculta pela consolidada M5b no fim do arquivo) -->
+  <aside class="w-[260px] bg-dms-mar text-white flex flex-col fixed inset-y-0 left-0 z-30">
+    <div class="px-6 py-5 flex items-center gap-3 border-b border-white/10">
+      <div class="w-10 h-10 bg-white rounded-md flex items-center justify-center"><span class="tilt-skew-d text-dms-mar font-black text-2xl">D</span></div>
+      <div><div class="font-bold text-base leading-tight">DMS</div><div class="text-xs text-white/70 leading-tight">Workflow Engine</div></div>
+    </div>
+  </aside>
+
+  <div class="flex-1 ml-[260px] flex flex-col min-h-screen">
+
+    <header class="bg-white border-b border-[#E5E7EB] px-4 sm:px-6 py-3 sticky top-0 z-20">
+      <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div class="flex-1 min-w-[220px]">
+          <nav class="flex items-center gap-1.5 text-xs text-dms-tecnologia mb-1.5">
+            <a href="tela16-cockpit-overview.html" class="hover:text-dms-mar transition-colors flex items-center gap-1">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg><span>Cockpit</span>
+            </a>
+            <svg class="w-3 h-3 text-dms-tecnologia/50" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+            <span class="text-dms-mar font-semibold">E-mail v2</span>
+            <span class="badge-mailia badge-documento ml-1">triagem 5 + doctype</span>
+          </nav>
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+            <h1 class="text-[20px] sm:text-[22px] leading-tight font-bold text-dms-mar">📧 Caixa de E-mails — Maria Costa</h1>
+          </div>
+          <p class="text-xs text-dms-tecnologia ml-[60px] mt-0.5">
+            <strong class="text-dms-mar">23</strong> emails · triados pela MAILIA · atualizado <strong class="text-dms-mar">há 47s</strong>
+          </p>
+        </div>
+        <div class="hdr-actions flex items-center gap-2 flex-shrink-0">
+          <div class="relative hidden sm:block">
+            <svg class="w-3.5 h-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-dms-tecnologia" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" placeholder="Buscar..." class="input-dms w-[160px] pl-7 pr-3 py-1.5 text-xs border border-[#E5E7EB] rounded bg-[#F8F9FA]">
+          </div>
+          <button onclick="alert('Sincronizando MAILIA...')" class="flex items-center gap-1.5 text-xs font-semibold text-dms-tecnologia px-2.5 py-1.5 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Atualizar
+          </button>
+          <button onclick="openArchive()" class="flex items-center gap-1.5 text-xs font-semibold text-dms-tecnologia px-2.5 py-1.5 bg-white border border-[#E5E7EB] rounded-md hover:bg-[#F8F9FA] transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8M10 12h4"/></svg>
+            Arquivados
+          </button>
+          <button onclick="openPicker()" title="Configurar campos do card" aria-label="Configurar campos do card" class="flex items-center gap-1.5 text-xs font-semibold text-dms-confianca px-2.5 py-1.5 bg-white border border-dms-confianca rounded-md hover:bg-dms-confianca hover:text-white transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Campos
+          </button>
+          <a href="tela16-cockpit-overview.html" class="flex items-center gap-1.5 text-xs font-semibold text-dms-mar px-3 py-1.5 bg-white border border-dms-mar rounded-md hover:bg-dms-mar hover:text-white transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/></svg>
+            Voltar
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 p-4 w-full mx-auto" style="max-width: 1700px;">
+
+      <!-- ===================== CARDS EXEMPLO (destaque topo) ===================== -->
+      <section class="mb-5">
+        <div class="flex items-center gap-2 mb-2.5">
+          <div class="w-8 h-[3px] bg-dms-ceu tilt-accent rounded-sm"></div>
+          <h2 class="caption text-dms-mar font-bold">Cards exemplo · 3 campos aprovados (Hora · Preview · Classificação Mailia)</h2>
+        </div>
+        <div class="feat-grid grid gap-3" style="grid-template-columns: repeat(3, 1fr);">
+
+          <!-- 1 · Documento + NFS-e -->
+          <div class="feat-card documento" onclick="openEmail()">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-2 min-w-0">
+                <div class="email-card-avatar" style="width:30px;height:30px;border-radius:50%;background:#005290;color:#fff;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">JA</div>
+                <div class="min-w-0">
+                  <div class="text-sm font-bold text-dms-mar truncate">JARE ADERNO</div>
+                  <div class="text-[10px] text-dms-tecnologia truncate">financeiro@jareaderno.com.br</div>
+                </div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <div class="fc-field-label">Hora</div>
+                <div class="fc-time-abs">09:45</div>
+                <div class="fc-time-rel">há 2h</div>
+              </div>
+            </div>
+            <div class="fc-grid">
+              <div class="fc-field-label">Preview do texto</div>
+              <p class="fc-preview">"Prezados, segue em anexo a NF referente aos serviços de armazenagem prestados em maio/2026. Qualquer dúvida estamos à disposição…"</p>
+            </div>
+            <div>
+              <div class="fc-field-label">Classificação Mailia</div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="badge-mailia badge-documento">📄 Documento</span>
+                <span class="badge-mailia badge-doctype">nfe_servico · NFS-e</span>
+                <span class="badge-mailia badge-conf high">IA 96%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2 · Reclamação + Cobrança duplicada -->
+          <div class="feat-card reclamacao" onclick="openEmail()">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-2 min-w-0">
+                <div style="width:30px;height:30px;border-radius:50%;background:#DC2626;color:#fff;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">VI</div>
+                <div class="min-w-0">
+                  <div class="text-sm font-bold text-dms-mar truncate">VISIVO</div>
+                  <div class="text-[10px] text-dms-tecnologia truncate">cobranca@visivo.com.br</div>
+                </div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <div class="fc-field-label">Hora</div>
+                <div class="fc-time-abs">13:22</div>
+                <div class="fc-time-rel">há 4h</div>
+              </div>
+            </div>
+            <div class="fc-grid">
+              <div class="fc-field-label">Preview do texto</div>
+              <p class="fc-preview">"Bom dia, identificamos que a fatura 8842 foi cobrada em duplicidade no boleto deste mês. Solicitamos urgente a correção antes do vencimento…"</p>
+            </div>
+            <div>
+              <div class="fc-field-label">Classificação Mailia</div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="badge-mailia badge-reclamacao">⚠️ Reclamação</span>
+                <span class="badge-mailia badge-doctype">cobranca · Cobrança duplicada</span>
+                <span class="badge-mailia badge-conf mid">IA 88%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3 · Não operacional + Newsletter -->
+          <div class="feat-card naoop" onclick="openDecision('SAP Brasil')">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-center gap-2 min-w-0">
+                <div style="width:30px;height:30px;border-radius:50%;background:#9CA3AF;color:#fff;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">SB</div>
+                <div class="min-w-0">
+                  <div class="text-sm font-bold text-dms-mar truncate">SAP Brasil</div>
+                  <div class="text-[10px] text-dms-tecnologia truncate">news@mkt.sap.com</div>
+                </div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <div class="fc-field-label">Hora</div>
+                <div class="fc-time-abs">08:15</div>
+                <div class="fc-time-rel">ontem</div>
+              </div>
+            </div>
+            <div class="fc-grid">
+              <div class="fc-field-label">Preview do texto</div>
+              <p class="fc-preview">"Olá, confira esta edição da nossa newsletter com as novidades em ERP, eventos e webinars do trimestre. Não perca o SAP Now 2026…"</p>
+            </div>
+            <div>
+              <div class="fc-field-label">Classificação Mailia</div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="badge-mailia badge-naoop">🔕 Não operacional</span>
+                <span class="badge-mailia badge-doctype">newsletter</span>
+                <span class="badge-mailia badge-conf high">IA 99%</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ===================== KPI BAR ===================== -->
+      <div class="kpi-bar bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md mb-4 grid" style="grid-template-columns: repeat(5, 1fr);">
+        <div class="px-3.5 py-3"><div class="filter-label flex items-center gap-1.5" style="margin-bottom:4px"><span style="width:18px;text-align:center">📄</span>Documento</div><div class="text-[24px] font-extrabold leading-none" style="color:#005290">9</div><div class="text-[10px] text-dms-tecnologia mt-1">13+ doctypes</div></div>
+        <div class="px-3.5 py-3 border-l border-[#F3F4F6]"><div class="filter-label flex items-center gap-1.5" style="margin-bottom:4px"><span style="width:18px;text-align:center">⚠️</span>Reclamação</div><div class="text-[24px] font-extrabold leading-none" style="color:#DC2626">2</div><div class="text-[10px] text-dms-tecnologia mt-1">prioritário</div></div>
+        <div class="px-3.5 py-3 border-l border-[#F3F4F6]"><div class="filter-label flex items-center gap-1.5" style="margin-bottom:4px"><span style="width:18px;text-align:center">✉️</span>Info esperada</div><div class="text-[24px] font-extrabold leading-none" style="color:#854D0E">4</div><div class="text-[10px] text-dms-tecnologia mt-1">resposta a thread</div></div>
+        <div class="px-3.5 py-3 border-l border-[#F3F4F6]"><div class="filter-label flex items-center gap-1.5" style="margin-bottom:4px"><span style="width:18px;text-align:center">💬</span>Continuação</div><div class="text-[24px] font-extrabold leading-none" style="color:#15803D">6</div><div class="text-[10px] text-dms-tecnologia mt-1">thread aberta</div></div>
+        <div class="px-3.5 py-3 border-l border-[#F3F4F6]"><div class="filter-label flex items-center gap-1.5" style="margin-bottom:4px"><span style="width:18px;text-align:center">🔕</span>Não operacional</div><div class="text-[24px] font-extrabold leading-none" style="color:#6B7280">2</div><div class="text-[10px] text-dms-tecnologia mt-1">decisão manual</div></div>
+      </div>
+
+      <div class="main-layout grid gap-4" style="grid-template-columns: 220px 1fr;">
+
+        <!-- ===================== FILTROS ===================== -->
+        <aside class="bg-white border border-[#E5E7EB] rounded-lg shadow-dms-md p-4 h-fit">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="caption text-dms-mar font-bold">🔍 Filtros</h3>
+            <button class="text-[10px] text-dms-tecnologia hover:text-dms-mar transition-colors">Limpar</button>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="filter-label">Período</label>
+              <select class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white">
+                <option selected>Últimos 7 dias</option><option>Hoje</option><option>Esta semana</option>
+              </select>
+            </div>
+            <div>
+              <label class="filter-label">Triagem MAILIA</label>
+              <div class="space-y-1.5">
+                <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="text-[#005290]">📄 Documento (9)</span></label>
+                <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="text-red-700">⚠️ Reclamação (2)</span></label>
+                <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span style="color:#854D0E">✉️ Info esperada (4)</span></label>
+                <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span style="color:#15803D">💬 Continuação (6)</span></label>
+                <label class="flex items-center gap-2 text-xs cursor-pointer"><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="text-dms-tecnologia">🔕 Não operacional (2)</span></label>
+              </div>
+            </div>
+            <div>
+              <label class="filter-label">Doctype (sub-categoria)</label>
+              <select class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white">
+                <option selected>Todos os doctypes</option>
+                <option>nfe_produto</option><option>nfe_servico</option><option>boleto</option><option>contrato</option>
+                <option>comprovante_pix</option><option>cte_mdfe</option><option>demonstrativo</option><option>aviso_vencimento</option>
+                <option>cobranca</option><option>notificacao_fiscal</option><option>negociacao</option><option>suporte_fornecedor</option><option>outros</option>
+              </select>
+            </div>
+            <div><label class="filter-label">Remetente</label><input type="text" placeholder="Nome ou email..." class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white"></div>
+            <div><label class="filter-label">Processo atrelado</label><input type="text" placeholder="REQ, NF, PO..." class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white"></div>
+            <div><label class="filter-label">Confiança IA mínima</label><select class="input-dms w-full px-2 py-1.5 text-xs border border-[#E5E7EB] rounded bg-white"><option selected>Qualquer</option><option>≥ 80%</option><option>≥ 90%</option></select></div>
+          </div>
+        </aside>
+
+        <!-- ===================== KANBAN 5 BUCKETS ===================== -->
+        <div class="kanban-grid">
+
+          <!-- 📄 Documento -->
+          <div class="kanban-col documento">
+            <div class="kanban-col-header"><div class="title">📄 Documento</div><span class="count">9</span></div>
+            <div class="p-2.5 overflow-y-auto" style="max-height: 720px; display: flex; flex-direction: column; gap: 8px;">
+              <div class="email-card documento" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#005290">JA</div><span class="sender">JARE ADERNO</span></div><span class="time">09:45<br>há 2h</span></div>
+                <div class="subject">NF de armazenagem · maio/2026</div>
+                <div class="preview">"Prezados, segue em anexo a NF referente aos serviços de armazenagem prestados em maio/2026..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-documento">📄 Documento</span><span class="badge-mailia badge-doctype">nfe_servico</span><span class="badge-mailia badge-conf high">96%</span></div>
+                <div class="meta-row"><span class="valnf">R$ 8.420,00 · NF 8841</span></div>
+              </div>
+              <div class="email-card documento" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#005290">FB</div><span class="sender">Fornecedor B</span></div><span class="time">08:10<br>há 3h</span></div>
+                <div class="subject">NFe 8821 + XML anexo</div>
+                <div class="preview">"Segue NF emitida conforme PO-2026-0089. Anexo: NFe_8821.xml + nota.pdf"</div>
+                <div class="meta-row"><span class="badge-mailia badge-documento">📄 Documento</span><span class="badge-mailia badge-doctype">nfe_produto</span><span class="badge-mailia badge-conf high">98%</span></div>
+                <div class="meta-row"><span class="valnf">R$ 12.400,00 · NF 8821</span><span class="badge-mailia badge-process">PO-2026-0089</span></div>
+              </div>
+              <div class="email-card documento" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#005290">BR</div><span class="sender">Banco Bradesco</span></div><span class="time">07:30<br>há 4h</span></div>
+                <div class="subject">Boleto fatura abril</div>
+                <div class="preview">"Boleto referente ao contrato CONT-022. Vencimento: 20/06/2026..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-documento">📄 Documento</span><span class="badge-mailia badge-doctype">boleto</span><span class="badge-mailia badge-conf mid">84%</span></div>
+                <div class="meta-row"><span class="valnf">R$ 3.150,00 · vence 20/06</span></div>
+              </div>
+              <div class="email-card documento" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#005290">PX</div><span class="sender">Operacional Log.</span></div><span class="time">ontem<br>16:40</span></div>
+                <div class="subject">Comprovante PIX pagamento</div>
+                <div class="preview">"Segue comprovante do PIX realizado para quitação da NF 0531..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-documento">📄 Documento</span><span class="badge-mailia badge-doctype">comprovante_pix</span><span class="badge-mailia badge-conf high">93%</span></div>
+              </div>
+              <div class="text-center text-[10px] text-dms-tecnologia italic py-2">+ 5 emails</div>
+            </div>
+          </div>
+
+          <!-- ⚠️ Reclamação -->
+          <div class="kanban-col reclamacao">
+            <div class="kanban-col-header"><div class="title">⚠️ Reclamação</div><span class="count">2</span></div>
+            <div class="p-2.5 overflow-y-auto" style="max-height: 720px; display: flex; flex-direction: column; gap: 8px;">
+              <div class="email-card reclamacao" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#DC2626">VI</div><span class="sender">VISIVO</span></div><span class="time">13:22<br>há 4h</span></div>
+                <div class="subject">Cobrança em duplicidade — fatura 8842</div>
+                <div class="preview">"Bom dia, identificamos que a fatura 8842 foi cobrada em duplicidade no boleto deste mês..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-reclamacao">⚠️ Reclamação</span><span class="badge-mailia badge-doctype">cobranca</span><span class="badge-mailia badge-conf mid">88%</span></div>
+              </div>
+              <div class="email-card reclamacao" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#DC2626">FA</div><span class="sender">Fornecedor A</span></div><span class="time">12:05<br>há 5h</span></div>
+                <div class="subject">atraso URGENTE no pagamento</div>
+                <div class="preview">"Estamos sem o pagamento da NF 0531 há 5 dias além do combinado. Precisamos..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-reclamacao">⚠️ Reclamação</span><span class="badge-mailia badge-doctype">negociacao</span><span class="badge-mailia badge-conf high">91%</span></div>
+                <div class="meta-row"><span class="badge-mailia badge-process">REQ-2026-0142</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ✉️ Info esperada -->
+          <div class="kanban-col info">
+            <div class="kanban-col-header"><div class="title">✉️ Info esperada</div><span class="count">4</span></div>
+            <div class="p-2.5 overflow-y-auto" style="max-height: 720px; display: flex; flex-direction: column; gap: 8px;">
+              <div class="email-card info" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#CA8A04">JS</div><span class="sender">João Silva</span></div><span class="time">11:48<br>há 1h</span></div>
+                <div class="subject">Confirmação data de entrega</div>
+                <div class="preview">"Confirmo entrega para 30/06/2026, conforme combinado. Sem impedimentos..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-informacao">✉️ Info esperada</span><span class="badge-mailia badge-doctype">negociacao</span><span class="badge-mailia badge-conf high">94%</span></div>
+                <div class="meta-row"><span class="badge-mailia badge-process">PO-2026-0091</span></div>
+              </div>
+              <div class="email-card info" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#CA8A04">FC</div><span class="sender">Fornecedor C</span></div><span class="time">10:15<br>há 3h</span></div>
+                <div class="subject">Documentos fiscais solicitados</div>
+                <div class="preview">"Conforme pedido, anexamos as certidões negativas e o contrato social atualizado..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-informacao">✉️ Info esperada</span><span class="badge-mailia badge-doctype">suporte_fornecedor</span><span class="badge-mailia badge-conf mid">82%</span></div>
+              </div>
+              <div class="email-card info" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#CA8A04">DC</div><span class="sender">DOCSIA</span></div><span class="time">ontem<br>14:20</span></div>
+                <div class="subject">Extração NFe 8821 concluída</div>
+                <div class="preview">"Dados extraídos: CNPJ, valor, competência, fornecedor. Validação: 5/6 passou..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-informacao">✉️ Info esperada</span><span class="badge-mailia badge-doctype">demonstrativo</span><span class="badge-mailia badge-conf high">97%</span></div>
+              </div>
+              <div class="text-center text-[10px] text-dms-tecnologia italic py-2">+ 1 email</div>
+            </div>
+          </div>
+
+          <!-- 💬 Continuação thread -->
+          <div class="kanban-col thread">
+            <div class="kanban-col-header"><div class="title">💬 Continuação</div><span class="count">6</span></div>
+            <div class="p-2.5 overflow-y-auto" style="max-height: 720px; display: flex; flex-direction: column; gap: 8px;">
+              <div class="email-card thread" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#16A34A">CR</div><span class="sender">Carlos Reis</span></div><span class="time">14:02<br>há 2h</span></div>
+                <div class="subject">RE: Cotação cláusula avulsa</div>
+                <div class="preview">"Bom dia, segue proposta atualizada com 5% de desconto. Aguardo seu retorno..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-thread">💬 Continuação</span><span class="badge-mailia badge-doctype">negociacao</span><span class="badge-mailia badge-conf high">90%</span></div>
+                <div class="meta-row"><span class="badge-mailia badge-process">RFQ-0044</span></div>
+              </div>
+              <div class="email-card thread" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#16A34A">MK</div><span class="sender">Marketing CO</span></div><span class="time">09:30<br>há 7h</span></div>
+                <div class="subject">RE: Renovação contrato</div>
+                <div class="preview">"Maria, agradeço o retorno. Vamos avaliar os termos e te enviamos posição até..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-thread">💬 Continuação</span><span class="badge-mailia badge-doctype">contrato</span><span class="badge-mailia badge-conf high">92%</span></div>
+                <div class="meta-row"><span class="badge-mailia badge-process">CONT-022</span></div>
+              </div>
+              <div class="email-card thread" onclick="openEmail()">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#16A34A">TS</div><span class="sender">TI Solutions</span></div><span class="time">ontem<br>17:50</span></div>
+                <div class="subject">RE: Esclarecimentos contrato TI</div>
+                <div class="preview">"Recebemos suas perguntas. Vamos preparar as respostas técnicas e enviamos..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-thread">💬 Continuação</span><span class="badge-mailia badge-doctype">suporte_fornecedor</span><span class="badge-mailia badge-conf mid">85%</span></div>
+                <div class="meta-row"><span class="badge-mailia badge-process">PO-2026-0091</span></div>
+              </div>
+              <div class="text-center text-[10px] text-dms-tecnologia italic py-2">+ 3 emails</div>
+            </div>
+          </div>
+
+          <!-- 🔕 Não operacional -->
+          <div class="kanban-col naoop">
+            <div class="kanban-col-header"><div class="title">🔕 Não operacional</div><span class="count">2</span></div>
+            <div class="p-2.5 overflow-y-auto" style="max-height: 720px; display: flex; flex-direction: column; gap: 8px;">
+              <div class="text-[10px] text-dms-tecnologia bg-[#F8F9FA] border border-[#E5E7EB] rounded px-2 py-1.5 leading-snug">Clique num card para <strong class="text-dms-mar">decidir o destino</strong> (Update · Caixa · Arquivo · Denylist)</div>
+              <div class="email-card naoop" onclick="openDecision('SAP Brasil')">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#9CA3AF">SB</div><span class="sender">SAP Brasil</span></div><span class="time">08:15<br>ontem</span></div>
+                <div class="subject">Newsletter trimestral · SAP Now 2026</div>
+                <div class="preview">"Olá, confira esta edição da nossa newsletter com as novidades em ERP, eventos..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-naoop">🔕 Não operacional</span><span class="badge-mailia badge-doctype">newsletter</span><span class="badge-mailia badge-conf high">99%</span></div>
+              </div>
+              <div class="email-card naoop" onclick="openDecision('Eventos Tech')">
+                <div class="head"><div class="sender-row"><div class="avatar" style="background:#9CA3AF">ET</div><span class="sender">Eventos Tech</span></div><span class="time">07:02<br>ontem</span></div>
+                <div class="subject">Convite: webinar gestão de fornecedores</div>
+                <div class="preview">"Você está convidado para nosso webinar gratuito. Inscreva-se já e garanta sua vaga..."</div>
+                <div class="meta-row"><span class="badge-mailia badge-naoop">🔕 Não operacional</span><span class="badge-mailia badge-doctype">outros</span><span class="badge-mailia badge-conf mid">87%</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===================== DRAWER: ABRIR EMAIL ===================== -->
+<div id="email-drawer" class="fixed inset-0 z-50 hidden">
+  <div class="drawer-overlay absolute inset-0" onclick="closeEmail()"></div>
+  <div class="drawer-panel absolute right-0 top-0 h-full w-[640px] max-w-[95vw] bg-white shadow-2xl flex flex-col">
+    <div class="border-b border-[#E5E7EB] px-5 py-4 bg-[#FAFBFC] flex items-center justify-between">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="badge-mailia badge-documento">📄 Documento</span>
+        <span class="badge-mailia badge-doctype">nfe_servico · NFS-e</span>
+        <span class="badge-mailia badge-conf high">IA 96%</span>
+      </div>
+      <button onclick="closeEmail()" class="p-1 text-dms-tecnologia hover:text-dms-mar hover:bg-white rounded transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="flex-1 overflow-y-auto">
+      <div class="px-5 py-4 border-b border-[#E5E7EB]">
+        <h2 class="text-base font-bold text-dms-mar mb-2">NF de armazenagem · maio/2026</h2>
+        <div class="flex items-center gap-2 mb-1">
+          <div style="background:#005290;width:36px;height:36px;font-size:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700">JA</div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-semibold text-dms-mar">JARE ADERNO <span class="text-xs text-dms-tecnologia font-normal">&lt;financeiro@jareaderno.com.br&gt;</span></div>
+            <div class="text-xs text-dms-tecnologia">para <strong class="text-dms-mar">dmsinvoice@dmslog.com</strong> · 09:45 · há 2h</div>
+          </div>
+        </div>
+      </div>
+      <div style="background: rgba(0,174,238,0.04); border: 2px solid rgba(0,174,238,0.30); border-radius: 6px; margin: 16px 20px; overflow: hidden;">
+        <div class="px-4 py-3 border-b border-[#BAE6FD] bg-white/50 flex items-center gap-2">
+          <svg class="w-3.5 h-3.5 text-dms-confianca" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/></svg>
+          <h3 class="caption text-dms-confianca font-bold">MAILIA — Ação Sugerida</h3>
+        </div>
+        <div class="p-4 space-y-3">
+          <p class="text-xs text-dms-mar">Documento fiscal detectado (<strong>NFS-e</strong>). Pronto para extração DOCSIA e abertura do workflow <strong>NF → 3-way match</strong>.</p>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button class="flex-1 text-xs font-semibold text-white px-2 py-1.5 bg-dms-mar rounded hover:bg-dms-confianca transition-colors">✓ Processar NF</button>
+            <button class="flex-1 text-xs font-semibold text-dms-confianca px-2 py-1.5 bg-white border border-dms-confianca rounded hover:bg-dms-confianca hover:text-white transition-colors">Resposta IA</button>
+          </div>
+        </div>
+      </div>
+      <div class="px-5 py-4">
+        <div class="text-sm text-dms-mar leading-relaxed space-y-3">
+          <p>Prezados,</p>
+          <p>Segue em anexo a <strong>NF referente aos serviços de armazenagem</strong> prestados em maio/2026, no valor de R$ 8.420,00.</p>
+          <p>Qualquer dúvida estamos à disposição.</p>
+          <p class="text-dms-tecnologia">Atenciosamente,<br><strong class="text-dms-mar">Setor Financeiro</strong><br>JARE ADERNO</p>
+        </div>
+      </div>
+    </div>
+    <div class="border-t-2 border-dms-ceu/30 p-4 bg-white flex-shrink-0">
+      <textarea rows="3" placeholder="Digite sua resposta..." class="input-dms w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded bg-[#F8F9FA] resize-none"></textarea>
+      <div class="flex items-center justify-end gap-2 mt-2">
+        <button onclick="closeEmail()" class="text-xs font-semibold text-dms-tecnologia px-3 py-1.5 hover:text-dms-mar transition-colors">Descartar</button>
+        <button class="flex items-center gap-1.5 text-xs font-semibold text-white px-4 py-1.5 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>Enviar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CARD FIELD PICKER (painel lateral) ===================== -->
+<div id="field-picker" class="fixed inset-0 z-50 hidden">
+  <div class="drawer-overlay absolute inset-0" onclick="closePicker()"></div>
+  <div class="drawer-panel absolute right-0 top-0 h-full w-[420px] max-w-[95vw] bg-white shadow-2xl flex flex-col">
+    <div class="border-b border-[#E5E7EB] px-5 py-4 bg-[#FAFBFC] flex items-center justify-between">
+      <div>
+        <h3 class="text-sm font-bold text-dms-mar flex items-center gap-2">⚙ Campos do card</h3>
+        <p class="text-[11px] text-dms-tecnologia mt-0.5">Vale pra <strong class="text-dms-mar">qualquer card do sistema</strong></p>
+      </div>
+      <button onclick="closePicker()" class="p-1 text-dms-tecnologia hover:text-dms-mar hover:bg-white rounded transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+      <div>
+        <div class="caption text-dms-mar font-bold mb-2">Campos padrão <span class="text-dms-tecnologia font-normal normal-case">· arraste para reordenar</span></div>
+        <div class="space-y-1.5">
+          <div class="picker-row"><span class="drag">⠿</span><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Remetente</span></div>
+          <div class="picker-row"><span class="drag">⠿</span><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Hora (absoluta + relativa)</span></div>
+          <div class="picker-row"><span class="drag">⠿</span><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Assunto</span></div>
+          <div class="picker-row"><span class="drag">⠿</span><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Preview (~150 chars)</span></div>
+          <div class="picker-row"><span class="drag">⠿</span><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Classificação (triagem)</span></div>
+          <div class="picker-row"><span class="drag">⠿</span><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Doctype / sub-categoria</span></div>
+          <div class="picker-row"><span class="drag">⠿</span><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Confiança IA</span></div>
+          <div class="picker-row"><span class="drag">⠿</span><input type="checkbox" checked class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Processo atrelado</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="caption text-dms-mar font-bold mb-2">Disponíveis <span class="text-dms-tecnologia font-normal normal-case">· tag scheme</span></div>
+        <div class="space-y-1.5">
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Valor (R$)</span></div>
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Número NF</span></div>
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">CNPJ</span></div>
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Vencimento</span></div>
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Anexos</span></div>
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Empresa / Legal Entity</span></div>
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Centro de custo</span></div>
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Prioridade</span></div>
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Status leitura</span></div>
+          <div class="picker-row optional"><span class="drag">⠿</span><input type="checkbox" class="w-3.5 h-3.5 text-dms-mar rounded"><span class="flex-1">Stage do workflow</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="border-t border-[#E5E7EB] p-4 flex items-center justify-between gap-2 bg-[#FAFBFC]">
+      <button onclick="alert('Padrão restaurado')" class="text-xs font-semibold text-dms-tecnologia px-3 py-1.5 hover:text-dms-mar transition-colors">↺ Restaurar padrão</button>
+      <button onclick="closePicker()" class="flex items-center gap-1.5 text-xs font-semibold text-white px-4 py-1.5 bg-dms-mar rounded-md hover:bg-dms-confianca transition-colors">Salvar preferência</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MODAL: NÃO OPERACIONAL — DECISÃO ===================== -->
+<div id="decision-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div class="drawer-overlay absolute inset-0" onclick="closeDecision()"></div>
+  <div class="modal-pop relative bg-white rounded-xl shadow-2xl w-full max-w-[480px] overflow-hidden">
+    <div class="px-5 py-4 border-b border-[#E5E7EB] bg-[#FAFBFC] flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="badge-mailia badge-naoop">🔕 Não operacional</span>
+        <h3 class="text-sm font-bold text-dms-mar" id="decision-sender">SAP Brasil</h3>
+      </div>
+      <button onclick="closeDecision()" class="p-1 text-dms-tecnologia hover:text-dms-mar rounded transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="p-5">
+      <p class="text-xs text-dms-tecnologia mb-4">A MAILIA classificou este e-mail como <strong class="text-dms-mar">não operacional</strong>. Escolha o destino:</p>
+      <div class="space-y-2.5">
+        <button class="deci-opt" onclick="decide('Jogado para Update')">
+          <span class="deci-key">A</span>
+          <span><span class="block text-sm font-semibold text-dms-mar">Jogar pra Update</span><span class="block text-[11px] text-dms-tecnologia mt-0.5">Vira card informativo na aba Update do cockpit.</span></span>
+        </button>
+        <button class="deci-opt" onclick="decide('Mantido na Caixa com marcação')">
+          <span class="deci-key">B</span>
+          <span><span class="block text-sm font-semibold text-dms-mar">Deixar na Caixa com marcação</span><span class="block text-[11px] text-dms-tecnologia mt-0.5">Permanece visível, marcado como "não operacional".</span></span>
+        </button>
+        <button class="deci-opt" onclick="decide('Movido para pasta arquivo')">
+          <span class="deci-key">C</span>
+          <span><span class="block text-sm font-semibold text-dms-mar">Mover pra pasta arquivo</span><span class="block text-[11px] text-dms-tecnologia mt-0.5">Sai da caixa, fica acessível em "Arquivados".</span></span>
+        </button>
+        <button class="deci-opt danger" onclick="decide('Domínio adicionado à denylist')">
+          <span class="deci-key">D</span>
+          <span><span class="block text-sm font-semibold text-red-700">Adicionar à denylist</span><span class="block text-[11px] text-dms-tecnologia mt-0.5">Bloqueia o domínio — e-mails futuros não entram na caixa.</span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== DRAWER: ARQUIVADOS ===================== -->
+<div id="archive-drawer" class="fixed inset-0 z-50 hidden">
+  <div class="drawer-overlay absolute inset-0" onclick="closeArchive()"></div>
+  <div class="drawer-panel absolute right-0 top-0 h-full w-[560px] max-w-[95vw] bg-white shadow-2xl flex flex-col">
+    <div class="border-b border-[#E5E7EB] px-5 py-4 bg-[#FAFBFC] flex items-center justify-between">
+      <div>
+        <h3 class="text-sm font-bold text-dms-mar flex items-center gap-2">🗄️ Arquivados</h3>
+        <p class="text-[11px] text-dms-tecnologia mt-0.5">E-mails finalizados · Updates · bloqueios denylist</p>
+      </div>
+      <button onclick="closeArchive()" class="p-1 text-dms-tecnologia hover:text-dms-mar hover:bg-white rounded transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="px-5 py-3 border-b border-[#E5E7EB] flex items-center gap-2 flex-wrap text-xs">
+      <button class="px-2.5 py-1 rounded-full bg-dms-mar text-white font-semibold">Todos</button>
+      <button class="px-2.5 py-1 rounded-full bg-[#F3F4F6] text-dms-mar font-semibold hover:bg-[#E5E7EB]">🔔 Updates</button>
+      <button class="px-2.5 py-1 rounded-full bg-[#F3F4F6] text-dms-mar font-semibold hover:bg-[#E5E7EB]">🚫 Denylist</button>
+      <button class="px-2.5 py-1 rounded-full bg-[#F3F4F6] text-dms-mar font-semibold hover:bg-[#E5E7EB]">✓ Finalizados</button>
+    </div>
+    <div class="flex-1 overflow-y-auto p-4 space-y-2">
+      <div class="email-card naoop"><div class="head"><div class="sender-row"><div class="avatar" style="background:#9CA3AF">OM</div><span class="sender">Omie Sistema</span></div><span class="time">ontem<br>22:10</span></div><div class="subject">Conciliação automática Webhook OK</div><div class="meta-row"><span class="badge-mailia badge-naoop">🔔 Movido p/ Update</span><span class="badge-mailia badge-process">PO-2026-0085</span></div></div>
+      <div class="email-card info"><div class="head"><div class="sender-row"><div class="avatar" style="background:#CA8A04">BK</div><span class="sender">noreply@bank.com</span></div><span class="time">2d<br>09:00</span></div><div class="subject">Notificação de pagamento PO-0085</div><div class="meta-row"><span class="badge-mailia badge-informacao">✓ Finalizado</span><span class="badge-mailia badge-process">PO-2026-0085</span></div></div>
+      <div class="email-card naoop"><div class="head"><div class="sender-row"><div class="avatar" style="background:#9CA3AF">SP</div><span class="sender">spam@promo-xyz.net</span></div><span class="time">3d</span></div><div class="subject">Oferta imperdível — descontos!</div><div class="meta-row"><span class="badge-mailia badge-reclamacao">🚫 Denylist · domínio bloqueado</span></div></div>
+      <div class="email-card thread"><div class="head"><div class="sender-row"><div class="avatar" style="background:#16A34A">FC</div><span class="sender">Fornecedor C</span></div><span class="time">4d</span></div><div class="subject">RE: Pedido de esclarecimento</div><div class="meta-row"><span class="badge-mailia badge-informacao">✓ Finalizado</span><span class="badge-mailia badge-process">CONT-017</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TOAST ===================== -->
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] hidden">
+  <div class="bg-dms-mar text-white text-sm font-semibold px-4 py-2.5 rounded-lg shadow-2xl flex items-center gap-2">
+    <svg class="w-4 h-4 text-dms-tropicalidade" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+    <span id="toast-msg">Feito</span>
+  </div>
+</div>
+
+<script>
+function openEmail()   { show('email-drawer'); }
+function closeEmail()  { hide('email-drawer'); }
+function openPicker()  { show('field-picker'); }
+function closePicker() { hide('field-picker'); }
+function openArchive() { show('archive-drawer'); }
+function closeArchive(){ hide('archive-drawer'); }
+function openDecision(sender){ document.getElementById('decision-sender').textContent = sender; show('decision-modal'); }
+function closeDecision(){ hide('decision-modal'); }
+function decide(msg){ closeDecision(); toast(msg); }
+function show(id){ document.getElementById(id).classList.remove('hidden'); document.body.style.overflow='hidden'; }
+function hide(id){ document.getElementById(id).classList.add('hidden'); document.body.style.overflow=''; }
+function toast(msg){
+  var t = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg;
+  t.classList.remove('hidden');
+  setTimeout(function(){ t.classList.add('hidden'); }, 2200);
+}
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') { ['email-drawer','field-picker','archive-drawer','decision-modal'].forEach(hide); document.body.style.overflow=''; }
+});
+</script>
+
+<!-- ===== DMS CONSOLIDATED SIDEBAR (M5b) ===== -->
+<style id="dms-cs-style">
+  aside.w-\[260px\].bg-dms-mar { display: none !important; }
+  .flex-1.ml-\[260px\] { margin-left: var(--dms-sb-w, 240px) !important; transition: margin-left 0.2s ease; }
+  #dms-sidebar { transition: width 0.2s ease; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #dms-sidebar nav { scrollbar-width: thin; }
+  #dms-sidebar nav::-webkit-scrollbar { width: 4px; }
+  #dms-sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+  #dms-sidebar a { white-space: nowrap; text-decoration: none; color: #fff; }
+  #dms-sidebar a:hover { background: rgba(255,255,255,.08); }
+  #dms-sidebar a.sb-active { background: rgba(0,174,238,0.18) !important; border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+  #dms-sidebar.collapsed .sb-label,
+  #dms-sidebar.collapsed .sb-section-title,
+  #dms-sidebar.collapsed .sb-brand-text { display: none; }
+  #dms-sidebar.collapsed .sb-brand-icon { display: none; }
+  #dms-sidebar.collapsed > .sb-header { justify-content: center; padding: 14px 0; gap: 0; }
+  #dms-sidebar.collapsed .sb-toggle { margin-left: 0 !important; width: 36px; height: 36px; }
+  #dms-sidebar.collapsed nav a { justify-content: center; padding-left: 0 !important; padding-right: 0 !important; }
+  #dms-sidebar.collapsed a.sb-active { border-left: 0; padding-left: 0 !important; }
+  #dms-sidebar .sb-toggle { transition: transform .2s; }
+  #dms-sidebar.collapsed .sb-toggle { transform: rotate(180deg); }
+  #dms-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 35; }
+  #dms-sidebar-overlay.show { display: block; }
+  @media (max-width: 767px) {
+    #dms-sidebar { width: 280px !important; transform: translateX(-100%); }
+    #dms-sidebar.mobile-open { transform: translateX(0); }
+    #dms-sidebar.collapsed .sb-label,
+    #dms-sidebar.collapsed .sb-section-title,
+    #dms-sidebar.collapsed .sb-brand-text,
+    #dms-sidebar.collapsed .sb-brand-icon { display: initial !important; }
+    #dms-sidebar.collapsed > .sb-header { justify-content: flex-start !important; padding: 16px 14px !important; gap: 10px !important; }
+    #dms-sidebar.collapsed nav a { justify-content: flex-start !important; padding-left: 10px !important; padding-right: 10px !important; }
+    #dms-sidebar.collapsed a.sb-active { border-left: 3px solid #00AEEE; padding-left: 7px !important; }
+    .flex-1.ml-\[260px\] { margin-left: 0 !important; }
+    #dms-sidebar-mobile-btn { display: flex !important; }
+    #sidebar-toggle { display: none; }
+  }
+</style>
+
+<button id="dms-sidebar-mobile-btn" aria-label="Abrir menu" style="display:none; position:fixed; top:12px; left:12px; z-index:50; width:40px; height:40px; background:#0F1B4C; color:#fff; border-radius:6px; align-items:center; justify-content:center; border:0; cursor:pointer;">
+  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+</button>
+<div id="dms-sidebar-overlay"></div>
+
+<aside id="dms-sidebar" class="fixed left-0 top-0 h-screen bg-[#0F1B4C] text-white z-40" style="width:240px;">
+  <div class="sb-header" style="padding:16px 14px; border-bottom:1px solid rgba(255,255,255,.1); display:flex; align-items:center; gap:10px;">
+    <div class="sb-brand-icon" style="width:32px; height:32px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#0F1B4C; font-weight:800; flex-shrink:0;">D</div>
+    <span class="sb-brand-text sb-label" style="font-weight:700; font-size:14px;">DMS</span>
+    <button id="sidebar-toggle" class="sb-toggle" aria-label="Colapsar menu" style="margin-left:auto; background:rgba(255,255,255,.12); border:0; color:#fff; width:28px; height:28px; border-radius:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+  </div>
+  <nav style="overflow-y:auto; height: calc(100vh - 65px); padding-bottom:24px;">
+    <div style="padding:14px 14px 6px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Workspace</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela16-cockpit-overview.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🏠</span><span class="sb-label">Cockpit</span></a></li>
+        <li><a href="tela17-cockpit-email.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📧</span><span class="sb-label">Email</span></a></li>
+        <li><a href="tela17b-cockpit-email-v2.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">Email v2 (triagem)</span></a></li>
+        <li><a href="tela18-cockpit-todo.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✅</span><span class="sb-label">Tarefas</span></a></li>
+        <li><a href="tela19-cockpit-followup.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📞</span><span class="sb-label">Follow-up</span></a></li>
+        <li><a href="tela20-cockpit-update.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🔔</span><span class="sb-label">Updates</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 6px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Compras</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela21-requisicoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📋</span><span class="sb-label">Requisições</span></a></li>
+        <li><a href="tela24-cotacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">💰</span><span class="sb-label">Cotações</span></a></li>
+        <li><a href="tela27-pedidos-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📦</span><span class="sb-label">Pedidos</span></a></li>
+        <li><a href="tela38-notas-fiscais-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">🧾</span><span class="sb-label">Notas Fiscais</span></a></li>
+        <li><a href="tela40-aprovacoes-list.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">✔️</span><span class="sb-label">Aprovações</span></a></li>
+      </ul>
+    </div>
+    <div style="padding:10px 14px 14px; border-top:1px solid rgba(255,255,255,.08); margin-top:8px;"><p class="sb-section-title" style="font-size:10px; text-transform:uppercase; color:rgba(255,255,255,.4); letter-spacing:.08em; margin:0 0 6px;">Engine &amp; Admin</p>
+      <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px;">
+        <li><a href="tela15-mailia-admin.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">📨</span><span class="sb-label">MAILIA Admin</span></a></li>
+        <li><a href="tela14-setup-integracoes.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">⚙️</span><span class="sb-label">Setup</span></a></li>
+        <li><a href="tela50-profile.html" style="display:flex; align-items:center; gap:12px; padding:7px 10px; border-radius:6px; font-size:13px;"><span style="width:18px; text-align:center;">👤</span><span class="sb-label">Meu Perfil</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+<script>
+(function(){
+  var sb = document.getElementById('dms-sidebar');
+  var toggle = document.getElementById('sidebar-toggle');
+  var mobBtn = document.getElementById('dms-sidebar-mobile-btn');
+  var overlay = document.getElementById('dms-sidebar-overlay');
+  if (!sb || !toggle) return;
+  var STORAGE_KEY = 'mockup-sidebar-collapsed-v2';
+  var collapsed = false;
+  try { collapsed = localStorage.getItem(STORAGE_KEY) === '1'; } catch(e) {}
+  function isMobile(){ return window.matchMedia('(max-width: 767px)').matches; }
+  function render(){
+    if (collapsed && !isMobile()) {
+      sb.classList.add('collapsed');
+      sb.style.width = '64px';
+      document.documentElement.style.setProperty('--dms-sb-w', '64px');
+    } else {
+      sb.classList.remove('collapsed');
+      sb.style.width = isMobile() ? '280px' : '240px';
+      document.documentElement.style.setProperty('--dms-sb-w', isMobile() ? '0px' : '240px');
+    }
+  }
+  toggle.addEventListener('click', function(){ collapsed = !collapsed; try { localStorage.setItem(STORAGE_KEY, collapsed ? '1' : '0'); } catch(e) {} render(); });
+  function closeMobile(){ sb.classList.remove('mobile-open'); if (overlay) overlay.classList.remove('show'); }
+  function openMobile(){ sb.classList.add('mobile-open'); if (overlay) overlay.classList.add('show'); }
+  if (mobBtn) mobBtn.addEventListener('click', function(){ if (sb.classList.contains('mobile-open')) closeMobile(); else openMobile(); });
+  if (overlay) overlay.addEventListener('click', closeMobile);
+  sb.querySelectorAll('nav a[href]').forEach(function(a){ a.addEventListener('click', function(){ if (isMobile()) closeMobile(); }); });
+  var current = (location.pathname.split('/').pop() || '').toLowerCase();
+  if (current) {
+    sb.querySelectorAll('nav a[href]').forEach(function(a){
+      var href = (a.getAttribute('href') || '').toLowerCase();
+      if (href && href === current) a.classList.add('sb-active');
+    });
+  }
+  window.addEventListener('resize', render);
+  render();
+})();
+</script>
+<script src="notes-widget.js" defer></script>
+<script src="i18n-toggle.js" defer></script>
+<script src="tag-filter.js" defer></script>
+</body>
+</html>
